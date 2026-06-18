@@ -3,6 +3,8 @@ import { createServerClient } from "@supabase/ssr";
 import { DEMO_ROLE_MAP, ROLE_ACCESS } from "@/lib/role-access";
 
 const PUBLIC_ROUTES = ["/", "/_next/", "/api/", "/favicon.ico", "/eHMS_logo.png", "/favicon.png"];
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_ROUTES.some((p) => pathname.startsWith(p));
@@ -10,11 +12,15 @@ function isPublic(pathname: string): boolean {
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
+  const pathname = request.nextUrl.pathname;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return supabaseResponse;
+  }
+
+  let user = null;
+  try {
+    const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       cookies: {
         getAll() { return request.cookies.getAll(); },
         setAll(cookiesToSet) {
@@ -25,11 +31,12 @@ export async function middleware(request: NextRequest) {
           );
         },
       },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  const pathname = request.nextUrl.pathname;
+    });
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    return supabaseResponse;
+  }
 
   if (!user && !isPublic(pathname)) {
     return NextResponse.redirect(new URL("/", request.url));
