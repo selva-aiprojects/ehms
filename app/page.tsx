@@ -1,10 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { Users, Key, Building2, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Users, Key, Building2, ArrowRight, Eye, EyeOff, UserCog, CreditCard, Briefcase } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+
+const DEMO_USERS = [
+  { label: "Super Admin", icon: UserCog, email: "admin@ehms.demo" },
+  { label: "Front Desk", icon: Key, email: "frontdesk@ehms.demo" },
+  { label: "Housekeeping", icon: Building2, email: "housekeeping@ehms.demo" },
+  { label: "Maintenance", icon: Building2, email: "maintenance@ehms.demo" },
+  { label: "Executive", icon: Users, email: "executive@ehms.demo" },
+  { label: "HR Manager", icon: Users, email: "hr@ehms.demo" },
+  { label: "Finance Manager", icon: CreditCard, email: "finance@ehms.demo" },
+];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,7 +46,6 @@ export default function LoginPage() {
     setError(null);
     const { error } = await supabase.auth.signInWithPassword({ email: demoEmail, password: "Demo@1234" });
     if (error) {
-      // Fallback: navigate without auth (for development)
       router.push("/dashboard");
     } else {
       router.push("/dashboard");
@@ -47,7 +56,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex" style={{ background: "#F5F7FA" }}>
-      {/* Left Panel — Branding */}
       <div
         className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 text-white relative overflow-hidden"
         style={{ background: "#2C3547" }}
@@ -73,7 +81,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Panel — Login */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex justify-center mb-8">
@@ -130,27 +137,21 @@ export default function LoginPage() {
               className="w-full py-2.5 rounded-lg text-white font-medium text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-60"
               style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" }}
             >
-              {loading ? "Signing in…" : <> Sign In <ArrowRight className="w-4 h-4" /></>}
+              {loading ? "Signing in\u2026" : <> Sign In <ArrowRight className="w-4 h-4" /></>}
             </button>
           </form>
 
-          {/* Demo Quick Login */}
           <div className="mt-8 pt-6" style={{ borderTop: "1px solid #E2E8F0" }}>
             <p className="text-xs font-medium mb-3 text-center" style={{ color: "#64748B" }}>DEMO QUICK LOGIN</p>
             <div className="grid grid-cols-2 gap-2">
-              {[
-                { label: "Super Admin", icon: Users, email: "admin@ehms.demo" },
-                { label: "Front Desk", icon: Key, email: "frontdesk@ehms.demo" },
-                { label: "Housekeeping", icon: Building2, email: "housekeeping@ehms.demo" },
-                { label: "Maintenance", icon: Building2, email: "maintenance@ehms.demo" },
-              ].map(({ label, icon: Icon, email: demoEmail }) => (
+              {DEMO_USERS.map(({ label, icon: Icon, email: demoEmail }) => (
                 <button
                   key={label} onClick={() => quickLogin(demoEmail)} disabled={loading}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all hover:opacity-80 disabled:opacity-50"
                   style={{ background: "#F5F7FA", color: "#1A3C5E" }}
                 >
-                  <Icon className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
-                  {label}
+                  <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: "#2BAE8E" }} />
+                  <span className="truncate">{label}</span>
                 </button>
               ))}
             </div>

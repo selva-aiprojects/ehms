@@ -82,3 +82,11 @@ export function useProperties(verticalType?: string) {
   const { data, error, isLoading, mutate } = useSWR(`/api/properties${params}`, fetcher);
   return { properties: data?.data, isLoading, isError: !!error, mutate };
 }
+
+export function useLeases(filters?: { status?: string; renewal_due?: boolean }) {
+  const params = new URLSearchParams();
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.renewal_due) params.set("renewal_due", "true");
+  const { data, error, isLoading, mutate } = useSWR(`/api/leases?${params}`, fetcher);
+  return { leases: data?.data, isLoading, isError: !!error, mutate };
+}

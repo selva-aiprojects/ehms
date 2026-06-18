@@ -6,54 +6,60 @@ import Image from "next/image";
 import {
   LayoutDashboard, CalendarCheck, Users, BarChart2, Settings,
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
-  UserCog, Home, Hotel, ChevronLeft,
+  UserCog, Home, Hotel, ChevronLeft, Shield,
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { hasAccess } from "@/lib/role-access";
 
-/* Primary nav — matching the reference screenshot */
-const primaryNav = [
-  { label: "Dashboard",    icon: LayoutDashboard, href: "/dashboard" },
-  { label: "Reservations", icon: CalendarCheck,   href: "/dashboard/front-desk" },
-  { label: "Guests",       icon: Users,           href: "/dashboard/hotels" },
-  { label: "Reports",      icon: BarChart2,        href: "/dashboard/finance" },
-  { label: "Settings",     icon: Settings,         href: "/dashboard/admin" },
+const ALL_NAV_ITEMS = [
+  { label: "Dashboard",    icon: LayoutDashboard, href: "/dashboard", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor","housekeeping_staff","maintenance_staff","maintenance_supervisor","hr_manager","hr_executive","finance_manager","finance_executive","security_staff","vendor_user","workplace_facility_manager"] },
+  { label: "Front Desk",   icon: CalendarCheck,   href: "/dashboard/front-desk", roles: ["super_admin","front_desk"] },
+  { label: "Hotels",       icon: Hotel,           href: "/dashboard/hotels", roles: ["super_admin","executive","property_manager"] },
+  { label: "Apartments",   icon: Building2,       href: "/dashboard/apartments", roles: ["super_admin","executive","property_manager"] },
+  { label: "Rental",       icon: Home,            href: "/dashboard/rental", roles: ["super_admin","executive","property_manager"] },
+  { label: "Workplace",    icon: Briefcase,       href: "/dashboard/workplace", roles: ["super_admin","executive","property_manager","workplace_facility_manager","security_staff"] },
+  { label: "Housekeeping", icon: Sparkles,        href: "/dashboard/housekeeping", roles: ["super_admin","housekeeping_supervisor","housekeeping_staff"] },
+  { label: "Maintenance",  icon: Wrench,          href: "/dashboard/maintenance", roles: ["super_admin","maintenance_staff","maintenance_supervisor"] },
+  { label: "Finance",      icon: CreditCard,      href: "/dashboard/finance", roles: ["super_admin","executive","finance_manager","finance_executive"] },
+  { label: "HRMS",         icon: Users,           href: "/dashboard/hr", roles: ["super_admin","hr_manager","hr_executive"] },
+  { label: "Admin",        icon: UserCog,         href: "/dashboard/admin", roles: ["super_admin","property_manager"] },
 ];
 
-/* Secondary / extended nav */
-const secondaryNav = [
-  { label: "Hotels & Resorts",    icon: Hotel,     href: "/dashboard/hotels" },
-  { label: "Service Apartments",  icon: Building2, href: "/dashboard/apartments" },
-  { label: "Rental & Tenancy",    icon: Home,      href: "/dashboard/rental" },
-  { label: "Workplace",           icon: Briefcase, href: "/dashboard/workplace" },
-  { label: "Housekeeping",        icon: Sparkles,  href: "/dashboard/housekeeping" },
-  { label: "Maintenance",         icon: Wrench,    href: "/dashboard/maintenance" },
-  { label: "Finance",             icon: CreditCard,href: "/dashboard/finance" },
-  { label: "HRMS",                icon: Users,     href: "/dashboard/hr" },
-  { label: "Admin",               icon: UserCog,   href: "/dashboard/admin" },
-];
+const PRIMARY_LABELS = ["Dashboard", "Front Desk", "Hotels", "Reports", "Settings"];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const { user } = useAuth();
+  const role = user?.role_name || "unknown";
+
+  const visibleItems = ALL_NAV_ITEMS.filter((item) =>
+    item.roles.includes(role) && hasAccess(role, item.href)
+  );
+
+  const primaryNav = visibleItems.filter((item) =>
+    PRIMARY_LABELS.includes(item.label)
+  );
+  const secondaryNav = visibleItems.filter(
+    (item) => !PRIMARY_LABELS.includes(item.label)
+  );
+
+  const navItems = showAll ? visibleItems : primaryNav;
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
 
-  const navItems = showAll
-    ? [...primaryNav, ...secondaryNav]
-    : primaryNav;
-
   return (
     <aside
-      className="relative flex flex-col transition-all duration-300 select-none"
+      className="relative flex flex-col transition-all duration-300 select-none hidden md:flex"
       style={{
         background: "#2C3547",
         width: collapsed ? 64 : 240,
         minWidth: collapsed ? 64 : 240,
       }}
     >
-      {/* ── Logo ── */}
       <div
         className="flex flex-col items-center justify-center py-6 px-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
@@ -69,7 +75,6 @@ export default function Sidebar() {
         />
       </div>
 
-      {/* ── Nav ── */}
       <nav className="flex-1 overflow-y-auto py-4 space-y-0.5">
         {navItems.map((item) => {
           const active = isActive(item.href);
@@ -96,40 +101,28 @@ export default function Sidebar() {
           );
         })}
 
-        {/* More / Less toggle */}
-        {!collapsed && (
+        {!collapsed && visibleItems.length > primaryNav.length && (
           <button
             onClick={() => setShowAll(!showAll)}
             className="flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-xs w-full text-left transition-all"
             style={{ color: "rgba(255,255,255,0.40)" }}
           >
-            <span>{showAll ? "← Less" : "More →"}</span>
+            <span>{showAll ? "← Less" : `More → (${secondaryNav.length})`}</span>
           </button>
         )}
       </nav>
 
-      {/* ── Property selector ── */}
-      {!collapsed && (
+      {user && !collapsed && (
         <div className="p-3 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-          <select
-            className="w-full text-xs rounded-lg px-2 py-1.5 border outline-none"
-            style={{
-              background: "rgba(255,255,255,0.08)",
-              color: "#fff",
-              borderColor: "rgba(255,255,255,0.12)",
-            }}
-            defaultValue="all"
-          >
-            <option value="all"   style={{ color: "#1A2E44" }}>All Properties</option>
-            <option value="hotel" style={{ color: "#1A2E44" }}>Oceanview Hotel</option>
-            <option value="svc"   style={{ color: "#1A2E44" }}>Cityscape Serviced Apts</option>
-            <option value="rent"  style={{ color: "#1A2E44" }}>Greenwood Residency</option>
-            <option value="work"  style={{ color: "#1A2E44" }}>Innovate Coworking</option>
-          </select>
+          <div className="flex items-center gap-2 px-2 py-1.5">
+            <Shield className="w-3 h-3" style={{ color: "#2BAE8E" }} />
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {user.email}
+            </span>
+          </div>
         </div>
       )}
 
-      {/* ── Collapse toggle ── */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="absolute -right-3 top-24 w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all hover:scale-110"

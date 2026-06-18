@@ -1,5 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { DEMO_ROLE_MAP, ROLE_ACCESS } from "@/lib/role-access";
+
+const PUBLIC_ROUTES = ["/", "/_next/", "/api/", "/favicon.ico", "/eHMS_logo.png", "/favicon.png"];
+
+function isPublic(pathname: string): boolean {
+  return PUBLIC_ROUTES.some((p) => pathname.startsWith(p));
+}
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -21,17 +28,29 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session
   const { data: { user } } = await supabase.auth.getUser();
+  const pathname = request.nextUrl.pathname;
 
-  // Protect dashboard routes
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+  if (!user && !isPublic(pathname)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // If logged in and hitting login page, redirect to dashboard
-  if (user && request.nextUrl.pathname === "/") {
+  if (user && pathname === "/") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  if (user && pathname.startsWith("/dashboard")) {
+    const email = user.email || "";
+    const roleName = DEMO_ROLE_MAP[email];
+    if (roleName) {
+      const allowed = ROLE_ACCESS[roleName] || [];
+      const hasAccess = allowed.some(
+        (p) => pathname === p || (pathname.startsWith(p + "/") && p !== "/dashboard")
+      );
+      if (!hasAccess && pathname !== "/dashboard") {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+    }
   }
 
   return supabaseResponse;

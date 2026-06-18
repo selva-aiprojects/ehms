@@ -8,6 +8,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "eHMS — Enterprise Hospitality Management System",
   description: "Multi-Vertical Hospitality & Space Management Suite",
+  icons: [{ rel: "icon", url: "/favicon.png" }],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
