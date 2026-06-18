@@ -5,6 +5,7 @@ import { Users, Key, Building2, ArrowRight, Eye, EyeOff, UserCog, CreditCard, Br
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { initDemoSession } from "@/lib/auth-context";
 
 const DEMO_USERS = [
   { label: "Super Admin", icon: UserCog, email: "admin@ehms.demo" },
@@ -31,26 +32,34 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (!error) {
+        router.push("/dashboard");
+        router.refresh();
+        setLoading(false);
+        return;
+      }
+    } catch {}
+    const demoUser = initDemoSession(email);
+    if (demoUser) {
       router.push("/dashboard");
       router.refresh();
+    } else {
+      setError("Invalid credentials. Try a demo account below.");
     }
+    setLoading(false);
   }
 
   async function quickLogin(demoEmail: string) {
     setLoading(true);
     setError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email: demoEmail, password: "Demo@1234" });
-    if (error) {
-      router.push("/dashboard");
-    } else {
-      router.push("/dashboard");
-      router.refresh();
-    }
+    initDemoSession(demoEmail);
+    try {
+      await supabase.auth.signInWithPassword({ email: demoEmail, password: "Demo@1234" });
+    } catch {}
+    router.push("/dashboard");
+    router.refresh();
     setLoading(false);
   }
 
