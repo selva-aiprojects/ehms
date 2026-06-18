@@ -8,8 +8,8 @@ import {
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
   UserCog, Home, Hotel, ChevronLeft, Shield,
 } from "lucide-react";
-import { useState } from "react";
-import { useAuth } from "@/lib/auth-context";
+import { useState, useEffect } from "react";
+import { useAuth, type UserProfile } from "@/lib/auth-context";
 import { hasAccess } from "@/lib/role-access";
 
 const ALL_NAV_ITEMS = [
@@ -28,11 +28,25 @@ const ALL_NAV_ITEMS = [
 
 const PRIMARY_LABELS = ["Dashboard", "Front Desk", "Hotels", "Reports", "Settings"];
 
+function getLocalDemoUser(): UserProfile | null {
+  try { const r = localStorage.getItem("ehms_demo_session"); return r ? JSON.parse(r) : null; } catch { return null; }
+}
+
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const { user } = useAuth();
+  const { user: authUser } = useAuth();
+  const [fallbackUser, setFallbackUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    if (!authUser) {
+      const demo = getLocalDemoUser();
+      if (demo) setFallbackUser(demo);
+    }
+  }, [authUser]);
+
+  const user = authUser || fallbackUser;
   const role = user?.role_name || "unknown";
 
   const visibleItems = ALL_NAV_ITEMS.filter((item) =>
