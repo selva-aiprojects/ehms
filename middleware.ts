@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
-  let user = null;
+  let user: import("@supabase/supabase-js").User | null = null;
   try {
     const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       cookies: {
