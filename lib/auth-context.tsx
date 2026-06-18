@@ -58,6 +58,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const fetchUser = useCallback(async () => {
+    const demo = getDemoSession();
+    if (demo) {
+      setState({ user: demo, loading: false, error: null });
+      return;
+    }
+
     try {
       const { data: { user: authUser } } = await supabase.auth.getUser();
 
@@ -95,17 +101,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const demo = getDemoSession();
-      if (demo) {
-        setState({ user: demo, loading: false, error: null });
-        return;
-      }
-
       setState({ user: null, loading: false, error: null });
     } catch {
-      const demo = getDemoSession();
-      if (demo) {
-        setState({ user: demo, loading: false, error: null });
+      const demoRetry = getDemoSession();
+      if (demoRetry) {
+        setState({ user: demoRetry, loading: false, error: null });
         return;
       }
       setState({ user: null, loading: false, error: "Failed to load profile" });
