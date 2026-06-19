@@ -6,8 +6,10 @@ export const ROLE_ACCESS: Record<string, string[]> = {
     "/dashboard/rental", "/dashboard/workplace",
   ],
   executive: [
-    "/dashboard", "/dashboard/finance", "/dashboard/hotels",
-    "/dashboard/apartments", "/dashboard/rental", "/dashboard/workplace",
+    "/dashboard", "/dashboard/admin", "/dashboard/front-desk",
+    "/dashboard/housekeeping", "/dashboard/maintenance", "/dashboard/finance",
+    "/dashboard/hr", "/dashboard/hotels", "/dashboard/apartments",
+    "/dashboard/rental", "/dashboard/workplace",
   ],
   property_manager: [
     "/dashboard", "/dashboard/hotels", "/dashboard/apartments",

@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       JOIN user_roles ur ON ur.user_id = u.id
       JOIN roles r ON r.id = ur.role_id
       WHERE u.email = ${email} AND u.is_active = true
+      ORDER BY r.name = 'super_admin' DESC
       LIMIT 1
     `;
 

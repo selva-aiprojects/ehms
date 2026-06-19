@@ -8,22 +8,22 @@ import {
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
   UserCog, Home, Hotel, ChevronLeft, Shield,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
 import { hasAccess } from "@/lib/role-access";
 
 const ALL_NAV_ITEMS = [
   { label: "Dashboard",    icon: LayoutDashboard, href: "/dashboard", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor","housekeeping_staff","maintenance_staff","maintenance_supervisor","hr_manager","hr_executive","finance_manager","finance_executive","security_staff","vendor_user","workplace_facility_manager"] },
-  { label: "Front Desk",   icon: CalendarCheck,   href: "/dashboard/front-desk", roles: ["super_admin","front_desk"] },
+  { label: "Front Desk",   icon: CalendarCheck,   href: "/dashboard/front-desk", roles: ["super_admin","executive","front_desk"] },
   { label: "Hotels",       icon: Hotel,           href: "/dashboard/hotels", roles: ["super_admin","executive","property_manager"] },
   { label: "Apartments",   icon: Building2,       href: "/dashboard/apartments", roles: ["super_admin","executive","property_manager"] },
   { label: "Rental",       icon: Home,            href: "/dashboard/rental", roles: ["super_admin","executive","property_manager"] },
   { label: "Workplace",    icon: Briefcase,       href: "/dashboard/workplace", roles: ["super_admin","executive","property_manager","workplace_facility_manager","security_staff"] },
-  { label: "Housekeeping", icon: Sparkles,        href: "/dashboard/housekeeping", roles: ["super_admin","housekeeping_supervisor","housekeeping_staff"] },
-  { label: "Maintenance",  icon: Wrench,          href: "/dashboard/maintenance", roles: ["super_admin","maintenance_staff","maintenance_supervisor"] },
+  { label: "Housekeeping", icon: Sparkles,        href: "/dashboard/housekeeping", roles: ["super_admin","executive","housekeeping_supervisor","housekeeping_staff"] },
+  { label: "Maintenance",  icon: Wrench,          href: "/dashboard/maintenance", roles: ["super_admin","executive","maintenance_staff","maintenance_supervisor"] },
   { label: "Finance",      icon: CreditCard,      href: "/dashboard/finance", roles: ["super_admin","executive","finance_manager","finance_executive"] },
-  { label: "HRMS",         icon: Users,           href: "/dashboard/hr", roles: ["super_admin","hr_manager","hr_executive"] },
-  { label: "Admin",        icon: UserCog,         href: "/dashboard/admin", roles: ["super_admin","property_manager"] },
+  { label: "HRMS",         icon: Users,           href: "/dashboard/hr", roles: ["super_admin","executive","hr_manager","hr_executive"] },
+  { label: "Admin",        icon: UserCog,         href: "/dashboard/admin", roles: ["super_admin","executive","property_manager"] },
 ];
 
 const PRIMARY_LABELS = ["Dashboard", "Front Desk", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"];
@@ -36,15 +36,11 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const { user: authUser } = useAuth();
-  const [fallbackUser, setFallbackUser] = useState<UserProfile | null>(null);
-
-  useEffect(() => {
-    if (!authUser) {
-      const demo = getLocalDemoUser();
-      if (demo) setFallbackUser(demo);
-    }
-  }, [authUser]);
+  const { user: authUser, loading } = useAuth();
+  const [fallbackUser] = useState<UserProfile | null>(() => {
+    if (typeof window === "undefined") return null;
+    return getLocalDemoUser();
+  });
 
   const user = authUser || fallbackUser;
   const role = user?.role_name || "unknown";
