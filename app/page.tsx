@@ -4,22 +4,20 @@ import Image from "next/image";
 import { Users, Key, Building2, ArrowRight, Eye, EyeOff, UserCog, CreditCard, Briefcase } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { initDemoSession } from "@/lib/auth-context";
 
 const DEMO_USERS = [
-  { label: "Super Admin", icon: UserCog, email: "admin@ehms.demo" },
-  { label: "Front Desk", icon: Key, email: "frontdesk@ehms.demo" },
+  { label: "Super Admin", icon: UserCog, email: "superadmin@ehms.demo" },
+  { label: "Executive",   icon: Users, email: "executive@ehms.demo" },
+  { label: "Property Mgr", icon: UserCog, email: "admin@ehms.demo" },
+  { label: "Front Desk",  icon: Key, email: "frontdesk@ehms.demo" },
   { label: "Housekeeping", icon: Building2, email: "housekeeping@ehms.demo" },
   { label: "Maintenance", icon: Building2, email: "maintenance@ehms.demo" },
-  { label: "Executive", icon: Users, email: "executive@ehms.demo" },
-  { label: "HR Manager", icon: Users, email: "hr@ehms.demo" },
-  { label: "Finance Manager", icon: CreditCard, email: "finance@ehms.demo" },
+  { label: "HR Manager",  icon: Users, email: "hr@ehms.demo" },
+  { label: "Finance Mgr", icon: CreditCard, email: "finance@ehms.demo" },
 ];
 
 export default function LoginPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,20 +31,21 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (!error) {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
         router.push("/dashboard");
         router.refresh();
         setLoading(false);
         return;
       }
-    } catch {}
-    const demoUser = initDemoSession(email);
-    if (demoUser) {
-      router.push("/dashboard");
-      router.refresh();
-    } else {
-      setError("Invalid credentials. Try a demo account below.");
+      setError(data.error || "Login failed");
+    } catch {
+      setError("Network error. Please try again.");
     }
     setLoading(false);
   }
@@ -54,12 +53,23 @@ export default function LoginPage() {
   async function quickLogin(demoEmail: string) {
     setLoading(true);
     setError(null);
-    initDemoSession(demoEmail);
     try {
-      await supabase.auth.signInWithPassword({ email: demoEmail, password: "Demo@1234" });
-    } catch {}
-    router.push("/dashboard");
-    router.refresh();
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: demoEmail, password: "Demo@1234" }),
+      });
+      if (res.ok) {
+        router.push("/dashboard");
+        router.refresh();
+        setLoading(false);
+        return;
+      }
+      const data = await res.json();
+      setError(data.error || "Login failed");
+    } catch {
+      setError("Network error. Please try again.");
+    }
     setLoading(false);
   }
 

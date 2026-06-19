@@ -6,6 +6,7 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import Table from "@/components/ui/table";
+import { useMemberships, useVisitors, useWorkplaceBookings } from "@/lib/hooks";
 
 const MOCK_MEMBERSHIPS = [
   { corporate: "Acme Corp", plan: "Hot Desk Pool", seats: 10, used: 8, status: "active", renews: "01 Jul 2026" },
@@ -48,6 +49,13 @@ export default function WorkplacePage() {
   const [selectedDesk, setSelectedDesk] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { memberships, isLoading: loadingMemberships, mutate: mutateMemberships } = useMemberships();
+  const { visitors, isLoading: loadingVisitors, mutate: mutateVisitors } = useVisitors();
+  const { bookings, isLoading: loadingBookings, mutate: mutateBookings } = useWorkplaceBookings();
+
+  const displayMemberships = (memberships && (memberships as any[]).length > 0) ? (memberships as any[]) : MOCK_MEMBERSHIPS;
+  const displayVisitors = (visitors && (visitors as any[]).length > 0) ? (visitors as any[]) : VISITOR_DATA;
+
   useEffect(() => {
     if (actionFeedback) {
       const t = setTimeout(() => setActionFeedback(null), 3000);
@@ -55,9 +63,9 @@ export default function WorkplacePage() {
     }
   }, [actionFeedback]);
 
-  const activeMemberships = MOCK_MEMBERSHIPS.filter((m) => m.status === "active");
-  const totalSeats = MOCK_MEMBERSHIPS.reduce((s, m) => s + m.seats, 0);
-  const usedSeats = MOCK_MEMBERSHIPS.reduce((s, m) => s + m.used, 0);
+  const activeMemberships = displayMemberships.filter((m: any) => m.status === "active");
+  const totalSeats = displayMemberships.reduce((s: number, m: any) => s + (m.seat_allocated || m.seats || 0), 0);
+  const usedSeats = displayMemberships.reduce((s: number, m: any) => s + (m.seat_used || m.used || 0), 0);
   const utilizationPct = totalSeats > 0 ? Math.round((usedSeats / totalSeats) * 100) : 0;
   const availableDesks = FLOOR_PLAN_DESKS.filter((d) => d.status === "available").length;
   const meetingRoomsFree = FLOOR_PLAN_DESKS.filter((d) => d.id.startsWith("MR") && d.status === "available").length;
@@ -74,7 +82,7 @@ export default function WorkplacePage() {
           <Button variant="secondary" size="sm" onClick={() => setActionFeedback({ type: "success", message: "New membership form opened" })}>
             <Briefcase className="w-3.5 h-3.5" /> New Membership
           </Button>
-          <button onClick={() => { setIsLoading(true); setTimeout(() => setIsLoading(false), 1000); }} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => { mutateMemberships(); mutateVisitors(); mutateBookings(); setIsLoading(true); setTimeout(() => setIsLoading(false), 1000); }} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -160,21 +168,23 @@ export default function WorkplacePage() {
         <Card>
           <CardHeader title="Visitor Management" subtitle="Today" />
           <div className="space-y-3">
-            {VISITOR_DATA.length === 0 ? (
+            {loadingVisitors ? (
+              <div className="text-center py-8"><Loader2 className="w-6 h-6 mx-auto mb-2 animate-spin" style={{ color: "#64748B" }} /><p className="text-sm" style={{ color: "#64748B" }}>Loading visitors...</p></div>
+            ) : displayVisitors.length === 0 ? (
               <div className="text-center py-8">
                 <Users className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
                 <p className="text-sm" style={{ color: "#64748B" }}>No visitors today</p>
               </div>
             ) : (
-              VISITOR_DATA.map((v, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg mb-2" style={{ background: "#F5F7FA" }}>
+              displayVisitors.map((v: any, i: number) => (
+                <div key={v.id || i} className="flex items-center justify-between p-3 rounded-lg mb-2" style={{ background: "#F5F7FA" }}>
                   <div>
-                    <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{v.name}</div>
+                    <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{v.visitor_name || v.name}</div>
                     <div className="text-xs" style={{ color: "#64748B" }}>
-                      <span className="flex items-center gap-1"><UserCheck className="w-3 h-3" /> {v.host} · {v.time}</span>
+                      <span className="flex items-center gap-1"><UserCheck className="w-3 h-3" /> {v.host?.first_name ? `${v.host.first_name} ${v.host.last_name || ""}` : v.host || "—"} · {v.check_in ? new Date(v.check_in).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : v.time}</span>
                     </div>
                   </div>
-                  <Badge variant={v.status === "checked_in" ? "teal" : "amber"}>{v.status.replace("_", " ")}</Badge>
+                  <Badge variant={v.check_out ? "teal" : "amber"}>{v.check_out ? "checked in" : "pre registered"}</Badge>
                 </div>
               ))
             )}
@@ -187,25 +197,33 @@ export default function WorkplacePage() {
 
       <Card>
         <CardHeader title="Corporate Memberships" subtitle={`${activeMemberships.length} active · seat pooling & license billing`} />
+        {loadingMemberships ? (
+          <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: "#F5F7FA" }} />)}</div>
+        ) : (
         <Table
-          data={MOCK_MEMBERSHIPS}
-          keyExtractor={(_, i) => String(i)}
+          data={displayMemberships}
+          keyExtractor={(m: any) => m.id || Math.random()}
           columns={[
-            { key: "corporate", header: "Corporate", render: (m) => <span className="font-medium text-sm">{m.corporate}</span> },
-            { key: "plan", header: "Plan", render: (m) => <Badge variant="gray">{m.plan}</Badge> },
-            { key: "seats", header: "Allocated", render: (m) => <span className="font-medium">{m.seats}</span> },
-            { key: "used", header: "Used", render: (m) => (
+            { key: "corporate", header: "Corporate", render: (m: any) => <span className="font-medium text-sm">{m.corporate?.name || m.corporate || "—"}</span> },
+            { key: "plan", header: "Plan", render: (m: any) => <Badge variant="gray">{m.plan?.name || m.plan || "—"}</Badge> },
+            { key: "seats", header: "Allocated", render: (m: any) => <span className="font-medium">{m.seat_allocated || m.seats || 0}</span> },
+            { key: "used", header: "Used", render: (m: any) => {
+              const allocated = m.seat_allocated || m.seats || 0;
+              const used = m.seat_used || m.used || 0;
+              const pct = allocated > 0 ? (used / allocated) * 100 : 0;
+              return (
               <div className="flex items-center gap-1.5">
                 <div className="w-16 h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                  <div className="h-full rounded-full" style={{ width: `${m.seats > 0 ? (m.used / m.seats) * 100 : 0}%`, background: m.used === m.seats ? "#2BAE8E" : "#F5A623" }} />
+                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: used === allocated ? "#2BAE8E" : "#F5A623" }} />
                 </div>
-                <span className="text-xs" style={{ color: "#64748B" }}>{m.used}/{m.seats}</span>
+                <span className="text-xs" style={{ color: "#64748B" }}>{used}/{allocated}</span>
               </div>
-            )},
-            { key: "status", header: "Status", render: (m) => <Badge variant={m.status === "active" ? "teal" : "amber"}>{m.status}</Badge> },
-            { key: "renews", header: "Renews", render: (m) => <span className="text-xs" style={{ color: "#64748B" }}>{m.renews}</span> },
+            )}},
+            { key: "status", header: "Status", render: (m: any) => <Badge variant={m.status === "active" ? "teal" : "amber"}>{m.status}</Badge> },
+            { key: "end_date", header: "Renews", render: (m: any) => <span className="text-xs" style={{ color: "#64748B" }}>{m.end_date ? new Date(m.end_date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : m.renews || "—"}</span> },
           ]}
         />
+        )}
       </Card>
 
       <Card>
@@ -219,33 +237,42 @@ export default function WorkplacePage() {
       </Card>
 
       <Card>
-        <CardHeader title="Meeting Room Bookings" subtitle="Today's schedule · 3 rooms available" />
+        <CardHeader title="Meeting Room Bookings" subtitle="Today's schedule" />
         <div className="space-y-3">
-          {[
+          {loadingBookings ? (
+            <div className="text-center py-8"><Loader2 className="w-6 h-6 mx-auto mb-2 animate-spin" style={{ color: "#64748B" }} /><p className="text-sm" style={{ color: "#64748B" }}>Loading...</p></div>
+          ) : (bookings && (bookings as any[]).length > 0 ? (bookings as any[]) : [
             { room: "Conference A", time: "09:00 — 10:30", host: "Priya S.", guests: 6, status: "in_progress" },
             { room: "Meeting Room 2", time: "11:00 — 12:00", host: "Arjun N.", guests: 4, status: "upcoming" },
             { room: "Board Room", time: "14:00 — 16:00", host: "Rajesh M.", guests: 12, status: "upcoming" },
             { room: "Conference A", time: "16:30 — 17:30", host: "Sneha R.", guests: 3, status: "available" },
-          ].map((b, i) => (
-            <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+          ]).map((b: any, i: number) => {
+            const start = b.start_time ? new Date(b.start_time).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
+            const end = b.end_time ? new Date(b.end_time).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
+            const timeStr = start && end ? `${start} — ${end}` : b.time;
+            const hostName = b.member ? `${b.member.first_name} ${b.member.last_name || ""}` : b.host || "—";
+            const roomLabel = b.unit?.unit_label || b.room || b.booking_type || "Room";
+            const bStatus = b.status || "available";
+            return (
+            <div key={b.id || i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: b.status === "in_progress" ? "rgba(42,157,143,0.15)" : "rgba(14,36,61,0.06)" }}>
-                  <DoorOpen className="w-4 h-4" style={{ color: b.status === "in_progress" ? "#2BAE8E" : "#1A3C5E" }} />
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: bStatus === "in_progress" || bStatus === "checked_in" ? "rgba(42,157,143,0.15)" : "rgba(14,36,61,0.06)" }}>
+                  <DoorOpen className="w-4 h-4" style={{ color: bStatus === "in_progress" || bStatus === "checked_in" ? "#2BAE8E" : "#1A3C5E" }} />
                 </div>
                 <div>
-                  <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{b.room}</div>
+                  <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{roomLabel}</div>
                   <div className="text-xs flex items-center gap-2 mt-0.5" style={{ color: "#64748B" }}>
-                    <Clock className="w-3 h-3" /> {b.time} <span>·</span>
-                    <Users className="w-3 h-3" /> {b.guests} guests <span>·</span>
-                    <UserCheck className="w-3 h-3" /> {b.host}
+                    <Clock className="w-3 h-3" /> {timeStr} <span>·</span>
+                    <Users className="w-3 h-3" /> {b.guests || "—"} <span>·</span>
+                    <UserCheck className="w-3 h-3" /> {hostName}
                   </div>
                 </div>
               </div>
-              <Badge variant={b.status === "in_progress" ? "teal" : b.status === "upcoming" ? "amber" : "gray"}>
-                {b.status.replace("_", " ")}
+              <Badge variant={bStatus === "in_progress" || bStatus === "checked_in" ? "teal" : bStatus === "upcoming" || bStatus === "confirmed" ? "amber" : "gray"}>
+                {bStatus.replace("_", " ")}
               </Badge>
             </div>
-          ))}
+          )})}
         </div>
         <div className="flex items-center gap-3 mt-3 pt-3" style={{ borderTop: "1px solid #E2E8F0" }}>
           <Button variant="outline" size="sm" className="flex-1"><Calendar className="w-3.5 h-3.5" /> Book a Room</Button>

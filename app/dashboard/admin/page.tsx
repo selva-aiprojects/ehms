@@ -6,6 +6,7 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import Table from "@/components/ui/table";
+import { useAdminUsers, useAuditLogs, useComplianceRecords } from "@/lib/hooks";
 
 const SYSTEM_USERS = [
   { name: "Rajesh Mehta", email: "rajesh@samp.com", role: "Property Manager", property: "Oceanview Hotel", status: "active" },
@@ -45,6 +46,15 @@ export default function AdminPage() {
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { users, isLoading: loadingUsers, mutate: mutateUsers } = useAdminUsers();
+  const { logs, isLoading: loadingLogs, mutate: mutateLogs } = useAuditLogs(50);
+  const { records, isLoading: loadingRecords, mutate: mutateRecords } = useComplianceRecords();
+
+  const displayUsers = (users && (users as any[]).length > 0) ? (users as any[]) : SYSTEM_USERS;
+  const displayLogs = (logs && (logs as any[]).length > 0) ? (logs as any[]) : AUDIT_LOGS;
+  const displayCompliance = (records && (records as any[]).length > 0) ? (records as any[]) : COMPLIANCE_ITEMS;
+  const isLoadingDisplay = (loadingUsers || loadingLogs || loadingRecords) && !users && !logs;
+
   useEffect(() => {
     if (actionFeedback) {
       const t = setTimeout(() => setActionFeedback(null), 3000);
@@ -54,13 +64,14 @@ export default function AdminPage() {
 
   function handleRefresh() {
     setIsLoading(true);
+    mutateUsers(); mutateLogs(); mutateRecords();
     setActionFeedback({ type: "success", message: "Dashboard refreshed" });
     setTimeout(() => setIsLoading(false), 800);
   }
 
-  const activeUsers = SYSTEM_USERS.filter((u) => u.status === "active").length;
-  const inactiveUsers = SYSTEM_USERS.filter((u) => u.status !== "active").length;
-  const validCompliance = COMPLIANCE_ITEMS.filter((c) => c.badge === "teal").length;
+  const activeUsers = displayUsers.filter((u: any) => u.is_active === true || u.status === "active").length;
+  const inactiveUsers = displayUsers.filter((u: any) => u.is_active === false || u.status !== "active").length;
+  const validCompliance = displayCompliance.filter((c: any) => c.status === "active" || c.badge === "teal").length;
 
   const TABS = [
     { key: "overview", label: "Overview", icon: Activity },
@@ -145,34 +156,42 @@ export default function AdminPage() {
               )}
             </Card>
             <Card>
-              <CardHeader title="Compliance Vault" subtitle={`${validCompliance}/${COMPLIANCE_ITEMS.length} valid`} />
-              {isLoading ? (
+              <CardHeader title="Compliance Vault" subtitle={`${validCompliance}/${displayCompliance.length} valid`} />
+              {isLoadingDisplay && !displayCompliance.length ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonLine key={i} />)}</div>
               ) : (
                 <div className="space-y-2 text-sm">
-                  {COMPLIANCE_ITEMS.slice(0, 5).map((c) => (
-                    <div key={c.label} className="flex items-center justify-between">
-                      <span style={{ color: "#1A2E44" }}>{c.label}</span>
-                      <Badge variant={c.badge}>{c.status}</Badge>
+                  {displayCompliance.slice(0, 5).map((c: any, i: number) => {
+                    const label = c.certificate_type || c.label;
+                    const status = c.status || c.status;
+                    const badgeVariant = c.status === "active" || c.badge === "teal" ? "teal" as const : (c.status === "expired" || c.badge === "red" ? "red" as const : "amber" as const);
+                    return (
+                    <div key={c.id || i} className="flex items-center justify-between">
+                      <span style={{ color: "#1A2E44" }}>{label}</span>
+                      <Badge variant={badgeVariant}>{status}</Badge>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </Card>
             <Card className="lg:col-span-2">
               <CardHeader title="Audit Log" subtitle="Recent activity" />
-              {isLoading ? (
+              {isLoadingDisplay ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonLine key={i} />)}</div>
               ) : (
                 <div className="space-y-2 text-xs max-h-48 overflow-y-auto">
-                  {AUDIT_LOGS.slice(0, 5).map((a, i) => (
-                    <div key={i} className="flex justify-between py-1">
+                  {displayLogs.slice(0, 5).map((a: any, i: number) => {
+                    const userName = a.user?.first_name ? `${a.user.first_name} ${a.user.last_name || ""}` : a.user || "System";
+                    const actionText = `${a.action} ${a.entity_type}`;
+                    const timeStr = a.created_at ? new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : a.time;
+                    return (
+                    <div key={a.id || i} className="flex justify-between py-1">
                       <span style={{ color: "#1A2E44" }}>
-                        <span className="font-medium">{a.user}</span> — {a.action}
+                        <span className="font-medium">{userName}</span> — {actionText}
                       </span>
-                      <span className="shrink-0 ml-2" style={{ color: "#64748B" }}>{a.time}</span>
+                      <span className="shrink-0 ml-2" style={{ color: "#64748B" }}>{timeStr}</span>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </Card>
@@ -204,27 +223,27 @@ export default function AdminPage() {
       {activeTab === "users" && (
         <Card>
           <CardHeader
-            title="User Management"
-            subtitle={`${SYSTEM_USERS.length} users · ${activeUsers} active · ${inactiveUsers} inactive`}
+              title="User Management"
+              subtitle={`${displayUsers.length} users · ${activeUsers} active · ${inactiveUsers} inactive`}
             action={
               <Button variant="secondary" size="sm" onClick={() => setActionFeedback({ type: "success", message: "Add user form opened" })}>
                 <UserPlus className="w-3.5 h-3.5" /> Add User
               </Button>
             }
           />
-          {isLoading ? (
+          {loadingUsers ? (
             <div className="space-y-1">{[...Array(5)].map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: "#F5F7FA" }} />)}</div>
           ) : (
             <Table
-              data={SYSTEM_USERS}
-              keyExtractor={(_, i) => String(i)}
+              data={displayUsers}
+              keyExtractor={(u: any) => u.id || Math.random()}
               columns={[
-                { key: "name", header: "Name", render: (u) => <span className="font-medium text-sm">{u.name}</span> },
-                { key: "email", header: "Email", render: (u) => <span className="text-xs" style={{ color: "#64748B" }}>{u.email}</span> },
-                { key: "role", header: "Role", render: (u) => <Badge variant="gray">{u.role}</Badge> },
-                { key: "property", header: "Scope", render: (u) => <span className="text-xs" style={{ color: "#64748B" }}>{u.property}</span> },
-                { key: "status", header: "Status", render: (u) => (
-                  <Badge variant={u.status === "active" ? "teal" : "red"}>{u.status}</Badge>
+                { key: "name", header: "Name", render: (u: any) => <span className="font-medium text-sm">{u.first_name} {u.last_name || ""}</span> },
+                { key: "email", header: "Email", render: (u: any) => <span className="text-xs" style={{ color: "#64748B" }}>{u.email}</span> },
+                { key: "role", header: "Role", render: (u: any) => <Badge variant="gray">{u.user_roles?.[0]?.role?.name || u.role || "—"}</Badge> },
+                { key: "property", header: "Scope", render: (u: any) => <span className="text-xs" style={{ color: "#64748B" }}>{u.user_roles?.[0]?.property_id ? "Specific" : "Global"}</span> },
+                { key: "status", header: "Status", render: (u: any) => (
+                  <Badge variant={u.is_active !== false ? "teal" : "red"}>{u.is_active !== false ? "active" : "inactive"}</Badge>
                 )},
               ]}
             />
@@ -235,24 +254,37 @@ export default function AdminPage() {
       {activeTab === "compliance" && (
         <Card>
           <CardHeader title="Compliance Vault" subtitle="Certificate & license management" />
+          {loadingRecords ? (
+            <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonLine key={i} />)}</div>
+          ) : (
           <div className="grid gap-3">
-            {COMPLIANCE_ITEMS.map((c, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
+            {displayCompliance.length === 0 ? (
+              <div className="text-center py-8"><Shield className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} /><p className="text-sm" style={{ color: "#64748B" }}>No compliance records</p></div>
+            ) : displayCompliance.map((c: any, i: number) => {
+              const label = c.certificate_type || c.label;
+              const expiry = c.expiry_date ? new Date(c.expiry_date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : c.expiry || "N/A";
+              const isActive = c.status === "active" || c.badge === "teal";
+              const isExpired = c.status === "expired" || c.badge === "red";
+              const badgeVariant = isActive ? "teal" as const : isExpired ? "red" as const : "amber" as const;
+              const statusText = c.status || c.status;
+              return (
+              <div key={c.id || i} className="flex items-center justify-between p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
                 <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5" style={{ color: c.badge === "teal" ? "#2BAE8E" : c.badge === "amber" ? "#F5A623" : "#E53E3E" }} />
+                  <Shield className="w-5 h-5" style={{ color: isActive ? "#2BAE8E" : isExpired ? "#E53E3E" : "#F5A623" }} />
                   <div>
-                    <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>{c.label}</div>
-                    <div className="text-xs" style={{ color: "#64748B" }}>Expires: {c.expiry || "N/A"}</div>
+                    <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>{label}</div>
+                    <div className="text-xs" style={{ color: "#64748B" }}>Expires: {expiry}</div>
                   </div>
                 </div>
-                <Badge variant={c.badge}>{c.status}</Badge>
+                <Badge variant={badgeVariant}>{statusText}</Badge>
               </div>
-            ))}
+            )})}
           </div>
+          )}
           <div className="mt-4 pt-3" style={{ borderTop: "1px solid #E2E8F0" }}>
             <p className="text-xs" style={{ color: "#64748B" }}>
               <AlertCircle className="w-3 h-3 inline mr-1" />
-              {COMPLIANCE_ITEMS.filter(c => c.badge !== "teal").length} items require attention
+              {displayCompliance.filter((c: any) => c.status !== "active" && c.badge !== "teal").length} items require attention
             </p>
           </div>
         </Card>
@@ -262,23 +294,29 @@ export default function AdminPage() {
         <Card>
           <CardHeader title="Audit Log" subtitle="Full activity history" />
           <div className="space-y-1 text-sm">
-            {isLoading ? (
+            {loadingLogs ? (
               [...Array(5)].map((_, i) => <SkeletonLine key={i} />)
+            ) : displayLogs.length === 0 ? (
+              <div className="text-center py-8"><FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} /><p className="text-sm" style={{ color: "#64748B" }}>No audit logs</p></div>
             ) : (
-              AUDIT_LOGS.map((a, i) => (
-                <div key={i} className="flex items-center justify-between py-2.5" style={{ borderBottom: i < AUDIT_LOGS.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+              displayLogs.map((a: any, i: number) => {
+                const userName = a.user?.first_name ? `${a.user.first_name} ${a.user.last_name || ""}` : a.user || "System";
+                const initial = userName.charAt(0);
+                const timeStr = a.created_at ? new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : a.time;
+                return (
+                <div key={a.id || i} className="flex items-center justify-between py-2.5" style={{ borderBottom: i < displayLogs.length - 1 ? "1px solid #E2E8F0" : "none" }}>
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: "#2C3547" }}>
-                      {a.user.charAt(0)}
+                      {initial}
                     </div>
                     <div>
-                      <span className="font-medium" style={{ color: "#1A2E44" }}>{a.user}</span>
-                      <span className="ml-1" style={{ color: "#64748B" }}>{a.action}</span>
+                      <span className="font-medium" style={{ color: "#1A2E44" }}>{userName}</span>
+                      <span className="ml-1" style={{ color: "#64748B" }}>{a.action} {a.entity_type}</span>
                     </div>
                   </div>
-                  <span className="text-xs shrink-0 ml-2" style={{ color: "#64748B" }}>{a.time}</span>
+                  <span className="text-xs shrink-0 ml-2" style={{ color: "#64748B" }}>{timeStr}</span>
                 </div>
-              ))
+              )})
             )}
           </div>
         </Card>

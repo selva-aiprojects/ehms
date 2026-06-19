@@ -90,3 +90,53 @@ export function useLeases(filters?: { status?: string; renewal_due?: boolean }) 
   const { data, error, isLoading, mutate } = useSWR(`/api/leases?${params}`, fetcher);
   return { leases: data?.data, isLoading, isError: !!error, mutate };
 }
+
+export function useAdminUsers(filters?: { role?: string; status?: string; search?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.role) params.set("role", filters.role);
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.search) params.set("search", filters.search);
+  const { data, error, isLoading, mutate } = useSWR(`/api/admin/users?${params}`, fetcher);
+  return { users: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useAuditLogs(limit = 50, entityType?: string) {
+  const params = new URLSearchParams();
+  params.set("limit", String(limit));
+  if (entityType) params.set("entity_type", entityType);
+  const { data, error, isLoading, mutate } = useSWR(`/api/admin/audit-logs?${params}`, fetcher);
+  return { logs: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useComplianceRecords(propertyId?: string, status?: string) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (status) params.set("status", status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/admin/compliance?${params}`, fetcher);
+  return { records: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useMemberships(filters?: { status?: string; property_id?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  const { data, error, isLoading, mutate } = useSWR(`/api/workplace/memberships?${params}`, fetcher);
+  return { memberships: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useWorkplaceBookings(filters?: { status?: string; booking_type?: string; date?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.booking_type) params.set("booking_type", filters.booking_type);
+  if (filters?.date) params.set("date", filters.date);
+  const { data, error, isLoading, mutate } = useSWR(`/api/workplace/bookings?${params}`, fetcher);
+  return { bookings: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useVisitors(propertyId?: string, limit = 50) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  params.set("limit", String(limit));
+  const { data, error, isLoading, mutate } = useSWR(`/api/visitors?${params}`, fetcher);
+  return { visitors: data?.data, isLoading, isError: !!error, mutate };
+}

@@ -26,7 +26,7 @@ const ALL_NAV_ITEMS = [
   { label: "Admin",        icon: UserCog,         href: "/dashboard/admin", roles: ["super_admin","property_manager"] },
 ];
 
-const PRIMARY_LABELS = ["Dashboard", "Front Desk", "Hotels", "Reports", "Settings"];
+const PRIMARY_LABELS = ["Dashboard", "Front Desk", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"];
 
 function getLocalDemoUser(): UserProfile | null {
   try { const r = localStorage.getItem("ehms_demo_session"); return r ? JSON.parse(r) : null; } catch { return null; }
