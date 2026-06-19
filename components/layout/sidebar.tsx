@@ -8,7 +8,7 @@ import {
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
   UserCog, Home, Hotel, ChevronLeft, Shield,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
 import { hasAccess } from "@/lib/role-access";
 
@@ -37,10 +37,12 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const { user: authUser, loading } = useAuth();
-  const [fallbackUser] = useState<UserProfile | null>(() => {
-    if (typeof window === "undefined") return null;
-    return getLocalDemoUser();
-  });
+  const [fallbackUser, setFallbackUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    const demo = getLocalDemoUser();
+    if (demo) setFallbackUser(demo);
+  }, []);
 
   const user = authUser || fallbackUser;
   const role = user?.role_name || "unknown";
