@@ -1,7 +1,7 @@
 -- SAMP Finance & General Ledger (BRD Section 3.8)
 
 CREATE TABLE chart_of_accounts (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID REFERENCES properties(id),
     account_code    VARCHAR(20) NOT NULL,
     account_name    VARCHAR(255) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE chart_of_accounts (
 );
 
 CREATE TABLE journal_entries (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     entry_date      DATE NOT NULL,
     reference_type  VARCHAR(50),                    -- booking, invoice, payment, adjustment
@@ -24,7 +24,7 @@ CREATE TABLE journal_entries (
 );
 
 CREATE TABLE journal_lines (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     journal_id      UUID NOT NULL REFERENCES journal_entries(id) ON DELETE CASCADE,
     account_id      UUID NOT NULL REFERENCES chart_of_accounts(id),
     debit           DECIMAL(14,2) DEFAULT 0,
@@ -33,7 +33,7 @@ CREATE TABLE journal_lines (
 );
 
 CREATE TABLE invoices (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     booking_id      UUID REFERENCES bookings(id),
     guest_id        UUID REFERENCES guest_profiles(id),
@@ -52,7 +52,7 @@ CREATE TABLE invoices (
 );
 
 CREATE TABLE invoice_lines (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     invoice_id      UUID NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
     description     VARCHAR(500) NOT NULL,
     quantity        INT DEFAULT 1,
@@ -63,7 +63,7 @@ CREATE TABLE invoice_lines (
 );
 
 CREATE TABLE payments (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     invoice_id      UUID REFERENCES invoices(id),
     booking_id      UUID REFERENCES bookings(id),
     property_id     UUID NOT NULL REFERENCES properties(id),
@@ -78,7 +78,7 @@ CREATE TABLE payments (
 );
 
 CREATE TABLE bank_reconciliation (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     bank_ref        VARCHAR(255) NOT NULL,
     transaction_date DATE NOT NULL,

@@ -1,7 +1,7 @@
 -- SAMP Vendor Ecosystem & Procurement (BRD Section 3.6)
 
 CREATE TABLE vendors (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_name    VARCHAR(255) NOT NULL,
     contact_person  VARCHAR(100),
     email           VARCHAR(255),
@@ -18,7 +18,7 @@ CREATE TABLE vendors (
 );
 
 CREATE TABLE vendor_services (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     vendor_id       UUID NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
     service_type    VARCHAR(100) NOT NULL,          -- housekeeping, laundry, hvac, electrical
     description     TEXT,
@@ -28,7 +28,7 @@ CREATE TABLE vendor_services (
 );
 
 CREATE TABLE purchase_orders (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     vendor_id       UUID REFERENCES vendors(id),
     po_number       VARCHAR(50) UNIQUE NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE purchase_orders (
 );
 
 CREATE TABLE purchase_order_lines (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     po_id           UUID NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
     item_description TEXT NOT NULL,
     quantity        INT NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE purchase_order_lines (
 );
 
 CREATE TABLE goods_received_notes (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     po_id           UUID NOT NULL REFERENCES purchase_orders(id),
     grn_number      VARCHAR(50) UNIQUE NOT NULL,
     received_date   DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -62,7 +62,7 @@ CREATE TABLE goods_received_notes (
 );
 
 CREATE TABLE grn_lines (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     grn_id          UUID NOT NULL REFERENCES goods_received_notes(id) ON DELETE CASCADE,
     po_line_id      UUID NOT NULL REFERENCES purchase_order_lines(id),
     received_qty    INT NOT NULL,

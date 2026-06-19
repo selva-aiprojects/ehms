@@ -1,7 +1,7 @@
 -- SAMP Housekeeping & Linen (BRD Section 3.4)
 
 CREATE TABLE housekeeping_tasks (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     unit_id         UUID NOT NULL REFERENCES units(id) ON DELETE CASCADE,
     property_id     UUID NOT NULL REFERENCES properties(id),
     assigned_to     UUID REFERENCES users(id),
@@ -17,7 +17,7 @@ CREATE TABLE housekeeping_tasks (
 );
 
 CREATE TABLE housekeeping_checklists (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     task_id         UUID NOT NULL REFERENCES housekeeping_tasks(id) ON DELETE CASCADE,
     item            VARCHAR(255) NOT NULL,
     is_checked      BOOLEAN DEFAULT false,
@@ -26,7 +26,7 @@ CREATE TABLE housekeeping_checklists (
 );
 
 CREATE TABLE linen_batches (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     batch_id        VARCHAR(100) UNIQUE NOT NULL,
     property_id     UUID NOT NULL REFERENCES properties(id),
     item_type       VARCHAR(100) NOT NULL,          -- bedsheet, towel, pillowcase, duvet
@@ -38,7 +38,7 @@ CREATE TABLE linen_batches (
 );
 
 CREATE TABLE linen_transactions (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     batch_id        UUID NOT NULL REFERENCES linen_batches(id) ON DELETE CASCADE,
     from_stage      VARCHAR(50) NOT NULL,
     to_stage        VARCHAR(50) NOT NULL,

@@ -1,7 +1,7 @@
 -- SAMP Notifications & Integrations (BRD Section 5)
 
 CREATE TABLE notification_templates (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     channel         VARCHAR(50) NOT NULL,           -- email, whatsapp, sms, push
     template_name   VARCHAR(100) NOT NULL,
     subject         VARCHAR(255),
@@ -12,7 +12,7 @@ CREATE TABLE notification_templates (
 );
 
 CREATE TABLE notification_queue (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     template_id     UUID REFERENCES notification_templates(id),
     recipient       VARCHAR(255) NOT NULL,
     channel         VARCHAR(50) NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE notification_queue (
 );
 
 CREATE TABLE payment_gateway_config (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID REFERENCES properties(id),
     gateway_name    VARCHAR(50) NOT NULL,           -- stripe, razorpay, adyen
     api_key_enc     TEXT NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE payment_gateway_config (
 );
 
 CREATE TABLE ota_channel_config (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     channel_name    VARCHAR(50) NOT NULL,            -- booking.com, expedia, agoda
     api_endpoint    TEXT,
@@ -49,7 +49,7 @@ CREATE TABLE ota_channel_config (
 );
 
 CREATE TABLE hardware_devices (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     device_type     VARCHAR(50) NOT NULL,           -- smart_lock, lpr_camera, turnstile, pos_terminal
     device_name     VARCHAR(255),

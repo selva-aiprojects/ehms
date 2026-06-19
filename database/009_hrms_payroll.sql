@@ -1,7 +1,7 @@
 -- SAMP HRMS & Payroll (BRD Section 3.7)
 
 CREATE TABLE departments (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID REFERENCES properties(id),
     name            VARCHAR(255) NOT NULL,
     code            VARCHAR(20),
@@ -9,7 +9,7 @@ CREATE TABLE departments (
 );
 
 CREATE TABLE employees (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id         UUID REFERENCES users(id) ON DELETE SET NULL,
     employee_code   VARCHAR(50) UNIQUE NOT NULL,
     department_id   UUID REFERENCES departments(id),
@@ -27,7 +27,7 @@ CREATE TABLE employees (
 );
 
 CREATE TABLE attendance_records (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     employee_id     UUID NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
     property_id     UUID REFERENCES properties(id),
     clock_in        TIMESTAMPTZ NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE attendance_records (
 );
 
 CREATE TABLE payroll_runs (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID REFERENCES properties(id),
     period_start    DATE NOT NULL,
     period_end      DATE NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE payroll_runs (
 );
 
 CREATE TABLE payroll_lines (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     payroll_id      UUID NOT NULL REFERENCES payroll_runs(id) ON DELETE CASCADE,
     employee_id     UUID NOT NULL REFERENCES employees(id),
     gross_pay       DECIMAL(12,2),
@@ -75,7 +75,7 @@ CREATE TABLE payroll_lines (
 );
 
 CREATE TABLE shift_rotations (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID REFERENCES properties(id),
     name            VARCHAR(100) NOT NULL,
     start_time      TIME NOT NULL,

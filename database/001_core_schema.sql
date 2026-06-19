@@ -21,7 +21,7 @@ CREATE TYPE invoice_status AS ENUM ('draft', 'sent', 'paid', 'overdue', 'cancell
 -- ENTERPRISE HIERARCHY (BRD Section 3.1)
 -- ============================================================
 CREATE TABLE enterprises (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            VARCHAR(255) NOT NULL,
     code            VARCHAR(20) UNIQUE NOT NULL,
     logo_url        TEXT,
@@ -33,7 +33,7 @@ CREATE TABLE enterprises (
 );
 
 CREATE TABLE regions (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     enterprise_id   UUID NOT NULL REFERENCES enterprises(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     code            VARCHAR(20) NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE regions (
 );
 
 CREATE TABLE properties (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     region_id       UUID NOT NULL REFERENCES regions(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     code            VARCHAR(20) NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE properties (
 );
 
 CREATE TABLE buildings (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     name            VARCHAR(255) NOT NULL,
     code            VARCHAR(20) NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE buildings (
 );
 
 CREATE TABLE floors (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     building_id     UUID NOT NULL REFERENCES buildings(id) ON DELETE CASCADE,
     name            VARCHAR(100) NOT NULL,
     floor_number    INT NOT NULL,
@@ -88,7 +88,7 @@ CREATE TABLE floors (
 -- UNITS / ROOMS / ASSETS (Core Inventory)
 -- ============================================================
 CREATE TABLE units (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     floor_id        UUID NOT NULL REFERENCES floors(id) ON DELETE CASCADE,
     unit_type       unit_type NOT NULL,
     unit_label      VARCHAR(50) NOT NULL,         -- e.g. "101", "A-201"
@@ -105,7 +105,7 @@ CREATE TABLE units (
 );
 
 CREATE TABLE asset_register (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     unit_id         UUID REFERENCES units(id) ON DELETE SET NULL,
     property_id     UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     asset_type      VARCHAR(100) NOT NULL,         -- AC, TV, Smart Lock, Geyser
@@ -114,7 +114,7 @@ CREATE TABLE asset_register (
     serial_number   VARCHAR(100) UNIQUE NOT NULL,
     purchase_date   DATE,
     warranty_months INT,
-    warranty_expiry DATE GENERATED ALWAYS AS (purchase_date + (warranty_months || ' months')::INTERVAL) STORED,
+    warranty_expiry DATE GENERATED ALWAYS AS (purchase_date + make_interval(months => warranty_months)) STORED,
     depreciation_method VARCHAR(50),
     depreciation_rate DECIMAL(5,2),
     current_value   DECIMAL(10,2),
@@ -126,7 +126,7 @@ CREATE TABLE asset_register (
 -- COMPLIANCE VAULT (BRD Section 3.1)
 -- ============================================================
 CREATE TABLE compliance_records (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     certificate_type VARCHAR(100) NOT NULL,        -- fire_safety, liquor_license, RERA
     reference_number VARCHAR(255),

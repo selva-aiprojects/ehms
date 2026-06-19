@@ -163,21 +163,22 @@ ON CONFLICT DO NOTHING;
 -- Maintenance tickets
 WITH hotel_prop AS (SELECT id FROM properties WHERE code='OVH'),
      maint_user AS (SELECT id FROM users WHERE email='maintenance@ehms.demo')
-INSERT INTO maintenance_tickets (property_id, title, description, priority, status, category, reported_by)
+INSERT INTO maintenance_tickets (property_id, ticket_number, ticket_type, title, description, priority, status, category, reported_by)
 SELECT
   (SELECT id FROM hotel_prop),
+  t.ticket_number, t.ticket_type,
   t.title, t.description,
   t.priority::ticket_priority,
   t.status::ticket_status,
   t.category,
   (SELECT id FROM maint_user)
 FROM (VALUES
-  ('AC unit malfunction – Room 301',    'AC not cooling. Compressor noise.', 'high',   'open',        'HVAC'),
-  ('Plumbing leak – Floor 2 corridor',  'Water dripping from ceiling joint.','critical','in_progress', 'Plumbing'),
-  ('Elevator B periodic maintenance',   'Quarterly service due.',            'medium', 'assigned',    'Elevator'),
-  ('Smart lock battery – Room 215',     'Lock battery at 5%, replace.',      'low',    'open',        'Electrical'),
-  ('Pool filtration service',           'Scheduled bi-weekly clean.',        'medium', 'resolved',    'Pool')
-) AS t(title, description, priority, status, category)
+  ('MT-001', 'corrective',  'AC unit malfunction – Room 301',    'AC not cooling. Compressor noise.', 'high',   'open',        'HVAC'),
+  ('MT-002', 'corrective',  'Plumbing leak – Floor 2 corridor',  'Water dripping from ceiling joint.','critical','in_progress', 'Plumbing'),
+  ('MT-003', 'preventive',  'Elevator B periodic maintenance',   'Quarterly service due.',            'medium', 'assigned',    'Elevator'),
+  ('MT-004', 'corrective',  'Smart lock battery – Room 215',     'Lock battery at 5%, replace.',      'low',    'open',        'Electrical'),
+  ('MT-005', 'preventive',  'Pool filtration service',           'Scheduled bi-weekly clean.',        'medium', 'resolved',    'Pool')
+) AS t(ticket_number, ticket_type, title, description, priority, status, category)
 ON CONFLICT DO NOTHING;
 
 -- Payments (linked to bookings)

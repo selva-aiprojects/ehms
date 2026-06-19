@@ -4,7 +4,7 @@
 -- USERS & ROLES
 -- ============================================================
 CREATE TABLE roles (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            VARCHAR(100) NOT NULL UNIQUE,
     description     TEXT,
     is_system       BOOLEAN DEFAULT false,
@@ -27,7 +27,7 @@ INSERT INTO roles (name, description, is_system) VALUES
     ('workplace_facility_manager', 'Desk & access management', true);
 
 CREATE TABLE users (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email           VARCHAR(255) UNIQUE NOT NULL,
     phone           VARCHAR(20),
     password_hash   TEXT NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE user_roles (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     role_id         UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     property_id     UUID REFERENCES properties(id) ON DELETE CASCADE,  -- NULL = global scope
@@ -56,7 +56,7 @@ CREATE TABLE user_roles (
 -- AUDIT TRAIL (BRD Section 4.2)
 -- ============================================================
 CREATE TABLE audit_logs (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id         UUID REFERENCES users(id),
     action          VARCHAR(50) NOT NULL,           -- CREATE, UPDATE, DELETE, READ
     entity_type     VARCHAR(100) NOT NULL,          -- booking, unit, invoice, etc.
@@ -73,8 +73,8 @@ CREATE INDEX idx_audit_user ON audit_logs(user_id);
 CREATE INDEX idx_audit_created ON audit_logs(created_at);
 
 -- ============================================================
--- ROW LEVEL SECURITY
+-- ROW LEVEL SECURITY (tables created upstream in 001_core_schema)
 -- ============================================================
 ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 ALTER TABLE units ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+-- bookings table is created later (004_reservation_booking.sql)

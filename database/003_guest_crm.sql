@@ -1,7 +1,7 @@
 -- SAMP Guest / Tenant / Member CRM (BRD Section 3.2)
 
 CREATE TABLE guest_profiles (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id         UUID REFERENCES users(id) ON DELETE SET NULL,
     first_name      VARCHAR(100) NOT NULL,
     last_name       VARCHAR(100),
@@ -23,7 +23,7 @@ CREATE TABLE guest_profiles (
 );
 
 CREATE TABLE corporate_accounts (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name            VARCHAR(255) NOT NULL,
     tax_id          VARCHAR(50),
     spending_limit  DECIMAL(12,2),
@@ -34,7 +34,7 @@ CREATE TABLE corporate_accounts (
 );
 
 CREATE TABLE corporate_members (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     corporate_id    UUID NOT NULL REFERENCES corporate_accounts(id) ON DELETE CASCADE,
     guest_id        UUID NOT NULL REFERENCES guest_profiles(id) ON DELETE CASCADE,
     designation     VARCHAR(100),
@@ -45,7 +45,7 @@ CREATE TABLE corporate_members (
 );
 
 CREATE TABLE guest_communications (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     guest_id        UUID NOT NULL REFERENCES guest_profiles(id) ON DELETE CASCADE,
     channel         VARCHAR(50) NOT NULL,           -- email, whatsapp, sms
     template        VARCHAR(100) NOT NULL,

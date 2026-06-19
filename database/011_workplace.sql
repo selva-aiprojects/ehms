@@ -1,7 +1,7 @@
 -- SAMP Workplace & Managed Office Management (BRD Section 3.11)
 
 CREATE TABLE workplace_bookings (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     unit_id         UUID NOT NULL REFERENCES units(id),
     member_id       UUID REFERENCES guest_profiles(id),
@@ -19,7 +19,7 @@ CREATE TABLE workplace_bookings (
 );
 
 CREATE TABLE membership_plans (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     name            VARCHAR(255) NOT NULL,
     plan_type       VARCHAR(50) NOT NULL,           -- hot_desk, dedicated_seat, private_office, virtual
@@ -33,7 +33,7 @@ CREATE TABLE membership_plans (
 );
 
 CREATE TABLE corporate_memberships (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     corporate_id    UUID NOT NULL REFERENCES corporate_accounts(id) ON DELETE CASCADE,
     plan_id         UUID NOT NULL REFERENCES membership_plans(id),
     start_date      DATE NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE corporate_memberships (
 );
 
 CREATE TABLE membership_invoices (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     membership_id   UUID NOT NULL REFERENCES corporate_memberships(id) ON DELETE CASCADE,
     invoice_number  VARCHAR(50) UNIQUE NOT NULL,
     period_start    DATE NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE membership_invoices (
 );
 
 CREATE TABLE visitor_logs (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     host_employee_id UUID REFERENCES users(id),
     visitor_name    VARCHAR(255) NOT NULL,

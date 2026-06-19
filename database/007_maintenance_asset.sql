@@ -1,12 +1,13 @@
 -- SAMP Maintenance & Asset Management (BRD Section 3.5)
 
 CREATE TABLE maintenance_tickets (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     unit_id         UUID REFERENCES units(id),
     asset_id        UUID REFERENCES asset_register(id),
     ticket_number   VARCHAR(50) UNIQUE NOT NULL,
     ticket_type     VARCHAR(50) NOT NULL,           -- preventive, corrective, amc
+    category        VARCHAR(100),                    -- HVAC, Plumbing, Electrical, etc.
     title           VARCHAR(255) NOT NULL,
     description     TEXT,
     priority        ticket_priority DEFAULT 'medium',
@@ -27,7 +28,7 @@ CREATE TABLE maintenance_tickets (
 );
 
 CREATE TABLE amc_contracts (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     vendor_id       UUID,
     contract_name   VARCHAR(255) NOT NULL,
@@ -41,7 +42,7 @@ CREATE TABLE amc_contracts (
 );
 
 CREATE TABLE preventive_schedules (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     asset_type      VARCHAR(100),
     frequency_days  INT NOT NULL,
@@ -52,7 +53,7 @@ CREATE TABLE preventive_schedules (
 );
 
 CREATE TABLE parts_inventory (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     part_name       VARCHAR(255) NOT NULL,
     part_code       VARCHAR(100),

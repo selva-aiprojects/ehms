@@ -2,7 +2,7 @@
 -- For Apartment Rental & Services vertical
 
 CREATE TABLE lease_agreements (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     unit_id         UUID NOT NULL REFERENCES units(id),
     tenant_id       UUID NOT NULL REFERENCES guest_profiles(id),
@@ -27,7 +27,7 @@ CREATE TABLE lease_agreements (
 );
 
 CREATE TABLE lease_amendments (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     lease_id        UUID NOT NULL REFERENCES lease_agreements(id) ON DELETE CASCADE,
     amendment_type  VARCHAR(50) NOT NULL,           -- rent_escalation, term_extension, tenant_change
     prev_value     JSONB,
@@ -38,7 +38,7 @@ CREATE TABLE lease_amendments (
 );
 
 CREATE TABLE rent_invoices (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     lease_id        UUID NOT NULL REFERENCES lease_agreements(id) ON DELETE CASCADE,
     invoice_number  VARCHAR(50) UNIQUE NOT NULL,
     period_start    DATE NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE rent_invoices (
 );
 
 CREATE TABLE deposit_ledger (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     lease_id        UUID NOT NULL REFERENCES lease_agreements(id) ON DELETE CASCADE,
     transaction_type VARCHAR(50) NOT NULL,          -- deposit_received, deduction, refund, interest
     amount          DECIMAL(12,2) NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE deposit_ledger (
 );
 
 CREATE TABLE move_out_checklist (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     lease_id        UUID NOT NULL REFERENCES lease_agreements(id) ON DELETE CASCADE,
     item            VARCHAR(255) NOT NULL,
     condition       VARCHAR(50),                    -- good, damaged, missing

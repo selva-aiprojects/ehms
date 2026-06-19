@@ -1,7 +1,7 @@
 -- SAMP Reservation & Booking Engine (BRD Section 3.3)
 
 CREATE TABLE rate_plans (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     unit_type       unit_type,
     name            VARCHAR(255) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE rate_plans (
 );
 
 CREATE TABLE bookings (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     unit_id         UUID REFERENCES units(id),
     guest_id        UUID REFERENCES guest_profiles(id),
@@ -43,7 +43,7 @@ CREATE TABLE bookings (
 );
 
 CREATE TABLE booking_guests (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     booking_id      UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
     guest_id        UUID NOT NULL REFERENCES guest_profiles(id) ON DELETE CASCADE,
     is_primary      BOOLEAN DEFAULT false,
@@ -51,7 +51,7 @@ CREATE TABLE booking_guests (
 );
 
 CREATE TABLE inventory_calendar (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     unit_id         UUID NOT NULL REFERENCES units(id) ON DELETE CASCADE,
     date            DATE NOT NULL,
     status          room_status DEFAULT 'vacant',
@@ -62,7 +62,7 @@ CREATE TABLE inventory_calendar (
 );
 
 CREATE TABLE channel_sync_log (
-    id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     channel         VARCHAR(50) NOT NULL,
     action          VARCHAR(50) NOT NULL,           -- push_availability, push_rate, booking_received
