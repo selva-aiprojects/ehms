@@ -38,6 +38,9 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (res.ok) {
+        if (data.user) {
+          localStorage.setItem("ehms_demo_session", JSON.stringify(data.user));
+        }
         router.push("/dashboard");
         router.refresh();
         setLoading(false);
@@ -59,13 +62,16 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: demoEmail, password: "Demo@1234" }),
       });
+      const data = await res.json();
       if (res.ok) {
+        if (data.user) {
+          localStorage.setItem("ehms_demo_session", JSON.stringify(data.user));
+        }
         router.push("/dashboard");
         router.refresh();
         setLoading(false);
         return;
       }
-      const data = await res.json();
       setError(data.error || "Login failed");
     } catch {
       setError("Network error. Please try again.");

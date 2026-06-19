@@ -49,7 +49,15 @@ export async function POST(req: NextRequest) {
     await sql`UPDATE users SET last_login_at = now() WHERE id = ${user.id}`;
 
     const response = NextResponse.json({
-      user: payload,
+      user: {
+        id: payload.user_id,
+        email: payload.email,
+        first_name: payload.first_name,
+        last_name: payload.last_name,
+        avatar_url: payload.avatar_url,
+        role_name: payload.role_name,
+        role_id: payload.role_id,
+      },
       token,
     });
 
