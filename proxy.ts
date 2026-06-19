@@ -8,7 +8,7 @@ function isPublic(pathname: string): boolean {
   return PUBLIC_ROUTES.some((p) => pathname.startsWith(p));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   const token = request.cookies.get("ehms_token")?.value;
