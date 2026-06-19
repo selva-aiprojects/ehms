@@ -1,53 +1,54 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/supabase/db";
+import { NextRequest, NextResponse } from "next/server";
+import { getDb } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = await db();
+    const sql = getDb();
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "20");
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    const limit = Math.min(100, parseInt(searchParams.get("limit") || "20"));
+    const offset = (page - 1) * limit;
 
-    let query = supabase
-      .from("guest_profiles")
-      .select("*", { count: "exact" })
-      .order("created_at", { ascending: false })
-      .range((page - 1) * limit, page * limit - 1);
+    const rows = await sql`
+      SELECT *, COUNT(*) OVER()::int AS total_count
+      FROM guest_profiles
+      WHERE 1=1
+        ${search ? sql`AND (
+          first_name ILIKE ${"%" + search + "%"} OR
+          last_name  ILIKE ${"%" + search + "%"} OR
+          email      ILIKE ${"%" + search + "%"} OR
+          phone      ILIKE ${"%" + search + "%"}
+        )` : sql``}
+      ORDER BY created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
 
-    if (search) {
-      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
-    }
-
-    const { data, count, error } = await query;
-    if (error) throw error;
+    const count = rows.length > 0 ? (rows[0] as Record<string, unknown>).total_count as number : 0;
+    const data = rows.map(r => { const { total_count, ...rest } = r as Record<string, unknown>; return rest; });
     return NextResponse.json({ data, count, page, limit });
   } catch (error) {
+    console.error("[guests GET]", error);
     return NextResponse.json({ error: "Failed to fetch guests" }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await db();
+    const sql = getDb();
     const body = await req.json();
-    const { data, error } = await supabase
-      .from("guest_profiles")
-      .insert({
-        first_name: body.first_name,
-        last_name: body.last_name,
-        email: body.email,
-        phone: body.phone,
-        nationality: body.nationality,
-        id_type: body.id_type,
-        id_number: body.id_number,
-        date_of_birth: body.date_of_birth,
-      })
-      .select()
-      .single();
-    if (error) throw error;
-    return NextResponse.json({ data }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const rows = await sql`
+      INSERT INTO guest_profiles (first_name, last_name, email, phone, nationality, id_type, id_number, date_of_birth)
+      VALUES (
+        ${body.first_name}, ${body.last_name}, ${body.email}, ${body.phone},
+        ${body.nationality || null}, ${body.id_type || null}, ${body.id_number || null},
+        ${body.date_of_birth || null}
+      )
+      RETURNING *
+    `;
+    return NextResponse.json({ data: rows[0] }, { status: 201 });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Failed to create guest";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

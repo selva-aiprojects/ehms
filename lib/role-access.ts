@@ -50,6 +50,7 @@ export const ROLE_LABELS: Record<string, string> = {
 
 export const DEMO_ROLE_MAP: Record<string, string> = {
   "superadmin@ehms.demo": "super_admin",
+  "admin@ehms.demo": "property_manager",
   "frontdesk@ehms.demo": "front_desk",
   "housekeeping@ehms.demo": "housekeeping_staff",
   "maintenance@ehms.demo": "maintenance_staff",
@@ -57,6 +58,7 @@ export const DEMO_ROLE_MAP: Record<string, string> = {
   "hr@ehms.demo": "hr_manager",
   "finance@ehms.demo": "finance_manager",
 };
+
 
 export function hasAccess(role: string | undefined, pathname: string): boolean {
   if (!role) return false;

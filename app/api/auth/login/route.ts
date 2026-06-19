@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { signToken, comparePassword } from "@/lib/auth";
+import { DEMO_ROLE_MAP } from "@/lib/role-access";
+
+// Demo users whose passwords are stored via pgcrypto crypt() in the seed.sql
+// We verify them directly in SQL using crypt() for compatibility
+const DEMO_EMAILS = new Set(Object.keys(DEMO_ROLE_MAP));
+const DEMO_PASSWORD = "Demo@1234";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,17 +18,53 @@ export async function POST(req: NextRequest) {
 
     const sql = getDb();
 
-    const rows = await sql`
-      SELECT
-        u.id, u.email, u.password_hash, u.first_name, u.last_name, u.avatar_url,
-        r.id AS role_id, r.name AS role_name
-      FROM users u
-      JOIN user_roles ur ON ur.user_id = u.id
-      JOIN roles r ON r.id = ur.role_id
-      WHERE u.email = ${email} AND u.is_active = true
-      ORDER BY r.name = 'super_admin' DESC
-      LIMIT 1
-    `;
+    // Determine if this is a demo user (passwords stored with pgcrypto crypt())
+    const isDemoUser = DEMO_EMAILS.has(email.toLowerCase());
+
+    let rows;
+
+    if (isDemoUser) {
+      // For demo users: verify password in-database using pgcrypto crypt()
+      // This handles the seed.sql which uses crypt('Demo@1234', gen_salt('bf'))
+      rows = await sql`
+        SELECT
+          u.id, u.email, u.password_hash, u.first_name, u.last_name, u.avatar_url,
+          r.id AS role_id, r.name AS role_name,
+          (u.password_hash = crypt(${password}, u.password_hash)) AS pwd_ok
+        FROM users u
+        JOIN user_roles ur ON ur.user_id = u.id
+        JOIN roles r ON r.id = ur.role_id
+        WHERE u.email = ${email.toLowerCase()} AND u.is_active = true
+        ORDER BY
+          CASE r.name
+            WHEN 'super_admin' THEN 0
+            WHEN 'executive'   THEN 1
+            WHEN 'property_manager' THEN 2
+            ELSE 99
+          END
+        LIMIT 1
+      `;
+    } else {
+      // For regular users: fetch row and compare with bcrypt
+      rows = await sql`
+        SELECT
+          u.id, u.email, u.password_hash, u.first_name, u.last_name, u.avatar_url,
+          r.id AS role_id, r.name AS role_name,
+          true AS pwd_ok
+        FROM users u
+        JOIN user_roles ur ON ur.user_id = u.id
+        JOIN roles r ON r.id = ur.role_id
+        WHERE u.email = ${email.toLowerCase()} AND u.is_active = true
+        ORDER BY
+          CASE r.name
+            WHEN 'super_admin' THEN 0
+            WHEN 'executive'   THEN 1
+            WHEN 'property_manager' THEN 2
+            ELSE 99
+          END
+        LIMIT 1
+      `;
+    }
 
     const user = rows[0] as Record<string, unknown> | undefined;
 
@@ -30,7 +72,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const valid = await comparePassword(password, user.password_hash as string);
+    // Validate password
+    let valid = false;
+    if (isDemoUser) {
+      // pwd_ok was computed in SQL via pgcrypto
+      valid = user.pwd_ok === true;
+    } else {
+      // bcrypt compare for non-demo users
+      valid = await comparePassword(password, user.password_hash as string);
+    }
+
     if (!valid) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
@@ -47,7 +98,8 @@ export async function POST(req: NextRequest) {
 
     const token = signToken(payload);
 
-    await sql`UPDATE users SET last_login_at = now() WHERE id = ${user.id}`;
+    // Update last login (fire and forget)
+    sql`UPDATE users SET last_login_at = now() WHERE id = ${user.id}`.catch(() => {});
 
     const response = NextResponse.json({
       user: {

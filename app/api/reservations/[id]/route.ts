@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/supabase/db";
+import { getDb } from "@/lib/db";
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await db();
+    const sql = getDb();
     const { id } = await params;
-    const { data, error } = await supabase
-      .from("bookings")
-      .select(`*, guest:guest_profiles(*), unit:units(*), property:properties(*)`)
-      .eq("id", id)
-      .single();
-    if (error) throw error;
-    return NextResponse.json({ data });
+    const rows = await sql`
+      SELECT b.*,
+        row_to_json(g.*) AS guest,
+        row_to_json(u.*) AS unit,
+        row_to_json(p.*) AS property
+      FROM bookings b
+      LEFT JOIN guest_profiles g ON g.id = b.guest_id
+      LEFT JOIN units u ON u.id = b.unit_id
+      LEFT JOIN properties p ON p.id = b.property_id
+      WHERE b.id = ${id}
+      LIMIT 1
+    `;
+    if (!rows[0]) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    return NextResponse.json({ data: rows[0] });
   } catch {
     return NextResponse.json({ error: "Booking not found" }, { status: 404 });
   }
@@ -19,53 +26,61 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await db();
+    const sql = getDb();
     const { id } = await params;
     const body = await req.json();
 
-    const updatePayload: Record<string, unknown> = {};
-    if (body.status) updatePayload.status = body.status;
-    if (body.status === "checked_in") updatePayload.checked_in_at = new Date().toISOString();
-    if (body.status === "checked_out") updatePayload.checked_out_at = new Date().toISOString();
-    if (body.special_requests !== undefined) updatePayload.special_requests = body.special_requests;
-    if (body.paid_amount !== undefined) updatePayload.paid_amount = body.paid_amount;
+    // Build update using conditional SQL fragments (no .unsafe() needed)
+    const newStatus: string | null = body.status || null;
+    const checkedInAt = newStatus === "checked_in" ? new Date().toISOString() : null;
+    const checkedOutAt = newStatus === "checked_out" ? new Date().toISOString() : null;
+    const specialReqs = body.special_requests !== undefined ? body.special_requests : null;
+    const paidAmount = body.paid_amount !== undefined ? body.paid_amount : null;
 
-    const { data, error } = await supabase
-      .from("bookings")
-      .update(updatePayload as any)
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) throw error;
+    const rows = await sql`
+      UPDATE bookings SET
+        status           = COALESCE(${newStatus}, status),
+        checked_in_at    = CASE WHEN ${newStatus} = 'checked_in'  THEN ${checkedInAt}  ELSE checked_in_at  END,
+        checked_out_at   = CASE WHEN ${newStatus} = 'checked_out' THEN ${checkedOutAt} ELSE checked_out_at END,
+        special_requests = CASE WHEN ${specialReqs}::text IS NOT NULL THEN ${specialReqs} ELSE special_requests END,
+        paid_amount      = CASE WHEN ${paidAmount}::numeric IS NOT NULL THEN ${paidAmount} ELSE paid_amount END
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    if (!rows[0]) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     // Sync unit status
-    if (data?.unit_id) {
+    const booking = rows[0] as Record<string, unknown>;
+    const unitId = booking.unit_id as string | null;
+    if (unitId && newStatus) {
       const unitStatus =
-        body.status === "checked_in" ? "occupied" :
-        body.status === "checked_out" ? "dirty" :
-        body.status === "cancelled" ? "vacant" : null;
+        newStatus === "checked_in" ? "occupied" :
+        newStatus === "checked_out" ? "dirty" :
+        newStatus === "cancelled" ? "vacant" : null;
       if (unitStatus) {
-        await supabase.from("units").update({ status: unitStatus } as any).eq("id", data.unit_id);
+        await sql`UPDATE units SET status = ${unitStatus} WHERE id = ${unitId}`;
       }
     }
-    return NextResponse.json({ data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+
+    return NextResponse.json({ data: booking });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Update failed";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await db();
+    const sql = getDb();
     const { id } = await params;
-    const { data: booking } = await supabase.from("bookings").select("unit_id").eq("id", id).single();
-    const { error } = await supabase.from("bookings").update({ status: "cancelled" } as any).eq("id", id);
-    if (error) throw error;
-    if (booking?.unit_id) {
-      await supabase.from("units").update({ status: "vacant" } as any).eq("id", booking.unit_id);
-    }
+    const rows = await sql`SELECT unit_id FROM bookings WHERE id = ${id}`;
+    await sql`UPDATE bookings SET status = 'cancelled' WHERE id = ${id}`;
+    const unitId = rows[0] ? (rows[0] as Record<string, unknown>).unit_id as string : null;
+    if (unitId) await sql`UPDATE units SET status = 'vacant' WHERE id = ${unitId}`;
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Delete failed";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
