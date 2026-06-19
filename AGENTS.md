@@ -3,3 +3,35 @@
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
+
+# eHMS AI Agent Guidelines
+
+## 1. Repository Structure & Dev Setup
+- The root workspace is `d:\Training\working\HMS` (which is a git clone).
+- A nested clone of the repository is at `d:\Training\working\HMS\frontend` (submodule/nested clone).
+- **CRITICAL:** The dev server runs in the nested `d:\Training\working\HMS\frontend` folder. Keep both folders synchronized. Run `git pull` or copy modifications between them when editing source files.
+
+## 2. Database (NeonDB)
+- The codebase was migrated from Supabase to **NeonDB** (PostgreSQL 16).
+- All API routes use `getDb()` from `@/lib/db.ts` (Neon serverless SQL driver).
+- Do not use Supabase JS clients or SDKs for database access.
+- Seed runner is available via `npm run seed` (`scripts/seed-only.mjs`) and database reset + migrate via `npm run migrate` (`scripts/migrate.mjs`).
+
+## 3. Middleware & Proxy Setup
+- Next.js uses `middleware.ts` in the app root, which acts as a wrapper calling `proxy` from `proxy.ts`.
+- The middleware matcher is defined in `proxy.ts`.
+- **CRITICAL:** The matcher must exclude `_next` entirely (`/((?!_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)`) to prevent intercepting Next.js internal paths and HMR WebSockets, which causes `ERR_INVALID_HTTP_RESPONSE` connection failures on `_next/webpack-hmr`.
+
+## 4. Authentication & RBAC
+- JWT-based authentication using httpOnly cookie `ehms_token`.
+- Sidebar navigation and page access are governed by `lib/role-access.ts` (RBAC allowed routes per user role).
+- Demo Users (Password for all: `Demo@1234`):
+  - Super Admin: `superadmin@ehms.demo`
+  - Property Manager: `admin@ehms.demo`
+  - Executive: `executive@ehms.demo`
+  - Front Desk: `frontdesk@ehms.demo`
+  - Housekeeping: `housekeeping@ehms.demo`
+  - Maintenance: `maintenance@ehms.demo`
+  - HR Manager: `hr@ehms.demo`
+  - Finance Manager: `finance@ehms.demo`
+

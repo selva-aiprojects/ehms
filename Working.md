@@ -93,7 +93,8 @@ d:\Training\working\HMS\
     │   │   ├── index.ts             ← All SWR data hooks
     │   │   └── mutations.ts         ← CRUD mutation hooks
     │   └── supabase/                ← Legacy (kept for reference, not used)
-    ├── middleware.ts                 ← JWT-based RBAC middleware
+    ├── middleware.ts                 ← JWT-based RBAC middleware wrapper calling proxy.ts
+    ├── proxy.ts                      ← Core middleware logic (exclude _next/ from matcher)
     ├── .env.local                   ← DATABASE_URL + JWT_SECRET
     └── public/
         ├── eHMS_logo.png
@@ -251,7 +252,7 @@ POST /api/auth/logout
   └── Clears "ehms_token" cookie
 
 middleware.ts
-  └── Reads JWT cookie → validates → redirects unauthorized
+  └── Calls proxy(request) from proxy.ts (verifies JWT, validates paths, handles redirects)
 ```
 
 ### API Routes (`app/api/`)
@@ -505,6 +506,8 @@ vercel --prod
 | Demo login fails — pgcrypto vs bcrypt mismatch | Login API now uses `crypt(input, hash)` SQL verify for demo users |
 | Superuser sidebar empty | JWT cookie auth working; sidebar reads `role_name` from `/api/auth/me` |
 | `admin@ehms.demo` missing from DEMO_ROLE_MAP | Added `property_manager` mapping in `lib/role-access.ts` |
+| HMR WebSocket connection handshake failure (`_next/webpack-hmr` ERR_INVALID_HTTP_RESPONSE) | Excluded all Next.js internal paths `_next/` from the middleware matcher in `proxy.ts` to prevent request interception during WebSocket upgrade handshake. |
+| Submodule `frontend` out of sync with root repo changes | Ran `git pull` in `frontend` submodule to ensure both instances run identical updated files. |
 
 ---
 
