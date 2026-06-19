@@ -29,13 +29,38 @@ ON CONFLICT DO NOTHING;
 -- Auth users (Supabase Auth — created via Supabase dashboard or auth.admin.createUser)
 -- Demo app users (insert into public.users after creating auth users)
 INSERT INTO users (email, phone, password_hash, first_name, last_name, is_active) VALUES
-  ('admin@ehms.demo',        '+91-9000000001', crypt('Demo@1234', gen_salt('bf')), 'Joan',  'Smith',    true),
+  ('superadmin@ehms.demo',   '+91-9000000000', crypt('Demo@1234', gen_salt('bf')), 'Joan',  'Smith',    true),
+  ('admin@ehms.demo',        '+91-9000000001', crypt('Demo@1234', gen_salt('bf')), 'Admin', 'User',     true),
   ('frontdesk@ehms.demo',    '+91-9000000002', crypt('Demo@1234', gen_salt('bf')), 'Ravi',  'Kumar',    true),
   ('housekeeping@ehms.demo', '+91-9000000003', crypt('Demo@1234', gen_salt('bf')), 'Meena', 'Pillai',   true),
   ('maintenance@ehms.demo',  '+91-9000000004', crypt('Demo@1234', gen_salt('bf')), 'Arjun', 'Sharma',   true),
   ('hr@ehms.demo',           '+91-9000000005', crypt('Demo@1234', gen_salt('bf')), 'Priya', 'Nair',     true),
-  ('finance@ehms.demo',      '+91-9000000006', crypt('Demo@1234', gen_salt('bf')), 'Vikram','Iyer',     true)
+  ('finance@ehms.demo',      '+91-9000000006', crypt('Demo@1234', gen_salt('bf')), 'Vikram','Iyer',     true),
+  ('executive@ehms.demo',    '+91-9000000007', crypt('Demo@1234', gen_salt('bf')), 'Anita', 'Desai',    true)
 ON CONFLICT (email) DO NOTHING;
+
+-- Assign roles to demo users (matches ROLE_ACCESS keys in role-access.ts)
+INSERT INTO user_roles (user_id, role_id, property_id)
+SELECT u.id, r.id, NULL
+FROM users u, roles r
+WHERE (u.email, r.name) IN (
+  ('superadmin@ehms.demo',   'super_admin'),
+  ('admin@ehms.demo',        'property_manager'),
+  ('frontdesk@ehms.demo',    'front_desk'),
+  ('housekeeping@ehms.demo', 'housekeeping_staff'),
+  ('maintenance@ehms.demo',  'maintenance_staff'),
+  ('hr@ehms.demo',           'hr_manager'),
+  ('finance@ehms.demo',      'finance_manager'),
+  ('executive@ehms.demo',    'executive')
+)
+ON CONFLICT (user_id, role_id, property_id) DO NOTHING;
+
+-- Give super_admin also the executive role for full access
+INSERT INTO user_roles (user_id, role_id, property_id)
+SELECT u.id, r.id, NULL
+FROM users u, roles r
+WHERE u.email = 'superadmin@ehms.demo' AND r.name = 'executive'
+ON CONFLICT (user_id, role_id, property_id) DO NOTHING;
 
 -- Guest profiles (20 sample guests)
 INSERT INTO guest_profiles (first_name, last_name, email, phone, nationality, id_type, id_number, id_verified, tags, loyalty_points, total_stays) VALUES
@@ -190,11 +215,14 @@ SELECT
   e.salary
 FROM users u
 JOIN (VALUES
-  ('frontdesk@ehms.demo',    'Front Desk', 'Guest Services Executive', 35000),
-  ('housekeeping@ehms.demo', 'Housekeeping','Housekeeping Supervisor',  28000),
-  ('maintenance@ehms.demo',  'Maintenance', 'Maintenance Technician',   32000),
-  ('hr@ehms.demo',           'Human Resources','HR Manager',            55000),
-  ('finance@ehms.demo',      'Finance',     'Finance Manager',          60000)
+  ('superadmin@ehms.demo',    'Front Desk',  'System Administrator',    80000),
+  ('admin@ehms.demo',         'Front Desk',  'Property Administrator',  45000),
+  ('frontdesk@ehms.demo',    'Front Desk',   'Guest Services Executive', 35000),
+  ('housekeeping@ehms.demo', 'Housekeeping', 'Housekeeping Supervisor',  28000),
+  ('maintenance@ehms.demo',  'Maintenance',  'Maintenance Technician',   32000),
+  ('hr@ehms.demo',           'Human Resources','HR Manager',             55000),
+  ('finance@ehms.demo',      'Finance',      'Finance Manager',          60000),
+  ('executive@ehms.demo',    'Finance',      'Executive Director',       75000)
 ) AS e(email, dept_name, designation, salary) ON u.email = e.email
 JOIN departments d ON d.name = e.dept_name
 ON CONFLICT DO NOTHING;
