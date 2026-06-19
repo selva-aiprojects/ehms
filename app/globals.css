@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+/* ─── eHMS Design System ─── */
+:root {
+  /* Sidebar / Shell */
+  --color-sidebar:       #2C3547;
+  --color-sidebar-hover: rgba(255,255,255,0.07);
+  --color-sidebar-active-bg: rgba(43,174,142,0.18);
+  --color-sidebar-active-text: #2BAE8E;
+
+  /* Brand palette */
+  --color-primary:       #2BAE8E;   /* teal-green */
+  --color-primary-dark:  #229F82;   /* hover darken */
+  --color-secondary:     #4DB88A;   /* light green (logo accent) */
+  --color-navy:          #1A3C5E;   /* dark navy headings */
+  --color-amber:         #F5A623;   /* warm amber for warnings */
+
+  /* Surfaces */
+  --color-light:         #F5F7FA;
+  --color-white:         #FFFFFF;
+  --color-border:        #E2E8F0;
+
+  /* Text */
+  --color-text:          #1A2E44;
+  --color-text-muted:    #64748B;
+
+  /* Status */
+  --color-danger:        #E53E3E;
+  --color-success:       #2BAE8E;
+  --color-warning:       #F5A623;
+}
+
+@theme inline {
+  --color-ehms-primary:   #2BAE8E;
+  --color-ehms-secondary: #4DB88A;
+  --color-ehms-navy:      #1A3C5E;
+  --color-ehms-sidebar:   #2C3547;
+  --color-ehms-amber:     #F5A623;
+  --color-ehms-light:     #F5F7FA;
+  --color-ehms-text:      #1A2E44;
+  --color-ehms-muted:     #64748B;
+  --color-ehms-border:    #E2E8F0;
+  --color-ehms-danger:    #E53E3E;
+}
+
+body {
+  background: var(--color-light);
+  color: var(--color-text);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-light); }
+::-webkit-scrollbar-thumb { background: var(--color-text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
