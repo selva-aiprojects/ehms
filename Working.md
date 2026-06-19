@@ -2,7 +2,7 @@
 
 > **Enterprise Hospitality Management System**
 > Full progress log from project start to current state.
-> Last updated: 18 June 2026
+> Last updated: 19 June 2026
 
 ---
 
@@ -11,8 +11,8 @@
 | Item | Detail |
 |---|---|
 | **Project** | eHMS — Enterprise Hospitality Management System |
-| **Stack** | Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · Supabase (PostgreSQL) |
-| **Local dev** | `http://localhost:3000` |
+| **Stack** | Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · NeonDB (PostgreSQL) |
+| **Local dev** | `http://localhost:3001` |
 | **Live URL** | https://ehms-app.vercel.app |
 | **Vercel project** | https://vercel.com/aiservicesselvakumar-8945s-projects/frontend |
 | **Git** | Local repo at `d:\Training\working\HMS\frontend` |
@@ -37,12 +37,12 @@ d:\Training\working\HMS\
 │   ├── 010_lease_tenancy.sql        ← Leases, rental agreements
 │   ├── 011_workplace.sql            ← Desks, memberships, access control
 │   ├── 012_notification_integration.sql
-│   └── seed.sql                     ← Demo data
+│   └── seed.sql                     ← Demo data (passwords via pgcrypto crypt())
 │
-└── frontend/
+└── frontend/   ← (also mirrored at repo root)
     ├── app/
-    │   ├── page.tsx                 ← Login with 7 demo users (all roles)
-    │   ├── layout.tsx
+    │   ├── page.tsx                 ← Login with 8 demo users (all roles)
+    │   ├── layout.tsx               ← suppressHydrationWarning on <body>
     │   ├── globals.css              ← eHMS CSS design tokens
     │   ├── dashboard/
     │   │   ├── layout.tsx           ← AuthProvider wrapper
@@ -58,6 +58,9 @@ d:\Training\working\HMS\
     │   │   ├── workplace/           ← Floor plan + memberships (511 lines)
     │   │   └── admin/               ← System admin + compliance (503 lines)
     │   └── api/                     ← Next.js Route Handlers
+    │       ├── auth/login/          ← pgcrypto + bcrypt dual-verify
+    │       ├── auth/logout/
+    │       ├── auth/me/             ← JWT token verification
     │       ├── dashboard/stats/
     │       ├── reservations/
     │       ├── reservations/[id]/
@@ -68,7 +71,9 @@ d:\Training\working\HMS\
     │       ├── finance/
     │       ├── hr/employees/
     │       ├── properties/
-    │       └── leases/              ← NEW: Lease API endpoint
+    │       ├── visitors/
+    │       ├── workplace/
+    │       └── leases/
     ├── components/
     │   ├── layout/
     │   │   ├── sidebar.tsx          ← Role-based nav filtering
@@ -79,18 +84,17 @@ d:\Training\working\HMS\
     │   └── ui/
     │       ├── card.tsx, button.tsx, badge.tsx, table.tsx
     ├── lib/
-    │   ├── supabase/
-    │   │   ├── client.ts            ← Browser Supabase client
-    │   │   ├── server.ts            ← Server Supabase client (SSR)
-    │   │   ├── db.ts                ← API route type helper
-    │   │   └── types.ts             ← TypeScript types for all 12 tables
+    │   ├── db.ts                    ← NeonDB serverless connection (DATABASE_URL)
+    │   ├── auth.ts                  ← JWT sign/verify + bcrypt helpers
+    │   ├── auth-context.tsx         ← Auth context + useAuth hook
+    │   ├── role-access.ts           ← RBAC access map + demo role mapping
+    │   ├── reference-constants.ts   ← Shared UI constants + utilities
     │   ├── hooks/
-    │   │   ├── index.ts             ← All SWR data hooks (+ useLeases, useProperties)
-    │   │   └── mutations.ts         ← NEW: CRUD mutation hooks
-    │   ├── auth-context.tsx         ← NEW: Auth context + useAuth hook
-    │   ├── role-access.ts          ← NEW: RBAC access map + demo role mapping
-    │   └── reference-constants.ts  ← NEW: Shared UI constants + utilities
-    ├── middleware.ts                 ← RBAC middleware
+    │   │   ├── index.ts             ← All SWR data hooks
+    │   │   └── mutations.ts         ← CRUD mutation hooks
+    │   └── supabase/                ← Legacy (kept for reference, not used)
+    ├── middleware.ts                 ← JWT-based RBAC middleware
+    ├── .env.local                   ← DATABASE_URL + JWT_SECRET
     └── public/
         ├── eHMS_logo.png
         └── eHMS Theme settings.png
@@ -141,11 +145,10 @@ Used `next/image` with `priority` flag for optimal LCP.
 ## Step 3 — Dashboard Redesign
 
 ### Sidebar
-- Simplified to **5 primary nav items**: Dashboard, Reservations, Guests, Reports, Settings
-- "More →" toggle reveals full 9-item nav
+- Simplified to **primary nav items**: Dashboard, Front Desk, Hotels, Apartments, Rental, Workplace, Housekeeping, Maintenance, Finance, HRMS, Admin
 - **Active state**: `3px solid #2BAE8E` left border + `rgba(255,255,255,0.10)` white bg
 - Floating teal collapse toggle button on right edge
-- Property selector dropdown at bottom
+- Role-based filtering — each item shows only for permitted roles
 
 ### Header
 - **Left**: Hamburger `≡` icon
@@ -195,46 +198,69 @@ vercel alias set frontend-phi-peach-t78dm4t7ea.vercel.app ehms-app.vercel.app
 
 ---
 
-## Step 6 — Database Integration (Supabase)
+## Step 6 — Database Migration: Supabase → NeonDB ✅
 
-### Why Supabase?
-- Hosted PostgreSQL 15 — fully compatible with all 12 existing SQL schemas
-- Supports: `uuid-ossp`, `pgcrypto`, RLS, `GENERATED ALWAYS AS`, indexes
-- Built-in Auth (email + password, JWT, cookie sessions)
-- JavaScript SDK for Next.js
-- Free tier sufficient for development and early production
+### Why NeonDB?
+- Serverless PostgreSQL with auto-scaling — zero idle cost
+- Native `@neondatabase/serverless` driver for edge-compatible SQL
+- Fully compatible with all 12 existing SQL schemas (PostgreSQL 16)
+- Supports: `uuid-ossp`, `pgcrypto`, `GENERATED ALWAYS AS`, indexes, RLS
+- Single `DATABASE_URL` connection string — simpler than Supabase's 3 keys
+- Connection pooling via Neon's built-in pooler (`?sslmode=require`)
 
-### Packages installed
-```bash
-npm install @supabase/supabase-js @supabase/ssr swr
+### Migration completed
+- Removed Supabase client usage from all active API routes
+- `lib/db.ts` — new NeonDB singleton using `@neondatabase/serverless`
+- `lib/auth.ts` — JWT-based auth replaces Supabase Auth
+- All 12 SQL schemas + seed data loaded into Neon project
+
+### Current `.env.local` structure
+```env
+# eHMS — Environment Variables
+DATABASE_URL=postgresql://neondb_owner:<password>@ep-<slug>-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require
+
+# JWT Secret — generate with: openssl rand -hex 32
+JWT_SECRET=ehms-dev-jwt-secret-do-not-use-in-production-change-this
 ```
 
-### Architecture
+### Architecture (current)
 ```
-Browser → SWR Hook → fetch() → Next.js API Route → Supabase (service role)
-                                                              │
-                                                    PostgreSQL tables
+Browser → SWR Hook → fetch() → Next.js API Route → NeonDB (serverless SQL)
+                                                            │
+                                                  PostgreSQL 16 tables
+                                                  (Neon cloud, US-East-1)
 ```
 
-### New Files Created
+### Data Layer (`lib/db.ts`)
+```typescript
+import { neon } from "@neondatabase/serverless";
+export function getDb() { /* cached singleton */ }
+```
 
-#### `lib/supabase/`
-| File | Purpose |
-|---|---|
-| `client.ts` | Browser-safe Supabase client (anon key) |
-| `server.ts` | Server-side client with SSR cookie handling |
-| `db.ts` | Escape hatch for API routes (typed as `any`) |
-| `types.ts` | Full TypeScript types for all 12 DB tables |
+### Auth Architecture (JWT-based)
+```
+POST /api/auth/login
+  ├── Demo users (@ehms.demo): verify via pgcrypto crypt() in SQL
+  ├── Regular users: compare via bcryptjs
+  └── Issues httpOnly JWT cookie "ehms_token" (7 days)
 
-#### `middleware.ts`
-- Refreshes session on every request via Supabase SSR
-- Unauthenticated → `/dashboard/*` redirected to `/`
-- Authenticated → `/` redirected to `/dashboard`
+GET /api/auth/me
+  └── Reads + verifies JWT cookie → returns UserProfile
 
-#### API Routes (`app/api/`)
+POST /api/auth/logout
+  └── Clears "ehms_token" cookie
+
+middleware.ts
+  └── Reads JWT cookie → validates → redirects unauthorized
+```
+
+### API Routes (`app/api/`)
 
 | Route | Methods | Key Tables |
 |---|---|---|
+| `/api/auth/login` | POST | `users`, `user_roles`, `roles` |
+| `/api/auth/me` | GET | JWT cookie verify |
+| `/api/auth/logout` | POST | Cookie clear |
 | `/api/dashboard/stats` | GET | `bookings`, `payments`, `units`, `guest_profiles` |
 | `/api/reservations` | GET, POST | `bookings`, `units`, `guest_profiles`, `properties` |
 | `/api/reservations/[id]` | GET, PUT, DELETE | `bookings` + unit status sync |
@@ -266,10 +292,10 @@ useMaintenance(filters)  // Ticket list
 useFinance(propertyId)   // Revenue + invoices
 useEmployees(search)     // HR staff
 useProperties(vertical)  // Property occupancy
-useLeases(filters)       // Lease agreements  [NEW]
+useLeases(filters)       // Lease agreements
 ```
 
-#### Mutation Hooks (`lib/hooks/mutations.ts`) [NEW]
+#### Mutation Hooks (`lib/hooks/mutations.ts`)
 ```typescript
 useCheckIn()             // Check-in guest + set unit to occupied
 useCheckOut()            // Check-out guest + set unit to dirty
@@ -282,41 +308,42 @@ useCreateMaintenanceTicket() // Create maintenance ticket
 
 ---
 
-## Step 7 — RBAC + Auth System [NEW]
+## Step 7 — RBAC + Auth System
 
 ### Auth Context (`lib/auth-context.tsx`)
 - `AuthProvider` wraps all dashboard pages
-- `useAuth()` hook exposes: `user`, `profile`, `role`, `isLoading`, `isAuthenticated`, `signOut()`
-- Looks up `public.users` table by email to get `role_name`
-- No Supabase RLS dependency
+- `useAuth()` hook exposes: `user`, `loading`, `error`, `signOut()`, `refresh()`
+- Fetches `/api/auth/me` on mount — reads JWT cookie
+- Falls back to `localStorage.ehms_demo_session` for sidebar hydration
 
 ### Role Access (`lib/role-access.ts`)
 - `ROLE_ACCESS` map: defines which pages each role can access
 - `ROLE_LABELS`: human-readable role names
-- `DEMO_ROLE_MAP`: email → role mapping for 7 demo users
+- `DEMO_ROLE_MAP`: email → role mapping for all 8 demo users
 - `hasAccess(role, path)`: utility to check page access
 
 ### Middleware RBAC (`middleware.ts`)
-- Reads `DEMO_ROLE_MAP` by email from session
-- Redirects unauthorized users to `/dashboard`
+- Reads `ehms_token` JWT cookie
+- Redirects unauthenticated users to `/`
 - Protects all `/dashboard/*` routes
 
 ### Demo Users (Login Page)
 | Role | Email | Pages |
 |---|---|---|
 | Super Admin | superadmin@ehms.demo | All pages |
-| Front Desk | frontdesk@ehms.demo | Dashboard, Front Desk, Reservations, Guests |
+| Executive | executive@ehms.demo | All pages (read-only executive view) |
+| Property Mgr | admin@ehms.demo | Dashboard, Hotels, Apartments, Rental, Workplace, Admin |
+| Front Desk | frontdesk@ehms.demo | Dashboard, Front Desk |
 | Housekeeping | housekeeping@ehms.demo | Dashboard, Housekeeping |
 | Maintenance | maintenance@ehms.demo | Dashboard, Maintenance |
-| Executive | executive@ehms.demo | Dashboard, all operational read-only |
-| HR Manager | hr@ehms.demo | Dashboard, HR |
-| Finance Manager | finance@ehms.demo | Dashboard, Finance |
+| HR Manager | hr@ehms.demo | Dashboard, HRMS |
+| Finance Mgr | finance@ehms.demo | Dashboard, Finance |
 
 Password for all: `Demo@1234`
 
 ---
 
-## Step 8 — Layout Components [Enhanced]
+## Step 8 — Layout Components
 
 ### Header (`components/layout/header.tsx`)
 - Avatar with initials from user profile
@@ -373,8 +400,11 @@ Password for all: `Demo@1234`
 | Maintenance tickets | 5 |
 | Payments | Linked to paid bookings |
 | Departments | 6 |
-| Employees | 5 (one per role) |
-| Demo users (auth) | 6 (`@ehms.demo`, password: `Demo@1234`) |
+| Employees | 8 (one per demo user) |
+| Demo users | 8 (`@ehms.demo`, password: `Demo@1234`, stored via pgcrypto crypt()) |
+
+> **Note**: Passwords in `seed.sql` use PostgreSQL `pgcrypto` `crypt('Demo@1234', gen_salt('bf'))`.
+> The login API verifies demo users in-DB using `crypt(input, stored_hash)` — no bcrypt conflict.
 
 ---
 
@@ -384,47 +414,36 @@ Password for all: `Demo@1234`
 |---|---|
 | `fe7691f` | Initial commit from Create Next App |
 | `55a7dbe` | feat: apply eHMS theme, redesign dashboard, sidebar, header |
-| `fd0b913` | feat: full database integration with Supabase |
+| `fd0b913` | feat: full database integration (originally Supabase) |
+| *(current)* | fix: migrate to NeonDB, fix login (pgcrypto compat), fix sidebar RBAC, fix hydration |
 
 ---
 
-## Pending Steps (Needs Your Action)
+## Setup Guide (NeonDB)
 
-### Step A — Create Supabase project
-1. Go to [https://supabase.com](https://supabase.com) → **Start your project**
-2. Sign in → **New project** → Name: `ehms`, Region: Singapore
-3. Wait ~2 minutes for provisioning
-4. Go to **Settings → API** → copy `Project URL` + `anon public key` + `service_role key`
+### Step A — NeonDB project (already done ✅)
+Your Neon project is live at `ep-delicate-scene-athrbyyk-pooler.c-9.us-east-1.aws.neon.tech`.
 
-### Step B — Create `.env.local`
-Create `d:\Training\working\HMS\frontend\.env.local`:
+### Step B — `.env.local` (already configured ✅)
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+DATABASE_URL=postgresql://neondb_owner:<password>@ep-<slug>-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require
+JWT_SECRET=ehms-dev-jwt-secret-do-not-use-in-production-change-this
 ```
 
-### Step C — Run SQL schemas in Supabase SQL Editor
-Run in order:
+### Step C — Run SQL schemas in Neon SQL Editor
+Go to **Neon Console → SQL Editor**, run in order:
 ```
 001_core_schema.sql  →  002  →  003  →  004  →  005  →  006
 →  007  →  008  →  009  →  010  →  011  →  012  →  seed.sql
 ```
 
-### Step D — Create demo auth users
-Supabase Dashboard → **Authentication → Users → Add user** (7 users):
-```
-superadmin@ehms.demo    Demo@1234
-frontdesk@ehms.demo     Demo@1234
-housekeeping@ehms.demo  Demo@1234
-maintenance@ehms.demo   Demo@1234
-executive@ehms.demo     Demo@1234
-hr@ehms.demo            Demo@1234
-finance@ehms.demo       Demo@1234
-```
+### Step D — No auth user creation needed
+Unlike Supabase Auth, all users live in the `public.users` table with bcrypt/pgcrypto hashed passwords. The seed.sql creates all 8 demo users automatically.
 
 ### Step E — Add env vars to Vercel + redeploy
 ```bash
+vercel env add DATABASE_URL
+vercel env add JWT_SECRET
 vercel --prod
 ```
 
@@ -438,12 +457,12 @@ vercel --prod
 | Language | TypeScript | 5.x |
 | Styling | Tailwind CSS + CSS Variables | 4.x |
 | Icons | Lucide React | 1.21.0 |
-| Charts | Vanilla SVG (custom) | — |
-| Data fetching | SWR | latest |
+| Charts | Recharts + Vanilla SVG | 3.x |
+| Data fetching | SWR | 2.x |
 | Mutations | SWR + global cache invalidation | latest |
-| Database | PostgreSQL (via Supabase) | 15 |
-| Auth | Supabase Auth + custom RBAC | latest |
-| ORM/Client | @supabase/supabase-js + @supabase/ssr | latest |
+| Database | PostgreSQL 16 (via **NeonDB**) | 16 |
+| DB Driver | `@neondatabase/serverless` | 1.x |
+| Auth | Custom JWT + bcrypt + pgcrypto | — |
 | Deployment | Vercel | — |
 | Font | Geist Sans / Geist Mono | — |
 
@@ -478,32 +497,43 @@ vercel --prod
 
 ---
 
+## Known Issues Fixed
+
+| Issue | Fix |
+|---|---|
+| Hydration error: `antigravity-scroll-lock` class mismatch | Added `suppressHydrationWarning` to `<body>` in `app/layout.tsx` |
+| Demo login fails — pgcrypto vs bcrypt mismatch | Login API now uses `crypt(input, hash)` SQL verify for demo users |
+| Superuser sidebar empty | JWT cookie auth working; sidebar reads `role_name` from `/api/auth/me` |
+| `admin@ehms.demo` missing from DEMO_ROLE_MAP | Added `property_manager` mapping in `lib/role-access.ts` |
+
+---
+
 ## Gap Analysis
 
-### What's Complete
+### What's Complete ✅
 - Full theme rebrand (SAMP → eHMS)
 - Logo integration across all surfaces
 - Dashboard redesign matching reference
 - Vercel deployment with custom domain
 - 12 SQL schemas + seed data
-- Supabase integration with 10 API routes
-- SWR data hooks for all modules
-- Auth system with 7 demo roles
+- **NeonDB** integration with all API routes
+- JWT-based auth with httpOnly cookie
 - RBAC middleware, sidebar filtering, route protection
+- SWR data hooks for all modules
+- Auth system with 8 demo roles
 - Profile dropdown with logout
 - All 10 dashboard pages >500 lines each with live data wiring
 - Mutation hooks (check-in, check-out, create, update)
 - Lease API endpoint
 - Shared utility constants
+- Hydration error fix
 
-### What Needs Your Action
-1. Create Supabase project (free tier)
-2. Set `.env.local` with Supabase credentials
-3. Run all 12 SQL schemas + seed data in order
-4. Create 7 demo auth users in Supabase Auth dashboard
-5. Deploy to Vercel with env vars
-6. Install and configure PostgreSQL locally for development (optional)
+### What May Need Attention
+1. Run `seed.sql` in Neon if demo data is missing
+2. Set `DATABASE_URL` + `JWT_SECRET` in Vercel env vars for production
+3. Change `JWT_SECRET` to a strong random value for production
+4. Consider bcrypt migration script for existing pgcrypto users if adding non-demo users
 
 ---
 
-*Working.md — eHMS Project · Created 18 June 2026*
+*Working.md — eHMS Project · Created 18 June 2026 · Updated 19 June 2026*
