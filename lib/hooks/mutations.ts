@@ -83,3 +83,16 @@ export function useCreateMaintenanceTicket() {
   });
   return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
 }
+
+export function useCreateLease() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/leases", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/leases"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/properties"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/dashboard/stats"));
+    },
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Briefcase, Plus, AlertCircle, Loader2, RefreshCw, CheckCircle, Users, Building2, Calendar, Clock, MapPin, UserCheck, DoorOpen, TrendingUp, CreditCard, Search, Coffee, MessageSquare, Star, Printer, Wifi, Tv } from "lucide-react";
@@ -70,6 +70,19 @@ export default function WorkplacePage() {
   const availableDesks = FLOOR_PLAN_DESKS.filter((d) => d.status === "available").length;
   const meetingRoomsFree = FLOOR_PLAN_DESKS.filter((d) => d.id.startsWith("MR") && d.status === "available").length;
   const meetingRoomsTotal = FLOOR_PLAN_DESKS.filter((d) => d.id.startsWith("MR")).length;
+
+  const isLoadingDisplay = loadingMemberships && !memberships;
+
+  if (isLoadingDisplay) {
+    return (
+      <div className="flex h-[80vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#64748B] text-sm font-medium">Loading Workplace Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

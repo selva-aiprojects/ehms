@@ -6,7 +6,7 @@ import Image from "next/image";
 import {
   LayoutDashboard, CalendarCheck, Users, BarChart2, Settings,
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
-  UserCog, Home, Hotel, ChevronLeft, Shield,
+  UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
@@ -14,7 +14,13 @@ import { hasAccess } from "@/lib/role-access";
 
 const ALL_NAV_ITEMS = [
   { label: "Dashboard",    icon: LayoutDashboard, href: "/dashboard", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor","housekeeping_staff","maintenance_staff","maintenance_supervisor","hr_manager","hr_executive","finance_manager","finance_executive","security_staff","vendor_user","workplace_facility_manager"] },
-  { label: "Front Desk",   icon: CalendarCheck,   href: "/dashboard/front-desk", roles: ["super_admin","executive","front_desk"] },
+  { label: "Command Center",icon: CalendarCheck,  href: "/dashboard/front-desk", roles: ["super_admin","executive","front_desk"] },
+  { label: "Guest Profiles",icon: Users,          href: "/dashboard/front-desk/guests", roles: ["super_admin","executive","front_desk"] },
+  { label: "Check-Ins",     icon: ClipboardList,  href: "/dashboard/front-desk/check-ins", roles: ["super_admin","executive","front_desk"] },
+  { label: "Billing & Folio",icon: Wallet,        href: "/dashboard/front-desk/billing", roles: ["super_admin","executive","front_desk"] },
+  { label: "F&B / Pantry",  icon: Coffee,         href: "/dashboard/front-desk/f-and-b", roles: ["super_admin","executive","front_desk"] },
+  { label: "Requests",      icon: Wrench,         href: "/dashboard/front-desk/requests", roles: ["super_admin","executive","front_desk"] },
+  { label: "Feedbacks",     icon: Star,           href: "/dashboard/front-desk/feedbacks", roles: ["super_admin","executive","front_desk"] },
   { label: "Hotels",       icon: Hotel,           href: "/dashboard/hotels", roles: ["super_admin","executive","property_manager"] },
   { label: "Apartments",   icon: Building2,       href: "/dashboard/apartments", roles: ["super_admin","executive","property_manager"] },
   { label: "Rental",       icon: Home,            href: "/dashboard/rental", roles: ["super_admin","executive","property_manager"] },
@@ -26,7 +32,7 @@ const ALL_NAV_ITEMS = [
   { label: "Admin",        icon: UserCog,         href: "/dashboard/admin", roles: ["super_admin","executive","property_manager"] },
 ];
 
-const PRIMARY_LABELS = ["Dashboard", "Front Desk", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"];
+const PRIMARY_LABELS = ["Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio", "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"];
 
 function getLocalDemoUser(): UserProfile | null {
   try { const r = localStorage.getItem("ehms_demo_session"); return r ? JSON.parse(r) : null; } catch { return null; }

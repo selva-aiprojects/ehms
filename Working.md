@@ -537,6 +537,26 @@ vercel --prod
 3. Change `JWT_SECRET` to a strong random value for production
 4. Consider bcrypt migration script for existing pgcrypto users if adding non-demo users
 
+## Step 10 — Phase 2: Expanded Scope (Front Desk & F&B)
+
+The original scope for the Front Desk module was expanded on 20 June 2026 to incorporate deeper operational capabilities and integrations.
+
+### Expanded Front Desk Workflows
+- **Check-In Checklists:** Enforced pre-requisites (`checkin_checklists` table) before assigning a room.
+- **Car Parking Allocation:** Assigning slots and tracking vehicles (`parking_allocations`).
+- **Guest Requests & Complaints:** Integrated ticket system linking Front Desk with Maintenance and Housekeeping (`guest_requests`).
+- **Billing & Folio Management:** Comprehensive billing view for adding charges to the guest folio and managing checkout.
+- **Advertisements & Offers:** Tracking and upselling active promotions (`promotions_offers`).
+- **Departmental Feedback:** Post-service feedback tracking across all departments (`guest_feedback`).
+- **Sidebar Overhaul:** Expanded navigation sub-menus for the `front_desk` role including Check-ins, Billing, and Requests.
+
+### Food & Beverage (Pantry & Restaurant)
+- **Meal Plans (Inclusions):** Booking entitlements (`meal_plans`) for complimentary breakfast based on room categories (e.g., EP, CP, MAP).
+- **F&B Menu:** Unified menu system (`f_and_b_menu`).
+- **Room Service / Orders:** POS and ticket tracking for the Pantry (`f_and_b_orders`, `f_and_b_order_items`) enabling cross-department billing to guest folios.
+
+*(Schemas `013-frontdesk-features.sql` and `014-f-and-b-workflow.sql` created and migrated to support these workflows.)*
+
 ---
 
-*Working.md — eHMS Project · Created 18 June 2026 · Updated 19 June 2026*
+*Working.md — eHMS Project · Created 18 June 2026 · Updated 20 June 2026*

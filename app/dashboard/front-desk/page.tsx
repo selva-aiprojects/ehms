@@ -1,26 +1,17 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Search, UserPlus, LogIn, LogOut, RefreshCw, AlertCircle, Loader2, Users, Calendar, DoorOpen, BedDouble, Phone, Mail, MapPin, Clock, Star, MessageSquare, Bell, Settings, ClipboardList, ArrowRight, MoreHorizontal, Home, Wifi, Coffee, ChevronRight, BarChart3, Download, Utensils, Trash2, RotateCcw, Send } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
-import { useReservations, useGuests } from "@/lib/hooks";
+import { useReservations, useGuests, useRoomMatrix } from "@/lib/hooks";
 import { useCheckIn, useCheckOut, useCreateReservation, useCreateGuest } from "@/lib/hooks/mutations";
-
-interface RoomData {
-  id: string;
-  unit_label: string;
-  unit_type: string;
-  status: string;
-  floor_number: number;
-  guest_name?: string;
-  check_in?: string;
-  check_out?: string;
-  rate?: string;
-  vip?: boolean;
-  booking_id?: string;
-}
+import CheckInModal from "./components/CheckInModal";
+import FolioModal from "./components/FolioModal";
+import OffersCard from "./components/OffersCard";
+import ChannelPartnersCard from "./components/ChannelPartnersCard";
+import WalkInModal from "./components/WalkInModal";
 
 const ROOM_STATUS_STYLES: Record<string, { bg: string; dot: string; label: string }> = {
   vacant: { bg: "rgba(42,157,143,0.1)", dot: "#2BAE8E", label: "Vacant" },
@@ -31,21 +22,6 @@ const ROOM_STATUS_STYLES: Record<string, { bg: string; dot: string; label: strin
   reserved: { bg: "rgba(107,122,141,0.12)", dot: "#64748B", label: "Reserved" },
   inspection: { bg: "rgba(42,157,143,0.08)", dot: "#4DB88A", label: "Inspection" },
 };
-
-const MOCK_ROOMS: RoomData[] = [
-  { id: "room-1", unit_label: "101", unit_type: "Deluxe King", status: "occupied", floor_number: 1, guest_name: "Rajesh Kumar", check_in: "18 Jun", check_out: "22 Jun", rate: "₹8,000", vip: true, booking_id: "b1" },
-  { id: "room-2", unit_label: "102", unit_type: "Deluxe Twin", status: "dirty", floor_number: 1, rate: "₹7,500", vip: false },
-  { id: "room-3", unit_label: "103", unit_type: "Suite", status: "vacant", floor_number: 1, rate: "₹15,000", vip: false },
-  { id: "room-4", unit_label: "104", unit_type: "Deluxe King", status: "maintenance", floor_number: 1, rate: "₹8,000", vip: false },
-  { id: "room-5", unit_label: "201", unit_type: "Executive Suite", status: "occupied", floor_number: 2, guest_name: "Sarah Johnson", check_in: "17 Jun", check_out: "20 Jun", rate: "₹18,000", vip: false, booking_id: "b2" },
-  { id: "room-6", unit_label: "202", unit_type: "Deluxe King", status: "vacant", floor_number: 2, rate: "₹8,000", vip: false },
-  { id: "room-7", unit_label: "203", unit_type: "Deluxe Twin", status: "reserved", floor_number: 2, guest_name: "Amit Sharma", check_in: "19 Jun", check_out: "21 Jun", rate: "₹7,500", vip: true, booking_id: "b3" },
-  { id: "room-8", unit_label: "204", unit_type: "Suite", status: "occupied", floor_number: 2, guest_name: "Priya Patel", check_in: "15 Jun", check_out: "20 Jun", rate: "₹15,000", vip: false, booking_id: "b4" },
-  { id: "room-9", unit_label: "301", unit_type: "Penthouse", status: "vacant", floor_number: 3, rate: "₹25,000", vip: false },
-  { id: "room-10", unit_label: "302", unit_type: "Deluxe King", status: "cleaning", floor_number: 3, rate: "₹8,000", vip: false },
-  { id: "room-11", unit_label: "303", unit_type: "Deluxe Twin", status: "occupied", floor_number: 3, guest_name: "Vikram Singh", check_in: "16 Jun", check_out: "19 Jun", rate: "₹7,500", vip: true, booking_id: "b5" },
-  { id: "room-12", unit_label: "304", unit_type: "Suite", status: "occupied", floor_number: 3, guest_name: "Emily Chen", check_in: "14 Jun", check_out: "21 Jun", rate: "₹15,000", vip: false, booking_id: "b6" },
-];
 
 function SkeletonRoomCard() {
   return (
@@ -71,72 +47,98 @@ function SkeletonPanel() {
   );
 }
 
+import { toast } from "react-hot-toast";
+
 export default function FrontDeskPage() {
   const [floor, setFloor] = useState(1);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [applyingAction, setApplyingAction] = useState<string | null>(null);
-  const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [showWalkInModal, setShowWalkInModal] = useState(false);
 
-  const { reservations, isLoading: loadingRes, isError: resError, mutate: mutateRes } = useReservations();
+  const today = new Date().toISOString().split("T")[0];
+  const { reservations, isLoading: loadingRes, isError: resError, mutate: mutateRes } = useReservations({ date: today });
+  const { rooms: matrixRooms, isLoading: loadingMatrix, mutate: mutateMatrix } = useRoomMatrix();
   const { guests, isLoading: loadingGuests } = useGuests();
   const checkInMutation = useCheckIn();
   const checkOutMutation = useCheckOut();
 
-  const rooms = MOCK_ROOMS;
-  const filtered = rooms.filter((r) => r.floor_number === floor);
-  const selected = rooms.find((r) => r.id === selectedRoom);
+  const [checkInModalData, setCheckInModalData] = useState<{ isOpen: boolean, roomId: string, bookingId: string, guestName: string, unitLabel: string } | null>(null);
+  const [folioModalData, setFolioModalData] = useState<{ isOpen: boolean, bookingId: string, guestName: string } | null>(null);
 
-  useEffect(() => {
-    if (actionFeedback) {
-      const t = setTimeout(() => setActionFeedback(null), 3000);
-      return () => clearTimeout(t);
-    }
-  }, [actionFeedback]);
+  const rooms = matrixRooms || [];
+  const filtered = rooms.filter((r: any) => r.floor_number === floor);
+  const selected = rooms.find((r: any) => r.id === selectedRoom);
 
   const arrivalsData = reservations
-    ? (reservations as any[])?.filter((b: any) => b.status === "confirmed" || b.status === "expected") || []
+    ? (reservations as any[])?.filter((b: any) => b.status === "confirmed" || b.status === "pending") || []
     : [];
-  const inHouseData = reservations
-    ? (reservations as any[])?.filter((b: any) => b.status === "checked_in") || []
-    : [];
-  const departuresData = inHouseData.filter((b: any) => {
-    if (!b.check_out) return false;
-    const today = new Date().toISOString().split("T")[0];
-    return b.check_out?.startsWith(today);
+    
+  const inHouseData = rooms.filter((r: any) => r.booking_status === "checked_in");
+  const departuresData = inHouseData.filter((r: any) => {
+    if (!r.check_out) return false;
+    return r.check_out?.startsWith(today);
   });
 
-  async function handleCheckIn(roomId: string, bookingId?: string) {
-    setApplyingAction(roomId);
-    setActionFeedback(null);
+  function handleCheckIn(roomId: string, bookingId?: string) {
+    if (!bookingId) {
+      toast.error("No active booking found for this room.");
+      return;
+    }
+    const rm = rooms.find((r: any) => r.id === roomId);
+    setCheckInModalData({
+      isOpen: true,
+      roomId,
+      bookingId,
+      guestName: rm?.guest_name || "Guest",
+      unitLabel: rm?.unit_label || roomId
+    });
+  }
+
+  async function processCheckIn(data: any) {
+    setApplyingAction(data.roomId);
     try {
-      const bid = bookingId || `b-${roomId}`;
-      await checkInMutation.trigger(bid);
-      setActionFeedback({ type: "success", message: `Checked in Room ${selected?.unit_label || roomId}` });
+      await checkInMutation.trigger(data.bookingId);
+      toast.success(`Checked in Room ${data.unitLabel}`);
       mutateRes();
+      mutateMatrix();
     } catch {
-      setActionFeedback({ type: "error", message: "Check-in failed. Please try again." });
+      toast.error("Check-in failed. Please try again.");
     } finally {
       setApplyingAction(null);
+      setCheckInModalData(null);
     }
   }
 
   async function handleCheckOut(roomId: string, bookingId?: string) {
     setApplyingAction(roomId);
-    setActionFeedback(null);
     try {
       const bid = bookingId || `b-${roomId}`;
       await checkOutMutation.trigger(bid);
-      setActionFeedback({ type: "success", message: `Checked out Room ${selected?.unit_label || roomId}` });
+      toast.success(`Checked out Room ${selected?.unit_label || roomId}`);
       mutateRes();
+      mutateMatrix();
     } catch {
-      setActionFeedback({ type: "error", message: "Check-out failed. Please try again." });
+      toast.error("Check-out failed. Please try again.");
     } finally {
       setApplyingAction(null);
     }
   }
 
   function handleWalkIn() {
-    setActionFeedback({ type: "success", message: "Walk-in booking form opened (integration pending)" });
+    setShowWalkInModal(true);
+  }
+
+  const isLoadingDisplay = loadingMatrix && !matrixRooms;
+
+  if (isLoadingDisplay) {
+    return (
+      <div className="flex h-[80vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#64748B] text-sm font-medium">Loading Front Desk Command Center...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -157,20 +159,6 @@ export default function FrontDeskPage() {
           </Button>
         </div>
       </div>
-
-      {actionFeedback && (
-        <div
-          className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
-          style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
-          }}
-        >
-          {actionFeedback.type === "success" ? <LogIn className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-          {actionFeedback.message}
-        </div>
-      )}
 
       {resError && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
@@ -269,8 +257,22 @@ export default function FrontDeskPage() {
                   <Button variant="secondary" size="sm" className="w-full">
                     <BedDouble className="w-3.5 h-3.5" /> Assign Room
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => {
+                      if (!selected.booking_id) {
+                        toast.error("No active booking for this room to view folio.");
+                        return;
+                      }
+                      setFolioModalData({ isOpen: true, bookingId: selected.booking_id, guestName: selected.guest_name || "Guest" });
+                    }}
+                  >
                     <Search className="w-3.5 h-3.5" /> View Folio
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full">
+                    <AlertCircle className="w-3.5 h-3.5" /> Log Request
                   </Button>
                   {(selected.status === "occupied") && (
                     <Button
@@ -297,6 +299,9 @@ export default function FrontDeskPage() {
             </div>
           )}
         </Card>
+        
+        <ChannelPartnersCard />
+        <OffersCard />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -310,16 +315,11 @@ export default function FrontDeskPage() {
               <p className="text-sm" style={{ color: "#64748B" }}>No arrivals expected today</p>
             </div>
           ) : (
-            arrivalsData.slice(0, 5).map((b: any, i: number) => (
-              <div key={b.id || i} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(arrivalsData.length, 5) - 1 ? "1px solid #E2E8F0" : "none" }}>
-                <div>
-                  <span style={{ color: "#1A2E44" }}>
-                    {b.guest?.first_name} {b.guest?.last_name} ({b.unit?.unit_label || "TBD"})
-                  </span>
-                  <div className="text-xs" style={{ color: "#64748B" }}>
-                    {b.check_in ? new Date(b.check_in).toLocaleDateString() : ""}
-                  </div>
-                </div>
+            arrivalsData.slice(0, 6).map((b: any, i: number) => (
+              <div key={`arrival-${b.id || i}`} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(arrivalsData.length, 6) - 1 ? "1px solid #E2E8F0" : "none" }}>
+                <span style={{ color: "#1A2E44" }}>
+                  {b.guest_name || "Unknown"} ({b.unit_label || "—"})
+                </span>
                 <Badge variant="amber">Arriving</Badge>
               </div>
             ))
@@ -336,9 +336,9 @@ export default function FrontDeskPage() {
             </div>
           ) : (
             inHouseData.slice(0, 6).map((b: any, i: number) => (
-              <div key={b.id || i} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(inHouseData.length, 6) - 1 ? "1px solid #E2E8F0" : "none" }}>
+              <div key={`inhouse-${b.id || i}`} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(inHouseData.length, 6) - 1 ? "1px solid #E2E8F0" : "none" }}>
                 <span style={{ color: "#1A2E44" }}>
-                  {b.guest?.first_name} {b.guest?.last_name} ({b.unit?.unit_label || "—"})
+                  {b.guest_name || "Unknown"} ({b.unit_label || "—"})
                 </span>
                 <Badge variant="teal">In House</Badge>
               </div>
@@ -356,13 +356,13 @@ export default function FrontDeskPage() {
             </div>
           ) : (
             departuresData.slice(0, 4).map((b: any, i: number) => (
-              <div key={b.id || i} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(departuresData.length, 4) - 1 ? "1px solid #E2E8F0" : "none" }}>
+              <div key={`departure-${b.id || i}`} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(departuresData.length, 4) - 1 ? "1px solid #E2E8F0" : "none" }}>
                 <span style={{ color: "#1A2E44" }}>
-                  {b.guest?.first_name} {b.guest?.last_name} ({b.unit?.unit_label || "—"})
+                  {b.guest_name || "Unknown"} ({b.unit_label || "—"})
                 </span>
                 <Button
                   variant="ghost" size="sm"
-                  onClick={() => handleCheckOut(b.id, b.id)}
+                  onClick={() => handleCheckOut(b.id, b.booking_id)}
                   disabled={applyingAction === b.id}
                 >
                   {applyingAction === b.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Check Out"}
@@ -645,6 +645,38 @@ export default function FrontDeskPage() {
           </div>
         </div>
       </Card>
+      
+      {checkInModalData && (
+        <CheckInModal
+          isOpen={true}
+          onClose={() => setCheckInModalData(null)}
+          bookingId={checkInModalData.bookingId}
+          roomId={checkInModalData.roomId}
+          guestName={checkInModalData.guestName}
+          unitLabel={checkInModalData.unitLabel}
+          onConfirm={processCheckIn}
+        />
+      )}
+
+      {showWalkInModal && (
+        <WalkInModal
+          isOpen={showWalkInModal}
+          onClose={() => setShowWalkInModal(false)}
+          onSuccess={() => {
+            toast.success("Walk-In created and checked in successfully!");
+            mutateMatrix();
+            mutateRes();
+          }}
+        />
+      )}
+      
+      <FolioModal
+        isOpen={folioModalData?.isOpen || false}
+        onClose={() => setFolioModalData(null)}
+        bookingId={folioModalData?.bookingId || null}
+        guestName={folioModalData?.guestName || ""}
+        onCheckout={(bId) => handleCheckOut(folioModalData?.roomId || "", bId)}
+      />
     </div>
   );
 }
