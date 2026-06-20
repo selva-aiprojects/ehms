@@ -18,6 +18,23 @@
 | **Git** | Local repo at `d:\Training\working\HMS\frontend` |
 | **Database schemas** | `d:\Training\working\HMS\database\` (12 SQL files) |
 
+
+---
+
+## Domain & Workflow Overview
+
+eHMS is a **subscription-based** Enterprise Hospitality and Facilities Management system serving four major verticals:
+1. **Hotels**
+2. **Serviced Apartments**
+3. **Apartment Management (Long-term Rental)**
+4. **Workplace Services Management**
+
+### The Complete End-to-End Workflow:
+1. **OTAs & Bookings:** Hospitality vendors/OTAs (e.g., MakeMyTrip, GoIbibo) and end-users initiate the journey via advanced bookings or walk-ins. Features, grades, and levels are dictated by the price/tier of the room/flat.
+2. **Visitor Management:** Once booked, guests/visitors are formally checked in through the **Frontdesk** with comprehensive visitor management.
+3. **Facilities Management:** The guest's presence triggers downstream operational workflows. **Facilities administrators**, **Housekeeping**, and **Maintenance vendors** collaborate to maintain the property. Maintenance incorporates vendor availability and repair planning.
+4. **Back-Office Processes:** All operational tasks are tied back to **HR processes** (employee attendance, shift rotations, and salary processing) and an integrated **Finance workflow** (ledger, invoices, payments, reconciliation).
+
 ---
 
 ## Project Structure

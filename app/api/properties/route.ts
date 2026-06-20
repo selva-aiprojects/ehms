@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       SELECT
         p.*,
         COALESCE(
-          json_agg(json_build_object('id', u.id, 'status', u.status)) FILTER (WHERE u.id IS NOT NULL),
+          json_agg(json_build_object('id', u.id, 'status', u.status, 'unit_label', u.unit_label, 'unit_type', u.unit_type)) FILTER (WHERE u.id IS NOT NULL),
           '[]'
         ) AS units
       FROM properties p

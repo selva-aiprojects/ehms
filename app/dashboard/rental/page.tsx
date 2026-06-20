@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { FileText, Plus, AlertCircle, Loader2, RefreshCw, CheckCircle, Home, Calendar, DollarSign, Shield, Search, TrendingUp, TrendingDown, Users, Clock, BadgeCheck, Wrench, MessageCircle, MessageSquare, BarChart3, GitCompareArrows, Timer, CalendarCheck, Repeat, Mail, Phone, GanttChartSquare, Landmark } from "lucide-react";
@@ -6,7 +6,8 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import Table from "@/components/ui/table";
-import { useLeases } from "@/lib/hooks";
+import { useLeases, useProperties, useGuests } from "@/lib/hooks";
+import { useCreateLease } from "@/lib/hooks/mutations";
 
 const MOCK_LEASES = [
   { id: "L-001", tenant_name: "Amit Sharma", unit_label: "3BHK-05", property_name: "Greenwood Residency", start_date: "01 Jan 2026", end_date: "31 Dec 2026", monthly_rent: 28000, status: "active" },
@@ -20,12 +21,12 @@ const MOCK_LEASES = [
 ];
 
 const MOCK_RENT_ROLL = [
-  { tenant: "Amit Sharma", amount: "\u20B928,000", status: "paid" },
-  { tenant: "Neha Gupta", amount: "\u20B922,000", status: "paid" },
-  { tenant: "Rahul Verma", amount: "\u20B918,000", status: "overdue" },
-  { tenant: "Sneha Reddy", amount: "\u20B925,000", status: "pending" },
-  { tenant: "Mohit Raj", amount: "\u20B916,000", status: "paid" },
-  { tenant: "Anita Desai", amount: "\u20B921,000", status: "pending" },
+  { tenant: "Amit Sharma", amount: "₹28,000", status: "paid" },
+  { tenant: "Neha Gupta", amount: "₹22,000", status: "paid" },
+  { tenant: "Rahul Verma", amount: "₹18,000", status: "overdue" },
+  { tenant: "Sneha Reddy", amount: "₹25,000", status: "pending" },
+  { tenant: "Mohit Raj", amount: "₹16,000", status: "paid" },
+  { tenant: "Anita Desai", amount: "₹21,000", status: "pending" },
 ];
 
 const LEASE_BADGE: Record<string, "teal" | "amber" | "navy" | "gray" | "red"> = {
@@ -77,8 +78,58 @@ export default function RentalPage() {
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const { leases, isLoading, isError, mutate } = useLeases({ status: statusFilter });
 
+  // Live queries for modal dropdowns
+  const { properties } = useProperties("rental_apartment");
+  const { guests } = useGuests("", 1);
+  const { trigger: createLease, isMutating: isCreatingLease } = useCreateLease();
+
+  // Modal form states
+  const [showNewLeaseModal, setShowNewLeaseModal] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState("");
+  const [selectedUnit, setSelectedUnit] = useState("");
+  const [selectedTenant, setSelectedTenant] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [rentAmount, setRentAmount] = useState("");
+  const [securityDeposit, setSecurityDeposit] = useState("");
+  const [noticePeriod, setNoticePeriod] = useState("30");
+
   const displayLeases = (leases && (leases as any[]).length > 0) ? (leases as any[]) : MOCK_LEASES;
   const isLoadingDisplay = isLoading && !leases;
+
+  const handleCreateLease = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProperty || !selectedUnit || !selectedTenant || !startDate || !endDate || !rentAmount) {
+      setActionFeedback({ type: "error", message: "Please fill in all required fields." });
+      return;
+    }
+    try {
+      const res = await createLease({
+        property_id: selectedProperty,
+        unit_id: selectedUnit,
+        tenant_id: selectedTenant,
+        start_date: startDate,
+        end_date: endDate,
+        rent_amount: parseFloat(rentAmount),
+        security_deposit: securityDeposit ? parseFloat(securityDeposit) : null,
+        notice_period_days: parseInt(noticePeriod) || 30,
+        status: "active",
+      });
+      setActionFeedback({ type: "success", message: `Lease created successfully with reference: ${res.data.agreement_ref}` });
+      setShowNewLeaseModal(false);
+      // Reset form states
+      setSelectedProperty("");
+      setSelectedUnit("");
+      setSelectedTenant("");
+      setStartDate("");
+      setEndDate("");
+      setRentAmount("");
+      setSecurityDeposit("");
+      setNoticePeriod("30");
+    } catch (err: any) {
+      setActionFeedback({ type: "error", message: err.message || "Failed to create lease" });
+    }
+  };
 
   useEffect(() => {
     if (actionFeedback) {
@@ -87,14 +138,14 @@ export default function RentalPage() {
     }
   }, [actionFeedback]);
 
-  const activeLeases = displayLeases.filter((l: any) => l.status === "active");
+  const activeLeases = displayLeases.filter((l: any) => l.status === "active" || l.status === "signed");
   const renewalDue = displayLeases.filter((l: any) => l.status === "renewal_due");
-  const totalRent = activeLeases.reduce((s: number, l: any) => s + (l.monthly_rent || 0), 0);
-  const rentCollected = MOCK_RENT_ROLL.filter((r) => r.status === "paid").reduce((s, r) => s + parseInt(r.amount.replace(/[\u20B9,]/g, "")), 0);
-  const totalRentRoll = MOCK_RENT_ROLL.reduce((s, r) => s + parseInt(r.amount.replace(/[\u20B9,]/g, "")), 0);
+  const totalRent = activeLeases.reduce((s: number, l: any) => s + (Number(l.rent_amount) || Number(l.monthly_rent) || 0), 0);
+  const rentCollected = MOCK_RENT_ROLL.filter((r) => r.status === "paid").reduce((s, r) => s + parseInt(r.amount.replace(/[₹,]/g, "")), 0);
+  const totalRentRoll = MOCK_RENT_ROLL.reduce((s, r) => s + parseInt(r.amount.replace(/[₹,]/g, "")), 0);
   const collectionPct = totalRentRoll > 0 ? Math.round((rentCollected / totalRentRoll) * 100) : 0;
 
-  const depositTotal = activeLeases.length * 84000;
+  const depositTotal = activeLeases.reduce((s: number, l: any) => s + (Number(l.security_deposit) || 0), 0) || (activeLeases.length * 50000);
   const pendingRefunds = 120000;
   const deductionsThisQ = 45000;
 
@@ -115,7 +166,7 @@ export default function RentalPage() {
               <Loader2 className="w-3 h-3 animate-spin" /> Syncing
             </div>
           )}
-          <Button variant="secondary" size="sm" onClick={() => setActionFeedback({ type: "success", message: "New lease form opened" })}>
+          <Button variant="secondary" size="sm" onClick={() => setShowNewLeaseModal(true)}>
             <FileText className="w-3.5 h-3.5" /> New Lease
           </Button>
           <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
@@ -174,7 +225,7 @@ export default function RentalPage() {
             </div>
             <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-2xl font-bold">\u20B9{(depositTotal / 100000).toFixed(1)}L</div>
+                <div className="text-2xl font-bold">₹{(depositTotal / 100000).toFixed(1)}L</div>
                 <Shield className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">Security Deposits</div>
@@ -214,9 +265,9 @@ export default function RentalPage() {
               { key: "tenant_name", header: "Tenant", render: (l) => <span className="font-medium text-sm">{l.tenant_name || `${l.tenant?.first_name || ""} ${l.tenant?.last_name || ""}`}</span> },
               { key: "unit_label", header: "Unit", render: (l) => <span className="text-xs">{l.unit_label || l.unit?.unit_label || "\u2014"}</span> },
               { key: "property_name", header: "Property", render: (l) => <span className="text-xs" style={{ color: "#64748B" }}>{l.property_name || l.property?.name || "\u2014"}</span> },
-              { key: "start_date", header: "Start", render: (l) => <span className="text-xs" style={{ color: "#64748B" }}>{l.start_date || (l.start_date ? new Date(l.start_date).toLocaleDateString() : "\u2014")}</span> },
-              { key: "end_date", header: "End", render: (l) => <span className="text-xs" style={{ color: "#64748B" }}>{l.end_date || (l.end_date ? new Date(l.end_date).toLocaleDateString() : "\u2014")}</span> },
-              { key: "monthly_rent", header: "Rent", render: (l) => <span className="font-medium">\u20B9{(l.monthly_rent || 0).toLocaleString()}</span> },
+              { key: "start_date", header: "Start", render: (l) => <span className="text-xs" style={{ color: "#64748B" }}>{l.start_date ? new Date(l.start_date).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' }) : "\u2014"}</span> },
+              { key: "end_date", header: "End", render: (l) => <span className="text-xs" style={{ color: "#64748B" }}>{l.end_date ? new Date(l.end_date).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' }) : "\u2014"}</span> },
+              { key: "monthly_rent", header: "Rent", render: (l) => <span className="font-medium">₹{(Number(l.rent_amount) || Number(l.monthly_rent) || 0).toLocaleString()}</span> },
               { key: "status", header: "Status", render: (l) => (
                 <Badge variant={LEASE_BADGE[l.status] || "gray"}>{l.status?.replace("_", " ") || "\u2014"}</Badge>
               )},
@@ -241,7 +292,7 @@ export default function RentalPage() {
           </div>
           <div className="mt-3 pt-3 flex items-center justify-between text-sm" style={{ borderTop: "1px solid #E2E8F0" }}>
             <span className="font-semibold" style={{ color: "#1A3C5E" }}>Total Collected</span>
-            <span className="font-semibold" style={{ color: "#2BAE8E" }}>\u20B9{rentCollected.toLocaleString()}</span>
+            <span className="font-semibold" style={{ color: "#2BAE8E" }}>₹{rentCollected.toLocaleString()}</span>
           </div>
         </Card>
         <Card>
@@ -274,15 +325,15 @@ export default function RentalPage() {
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
               <span style={{ color: "#1A2E44" }}>Total Held</span>
-              <span className="font-semibold" style={{ color: "#1A3C5E" }}>\u20B9{(depositTotal / 100000).toFixed(2)}L</span>
+              <span className="font-semibold" style={{ color: "#1A3C5E" }}>₹{(depositTotal / 100000).toFixed(2)}L</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
               <span style={{ color: "#1A2E44" }}>Pending Refunds</span>
-              <span style={{ color: "#F5A623" }}>\u20B9{pendingRefunds.toLocaleString()}</span>
+              <span style={{ color: "#F5A623" }}>₹{pendingRefunds.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
               <span style={{ color: "#1A2E44" }}>Deductions This Q</span>
-              <span style={{ color: "#E53E3E" }}>\u20B9{deductionsThisQ.toLocaleString()}</span>
+              <span style={{ color: "#E53E3E" }}>₹{deductionsThisQ.toLocaleString()}</span>
             </div>
             <div className="pt-2 mt-2" style={{ borderTop: "1px solid #E2E8F0" }}>
               <Button variant="secondary" size="sm" className="w-full" onClick={() => setActionFeedback({ type: "success", message: "Refund process initiated" })}>
@@ -297,9 +348,9 @@ export default function RentalPage() {
         <CardHeader title="Portfolio Overview" subtitle="All rental properties" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { name: "Greenwood Residency", units: "24", occupied: "21", occPct: "87%", rev: "\u20B95.6L" },
-            { name: "Lakeview Apartments", units: "12", occupied: "10", occPct: "83%", rev: "\u20B93.8L" },
-            { name: "Cityscape Residences", units: "18", occupied: "15", occPct: "83%", rev: "\u20B94.2L" },
+            { name: "Greenwood Residency", units: "24", occupied: "21", occPct: "87%", rev: "₹5.6L" },
+            { name: "Lakeview Apartments", units: "12", occupied: "10", occPct: "83%", rev: "₹3.8L" },
+            { name: "Cityscape Residences", units: "18", occupied: "15", occPct: "83%", rev: "₹4.2L" },
           ].map((p) => (
             <div key={p.name} className="p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
               <div className="font-semibold text-sm mb-2" style={{ color: "#1A3C5E" }}>{p.name}</div>
@@ -409,7 +460,7 @@ export default function RentalPage() {
                       <span style={{ color: p.occupancy >= 85 ? "#2BAE8E" : "#F5A623" }}>{p.occupancy}%</span>
                     </td>
                     <td className="text-center py-2.5 px-2">
-                      <span style={{ color: "#1A3C5E" }}>\u20B9{p.avgRent.toLocaleString()}</span>
+                      <span style={{ color: "#1A3C5E" }}>₹{p.avgRent.toLocaleString()}</span>
                     </td>
                     <td className="text-center py-2.5 px-2">
                       <div className="flex items-center justify-center gap-1">
@@ -422,7 +473,7 @@ export default function RentalPage() {
                       <span style={{ color: "#1A2E44" }}>{p.satisfaction.toFixed(1)}</span>
                     </td>
                     <td className="text-right py-2.5 pl-3">
-                      <span className="font-semibold" style={{ color: "#1A3C5E" }}>\u20B9{(p.revenue / 100000).toFixed(1)}L</span>
+                      <span className="font-semibold" style={{ color: "#1A3C5E" }}>₹{(p.revenue / 100000).toFixed(1)}L</span>
                     </td>
                   </tr>
                 ))}
@@ -479,7 +530,7 @@ export default function RentalPage() {
                   <Badge variant="teal">Forecast</Badge>
                 </div>
                 <div className="flex items-end gap-2 mb-3">
-                  <div className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>\u20B9{(f.expected / 1000).toFixed(0)}K</div>
+                  <div className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>₹{(f.expected / 1000).toFixed(0)}K</div>
                   <div className="text-xs mb-1" style={{ color: "#64748B" }}>expected</div>
                 </div>
                 <div className="h-2 rounded-full" style={{ background: "#E2E8F0" }}>
@@ -504,6 +555,88 @@ export default function RentalPage() {
           <button className="font-medium hover:underline" style={{ color: "#2BAE8E" }}>Generate Detailed Forecast</button>
         </div>
       </Card>
+
+      {/* New Lease Modal Overlay */}
+      {showNewLeaseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
+            <div className="flex items-center justify-between mb-4 pb-2" style={{ borderBottom: "1px solid #E2E8F0" }}>
+              <h3 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Create New Lease Agreement</h3>
+              <button onClick={() => setShowNewLeaseModal(false)} className="text-sm font-semibold hover:underline" style={{ color: "#64748B" }}>✕ Close</button>
+            </div>
+
+            <form onSubmit={handleCreateLease} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Tenant / Resident *</label>
+                <select value={selectedTenant} onChange={(e) => setSelectedTenant(e.target.value)} required className="w-full p-2 border rounded-lg text-sm bg-white outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }}>
+                  <option value="">Select Tenant</option>
+                  {guests?.map((g: any) => (
+                    <option key={g.id} value={g.id}>{g.first_name} {g.last_name} ({g.email})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Rental Property *</label>
+                  <select value={selectedProperty} onChange={(e) => { setSelectedProperty(e.target.value); setSelectedUnit(""); }} required className="w-full p-2 border rounded-lg text-sm bg-white outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }}>
+                    <option value="">Select Property</option>
+                    {properties?.map((p: any) => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Vacant Apartment Unit *</label>
+                  <select value={selectedUnit} onChange={(e) => setSelectedUnit(e.target.value)} required disabled={!selectedProperty} className="w-full p-2 border rounded-lg text-sm bg-white outline-none focus:border-[#2BAE8E] disabled:bg-gray-100" style={{ borderColor: "#E2E8F0" }}>
+                    <option value="">Select Unit</option>
+                    {(properties?.find((p: any) => p.id === selectedProperty)?.units?.filter((u: any) => u.status === "vacant" && u.unit_type === "apartment") || []).map((u: any) => (
+                      <option key={u.id} value={u.id}>{u.unit_label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Monthly Rent (₹) *</label>
+                  <input type="number" min="1" value={rentAmount} onChange={(e) => setRentAmount(e.target.value)} required placeholder="25000" className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Security Deposit (₹)</label>
+                  <input type="number" min="0" value={securityDeposit} onChange={(e) => setSecurityDeposit(e.target.value)} placeholder="50000" className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Lease Start Date *</label>
+                  <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Lease End Date *</label>
+                  <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Notice Period (Days) *</label>
+                <input type="number" min="1" value={noticePeriod} onChange={(e) => setNoticePeriod(e.target.value)} required className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-3">
+                <Button variant="outline" type="button" size="sm" onClick={() => setShowNewLeaseModal(false)}>Cancel</Button>
+                <Button variant="secondary" type="submit" size="sm" disabled={isCreatingLease}>
+                  {isCreatingLease ? "Creating..." : "Create Lease"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

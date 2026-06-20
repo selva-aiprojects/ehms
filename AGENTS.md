@@ -35,3 +35,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - HR Manager: `hr@ehms.demo`
   - Finance Manager: `finance@ehms.demo`
 
+## 5. Domain & Workflow Architecture
+eHMS is a comprehensive **Subscription-Based** Hospitality and Facilities Management system. It is designed to serve four major verticals:
+1. **Hotels**
+2. **Serviced Apartments**
+3. **Apartment Management (Long-term Rental)**
+4. **Workplace Services Management**
+
+**End-to-End Workflow:**
+- **OTAs & Bookings:** Hospitality vendors/OTAs (e.g., MakeMyTrip, GoIbibo) and direct users can book units (rooms/flats/desks) via advanced bookings or walk-ins. Features like facilities, grades, and levels are determined by the price tier.
+- **Visitor & Access Management:** Once booked, visitors/guests are managed end-to-end.
+- **Facilities & Operations:** The user journey triggers downstream workflows starting from the **Frontdesk** (check-in/out), cascading to **Facilities Administrators**, **Housekeeping** (cleaning tasks), and **Maintenance** (vendor availability and repair planning).
+- **Back-Office (HR & Finance):** Operations are supported by complete HR processes (Employee Attendance, Shift rotations, Salary/Payroll) and a complete Finance workflow (Invoicing, General Ledger, Bank Reconciliation).

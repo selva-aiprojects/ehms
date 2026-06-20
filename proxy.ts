@@ -41,4 +41,8 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-
+export const config = {
+  matcher: [
+    "/((?!_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};

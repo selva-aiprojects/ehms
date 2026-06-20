@@ -108,6 +108,7 @@ async function main() {
   // Run seed files
   await runSeedFile(join(DATABASE_DIR, "seed.sql"),    "seed.sql (base demo users & roles)");
   await runSeedFile(join(DATABASE_DIR, "seed_v2.sql"), "seed_v2.sql (rich metrics data)");
+  await runSeedFile(join(DATABASE_DIR, "seed_csa.sql"), "seed_csa.sql (Serviced Apartments data)");
 
   // Final verification
   console.log("\n📈 Final counts:");

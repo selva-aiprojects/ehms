@@ -31,8 +31,9 @@ export async function GET(req: NextRequest) {
       LIMIT ${limit} OFFSET ${offset}
     `;
 
-    const count = rows.length > 0 ? (rows[0] as Record<string, unknown>).total_count as number : 0;
-    const data = rows.map(r => { const { total_count, ...rest } = r as Record<string, unknown>; return rest; });
+    const results = rows as any[];
+    const count = results.length > 0 ? (results[0] as Record<string, unknown>).total_count as number : 0;
+    const data = results.map(r => { const { total_count, ...rest } = r as Record<string, unknown>; return rest; });
 
     return NextResponse.json({ data, count, page, limit });
   } catch (error) {
