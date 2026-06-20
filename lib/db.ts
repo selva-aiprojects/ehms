@@ -1,4 +1,7 @@
-import { neon } from "@neondatabase/serverless";
+import { neon, neonConfig } from "@neondatabase/serverless";
+
+// Enable connection caching to maintain persistent pipelines across queries
+neonConfig.fetchConnectionCache = true;
 
 const databaseUrl = process.env.DATABASE_URL || "";
 

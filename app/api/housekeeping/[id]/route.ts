@@ -8,10 +8,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const body = await req.json();
 
     if (body.status === "resolved") {
-      const taskRows = await sql`SELECT unit_id FROM housekeeping_tasks WHERE id = ${id}`;
-      const unitId = taskRows[0] ? (taskRows[0] as Record<string, unknown>).unit_id as string : null;
-      if (unitId) {
-        await sql`UPDATE units SET status = 'inspection' WHERE id = ${unitId}`;
+      const taskRows = await sql`SELECT unit_id, task_type FROM housekeeping_tasks WHERE id = ${id}`;
+      const taskRow = taskRows[0] as Record<string, unknown>;
+      if (taskRow?.unit_id) {
+        const nextStatus = taskRow.task_type === 'inspection' ? 'vacant' : 'inspection';
+        await sql`UPDATE units SET status = ${nextStatus} WHERE id = ${taskRow.unit_id}`;
       }
       const rows = await sql`
         UPDATE housekeeping_tasks

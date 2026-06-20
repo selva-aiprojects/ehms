@@ -8,16 +8,8 @@ import Button from "@/components/ui/button";
 import { useHousekeeping } from "@/lib/hooks";
 import { useUpdateHousekeepingTask, useCreateHousekeepingTask } from "@/lib/hooks/mutations";
 
-const MOCK_TASKS = [
-  { id: "hk-1", unit_label: "1204", task_type: "VIP Arrival", priority: "critical", floor: 10, assigned_name: "You", status: "in_progress", scheduled_at: new Date().toISOString(), notes: "Prepare VIP amenities" },
-  { id: "hk-2", unit_label: "203", task_type: "Checkout Clean", priority: "high", floor: 2, assigned_name: "You", status: "open", scheduled_at: new Date(Date.now() + 3600000).toISOString(), notes: "" },
-  { id: "hk-3", unit_label: "105", task_type: "Stayover Tidy", priority: "medium", floor: 1, assigned_name: "You", status: "open", scheduled_at: new Date(Date.now() + 7200000).toISOString(), notes: "" },
-  { id: "hk-4", unit_label: "304", task_type: "Deep Clean", priority: "low", floor: 3, assigned_name: "You", status: "open", scheduled_at: new Date(Date.now() + 10800000).toISOString(), notes: "Use eco-friendly products" },
-  { id: "hk-5", unit_label: "102", task_type: "Turnaround", priority: "high", floor: 1, assigned_name: "Ravi", status: "open", scheduled_at: new Date(Date.now() + 1800000).toISOString(), notes: "" },
-  { id: "hk-6", unit_label: "201", task_type: "Stayover Tidy", priority: "medium", floor: 2, assigned_name: "Sita", status: "in_progress", scheduled_at: new Date(Date.now() + 5400000).toISOString(), notes: "" },
-  { id: "hk-7", unit_label: "401", task_type: "Inspection", priority: "critical", floor: 4, assigned_name: "You", status: "assigned", scheduled_at: new Date(Date.now() + 900000).toISOString(), notes: "GM arrival tomorrow" },
-  { id: "hk-8", unit_label: "106", task_type: "Evening Turndown", priority: "low", floor: 1, assigned_name: "You", status: "open", scheduled_at: new Date(Date.now() + 14400000).toISOString(), notes: "" },
-];
+import CreateTaskModal from "./components/CreateTaskModal";
+import TaskChecklistModal from "./components/TaskChecklistModal";
 
 const PRIORITY_BADGE: Record<string, "red" | "amber" | "gray" | "teal"> = {
   critical: "red", high: "amber", medium: "gray", low: "teal",
@@ -51,6 +43,8 @@ export default function HousekeepingPage() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [applyingTask, setApplyingTask] = useState<string | null>(null);
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+  const [selectedChecklistTask, setSelectedChecklistTask] = useState<any | null>(null);
 
   const { tasks, isLoading, isError, mutate } = useHousekeeping({ status: statusFilter });
   const updateTask = useUpdateHousekeepingTask();
@@ -58,6 +52,13 @@ export default function HousekeepingPage() {
 
   const displayTasks = tasks || [];
   const isLoadingDisplay = isLoading && !tasks;
+
+  useEffect(() => {
+    if (actionFeedback) {
+      const t = setTimeout(() => setActionFeedback(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [actionFeedback]);
 
   if (isLoadingDisplay) {
     return (
@@ -69,13 +70,6 @@ export default function HousekeepingPage() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (actionFeedback) {
-      const t = setTimeout(() => setActionFeedback(null), 3000);
-      return () => clearTimeout(t);
-    }
-  }, [actionFeedback]);
 
   const myTasks = displayTasks.filter((t) => t.assignee?.first_name === "You" || !t.assignee || t.assignee?.first_name === "You");
   const openTasks = displayTasks.filter((t) => t.status === "open").length;
@@ -106,24 +100,23 @@ export default function HousekeepingPage() {
     }
   }
 
-  async function handleCreateTask() {
+  async function handleCreateTaskSubmit(data: any) {
     setActionFeedback(null);
     try {
-      await createTask.trigger({
-        unit_id: "",
-        property_id: "",
-        task_type: "inspection",
-        priority: "medium",
-        notes: "Auto-generated task",
-      });
-      setActionFeedback({ type: "success", message: "New task created" });
+      await createTask.trigger(data);
+      setActionFeedback({ type: "success", message: "New task dispatched successfully" });
       mutate();
     } catch {
-      setActionFeedback({ type: "error", message: "Failed to create task" });
+      setActionFeedback({ type: "error", message: "Failed to dispatch task" });
+      throw new Error("Failed to dispatch task");
     }
   }
 
-  const floorSummary = [...new Set(displayTasks.map((t) => t.floor || t.floor_number || 0))].sort();
+  function handleCreateTask() {
+    setShowCreateTaskModal(true);
+  }
+
+  const floorSummary = [...new Set(displayTasks.map((t: any) => t.unit?.floor || t.unit?.floor_number || t.floor || t.floor_number || 0))].sort();
 
   return (
     <div className="space-y-6">
@@ -236,8 +229,8 @@ export default function HousekeepingPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-3 text-xs mt-0.5" style={{ color: "#64748B" }}>
-                        {(task.floor || task.floor_number) && (
-                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> Floor {task.floor || task.floor_number}</span>
+                        {(task.unit?.floor || task.unit?.floor_number || task.floor || task.floor_number) && (
+                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> Floor {task.unit?.floor || task.unit?.floor_number || task.floor || task.floor_number}</span>
                         )}
                         {task.scheduled_at && (
                           <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Due {formatTime(task.scheduled_at)}</span>
@@ -253,7 +246,7 @@ export default function HousekeepingPage() {
                       </Button>
                     )}
                     {task.status === "in_progress" && (
-                      <Button variant="ghost" size="sm" onClick={() => handleTaskAction(task, "resolved")} disabled={applyingTask === task.id}>
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedChecklistTask(task)} disabled={applyingTask === task.id}>
                         {applyingTask === task.id ? <Loader2 className="w-3 h-3 animate-spin" /> : "Complete"}
                       </Button>
                     )}
@@ -286,7 +279,7 @@ export default function HousekeepingPage() {
               </div>
             ) : (
               floorSummary.map((fl) => {
-                const floorTasks = displayTasks.filter((t: any) => (t.floor || t.floor_number) === fl);
+                const floorTasks = displayTasks.filter((t: any) => (t.unit?.floor || t.unit?.floor_number || t.floor || t.floor_number || 0) === fl);
                 const pending = floorTasks.filter((t: any) => t.status !== "resolved" && t.status !== "completed").length;
                 const total = floorTasks.length;
                 return (
@@ -531,6 +524,23 @@ export default function HousekeepingPage() {
           ))}
         </div>
       </Card>
+
+      <CreateTaskModal
+        isOpen={showCreateTaskModal}
+        onClose={() => setShowCreateTaskModal(false)}
+        onSubmit={handleCreateTaskSubmit}
+      />
+
+      <TaskChecklistModal
+        isOpen={selectedChecklistTask !== null}
+        onClose={() => setSelectedChecklistTask(null)}
+        task={selectedChecklistTask}
+        onResolve={async (taskId) => {
+          await updateTask.trigger(taskId, { status: "resolved" });
+          setActionFeedback({ type: "success", message: `Task marked as resolved` });
+          mutate();
+        }}
+      />
     </div>
   );
 }

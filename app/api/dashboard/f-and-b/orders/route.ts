@@ -22,12 +22,15 @@ export async function GET(req: NextRequest) {
         b.id   AS booking_id,
         u.unit_label,
         (
-          SELECT json_agg(
-            json_build_object(
-              'item_name', oi.item_name,
-              'quantity',  oi.quantity,
-              'price',     oi.unit_price
-            )
+          SELECT COALESCE(
+            json_agg(
+              json_build_object(
+                'item_name', oi.item_name,
+                'quantity',  oi.quantity,
+                'price',     oi.unit_price
+              )
+            ),
+            '[]'::json
           )
           FROM f_and_b_order_items oi
           WHERE oi.order_id = o.id
@@ -130,6 +133,13 @@ export async function POST(req: NextRequest) {
           WHERE id = ${invoice.id}
         `;
       }
+
+      // Also increment bookings.total_amount directly
+      await sql`
+        UPDATE bookings
+        SET total_amount = COALESCE(total_amount, 0) + ${totalAmount}
+        WHERE id = ${bookingId}
+      `;
     }
 
     return NextResponse.json({ data: order }, { status: 201 });

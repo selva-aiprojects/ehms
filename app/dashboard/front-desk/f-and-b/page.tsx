@@ -6,16 +6,17 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import ActiveBookingSelector from "../components/ActiveBookingSelector";
-import { useProperties } from "@/lib/hooks";
+import { useProperties, useFnBOrders, useFnBMenu } from "@/lib/hooks";
 import { toast } from "react-hot-toast";
 
 // Menu categories as stored in DB (from migration 015 seed)
 const MENU_CATEGORIES = ["Breakfast", "Appetizers", "Main Course", "Desserts", "Beverages", "Room Service Specials"];
 
 export default function FAndBPage() {
-  const [orders, setOrders] = useState<any[]>([]);
-  const [menu, setMenu] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { orders = [], isLoading: loadingOrders, mutate: mutateOrders } = useFnBOrders();
+  const { menu = [], isLoading: loadingMenu } = useFnBMenu();
+  const loading = loadingOrders || loadingMenu;
+  
   const [activeCategory, setActiveCategory] = useState("All");
 
   const [showOrderForm, setShowOrderForm] = useState(false);
@@ -28,24 +29,6 @@ export default function FAndBPage() {
   // Get real property_id
   const { properties } = useProperties("hotel");
   const propertyId = properties?.[0]?.id || "";
-
-  const fetchOrders = () =>
-    fetch("/api/dashboard/f-and-b/orders")
-      .then(r => r.json())
-      .then(d => { if (d.data) setOrders(d.data); });
-
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/dashboard/f-and-b/orders").then(r => r.json()),
-      fetch("/api/dashboard/f-and-b/menu").then(r => r.json())
-    ]).then(([ordersData, menuData]) => {
-      if (ordersData.data) setOrders(ordersData.data);
-      if (menuData.data) setMenu(menuData.data);
-    }).catch(err => {
-      console.error("Failed to load F&B data", err);
-      toast.error("Failed to load F&B data");
-    }).finally(() => setLoading(false));
-  }, []);
 
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +63,7 @@ export default function FAndBPage() {
       }
 
       toast.success("Order created and posted to guest folio!");
-      await fetchOrders();
+      await mutateOrders();
       setShowOrderForm(false);
       setFormData({ booking_id: "", items: [] });
     } catch (err: any) {
@@ -180,7 +163,7 @@ export default function FAndBPage() {
                               headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({ status: "preparing" })
                             });
-                            await fetchOrders();
+                            await mutateOrders();
                           }}
                           className="text-xs mt-1 text-[#2BAE8E] border border-[#2BAE8E] rounded px-2 py-0.5 hover:bg-[#2BAE8E]/10 transition-colors"
                         >

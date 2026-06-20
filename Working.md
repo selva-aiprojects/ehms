@@ -574,6 +574,28 @@ The original scope for the Front Desk module was expanded on 20 June 2026 to inc
 
 *(Schemas `013-frontdesk-features.sql` and `014-f-and-b-workflow.sql` created and migrated to support these workflows.)*
 
+## Step 11 — Phase 2: Performance Refactoring & Maintenance Command Center
+
+Following the initial MVP rollout of the F&B and Maintenance modules, the system was architecturally reviewed and upgraded to "world-class standard" to handle high-volume hotel operations.
+
+### F&B Real-Time Reactivity (SWR)
+- **Problem:** The Kitchen Command Center relied on static `fetch` calls via `useEffect`, forcing chefs to manually refresh to see new orders. The SQL query also lacked safeguards for empty orders.
+- **Solution:** 
+  - Integrated React `useSWR` hooks with a 15-second `refreshInterval` for automatic, silent background polling of orders.
+  - Wired `mutate()` directly to action buttons (e.g., "Accept Order") for instantaneous UI updates without network roundtrips.
+  - Wrapped backend Postgres `json_agg` functions in `COALESCE` to strictly type the return as `[]` (empty array) instead of `NULL`, preventing React crashes.
+
+### Full Maintenance Command Center
+- **Transition from Mock to Live:** Replaced all hardcoded prototype arrays in `/dashboard/maintenance` with live API endpoints.
+- **New Endpoints Created:**
+  - `GET /api/maintenance/preventive` (Live Asset Service Calendar)
+  - `GET /api/maintenance/amc` (Expiring Vendor Contracts)
+  - `GET /api/maintenance/inventory` (Parts Re-Order System)
+  - `GET /api/maintenance/vendors` (Vendor Performance Aggregation)
+- **Guest Feedback Triage Workflow:** Built an automated bridge between the Guest Feedback table and Maintenance.
+  - *Trigger:* Any guest rating ≤ 3 stars for 'Maintenance' or 'Housekeeping' appears dynamically at the top of the Maintenance Dashboard as an "Action Required" card.
+  - *Action:* The Engineering Manager can click "Raise Ticket" to immediately convert the complaint into a critical/high-priority `corrective` maintenance work order assigned directly to the guest's unit.
+
 ---
 
-*Working.md — eHMS Project · Created 18 June 2026 · Updated 20 June 2026*
+*Working.md — eHMS Project • Created 18 June 2026 • Updated 20 June 2026*

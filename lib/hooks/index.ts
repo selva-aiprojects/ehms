@@ -89,6 +89,35 @@ export function useMaintenance(filters?: { property_id?: string; status?: string
   return { tickets: data?.data, isLoading, isError: !!error, mutate };
 }
 
+export function usePreventiveSchedules(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/preventive${params}`, fetcher);
+  return { schedules: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useAMCContracts(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/amc${params}`, fetcher);
+  return { amcs: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function usePartsInventory(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/inventory${params}`, fetcher);
+  return { inventory: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useVendors() {
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/vendors`, fetcher);
+  return { vendors: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useFeedbackTriage(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/feedback-triage${params}`, fetcher, { refreshInterval: 30000 });
+  return { feedback: data?.data, isLoading, isError: !!error, mutate };
+}
+
 export function useFinance(propertyId?: string) {
   const params = propertyId ? `?property_id=${propertyId}` : "";
   const { data, error, isLoading, mutate } = useSWR(`/api/finance${params}`, fetcher);
@@ -165,4 +194,14 @@ export function useVisitors(propertyId?: string, limit = 50) {
   params.set("limit", String(limit));
   const { data, error, isLoading, mutate } = useSWR(`/api/visitors?${params}`, fetcher);
   return { visitors: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useFnBOrders() {
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/f-and-b/orders`, fetcher, { refreshInterval: 15000 });
+  return { orders: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useFnBMenu() {
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/f-and-b/menu`, fetcher);
+  return { menu: data?.data, isLoading, isError: !!error, mutate };
 }

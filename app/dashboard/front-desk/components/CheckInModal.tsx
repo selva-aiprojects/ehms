@@ -151,7 +151,7 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
                 </div>
               </div>
             </div>
-          ) : (
+          ) : activeTab === "parking" ? (
             <div className="space-y-4">
               <p className="text-sm" style={{ color: "#64748B" }}>Allocate a parking slot for the guest's vehicle. Leave blank if not required.</p>
               <div>
