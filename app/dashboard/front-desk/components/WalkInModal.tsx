@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, DoorOpen, UserPlus, Loader2, Upload } from "lucide-react";
 import Button from "@/components/ui/button";
-import useSWR from "swr";
-import { useProperties } from "@/lib/hooks";
+import { useProperties, useRoomMatrix } from "@/lib/hooks";
 import { toast } from "react-hot-toast";
-
-const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 interface WalkInModalProps {
   isOpen: boolean;
@@ -28,9 +25,21 @@ export default function WalkInModal({ isOpen, onClose, onSuccess }: WalkInModalP
   });
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch vacant rooms to assign
-  const { data: matrixData } = useSWR("/api/dashboard/front-desk/matrix", fetcher);
-  const vacantRooms = (matrixData?.data || []).filter((r: any) => r.status === "vacant");
+  const { rooms } = useRoomMatrix();
+  const vacantRooms = (rooms || []).filter((r: any) => r.status === "vacant");
+
+  // Dynamic Pricing Calculation
+  useEffect(() => {
+    if (formData.unit_id && formData.check_out) {
+      const selectedRoom = vacantRooms.find((r: any) => r.id === formData.unit_id);
+      if (selectedRoom && selectedRoom.base_rate) {
+        const checkInDate = new Date();
+        const checkOutDate = new Date(formData.check_out);
+        const nights = Math.max(1, Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24)));
+        setFormData(prev => ({ ...prev, total_amount: (selectedRoom.base_rate * nights).toString() }));
+      }
+    }
+  }, [formData.unit_id, formData.check_out, vacantRooms]);
 
   const { properties } = useProperties("hotel");
   const propertyId = properties?.[0]?.id || "";
@@ -143,8 +152,8 @@ export default function WalkInModal({ isOpen, onClose, onSuccess }: WalkInModalP
               <input required type="date" value={formData.check_out} min={new Date().toISOString().split("T")[0]} onChange={e => setFormData({...formData, check_out: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]" />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1 text-[#1A2E44]">Total Amount</label>
-              <input required type="number" step="0.01" value={formData.total_amount} onChange={e => setFormData({...formData, total_amount: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]" />
+              <label className="block text-xs font-medium mb-1 text-[#1A2E44]">Total Amount (Auto-Calculated)</label>
+              <input required readOnly type="number" step="0.01" value={formData.total_amount} onChange={e => setFormData({...formData, total_amount: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border bg-gray-50 focus:outline-none" style={{ borderColor: "#E2E8F0" }} />
             </div>
           </div>
           

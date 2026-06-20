@@ -12,6 +12,8 @@ import FolioModal from "./components/FolioModal";
 import OffersCard from "./components/OffersCard";
 import ChannelPartnersCard from "./components/ChannelPartnersCard";
 import WalkInModal from "./components/WalkInModal";
+import LogRequestModal from "./components/LogRequestModal";
+import { useRouter } from "next/navigation";
 
 const ROOM_STATUS_STYLES: Record<string, { bg: string; dot: string; label: string }> = {
   vacant: { bg: "rgba(42,157,143,0.1)", dot: "#2BAE8E", label: "Vacant" },
@@ -54,6 +56,8 @@ export default function FrontDeskPage() {
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [applyingAction, setApplyingAction] = useState<string | null>(null);
   const [showWalkInModal, setShowWalkInModal] = useState(false);
+  const [logRequestModalData, setLogRequestModalData] = useState<{ isOpen: boolean, roomId?: string, unitLabel?: string } | null>(null);
+  const router = useRouter();
 
   const today = new Date().toISOString().split("T")[0];
   const { reservations, isLoading: loadingRes, isError: resError, mutate: mutateRes } = useReservations({ date: today });
@@ -63,7 +67,7 @@ export default function FrontDeskPage() {
   const checkOutMutation = useCheckOut();
 
   const [checkInModalData, setCheckInModalData] = useState<{ isOpen: boolean, roomId: string, bookingId: string, guestName: string, unitLabel: string } | null>(null);
-  const [folioModalData, setFolioModalData] = useState<{ isOpen: boolean, bookingId: string, guestName: string } | null>(null);
+  const [folioModalData, setFolioModalData] = useState<{ isOpen: boolean, roomId: string, bookingId: string, guestName: string } | null>(null);
 
   const rooms = matrixRooms || [];
   const filtered = rooms.filter((r: any) => r.floor_number === floor);
@@ -266,12 +270,12 @@ export default function FrontDeskPage() {
                         toast.error("No active booking for this room to view folio.");
                         return;
                       }
-                      setFolioModalData({ isOpen: true, bookingId: selected.booking_id, guestName: selected.guest_name || "Guest" });
+                      setFolioModalData({ isOpen: true, roomId: selected.id, bookingId: selected.booking_id, guestName: selected.guest_name || "Guest" });
                     }}
                   >
                     <Search className="w-3.5 h-3.5" /> View Folio
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full">
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => setLogRequestModalData({ isOpen: true, roomId: selected.id, unitLabel: selected.unit_label })}>
                     <AlertCircle className="w-3.5 h-3.5" /> Log Request
                   </Button>
                   {(selected.status === "occupied") && (
@@ -399,7 +403,7 @@ export default function FrontDeskPage() {
         <Card>
           <CardHeader title="Quick Actions" subtitle="Common front desk tasks" />
           <div className="grid grid-cols-2 gap-3">
-            <button className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(42,157,143,0.1)", color: "#1A3C5E", border: "1px solid rgba(42,157,143,0.2)" }}>
+            <button onClick={handleWalkIn} className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(42,157,143,0.1)", color: "#1A3C5E", border: "1px solid rgba(42,157,143,0.2)" }}>
               <UserPlus className="w-5 h-5" style={{ color: "#2BAE8E" }} />
               New Guest
             </button>
@@ -411,11 +415,11 @@ export default function FrontDeskPage() {
               <Bell className="w-5 h-5" style={{ color: "#F5A623" }} />
               Wake-up Call
             </button>
-            <button className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(43,174,142,0.08)", color: "#1A3C5E", border: "1px solid rgba(43,174,142,0.15)" }}>
+            <button onClick={() => router.push("/dashboard/housekeeping")} className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(43,174,142,0.08)", color: "#1A3C5E", border: "1px solid rgba(43,174,142,0.15)" }}>
               <ClipboardList className="w-5 h-5" style={{ color: "#2BAE8E" }} />
               Housekeeping
             </button>
-            <button className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(229,62,62,0.08)", color: "#1A3C5E", border: "1px solid rgba(229,62,62,0.15)" }}>
+            <button onClick={() => setLogRequestModalData({ isOpen: true })} className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(229,62,62,0.08)", color: "#1A3C5E", border: "1px solid rgba(229,62,62,0.15)" }}>
               <Trash2 className="w-5 h-5" style={{ color: "#E53E3E" }} />
               Report Issue
             </button>
@@ -676,6 +680,13 @@ export default function FrontDeskPage() {
         bookingId={folioModalData?.bookingId || null}
         guestName={folioModalData?.guestName || ""}
         onCheckout={(bId) => handleCheckOut(folioModalData?.roomId || "", bId)}
+      />
+
+      <LogRequestModal
+        isOpen={logRequestModalData?.isOpen || false}
+        onClose={() => setLogRequestModalData(null)}
+        roomId={logRequestModalData?.roomId}
+        unitLabel={logRequestModalData?.unitLabel}
       />
     </div>
   );

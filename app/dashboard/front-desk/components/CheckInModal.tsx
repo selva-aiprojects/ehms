@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, CheckCircle, Car, ShieldCheck, DoorOpen, Loader2 } from "lucide-react";
+import { X, CheckCircle, Car, ShieldCheck, DoorOpen, Loader2, Sparkles, Smartphone, PlusCircle } from "lucide-react";
 import Button from "@/components/ui/button";
 
 interface CheckInModalProps {
@@ -15,10 +15,20 @@ interface CheckInModalProps {
 }
 
 export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guestName, unitLabel, onConfirm }: CheckInModalProps) {
-  const [activeTab, setActiveTab] = useState<"checklist" | "parking">("checklist");
+  const [activeTab, setActiveTab] = useState<"checklist" | "parking" | "upsell">("checklist");
   const [checklist, setChecklist] = useState({ idVerified: false, roomCleaned: false, keysIssued: false });
   const [parking, setParking] = useState({ vehicleNumber: "", slotNumber: "" });
+  const [upsells, setUpsells] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [digitalKeyIssuing, setDigitalKeyIssuing] = useState(false);
+
+  const issueDigitalKey = () => {
+    setDigitalKeyIssuing(true);
+    setTimeout(() => {
+      setChecklist(prev => ({ ...prev, keysIssued: true }));
+      setDigitalKeyIssuing(false);
+    }, 1500);
+  };
 
   if (!isOpen) return null;
 
@@ -31,7 +41,8 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
       roomId,
       checklistItems: checklist,
       vehicleNumber: parking.vehicleNumber,
-      parkingSlot: parking.slotNumber
+      parkingSlot: parking.slotNumber,
+      upsells
     });
     setSubmitting(false);
     onClose();
@@ -73,6 +84,16 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
           >
             <Car className="w-4 h-4 inline-block mr-2 mb-0.5" /> Parking
           </button>
+          <button
+            onClick={() => setActiveTab("upsell")}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === "upsell" ? "border-b-2" : ""}`}
+            style={{ 
+              borderColor: activeTab === "upsell" ? "#2BAE8E" : "transparent",
+              color: activeTab === "upsell" ? "#2BAE8E" : "#64748B" 
+            }}
+          >
+            <Sparkles className="w-4 h-4 inline-block mr-2 mb-0.5" /> Upsell
+          </button>
         </div>
 
         {/* Content */}
@@ -108,16 +129,25 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
               </div>
 
               <div 
-                className="flex items-center p-4 rounded-lg cursor-pointer transition-colors"
+                className="flex items-center p-4 rounded-lg transition-colors"
                 style={{ background: checklist.keysIssued ? "rgba(43,174,142,0.1)" : "#F5F7FA", border: "1px solid", borderColor: checklist.keysIssued ? "#2BAE8E" : "transparent" }}
-                onClick={() => setChecklist(prev => ({ ...prev, keysIssued: !prev.keysIssued }))}
               >
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 transition-colors ${checklist.keysIssued ? "border-[#2BAE8E] bg-[#2BAE8E]" : "border-gray-300"}`}>
                   {checklist.keysIssued && <CheckCircle className="w-3 h-3 text-white" />}
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="font-medium text-sm" style={{ color: "#1A2E44" }}>Key Handover</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Keycard programmed and handed to the guest.</p>
+                  <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Encode and issue a digital or physical key.</p>
+                </div>
+                <div>
+                  {!checklist.keysIssued ? (
+                    <Button onClick={issueDigitalKey} disabled={digitalKeyIssuing} size="sm" style={{ background: "#1A3C5E", color: "white" }}>
+                      {digitalKeyIssuing ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Smartphone className="w-3.5 h-3.5 mr-1.5" />}
+                      Issue Digital Key
+                    </Button>
+                  ) : (
+                    <span className="text-xs font-medium px-2 py-1 rounded bg-[#2BAE8E]/10 text-[#2BAE8E]">Key Issued</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -147,7 +177,43 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
                 />
               </div>
             </div>
-          )}
+          ) : activeTab === "upsell" ? (
+            <div className="space-y-4">
+              <p className="text-sm" style={{ color: "#64748B" }}>Offer additional services to enhance the guest's stay. Charges will be added to the folio.</p>
+              
+              <div className="space-y-3">
+                {[
+                  { id: "early_checkin", title: "Early Check-in Fee", desc: "Arrived before 2:00 PM standard check-in time", price: "₹1,000" },
+                  { id: "premium_wifi", title: "Premium Wi-Fi Access", desc: "High-speed internet for up to 4 devices", price: "₹500" },
+                  { id: "room_upgrade", title: "Room Upgrade", desc: "Upgrade to next available premium category", price: "₹3,000" }
+                ].map(offer => (
+                  <div 
+                    key={offer.id} 
+                    className="flex items-center justify-between p-4 rounded-lg cursor-pointer border transition-colors"
+                    style={{ 
+                      borderColor: upsells.includes(offer.id) ? "#2BAE8E" : "#E2E8F0",
+                      background: upsells.includes(offer.id) ? "rgba(43,174,142,0.05)" : "#FFFFFF"
+                    }}
+                    onClick={() => {
+                      if (upsells.includes(offer.id)) setUpsells(upsells.filter(u => u !== offer.id));
+                      else setUpsells([...upsells, offer.id]);
+                    }}
+                  >
+                    <div className="flex gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${upsells.includes(offer.id) ? "border-[#2BAE8E] bg-[#2BAE8E]" : "border-gray-300"}`}>
+                        {upsells.includes(offer.id) && <CheckCircle className="w-3 h-3 text-white" />}
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm text-[#1A2E44]">{offer.title}</p>
+                        <p className="text-xs text-[#64748B]">{offer.desc}</p>
+                      </div>
+                    </div>
+                    <span className="font-semibold text-sm text-[#1A3C5E]">{offer.price}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {/* Footer */}

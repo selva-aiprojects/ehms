@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, CreditCard, Download, Loader2, Plus, Receipt } from "lucide-react";
+import { X, CreditCard, Download, Loader2, Plus, Receipt, CheckCircle } from "lucide-react";
 import Button from "@/components/ui/button";
 
 interface FolioModalProps {
@@ -15,6 +15,27 @@ interface FolioModalProps {
 export default function FolioModal({ isOpen, onClose, bookingId, guestName, onCheckout }: FolioModalProps) {
   const [loading, setLoading] = useState(true);
   const [folio, setFolio] = useState<any>(null);
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("card");
+  
+  const handleProcessPayment = () => {
+    setProcessingPayment(true);
+    setTimeout(() => {
+      setFolio((prev: any) => ({
+        ...prev,
+        amountPaid: prev.totalAmount,
+        balanceDue: 0,
+        payments: [...prev.payments, {
+          id: Math.random().toString(),
+          payment_date: new Date().toISOString(),
+          amount: prev.balanceDue,
+          payment_method: paymentMethod,
+          status: "completed"
+        }]
+      }));
+      setProcessingPayment(false);
+    }, 2000);
+  };
 
   useEffect(() => {
     if (isOpen && bookingId) {
@@ -133,21 +154,44 @@ export default function FolioModal({ isOpen, onClose, bookingId, guestName, onCh
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-white border-t border-[#E2E8F0] flex gap-3">
+        <div className="px-6 py-4 bg-white border-t border-[#E2E8F0] flex gap-3 flex-col sm:flex-row">
           <Button variant="outline" className="flex-1">
             <Download className="w-4 h-4 mr-2" /> Print Invoice
           </Button>
-          <Button 
-            className="flex-1 bg-[#2BAE8E] hover:bg-[#239B7E] text-white"
-            onClick={() => {
-              if (bookingId && onCheckout) {
-                onCheckout(bookingId);
-                onClose();
-              }
-            }}
-          >
-            <CreditCard className="w-4 h-4 mr-2" /> Settle & Check-Out
-          </Button>
+          
+          {folio?.balanceDue > 0 ? (
+            <div className="flex flex-1 gap-2">
+              <select 
+                value={paymentMethod} 
+                onChange={e => setPaymentMethod(e.target.value)}
+                className="p-2 border rounded-md text-sm outline-none border-[#E2E8F0] text-[#1A2E44]"
+              >
+                <option value="card">Credit Card</option>
+                <option value="upi">UPI</option>
+                <option value="cash">Cash</option>
+              </select>
+              <Button 
+                className="flex-1 bg-[#1A3C5E] hover:bg-[#122b44] text-white"
+                onClick={handleProcessPayment}
+                disabled={processingPayment}
+              >
+                {processingPayment ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
+                Pay ₹{folio.balanceDue?.toLocaleString()}
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              className="flex-1 bg-[#2BAE8E] hover:bg-[#239B7E] text-white"
+              onClick={() => {
+                if (bookingId && onCheckout) {
+                  onCheckout(bookingId);
+                  onClose();
+                }
+              }}
+            >
+              <CheckCircle className="w-4 h-4 mr-2" /> Settle & Check-Out
+            </Button>
+          )}
         </div>
       </div>
     </div>

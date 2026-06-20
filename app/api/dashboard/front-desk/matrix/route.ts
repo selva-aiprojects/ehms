@@ -45,12 +45,19 @@ export async function GET(req: NextRequest) {
         ab.total_amount as rate,
         false as vip, -- can be derived if guest profile has VIP flag
         ab.parking_slot,
-        ab.pending_requests_count
+        ab.pending_requests_count,
+        COALESCE(rp.base_rate, 3500) as base_rate
       FROM units u
       JOIN floors f ON u.floor_id = f.id
       JOIN buildings bl ON f.building_id = bl.id
       JOIN properties p ON bl.property_id = p.id
       LEFT JOIN active_bookings ab ON ab.unit_id = u.id
+      LEFT JOIN (
+        SELECT DISTINCT ON (property_id, unit_type) property_id, unit_type, base_rate 
+        FROM rate_plans 
+        WHERE is_active = true 
+        ORDER BY property_id, unit_type, created_at DESC
+      ) rp ON rp.property_id = p.id AND rp.unit_type = u.unit_type
       WHERE p.vertical_type = 'hotel'
       ${propertyId ? sql`AND p.id = ${propertyId}` : sql``}
       ORDER BY f.floor_number, u.unit_label
