@@ -4,7 +4,7 @@ import { join, resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATABASE_DIR = resolve(__dirname, "../../database");
+const DATABASE_DIR = resolve(__dirname, "../database");
 const ENV_PATH = resolve(__dirname, "../.env.local");
 
 function getEnvVar(name) {
