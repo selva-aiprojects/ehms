@@ -11,6 +11,7 @@ import {
 import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
 import { hasAccess } from "@/lib/role-access";
+import { useGlobalSettings } from "@/components/providers/SettingsProvider";
 
 const ALL_NAV_ITEMS = [
   { label: "Dashboard",    icon: LayoutDashboard, href: "/dashboard", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor","housekeeping_staff","maintenance_staff","maintenance_supervisor","hr_manager","hr_executive","finance_manager","finance_executive","security_staff","vendor_user","workplace_facility_manager"] },
@@ -44,6 +45,7 @@ export default function Sidebar() {
   const [showAll, setShowAll] = useState(false);
   const { user: authUser, loading } = useAuth();
   const [fallbackUser, setFallbackUser] = useState<UserProfile | null>(null);
+  const { settings } = useGlobalSettings();
 
   useEffect(() => {
     const demo = getLocalDemoUser();
@@ -82,15 +84,17 @@ export default function Sidebar() {
         className="flex flex-col items-center justify-center py-6 px-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
       >
-        <Image
-          src="/eHMS_logo.png"
-          alt="eHMS"
-          width={collapsed ? 36 : 120}
-          height={collapsed ? 36 : 80}
-          className="object-contain transition-all duration-300"
-          style={{ filter: "brightness(1.05)" }}
-          priority
-        />
+        {settings.logo_url && (
+          <Image
+            src={settings.logo_url}
+            alt={settings.company_name || "eHMS"}
+            width={collapsed ? 36 : 120}
+            height={collapsed ? 36 : 80}
+            className="object-contain transition-all duration-300"
+            style={{ filter: "brightness(1.05)" }}
+            priority
+          />
+        )}
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 space-y-0.5">
@@ -104,7 +108,7 @@ export default function Sidebar() {
               style={{
                 background: active ? "rgba(255,255,255,0.10)" : "transparent",
                 color: active ? "#FFFFFF" : "rgba(255,255,255,0.60)",
-                borderLeft: active ? "3px solid #2BAE8E" : "3px solid transparent",
+                borderLeft: active ? `3px solid ${settings.secondary_color}` : "3px solid transparent",
               }}
               onMouseEnter={(e) => {
                 if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.06)";
@@ -133,7 +137,7 @@ export default function Sidebar() {
       {user && !collapsed && (
         <div className="p-3 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center gap-2 px-2 py-1.5">
-            <Shield className="w-3 h-3" style={{ color: "#2BAE8E" }} />
+            <Shield className="w-3 h-3" style={{ color: settings.secondary_color }} />
             <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
               {user.email}
             </span>
@@ -145,7 +149,7 @@ export default function Sidebar() {
         onClick={() => setCollapsed(!collapsed)}
         className="absolute -right-3 top-24 w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all hover:scale-110"
         style={{
-          background: "#2BAE8E",
+          background: settings.secondary_color,
           border: "2px solid #F5F7FA",
           color: "#fff",
         }}

@@ -60,6 +60,7 @@ async function run() {
     "013_master_data_dictionaries.sql",
     "014_frontdesk_operations.sql",
     "015_fnb_module.sql",
+    "016_system_settings.sql",
     "seed.sql",
   ];
 

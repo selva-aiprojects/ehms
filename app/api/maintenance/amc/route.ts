@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
       SELECT 
         a.*,
         v.company_name as vendor_name,
-        EXTRACT(DAY FROM (a.end_date - CURRENT_DATE)) as days_remaining
+        (a.end_date::date - CURRENT_DATE) as days_remaining
       FROM amc_contracts a
       LEFT JOIN vendors v ON v.id = a.vendor_id
       WHERE 1=1

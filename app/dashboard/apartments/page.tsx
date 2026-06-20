@@ -6,6 +6,7 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import { useApartmentStats } from "@/lib/hooks";
+import { useGlobalSettings } from "@/components/providers/SettingsProvider";
 
 function SkeletonCard() {
   return (
@@ -22,6 +23,7 @@ export default function ApartmentsPage() {
   const [search, setSearch] = useState("");
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const { stats, isLoading, isError, mutate } = useApartmentStats();
+  const { settings } = useGlobalSettings();
 
   useEffect(() => {
     if (actionFeedback) {
@@ -40,6 +42,8 @@ export default function ApartmentsPage() {
   const upcomingCheckouts = stats?.upcomingCheckouts || [];
   const upcomingArrivals = stats?.upcomingArrivals || [];
   const guestRequests = stats?.guestRequests || [];
+
+  const isLoadingDisplay = isLoading && !stats;
 
   const filtered = properties.filter((p: any) =>
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -62,7 +66,7 @@ export default function ApartmentsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Service Apartments</h1>
+          <h1 className="text-xl font-bold" style={{ color: settings.primary_color }}>Service Apartments</h1>
           <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Extended-stay furnished units</p>
         </div>
         <div className="flex items-center gap-2">
@@ -179,7 +183,7 @@ export default function ApartmentsPage() {
                       <div className="text-xs" style={{ color: "#64748B" }}>Occupancy</div>
                     </div>
                     <div className="text-right min-w-[60px]">
-                      <div className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>₹{adr.toLocaleString()}</div>
+                      <div className="text-sm font-semibold" style={{ color: settings.primary_color }}>{settings.currency_symbol}{adr.toLocaleString()}</div>
                       <div className="text-xs" style={{ color: "#64748B" }}>Est. ADR</div>
                     </div>
                     <Button variant="outline" size="sm">
@@ -209,10 +213,10 @@ export default function ApartmentsPage() {
           </div>
           <div className="grid grid-cols-2 gap-4 content-start">
             {[
-              { label: "Avg Length of Stay", value: "4.2 nights", color: "#1A3C5E" },
-              { label: "Avg Daily Rate", value: "₹5,400", color: "#2BAE8E" },
-              { label: "RevPAR", value: "₹4,280", color: "#2BAE8E" },
-              { label: "Total Revenue MTD", value: "₹24.8L", color: "#1A3C5E" },
+              { label: "Avg Length of Stay", value: "4.2 nights", color: settings.primary_color },
+              { label: "Avg Daily Rate", value: `${settings.currency_symbol}5,400`, color: settings.secondary_color },
+              { label: "RevPAR", value: `${settings.currency_symbol}4,280`, color: settings.secondary_color },
+              { label: "Total Revenue MTD", value: `${settings.currency_symbol}24.8L`, color: settings.primary_color },
             ].map((s) => (
               <div key={s.label} className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
                 <div className="text-lg font-bold" style={{ color: s.color }}>{s.value}</div>
@@ -365,11 +369,11 @@ export default function ApartmentsPage() {
           <CardHeader title="Monthly Performance Metrics" subtitle="Key indicators" />
           <div className="space-y-4">
             {[
-              { label: "Avg Daily Rate", value: "₹5,400", change: "+3.2%", positive: true, icon: DollarSign },
-              { label: "RevPAR", value: "₹4,280", change: "+5.1%", positive: true, icon: TrendingUp },
+              { label: "Avg Daily Rate", value: `${settings.currency_symbol}5,400`, change: "+3.2%", positive: true, icon: DollarSign },
+              { label: "RevPAR", value: `${settings.currency_symbol}4,280`, change: "+5.1%", positive: true, icon: TrendingUp },
               { label: "Avg Length of Stay", value: "4.2 nights", change: "-0.3", positive: false, icon: Clock },
               { label: "Occupancy Rate", value: `${summary.avgOccupancy}%`, change: "+2.1%", positive: true, icon: BarChart3 },
-              { label: "Total Revenue MTD", value: "₹24.8L", change: "+8.7%", positive: true, icon: DollarSign },
+              { label: "Total Revenue MTD", value: `${settings.currency_symbol}24.8L`, change: "+8.7%", positive: true, icon: DollarSign },
             ].map((m) => {
               const Icon = m.icon;
               return (

@@ -205,3 +205,11 @@ export function useFnBMenu() {
   const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/f-and-b/menu`, fetcher);
   return { menu: data?.data, isLoading, isError: !!error, mutate };
 }
+
+export function useSystemSettings() {
+  const { data, error, isLoading, mutate } = useSWR('/api/settings', fetcher, { 
+    revalidateOnFocus: false, // Settings rarely change
+    dedupingInterval: 60000 
+  });
+  return { settings: data?.data, isLoading, isError: !!error, mutate };
+}
