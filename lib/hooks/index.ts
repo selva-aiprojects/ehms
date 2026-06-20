@@ -19,6 +19,26 @@ export function useStats() {
   };
 }
 
+export function useHotelStats() {
+  const { data, error, isLoading, mutate } = useSWR("/api/dashboard/hotels", fetcher, { refreshInterval: 30000 });
+  return {
+    stats: data?.data,
+    isLoading,
+    isError: !!error,
+    mutate,
+  };
+}
+
+export function useApartmentStats() {
+  const { data, error, isLoading, mutate } = useSWR("/api/dashboard/apartments", fetcher, { refreshInterval: 30000 });
+  return {
+    stats: data?.data,
+    isLoading,
+    isError: !!error,
+    mutate,
+  };
+}
+
 export function useReservations(filters?: {
   status?: string;
   property_id?: string;
@@ -36,6 +56,12 @@ export function useReservations(filters?: {
     fetcher
   );
   return { reservations: data?.data, count: data?.count, isLoading, isError: !!error, mutate };
+}
+
+export function useRoomMatrix(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/front-desk/matrix${params}`, fetcher);
+  return { rooms: data?.data, isLoading, isError: !!error, mutate };
 }
 
 export function useGuests(search?: string, page = 1) {

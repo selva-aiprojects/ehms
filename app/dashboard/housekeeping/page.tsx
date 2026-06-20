@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Sparkles, MapPin, Clock, AlertCircle, Loader2, RefreshCw, CheckCircle, Plus, ClipboardList, Layers, Users, Calendar, Star, Wrench } from "lucide-react";
@@ -56,8 +56,19 @@ export default function HousekeepingPage() {
   const updateTask = useUpdateHousekeepingTask();
   const createTask = useCreateHousekeepingTask();
 
-  const displayTasks = (tasks && (tasks as any[]).length > 0) ? (tasks as any[]) : MOCK_TASKS;
+  const displayTasks = tasks || [];
   const isLoadingDisplay = isLoading && !tasks;
+
+  if (isLoadingDisplay) {
+    return (
+      <div className="flex h-[80vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#64748B] text-sm font-medium">Loading Housekeeping Operations...</p>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (actionFeedback) {
@@ -66,7 +77,7 @@ export default function HousekeepingPage() {
     }
   }, [actionFeedback]);
 
-  const myTasks = displayTasks.filter((t) => t.assigned_name === "You" || !t.assigned_name || t.assigned_name === "You");
+  const myTasks = displayTasks.filter((t) => t.assignee?.first_name === "You" || !t.assignee || t.assignee?.first_name === "You");
   const openTasks = displayTasks.filter((t) => t.status === "open").length;
   const inProgressTasks = displayTasks.filter((t) => t.status === "in_progress").length;
   const resolvedTasks = displayTasks.filter((t) => t.status === "resolved" || t.status === "completed").length;
@@ -86,10 +97,10 @@ export default function HousekeepingPage() {
     setActionFeedback(null);
     try {
       await updateTask.trigger(task.id, { status: newStatus });
-      setActionFeedback({ type: "success", message: `Task for ${task.unit_label} → ${newStatus.replace("_", " ")}` });
+      setActionFeedback({ type: "success", message: `Task for ${task.unit?.unit_label || 'Room'} → ${newStatus.replace("_", " ")}` });
       mutate();
     } catch {
-      setActionFeedback({ type: "error", message: `Failed to update task ${task.unit_label}` });
+      setActionFeedback({ type: "error", message: `Failed to update task ${task.unit?.unit_label || 'Room'}` });
     } finally {
       setApplyingTask(null);
     }
@@ -216,7 +227,7 @@ export default function HousekeepingPage() {
                     <StatusDot status={task.status} />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>Room {task.unit_label}</span>
+                        <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>Room {task.unit?.unit_label || task.unit_label}</span>
                         <Badge variant={PRIORITY_BADGE[task.priority] || "gray"}>{task.priority}</Badge>
                         {task.task_type && (
                           <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(42,157,143,0.1)", color: "#2BAE8E" }}>

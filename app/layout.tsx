@@ -11,10 +11,15 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.png" }],
 };
 
+import { Toaster } from "react-hot-toast";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-screen antialiased" suppressHydrationWarning>{children}</body>
+      <body className="min-h-screen antialiased" suppressHydrationWarning>
+        {children}
+        <Toaster position="top-right" />
+      </body>
     </html>
   );
 }

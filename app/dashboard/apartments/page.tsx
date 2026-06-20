@@ -1,18 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
-import { Building2, MapPin, Users, TrendingUp, DollarSign, AlertCircle, Loader2, RefreshCw, Search, Star, Phone, Mail, ChevronRight, Home, Calendar, Clock, Globe, Briefcase, BarChart3, Flag, Plane, Percent, ArrowUpDown } from "lucide-react";
+import { Building2, MapPin, Users, TrendingUp, DollarSign, AlertCircle, Loader2, RefreshCw, Search, Phone, ChevronRight, Home, Calendar, Clock, Globe, Briefcase, BarChart3, Plane, Percent, ArrowUpDown } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
-import { useProperties } from "@/lib/hooks";
-
-const MOCK_PROPERTIES = [
-  { id: "a1", name: "Cityscape Serviced Apartments", vertical_type: "service_apartment", total_units: 60, occupancy_pct: 79, address: "45 Anna Salai, Chennai", phone: "+91-44-1001-0002", email: "cityscape@ehms.demo", manager: "Sneha Kapoor" },
-  { id: "a2", name: "Harbour View Residences", vertical_type: "service_apartment", total_units: 35, occupancy_pct: 82, address: "18 Harbour Rd, Chennai", phone: "+91-44-1001-0009", email: "harbour@ehms.demo", manager: "Arun Nair" },
-  { id: "a3", name: "Palm Grove Suites", vertical_type: "service_apartment", total_units: 48, occupancy_pct: 71, address: "24 EG Rd, Chennai", phone: "+91-44-1001-0010", email: "palm@ehms.demo", manager: "Kavya Menon" },
-  { id: "a4", name: "Elite Corporate Stays", vertical_type: "service_apartment", total_units: 25, occupancy_pct: 94, address: "Ramanujan IT Park, Chennai", phone: "+91-44-1001-0011", email: "elite@ehms.demo", manager: "Ravi Kumar" },
-];
+import { useApartmentStats } from "@/lib/hooks";
 
 function SkeletonCard() {
   return (
@@ -28,16 +21,7 @@ function SkeletonCard() {
 export default function ApartmentsPage() {
   const [search, setSearch] = useState("");
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
-  const { properties, isLoading, isError, mutate } = useProperties("service_apartment");
-
-  const displayProperties = (properties && (properties as any[]).length > 0) ? (properties as any[]) : MOCK_PROPERTIES;
-  const isLoadingDisplay = isLoading && !properties;
-
-  const filtered = displayProperties.filter((p: any) =>
-    p.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.address?.toLowerCase().includes(search.toLowerCase()) ||
-    p.manager?.toLowerCase().includes(search.toLowerCase())
-  );
+  const { stats, isLoading, isError, mutate } = useApartmentStats();
 
   useEffect(() => {
     if (actionFeedback) {
@@ -46,12 +30,33 @@ export default function ApartmentsPage() {
     }
   }, [actionFeedback]);
 
-  const avgOccupancy = filtered.length > 0
-    ? Math.round(filtered.reduce((s: number, p: any) => s + (p.occupancy_pct || 0), 0) / filtered.length)
-    : 0;
+  // Fallbacks for live data structures
+  const properties = stats?.properties || [];
+  const summary = stats?.summary || { totalUnits: 0, totalOccupied: 0, avgOccupancy: 0, totalProperties: 0 };
+  const extendedStays = stats?.extendedStays || [];
+  const nationalityMix = stats?.nationalityMix || [];
+  const splitData = stats?.splitData || { corporate: 65, leisure: 20, other: 15 };
+  const maintenance = stats?.maintenance || [];
+  const upcomingCheckouts = stats?.upcomingCheckouts || [];
+  const upcomingArrivals = stats?.upcomingArrivals || [];
+  const guestRequests = stats?.guestRequests || [];
 
-  const totalUnits = filtered.reduce((s: number, p: any) => s + (p.total_units || 0), 0);
-  const totalOccupied = filtered.reduce((s: number, p: any) => s + Math.round(((p.total_units || 0) * (p.occupancy_pct || 0)) / 100), 0);
+  const filtered = properties.filter((p: any) =>
+    p.name?.toLowerCase().includes(search.toLowerCase()) ||
+    p.address?.toLowerCase().includes(search.toLowerCase()) ||
+    p.manager?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (isLoadingDisplay) {
+    return (
+      <div className="flex h-[80vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#64748B] text-sm font-medium">Loading Apartments Workspace...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -78,7 +83,7 @@ export default function ApartmentsPage() {
       {isError && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
           <AlertCircle className="w-4 h-4" />
-          Could not load live data. Displaying mock data.
+          Could not load live data. Please try again.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
         </div>
       )}
@@ -100,28 +105,28 @@ export default function ApartmentsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
           <div className="flex items-center justify-between mb-2">
-            <div className="text-2xl font-bold">{filtered.length}</div>
+            <div className="text-2xl font-bold">{summary.totalProperties}</div>
             <Building2 className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Total Properties</div>
         </div>
         <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
           <div className="flex items-center justify-between mb-2">
-            <div className="text-2xl font-bold">{totalUnits}</div>
+            <div className="text-2xl font-bold">{summary.totalUnits}</div>
             <Home className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Total Units</div>
         </div>
         <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
           <div className="flex items-center justify-between mb-2">
-            <div className="text-2xl font-bold">{totalOccupied}</div>
+            <div className="text-2xl font-bold">{summary.totalOccupied}</div>
             <Users className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Occupied Units</div>
         </div>
         <div className="rounded-xl p-4" style={{ background: "#F5A623" }}>
           <div className="flex items-center justify-between mb-2">
-            <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>{avgOccupancy}%</div>
+            <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>{summary.avgOccupancy}%</div>
             <TrendingUp className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs" style={{ color: "rgba(0,0,0,0.6)" }}>Avg Occupancy</div>
@@ -137,7 +142,7 @@ export default function ApartmentsPage() {
         />
       </div>
 
-      {isLoadingDisplay ? (
+      {isLoading && !stats ? (
         <div className="grid gap-4">
           {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
@@ -232,22 +237,19 @@ export default function ApartmentsPage() {
         <Card>
           <CardHeader title="Extended Stay Monitoring" subtitle="Guests staying 14+ nights" />
           <div className="space-y-3">
-            {[
-              { name: "Robert Chen", unit: "301", nights: 45, checkIn: "04 May", company: "TechCorp", status: "active" },
-              { name: "Sarah Miller", unit: "205", nights: 28, checkIn: "22 May", company: "Design Studio", status: "active" },
-              { name: "Amit Patel", unit: "110", nights: 21, checkIn: "29 May", company: "FinServe", status: "active" },
-              { name: "Lisa Wong", unit: "408", nights: 18, checkIn: "01 Jun", company: "DataFlow", status: "active" },
-              { name: "James Wilson", unit: "502", nights: 14, checkIn: "05 Jun", company: "BuildCorp", status: "checkout_today" },
-            ].map((g, i) => (
+            {extendedStays.length === 0 && (
+              <div className="text-sm text-center py-4 text-gray-500">No extended stays found.</div>
+            )}
+            {extendedStays.map((g: any, i: number) => (
               <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: g.status === "active" ? "rgba(42,157,143,0.15)" : "rgba(245,166,35,0.15)" }}>
                     <Users className="w-4 h-4" style={{ color: g.status === "active" ? "#2BAE8E" : "#F5A623" }} />
                   </div>
                   <div>
-                    <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{g.name}</div>
+                    <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{g.guest}</div>
                     <div className="text-xs flex items-center gap-2 mt-0.5" style={{ color: "#64748B" }}>
-                      Unit {g.unit} · {g.company} · Since {g.checkIn}
+                      Unit {g.unit || "TBD"} · {g.company} · Since {g.check_in_date}
                     </div>
                   </div>
                 </div>
@@ -259,10 +261,11 @@ export default function ApartmentsPage() {
             ))}
           </div>
           <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
-            <span><Clock className="w-3 h-3 inline mr-1" /> Avg stay: <strong style={{ color: "#1A2E44" }}>25.2 nights</strong></span>
-            <Button variant="outline" size="sm"><Users className="w-3.5 h-3.5" /> View All Long Stays</Button>
+            <span><Clock className="w-3 h-3 inline mr-1" /> Avg stay: <strong style={{ color: "#1A2E44" }}>{extendedStays.length > 0 ? Math.round(extendedStays.reduce((s: any, g: any) => s + g.nights, 0) / extendedStays.length) : 0} nights</strong></span>
+            <Button variant="outline" size="sm"><Users className="w-3.5 h-3.5" /> View All</Button>
           </div>
         </Card>
+        
         <Card>
           <CardHeader title="Unit Turnaround Time" subtitle="Avg days between checkout & check-in" />
           <div className="space-y-4">
@@ -302,25 +305,21 @@ export default function ApartmentsPage() {
         <Card>
           <CardHeader title="Guest Nationality Mix" subtitle="Current guest demographics" />
           <div className="space-y-3">
-            {[
-              { country: "India", pct: 42, flag: "IN", color: "#1A3C5E" },
-              { country: "United States", pct: 18, flag: "US", color: "#2BAE8E" },
-              { country: "United Kingdom", pct: 12, flag: "UK", color: "#F5A623" },
-              { country: "Germany", pct: 8, flag: "DE", color: "#64748B" },
-              { country: "Australia", pct: 6, flag: "AU", color: "#E53E3E" },
-              { country: "Other", pct: 14, flag: "—", color: "#94A3B8" },
-            ].map((n) => (
+            {nationalityMix.length === 0 && (
+              <div className="text-sm text-center py-4 text-gray-500">No demographics available.</div>
+            )}
+            {nationalityMix.map((n: any) => (
               <div key={n.country} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: "rgba(14,36,61,0.06)", color: n.color }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: "rgba(14,36,61,0.06)", color: "#1A3C5E" }}>
                   {n.flag}
                 </div>
                 <div className="flex-1">
                   <div className="flex justify-between text-xs mb-1">
                     <span style={{ color: "#1A2E44" }}>{n.country}</span>
-                    <span className="font-medium" style={{ color: n.color }}>{n.pct}%</span>
+                    <span className="font-medium" style={{ color: "#2BAE8E" }}>{n.pct}%</span>
                   </div>
                   <div className="w-full h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                    <div className="h-full rounded-full" style={{ width: `${n.pct}%`, background: n.color }} />
+                    <div className="h-full rounded-full" style={{ width: `${n.pct}%`, background: "#2BAE8E" }} />
                   </div>
                 </div>
               </div>
@@ -328,15 +327,16 @@ export default function ApartmentsPage() {
           </div>
           <div className="mt-3 pt-3 text-xs flex items-center gap-1" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
             <Globe className="w-3 h-3" />
-            <span>{new Date().toLocaleDateString("en-US", { month: "long" })} 2026 · {42 + 18 + 12 + 8 + 6 + 14} guests from 12 countries</span>
+            <span>{new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })} · {nationalityMix.length} countries</span>
           </div>
         </Card>
+        
         <Card>
           <CardHeader title="Corporate vs Leisure Split" subtitle="Booking purpose breakdown" />
           <div className="flex items-center justify-center py-6">
             <div className="relative w-32 h-32">
               <div className="w-32 h-32 rounded-full" style={{ background: "#E2E8F0" }} />
-              <div className="absolute inset-0 w-32 h-32 rounded-full" style={{ background: "conic-gradient(#1A3C5E 0% 65%, #2BAE8E 65% 85%, #F5A623 85% 100%)" }} />
+              <div className="absolute inset-0 w-32 h-32 rounded-full" style={{ background: `conic-gradient(#1A3C5E 0% ${splitData.corporate}%, #2BAE8E ${splitData.corporate}% ${splitData.corporate + splitData.leisure}%, #F5A623 ${splitData.corporate + splitData.leisure}% 100%)` }} />
               <div className="absolute inset-4 rounded-full flex items-center justify-center text-center" style={{ background: "#FFFFFF" }}>
                 <div><div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>100%</div><div className="text-[8px]" style={{ color: "#64748B" }}>Total</div></div>
               </div>
@@ -344,22 +344,23 @@ export default function ApartmentsPage() {
           </div>
           <div className="grid grid-cols-3 gap-2 text-center text-xs">
             <div className="p-2 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <div className="font-semibold" style={{ color: "#1A3C5E" }}>65%</div>
+              <div className="font-semibold" style={{ color: "#1A3C5E" }}>{splitData.corporate}%</div>
               <div style={{ color: "#64748B" }}>Corporate</div>
               <div className="text-[10px]" style={{ color: "#94A3B8" }}><Briefcase className="w-3 h-3 inline" /> Business</div>
             </div>
             <div className="p-2 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <div className="font-semibold" style={{ color: "#2BAE8E" }}>20%</div>
+              <div className="font-semibold" style={{ color: "#2BAE8E" }}>{splitData.leisure}%</div>
               <div style={{ color: "#64748B" }}>Leisure</div>
               <div className="text-[10px]" style={{ color: "#94A3B8" }}><Plane className="w-3 h-3 inline" /> Tourism</div>
             </div>
             <div className="p-2 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <div className="font-semibold" style={{ color: "#F5A623" }}>15%</div>
+              <div className="font-semibold" style={{ color: "#F5A623" }}>{splitData.other}%</div>
               <div style={{ color: "#64748B" }}>Other</div>
               <div className="text-[10px]" style={{ color: "#94A3B8" }}><Percent className="w-3 h-3 inline" /> Relocation</div>
             </div>
           </div>
         </Card>
+        
         <Card>
           <CardHeader title="Monthly Performance Metrics" subtitle="Key indicators" />
           <div className="space-y-4">
@@ -367,7 +368,7 @@ export default function ApartmentsPage() {
               { label: "Avg Daily Rate", value: "₹5,400", change: "+3.2%", positive: true, icon: DollarSign },
               { label: "RevPAR", value: "₹4,280", change: "+5.1%", positive: true, icon: TrendingUp },
               { label: "Avg Length of Stay", value: "4.2 nights", change: "-0.3", positive: false, icon: Clock },
-              { label: "Occupancy Rate", value: "82%", change: "+2.1%", positive: true, icon: BarChart3 },
+              { label: "Occupancy Rate", value: `${summary.avgOccupancy}%`, change: "+2.1%", positive: true, icon: BarChart3 },
               { label: "Total Revenue MTD", value: "₹24.8L", change: "+8.7%", positive: true, icon: DollarSign },
             ].map((m) => {
               const Icon = m.icon;
@@ -396,24 +397,16 @@ export default function ApartmentsPage() {
       <Card>
         <CardHeader title="Maintenance Requests" subtitle="Open tickets across properties" />
         <div className="space-y-3">
-          {[
-            { issue: "AC not cooling — Unit 204", property: "Cityscape Serviced Apartments", priority: "high", status: "in_progress", time: "30 min ago" },
-            { issue: "Water leakage in bathroom — Unit 310", property: "Harbour View Residences", priority: "urgent", status: "pending", time: "1 hr ago" },
-            { issue: "WiFi router replacement — Unit 105", property: "Palm Grove Suites", priority: "medium", status: "scheduled", time: "3 hrs ago" },
-            { issue: "Door lock malfunction — Unit 402", property: "Elite Corporate Stays", priority: "high", status: "in_progress", time: "2 hrs ago" },
-            { issue: "Kitchen faucet dripping — Unit 108", property: "Cityscape Serviced Apartments", priority: "low", status: "pending", time: "5 hrs ago" },
-            { issue: "TV remote not working — Unit 215", property: "Harbour View Residences", priority: "low", status: "resolved", time: "1 day ago" },
-            { issue: "Bedroom curtain rod broken — Unit 303", property: "Palm Grove Suites", priority: "medium", status: "scheduled", time: "2 days ago" },
-            { issue: "Smoke alarm battery low — Unit 107", property: "Cityscape Serviced Apartments", priority: "high", status: "pending", time: "4 hrs ago" },
-            { issue: "Intercom not working — Unit 312", property: "Harbour View Residences", priority: "low", status: "pending", time: "6 hrs ago" },
-            { issue: "Geyser not heating — Unit 401", property: "Elite Corporate Stays", priority: "urgent", status: "in_progress", time: "3 hrs ago" },
-          ].map((m, i) => (
+          {maintenance.length === 0 && (
+            <div className="text-sm text-center py-4 text-gray-500">No open maintenance tickets found.</div>
+          )}
+          {maintenance.map((m: any, i: number) => (
             <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full shrink-0" style={{ background: m.priority === "urgent" ? "#E53E3E" : m.priority === "high" ? "#F5A623" : m.priority === "medium" ? "#2BAE8E" : "#64748B" }} />
                 <div>
                   <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{m.issue}</div>
-                  <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{m.property} · {m.time}</div>
+                  <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{m.property} · Unit {m.unit || "TBD"}</div>
                 </div>
               </div>
               <Badge variant={m.status === "resolved" ? "teal" : m.status === "in_progress" ? "amber" : m.status === "scheduled" ? "gray" : "red"}>{m.status.replace("_", " ")}</Badge>
@@ -426,21 +419,16 @@ export default function ApartmentsPage() {
         <Card>
           <CardHeader title="Upcoming Checkouts" subtitle="Next 7 days" />
           <div className="space-y-2">
-            {[
-              { guest: "Robert Chen", unit: "301", date: "19 Jun", company: "TechCorp", nights: 45 },
-              { guest: "Sarah Miller", unit: "205", date: "20 Jun", company: "Design Studio", nights: 28 },
-              { guest: "Amit Patel", unit: "110", date: "21 Jun", company: "FinServe", nights: 21 },
-              { guest: "Lisa Wong", unit: "408", date: "22 Jun", company: "DataFlow", nights: 18 },
-              { guest: "James Wilson", unit: "502", date: "19 Jun", company: "BuildCorp", nights: 14 },
-              { guest: "Maria Garcia", unit: "206", date: "23 Jun", company: "HealthPlus", nights: 12 },
-              { guest: "David Kim", unit: "405", date: "24 Jun", company: "Samsung R&D", nights: 30 },
-            ].map((c, i) => (
+            {upcomingCheckouts.length === 0 && (
+              <div className="text-sm text-center py-4 text-gray-500">No checkouts scheduled in the next 7 days.</div>
+            )}
+            {upcomingCheckouts.map((c: any, i: number) => (
               <div key={i} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: "#F5F7FA" }}>
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: "#1A3C5E" }}>{c.guest.charAt(0)}</div>
                   <div>
                     <div className="text-xs font-medium" style={{ color: "#1A2E44" }}>{c.guest}</div>
-                    <div className="text-[10px]" style={{ color: "#64748B" }}>Unit {c.unit} · {c.company} · {c.nights} nights</div>
+                    <div className="text-[10px]" style={{ color: "#64748B" }}>Unit {c.unit || "TBD"} · {c.company} · {c.nights} nights</div>
                   </div>
                 </div>
                 <span className="text-xs font-medium" style={{ color: "#F5A623" }}>{c.date}</span>
@@ -448,25 +436,20 @@ export default function ApartmentsPage() {
             ))}
           </div>
         </Card>
+        
         <Card>
           <CardHeader title="Upcoming Arrivals" subtitle="Expected check-ins" />
           <div className="space-y-2">
-            {[
-              { guest: "Thomas Mueller", unit: "301", date: "20 Jun", company: "AutoGmbH", nights: 30 },
-              { guest: "Ananya Reddy", unit: "205", date: "21 Jun", company: "TechStart", nights: 14 },
-              { guest: "Kevin O'Brien", unit: "110", date: "22 Jun", company: "FinServ Ireland", nights: 21 },
-              { guest: "Yuki Tanaka", unit: "408", date: "23 Jun", company: "Tokyo Trading", nights: 45 },
-              { guest: "Ravi & Priya", unit: "502", date: "24 Jun", company: "Personal", nights: 7 },
-              { guest: "Fatima Al-Rashid", unit: "207", date: "25 Jun", company: "Gulf Oil", nights: 60 },
-              { guest: "Dr. Hans Mueller", unit: "105", date: "26 Jun", company: "Pharma AG", nights: 14 },
-              { guest: "Anjali Deshmukh", unit: "308", date: "27 Jun", company: "Consulting Inc", nights: 21 },
-            ].map((a, i) => (
+            {upcomingArrivals.length === 0 && (
+              <div className="text-sm text-center py-4 text-gray-500">No arrivals scheduled in the next 7 days.</div>
+            )}
+            {upcomingArrivals.map((a: any, i: number) => (
               <div key={i} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: "#F5F7FA" }}>
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: "#2BAE8E" }}>{a.guest.charAt(0)}</div>
                   <div>
                     <div className="text-xs font-medium" style={{ color: "#1A2E44" }}>{a.guest}</div>
-                    <div className="text-[10px]" style={{ color: "#64748B" }}>Unit {a.unit} · {a.company} · {a.nights} nights</div>
+                    <div className="text-[10px]" style={{ color: "#64748B" }}>Unit {a.unit || "TBD"} · {a.company} · {a.nights} nights</div>
                   </div>
                 </div>
                 <span className="text-xs font-medium" style={{ color: "#2BAE8E" }}>{a.date}</span>
@@ -479,13 +462,10 @@ export default function ApartmentsPage() {
       <Card>
         <CardHeader title="Guest Services Requests" subtitle="Open requests across properties" />
         <div className="space-y-3">
-          {[
-            { request: "Extra towels needed — Unit 204", guest: "Robert Chen", status: "in_progress", time: "15 min ago" },
-            { request: "Airport transfer booking — Unit 408", guest: "Lisa Wong", status: "scheduled", time: "1 hr ago" },
-            { request: "Late checkout request — Unit 502", guest: "James Wilson", status: "pending", time: "2 hrs ago" },
-            { request: "Extra bed arrangement — Unit 301", guest: "Thomas Mueller", status: "in_progress", time: "3 hrs ago" },
-            { request: "Housekeeping — Unit 206", guest: "Maria Garcia", status: "pending", time: "4 hrs ago" },
-          ].map((r, i) => (
+          {guestRequests.length === 0 && (
+            <div className="text-sm text-center py-4 text-gray-500">No open guest service requests.</div>
+          )}
+          {guestRequests.map((r: any, i: number) => (
             <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(14,36,61,0.06)" }}>
@@ -493,7 +473,7 @@ export default function ApartmentsPage() {
                 </div>
                 <div>
                   <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{r.request}</div>
-                  <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{r.guest} · {r.time}</div>
+                  <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Unit {r.unit || "TBD"}</div>
                 </div>
               </div>
               <Badge variant={r.status === "in_progress" ? "amber" : r.status === "scheduled" ? "gray" : "red"}>{r.status.replace("_", " ")}</Badge>

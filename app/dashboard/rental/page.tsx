@@ -153,6 +153,17 @@ export default function RentalPage() {
   const urgentMaint = MOCK_MAINTENANCE.filter((m) => m.priority === "high" && m.status !== "resolved").length;
   const unreadMsgs = TENANT_MESSAGES.filter((m) => m.unread).length;
 
+  if (isLoadingDisplay) {
+    return (
+      <div className="flex h-[80vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#64748B] text-sm font-medium">Loading Rental Workspace...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">

@@ -57,6 +57,9 @@ async function run() {
     "010_lease_tenancy.sql",
     "011_workplace.sql",
     "012_notification_integration.sql",
+    "013_master_data_dictionaries.sql",
+    "014_frontdesk_operations.sql",
+    "015_fnb_module.sql",
     "seed.sql",
   ];
 

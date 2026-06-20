@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Settings, Shield, Users, Activity, AlertCircle, Loader2, RefreshCw, CheckCircle, Eye, EyeOff, UserPlus, Clock, FileText, Key, Globe, Lock, Bell, Sliders, ToggleLeft, Server, Database, Download, Upload, Code, Mail, Smartphone, CreditCard } from "lucide-react";
@@ -89,6 +89,9 @@ export default function AdminPage() {
           <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Global configuration, security, audit logs</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => window.location.href = '/dashboard/admin/masters'}>
+            <Settings className="w-3.5 h-3.5" /> Master Data Hub
+          </Button>
           <Button variant="secondary" size="sm" onClick={() => setActionFeedback({ type: "success", message: "Settings saved" })}>
             <Sliders className="w-3.5 h-3.5" /> Save Settings
           </Button>
