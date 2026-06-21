@@ -4,7 +4,7 @@ import { getDb } from "@/lib/db";
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
-    const rows = await sql`
+    const rows = (await sql`
       SELECT 
         v.id,
         v.company_name as name,
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       FROM vendors v
       LEFT JOIN vendor_services vs ON vs.vendor_id = v.id
       ORDER BY v.company_name ASC
-    `;
+    `) as any;
 
     // Map to expected structure and inject dummy performance metrics since they aren't fully tracked yet
     const data = rows.map(r => ({

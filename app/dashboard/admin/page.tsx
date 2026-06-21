@@ -6,7 +6,7 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import Table from "@/components/ui/table";
-import { useAdminUsers, useAuditLogs, useComplianceRecords } from "@/lib/hooks";
+import { useAdminUsers, useAuditLogs, useComplianceRecords, useProperties } from "@/lib/hooks";
 
 const SYSTEM_USERS = [
   { name: "Rajesh Mehta", email: "rajesh@samp.com", role: "Property Manager", property: "Oceanview Hotel", status: "active" },
@@ -49,6 +49,18 @@ export default function AdminPage() {
   const { users, isLoading: loadingUsers, mutate: mutateUsers } = useAdminUsers();
   const { logs, isLoading: loadingLogs, mutate: mutateLogs } = useAuditLogs(50);
   const { records, isLoading: loadingRecords, mutate: mutateRecords } = useComplianceRecords();
+  const { properties = [] } = useProperties();
+
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUser, setNewUser] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    role_name: "property_manager",
+    property_id: "",
+  });
+  const [newUserLoading, setNewUserLoading] = useState(false);
 
   const displayUsers = (users && (users as any[]).length > 0) ? (users as any[]) : SYSTEM_USERS;
   const displayLogs = (logs && (logs as any[]).length > 0) ? (logs as any[]) : AUDIT_LOGS;
@@ -61,6 +73,46 @@ export default function AdminPage() {
       return () => clearTimeout(t);
     }
   }, [actionFeedback]);
+
+  async function handleCreateUser(e: React.FormEvent) {
+    e.preventDefault();
+    setNewUserLoading(true);
+    setActionFeedback(null);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: newUser.first_name,
+          last_name: newUser.last_name || null,
+          email: newUser.email,
+          password: newUser.password,
+          role_name: newUser.role_name,
+          property_id: newUser.property_id || null,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setActionFeedback({ type: "success", message: `User created successfully: ${newUser.first_name}` });
+        setShowAddUserModal(false);
+        setNewUser({
+          first_name: "",
+          last_name: "",
+          email: "",
+          password: "",
+          role_name: "property_manager",
+          property_id: "",
+        });
+        mutateUsers();
+      } else {
+        setActionFeedback({ type: "error", message: data.error || "Failed to create user" });
+      }
+    } catch {
+      setActionFeedback({ type: "error", message: "Network error creating user" });
+    } finally {
+      setNewUserLoading(false);
+    }
+  }
 
   function handleRefresh() {
     setIsLoading(true);
@@ -224,34 +276,139 @@ export default function AdminPage() {
       )}
 
       {activeTab === "users" && (
-        <Card>
-          <CardHeader
+        <>
+          <Card>
+            <CardHeader
               title="User Management"
               subtitle={`${displayUsers.length} users · ${activeUsers} active · ${inactiveUsers} inactive`}
-            action={
-              <Button variant="secondary" size="sm" onClick={() => setActionFeedback({ type: "success", message: "Add user form opened" })}>
-                <UserPlus className="w-3.5 h-3.5" /> Add User
-              </Button>
-            }
-          />
-          {loadingUsers ? (
-            <div className="space-y-1">{[...Array(5)].map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: "#F5F7FA" }} />)}</div>
-          ) : (
-            <Table
-              data={displayUsers}
-              keyExtractor={(u: any) => u.id || Math.random()}
-              columns={[
-                { key: "name", header: "Name", render: (u: any) => <span className="font-medium text-sm">{u.first_name} {u.last_name || ""}</span> },
-                { key: "email", header: "Email", render: (u: any) => <span className="text-xs" style={{ color: "#64748B" }}>{u.email}</span> },
-                { key: "role", header: "Role", render: (u: any) => <Badge variant="gray">{u.user_roles?.[0]?.role?.name || u.role || "—"}</Badge> },
-                { key: "property", header: "Scope", render: (u: any) => <span className="text-xs" style={{ color: "#64748B" }}>{u.user_roles?.[0]?.property_id ? "Specific" : "Global"}</span> },
-                { key: "status", header: "Status", render: (u: any) => (
-                  <Badge variant={u.is_active !== false ? "teal" : "red"}>{u.is_active !== false ? "active" : "inactive"}</Badge>
-                )},
-              ]}
+              action={
+                <Button variant="secondary" size="sm" onClick={() => setShowAddUserModal(true)}>
+                  <UserPlus className="w-3.5 h-3.5" /> Add User
+                </Button>
+              }
             />
+            {loadingUsers ? (
+              <div className="space-y-1">{[...Array(5)].map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: "#F5F7FA" }} />)}</div>
+            ) : (
+              <Table
+                data={displayUsers}
+                keyExtractor={(u: any) => u.id || Math.random()}
+                columns={[
+                  { key: "name", header: "Name", render: (u: any) => <span className="font-medium text-sm">{u.first_name} {u.last_name || ""}</span> },
+                  { key: "email", header: "Email", render: (u: any) => <span className="text-xs" style={{ color: "#64748B" }}>{u.email}</span> },
+                  { key: "role", header: "Role", render: (u: any) => <Badge variant="gray">{u.user_roles?.[0]?.role?.name || u.role || "—"}</Badge> },
+                  { key: "property", header: "Scope", render: (u: any) => <span className="text-xs" style={{ color: "#64748B" }}>{u.user_roles?.[0]?.property_id ? "Specific" : "Global"}</span> },
+                  { key: "status", header: "Status", render: (u: any) => (
+                    <Badge variant={u.is_active !== false ? "teal" : "red"}>{u.is_active !== false ? "active" : "inactive"}</Badge>
+                  )},
+                ]}
+              />
+            )}
+          </Card>
+
+          {showAddUserModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+              <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "#E2E8F0" }}>
+                  <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>Add New System User</h3>
+                  <button onClick={() => setShowAddUserModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                </div>
+                <form onSubmit={handleCreateUser} className="p-6 space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>First Name *</label>
+                      <input
+                        type="text" required value={newUser.first_name}
+                        onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                        placeholder="Jane"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Last Name</label>
+                      <input
+                        type="text" value={newUser.last_name}
+                        onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                        placeholder="Smith"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Email Address *</label>
+                    <input
+                      type="email" required value={newUser.email}
+                      onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                      placeholder="jane.smith@ehms.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Password *</label>
+                    <input
+                      type="password" required value={newUser.password}
+                      onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                      placeholder="•••••••• (Min 8 chars)"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>System Role *</label>
+                      <select
+                        value={newUser.role_name}
+                        onChange={(e) => setNewUser({ ...newUser, role_name: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}
+                      >
+                        <option value="super_admin">Super Admin</option>
+                        <option value="executive">Executive</option>
+                        <option value="property_manager">Property Manager</option>
+                        <option value="front_desk">Front Desk</option>
+                        <option value="housekeeping_supervisor">HK Supervisor</option>
+                        <option value="housekeeping_staff">HK Staff</option>
+                        <option value="maintenance_supervisor">Maintenance Supervisor</option>
+                        <option value="maintenance_staff">Maintenance Staff</option>
+                        <option value="hr_manager">HR Manager</option>
+                        <option value="finance_manager">Finance Manager</option>
+                        <option value="workplace_facility_manager">Workplace Facility Manager</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Workspace Scope</label>
+                      <select
+                        value={newUser.property_id}
+                        onChange={(e) => setNewUser({ ...newUser, property_id: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}
+                      >
+                        <option value="">Global (All Workspaces)</option>
+                        {properties.map((p: any) => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setShowAddUserModal(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" variant="primary" size="sm" disabled={newUserLoading}>
+                      {newUserLoading ? (
+                        <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Creating</>
+                      ) : (
+                        "Create User"
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
           )}
-        </Card>
+        </>
       )}
 
       {activeTab === "compliance" && (

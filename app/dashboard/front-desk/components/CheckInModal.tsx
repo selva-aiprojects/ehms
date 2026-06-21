@@ -162,7 +162,7 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
                   onChange={(e) => setParking({ ...parking, vehicleNumber: e.target.value })}
                   placeholder="e.g. MH-12-AB-1234" 
                   className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1"
-                  style={{ borderColor: "#E2E8F0", focusRingColor: "#2BAE8E" }}
+                  style={{ borderColor: "#E2E8F0" }}
                 />
               </div>
               <div>

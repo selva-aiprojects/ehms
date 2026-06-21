@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "react-hot-toast";
+import { SettingsProvider } from "@/components/providers/SettingsProvider";
+import { JourneyProvider } from "@/components/providers/JourneyProvider";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -11,16 +14,15 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.png" }],
 };
 
-import { Toaster } from "react-hot-toast";
-import { SettingsProvider } from "@/components/providers/SettingsProvider";
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
         <SettingsProvider>
-          {children}
-          <Toaster position="top-right" />
+          <JourneyProvider>
+            {children}
+            <Toaster position="top-right" />
+          </JourneyProvider>
         </SettingsProvider>
       </body>
     </html>

@@ -89,7 +89,7 @@ export default function FAndBPage() {
   const getStatusVariant = (status: string) => {
     switch (status) {
       case "pending": return "amber";
-      case "preparing": return "blue";
+      case "preparing": return "navy";
       case "ready": return "teal";
       case "delivered": return "gray";
       case "cancelled": return "red";

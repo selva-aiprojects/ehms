@@ -15,12 +15,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     const sql = getDb();
-    const rows = await sql`
+    const rows = (await sql`
       UPDATE f_and_b_orders
       SET status = ${status}, updated_at = NOW()
       WHERE id = ${id}
       RETURNING *
-    `;
+    `) as any;
 
     if (rows.length === 0) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });

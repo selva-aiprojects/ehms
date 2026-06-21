@@ -136,7 +136,7 @@ export default function RequestsPage() {
                       <span className="capitalize text-[#64748B]">{r.assigned_to_dept || "Unassigned"}</span>
                     </td>
                     <td className="px-4 py-4">
-                      <Badge variant={r.status === 'resolved' ? 'teal' : r.status === 'pending' ? 'amber' : 'blue'} className="capitalize">
+                      <Badge variant={r.status === 'resolved' ? 'teal' : r.status === 'pending' ? 'amber' : 'navy'} className="capitalize">
                         {r.status.replace('_', ' ')}
                       </Badge>
                     </td>

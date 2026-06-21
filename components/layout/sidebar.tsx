@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  LayoutDashboard, CalendarCheck, Users, BarChart2, Settings,
+  LayoutDashboard, CalendarCheck, Users,
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
   UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star
 } from "lucide-react";
@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
 import { hasAccess } from "@/lib/role-access";
 import { useGlobalSettings } from "@/components/providers/SettingsProvider";
+import { useJourney, type VerticalJourney } from "@/components/providers/JourneyProvider";
 
 const ALL_NAV_ITEMS = [
   { label: "Dashboard",    icon: LayoutDashboard, href: "/dashboard", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor","housekeeping_staff","maintenance_staff","maintenance_supervisor","hr_manager","hr_executive","finance_manager","finance_executive","security_staff","vendor_user","workplace_facility_manager"] },
@@ -35,6 +36,30 @@ const ALL_NAV_ITEMS = [
 
 const PRIMARY_LABELS = ["Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio", "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"];
 
+const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
+  all: [
+    "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
+    "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental",
+    "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"
+  ],
+  hotels: [
+    "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
+    "F&B / Pantry", "Requests", "Feedbacks", "Housekeeping", "Maintenance", "Finance",
+    "HRMS", "Admin"
+  ],
+  apartments: [
+    "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
+    "F&B / Pantry", "Requests", "Feedbacks", "Housekeeping", "Maintenance", "Finance",
+    "HRMS", "Admin"
+  ],
+  rental: [
+    "Dashboard", "Rental", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"
+  ],
+  workplace: [
+    "Dashboard", "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"
+  ]
+};
+
 function getLocalDemoUser(): UserProfile | null {
   try { const r = localStorage.getItem("ehms_demo_session"); return r ? JSON.parse(r) : null; } catch { return null; }
 }
@@ -43,21 +68,37 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const { user: authUser, loading } = useAuth();
+  const { user: authUser } = useAuth();
   const [fallbackUser, setFallbackUser] = useState<UserProfile | null>(null);
   const { settings } = useGlobalSettings();
+  const { activeJourney } = useJourney();
 
   useEffect(() => {
     const demo = getLocalDemoUser();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (demo) setFallbackUser(demo);
   }, []);
 
   const user = authUser || fallbackUser;
   const role = user?.role_name || "unknown";
 
-  const visibleItems = ALL_NAV_ITEMS.filter((item) =>
-    item.roles.includes(role) && hasAccess(role, item.href)
-  );
+  const visibleItems = ALL_NAV_ITEMS.map((item) => {
+    if (item.label === "Dashboard") {
+      const targetHref = activeJourney === "all" ? "/dashboard" : `/dashboard/${activeJourney}`;
+      if (hasAccess(role, targetHref)) {
+        return { ...item, href: targetHref };
+      }
+    }
+    return item;
+  }).filter((item) => {
+    if (!item.roles.includes(role) || !hasAccess(role, item.href)) return false;
+    
+    // Filter based on active journey mapping
+    const allowedForJourney = JOURNEY_ALLOWED_ITEMS[activeJourney] || JOURNEY_ALLOWED_ITEMS.all;
+    if (!allowedForJourney.includes(item.label)) return false;
+    
+    return true;
+  });
 
   const primaryNav = visibleItems.filter((item) =>
     PRIMARY_LABELS.includes(item.label)

@@ -278,7 +278,7 @@ export default function HousekeepingPage() {
                 <p className="text-sm" style={{ color: "#64748B" }}>No floor data available</p>
               </div>
             ) : (
-              floorSummary.map((fl) => {
+              (floorSummary as any[]).map((fl) => {
                 const floorTasks = displayTasks.filter((t: any) => (t.unit?.floor || t.unit?.floor_number || t.floor || t.floor_number || 0) === fl);
                 const pending = floorTasks.filter((t: any) => t.status !== "resolved" && t.status !== "completed").length;
                 const total = floorTasks.length;

@@ -13,7 +13,13 @@ eHMS is built as a **Subscription-Based** platform serving four major property v
 3. **Apartment Management (Long-Term Rentals)**
 4. **Workplace Services Management**
 
-Regardless of the vertical, the system handles a cohesive end-to-end user journey:
+### Business Vertical Isolation Principle
+To prevent data contamination and operational confusion across different businesses, all user journeys and vertical states are strictly isolated. At the login page, the user selects their active workspace vertical (the Journey Switcher). Upon authentication, the UI and API layer restrict the user session to the chosen business context:
+- **Scope-Locked Sidebar:** Navigation menus are filtered to show only modules relevant to the selected vertical.
+- **Dynamic Dashboard Route:** Redirection routes the user to `/dashboard/${vertical}` (e.g., `/dashboard/hotels`, `/dashboard/rental`).
+- **Resource Scoping:** Downstream tables (bookings, housekeeping tasks, maintenance tickets, staff rosters, and vendor purchases) are scoped to specific property vertical configurations and cannot see or cross-mutate resources belonging to other business verticals.
+
+Regardless of the vertical, the system handles a cohesive end-to-end user journey, though its operational implementation changes dynamically per business vertical:
 1. **OTAs & Bookings:** Hospitality vendors/OTAs (e.g., MakeMyTrip, GoIbibo) and users trigger the lifecycle via advanced bookings or walk-ins. Features, service grades, and access levels are dictated by the booking price/tier.
 2. **Visitor & Access Management:** From the moment a guest or tenant arrives, **Frontdesk** and visitor management systems track their presence.
 3. **Facilities Operations:** A booked room/desk instantly activates downstream workflows for **Facilities Administrators**, **Housekeeping** (cleaning routes), and **Maintenance** (vendor availability and preventive repair planning).
@@ -102,6 +108,12 @@ sequenceDiagram
   - `units` (Mutates: `status`).
   - `guest_profiles` (Reads: KYC status).
 
+#### Vertical-Specific Variations & Isolation
+*   **Hotels (`hotels`)**: High-frequency operational model. Focuses on immediate check-ins, guest details validation, check-out calculation, dynamic Room Grid/Matrix monitoring (real-time vacant/dirty/occupied), drag-and-drop room transfers, physical key card assignment, and daily front desk shifts reports.
+*   **Serviced Apartments (`apartments`)**: A hybrid model supporting extended-stay check-ins. Front desk agents manage pre-arrival digital registration cards, issue keyless door codes, log incoming mail/packages, coordinate weekly deep-cleaning schedules, and process monthly billing requests.
+*   **Apartment Rentals (`rental`)**: Managed through the **Leasing Office Workbench** rather than a dynamic room grid. Operations focus on checking applicant files, generating and executing lease agreements, collecting security deposits, documenting move-in property condition checklists, and handing over physical entry keys.
+*   **Workplace Services (`workplace`)**: Focuses on **Visitor Center** registration. Front desk logs daily workspace check-ins, confirms hot desk and meeting room reservations, issues temporary QR gate passes, handles member guest registration, and records corporate member usage.
+
 ---
 
 ### J2: Housekeeping Staff & Supervisor — Smart Clean & Quality Checklist
@@ -144,6 +156,12 @@ sequenceDiagram
   - `linen_batches` & `linen_transactions` (Logs inventory movements).
   - `units` (Syncs status to `cleaning`, `inspection`, or `vacant`).
 
+#### Vertical-Specific Variations & Isolation
+*   **Hotels (`hotels`)**: High-priority daily routines. Includes daily stayover tidies, quick check-out turnaround cleans optimized for upcoming arrivals, supervisor quality inspections (which set units to `vacant ready`), and high-frequency linen ledger tracking (dirty drop-offs vs clean receipt).
+*   **Serviced Apartments (`apartments`)**: Scheduled deep-cleaning cycles (e.g., weekly or bi-weekly). Onboarding/pre-arrival cleans, utility usage checks, inventory audits of kitchen/bathroom amenities, and resident linen exchanges.
+*   **Apartment Rentals (`rental`)**: Heavy turnaround cleans occurring only during vacancy windows (move-out or pre-move-in). Housekeepers execute comprehensive prep checklists, paint restoration assessments, trash removals, and deep sanitization of the unit. There are no daily/stayover cleans.
+*   **Workplace Services (`workplace`)**: Focuses on common areas and shared workspaces. Daily cleaning of hot desk desks, sanitizing conference rooms and meeting tables, replenishing pantry supplies, managing recycling/garbage collections, and maintaining washrooms.
+
 ---
 
 ### J3: Maintenance Engineer — Corrective Repairs & AMC Preventative Schedule
@@ -174,6 +192,12 @@ sequenceDiagram
   - `amc_contracts` (Reads: validity dates, vendor links).
   - `parts_inventory` (Mutates: `quantity_in_stock`).
   - `units` (Auto-locks unit status to `maintenance` when a ticket is opened, restores status when resolved).
+
+#### Vertical-Specific Variations & Isolation
+*   **Hotels (`hotels`)**: High-priority rapid response corrective tickets (e.g., HVAC failure, lock card error, water leakage) directly impacting active guest ratings. Handles preventative maintenance for hotel assets (pools, elevators, restaurant equipment), and quick dispatching to AMC vendor partners.
+*   **Serviced Apartments (`apartments`)**: Home appliance diagnostic repairs (e.g., wash machine, oven, water heater), periodic safety audits, utility sub-meters testing, and common facilities maintenance.
+*   **Apartment Rentals (`rental`)**: Tenant-initiated maintenance requests received via the tenant portal. Structural envelope preservation, electrical inspections, heating and plumbing repairs, and annual fire safety compliance certifications.
+*   **Workplace Services (`workplace`)**: Focuses on commercial infrastructure. IT and high-speed network troubleshooting, conference room AV setup repair, dynamic workspace safety reviews, and office HVAC zones balancing.
 
 ---
 
@@ -238,6 +262,12 @@ System Payment Row:  "INR 45,000 received from Guest John Smith" (Inv: 10492)
   - `payroll_runs` (Mutates: `status`, `total_gross`, `total_net`, `approved_by`).
   - `payroll_lines` (Computes: detailed deduction breakdowns per worker).
   - `shift_rotations` (Manages schedules).
+
+#### Vertical-Specific Variations & Isolation
+*   **Hotels (`hotels`)**: High-intensity shift rotations. Manages 24/7 rosters for front desk agents, night auditors, bellboys, maintenance engineers, and pantry/kitchen crews. Coordinates cleaning crews based on seasonal occupancy volumes and daily check-out spikes.
+*   **Serviced Apartments (`apartments`)**: Roster schedules for receptionists, guest relationship officers, and housekeeping crews. Technicians may work on weekly rotating visits across different properties.
+*   **Apartment Rentals (`rental`)**: Regular office hours (typically 9-to-5) rosters for leasing agents, on-site property managers, maintenance coordinators, and contract security details.
+*   **Workplace Services (`workplace`)**: Roster shifts aligned with corporate operating hours. Tracks schedules for front-of-house hosts, IT support specialists, network engineers, and community managers.
 
 ---
 
@@ -390,6 +420,30 @@ stateDiagram-v2
   - `bookings`, `payments`, `units`, `guest_profiles` (Aggregates performance statistics).
   - `maintenance_tickets` & `amc_contracts` (Review high-cost tickets).
   - `compliance_records` (Monitor legal compliance).
+
+---
+
+### J11: Vendor & Procurement Manager — Supply Chain, POs & Service Level Agreements
+* **Role/Persona**: Purchasing Manager (`purchasing_manager`) or Property Manager (`property_manager`).
+* **Daily Mission**: Manage vendor profiles, draft purchase orders (POs), track material deliveries, monitor AMC contracts, and evaluate vendor SLA compliance.
+* **Access Scope**: `/dashboard/admin` and vertical-specific procurement pages.
+
+#### Detailed Workflow & UI Features
+1. **Purchase Order (PO) Builder**:
+   - Create procurement requests for raw materials, housekeeping consumables, or maintenance tools.
+   - Enforce multi-tier approval flows based on total cost thresholds.
+2. **Vendor Directory**:
+   - Central repository of external contractors, material suppliers, and AMC service providers.
+   - Tracks active contracts, terms, and payment schedules.
+3. **SLA Tracker**:
+   - Tracks external contractor service ticket response times (from assignment to completion).
+   - Flags active contractor tickets that exceed priority SLA boundaries.
+
+#### Vertical-Specific Variations & Isolation
+*   **Hotels (`hotels`)**: High-volume recurring purchases. Procurement focuses on guest toiletries, clean linen stock, F&B raw inventory, dynamic laundry contractor schedules, and on-call equipment repair vendors.
+*   **Serviced Apartments (`apartments`)**: Mid-tier procurement. Focuses on in-unit appliance parts, linen replacement pools, external elevator/pool AMC contracts, and specialized cleaning services.
+*   **Apartment Rentals (`rental`)**: Localized service contracts. Focuses on property landscaping/gardening vendors, emergency plumbing contractors, painting sub-contractors for unit turnover, and common area waste management.
+*   **Workplace Services (`workplace`)**: Focuses on commercial operations. Procures office supplies, AV/IT leasing contracts, kitchen coffee/beverage suppliers, and office janitorial/waste services.
 
 ---
 

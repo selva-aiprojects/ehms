@@ -425,7 +425,7 @@ export default function MaintenancePage() {
       <Card>
         <CardHeader title="Preventive Maintenance Schedule" subtitle="Auto-generated" />
         <Table
-          data={displaySchedules}
+          data={displaySchedules as any[]}
           keyExtractor={(_, i) => String(i)}
           columns={[
             { key: "task", header: "Task" }, { key: "asset", header: "Asset" },

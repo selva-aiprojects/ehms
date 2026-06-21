@@ -1,24 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { Users, Key, Building2, ArrowRight, Eye, EyeOff, UserCog, CreditCard, Briefcase } from "lucide-react";
+import { Users, Key, Building2, ArrowRight, Eye, EyeOff, UserCog, CreditCard, Briefcase, Hotel, Home, LayoutDashboard, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const DEMO_USERS = [
-  { label: "Super Admin", icon: UserCog, email: "superadmin@ehms.demo" },
-  { label: "Executive",   icon: Users, email: "executive@ehms.demo" },
-  { label: "Property Mgr", icon: UserCog, email: "admin@ehms.demo" },
-  { label: "Front Desk",  icon: Key, email: "frontdesk@ehms.demo" },
-  { label: "Housekeeping", icon: Building2, email: "housekeeping@ehms.demo" },
-  { label: "Maintenance", icon: Building2, email: "maintenance@ehms.demo" },
-  { label: "HR Manager",  icon: Users, email: "hr@ehms.demo" },
-  { label: "Finance Mgr", icon: CreditCard, email: "finance@ehms.demo" },
-];
+import { useJourney, type VerticalJourney } from "@/components/providers/JourneyProvider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { activeJourney, setJourney } = useJourney();
 
+  // Sign In / Form State
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -34,40 +26,15 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
       const data = await res.json();
       if (res.ok) {
         if (data.user) {
           localStorage.setItem("ehms_demo_session", JSON.stringify(data.user));
         }
-        router.push("/dashboard");
-        router.refresh();
-        setLoading(false);
-        return;
-      }
-      setError(data.error || "Login failed");
-    } catch {
-      setError("Network error. Please try again.");
-    }
-    setLoading(false);
-  }
-
-  async function quickLogin(demoEmail: string) {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: demoEmail, password: "Demo@1234" }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        if (data.user) {
-          localStorage.setItem("ehms_demo_session", JSON.stringify(data.user));
-        }
-        router.push("/dashboard");
+        const targetDashboard = activeJourney === "all" ? "/dashboard" : `/dashboard/${activeJourney}`;
+        router.push(targetDashboard);
         router.refresh();
         setLoading(false);
         return;
@@ -112,10 +79,38 @@ export default function LoginPage() {
             <Image src="/eHMS_logo.png" alt="eHMS" width={100} height={40} className="object-contain" />
           </div>
 
-          <h2 className="text-2xl font-bold mb-1" style={{ color: "#1A3C5E" }}>Welcome back</h2>
-          <p className="text-sm mb-8" style={{ color: "#64748B" }}>Sign in to your account</p>
+          <h2 className="text-2xl font-bold mb-1" style={{ color: "#1A3C5E" }}>eHMS Portal</h2>
+          <p className="text-sm mb-6" style={{ color: "#64748B" }}>Access your hospitality workspace</p>
 
           <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: "#1A2E44" }}>Business Vertical / Workspace</label>
+              <div className="relative">
+                <select
+                  value={activeJourney}
+                  onChange={(e) => setJourney(e.target.value as VerticalJourney)}
+                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border text-sm outline-none bg-white appearance-none transition-colors"
+                  style={{ borderColor: "#E2E8F0" }}
+                >
+                  <option value="all">All Workspaces</option>
+                  <option value="hotels">Hotels & Resorts</option>
+                  <option value="apartments">Serviced Apartments</option>
+                  <option value="rental">Apartment Rental (Long-term)</option>
+                  <option value="workplace">Workplace Management</option>
+                </select>
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#2BAE8E" }}>
+                  {activeJourney === "all" && <LayoutDashboard className="w-4 h-4" />}
+                  {activeJourney === "hotels" && <Hotel className="w-4 h-4" />}
+                  {activeJourney === "apartments" && <Building2 className="w-4 h-4" />}
+                  {activeJourney === "rental" && <Home className="w-4 h-4" />}
+                  {activeJourney === "workplace" && <Briefcase className="w-4 h-4" />}
+                </div>
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" style={{ color: "#64748B" }}>
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: "#1A2E44" }}>Email</label>
               <input
@@ -127,6 +122,7 @@ export default function LoginPage() {
                 onBlur={e => e.target.style.borderColor = "#E2E8F0"}
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: "#1A2E44" }}>Password</label>
               <div className="relative">
@@ -143,12 +139,43 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2">
                 <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} style={{ accentColor: "#2BAE8E" }} />
                 <span style={{ color: "#64748B" }}>Remember me</span>
               </label>
               <button type="button" className="hover:underline" style={{ color: "#2BAE8E" }}>Forgot password?</button>
+            </div>
+
+            <div className="pt-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: "#64748B" }}>Autofill Demo Credentials</label>
+              <div className="relative">
+                <select
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setEmail(e.target.value);
+                      setPassword("Demo@1234");
+                    }
+                  }}
+                  className="w-full pl-4 pr-10 py-2 rounded-lg border text-xs outline-none bg-slate-100 appearance-none transition-colors font-medium cursor-pointer"
+                  style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+                  defaultValue=""
+                >
+                  <option value="">— Select a demo role to pre-fill fields —</option>
+                  <option value="superadmin@ehms.demo">Super Admin</option>
+                  <option value="executive@ehms.demo">Executive</option>
+                  <option value="admin@ehms.demo">Property Manager</option>
+                  <option value="frontdesk@ehms.demo">Front Desk</option>
+                  <option value="housekeeping@ehms.demo">Housekeeping Staff</option>
+                  <option value="maintenance@ehms.demo">Maintenance Staff</option>
+                  <option value="hr@ehms.demo">HR Manager</option>
+                  <option value="finance@ehms.demo">Finance Manager</option>
+                </select>
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" style={{ color: "#64748B" }}>
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </div>
+              </div>
             </div>
 
             {error && (
@@ -159,28 +186,14 @@ export default function LoginPage() {
 
             <button
               type="submit" disabled={loading}
-              className="w-full py-2.5 rounded-lg text-white font-medium text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-60"
+              className="w-full py-2.5 rounded-lg text-white font-medium text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-60 cursor-pointer"
               style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" }}
             >
-              {loading ? "Signing in\u2026" : <> Sign In <ArrowRight className="w-4 h-4" /></>}
+              {loading ? "Signing in\u2026" : (
+                <> Sign In <ArrowRight className="w-4 h-4" /></>
+              )}
             </button>
           </form>
-
-          <div className="mt-8 pt-6" style={{ borderTop: "1px solid #E2E8F0" }}>
-            <p className="text-xs font-medium mb-3 text-center" style={{ color: "#64748B" }}>DEMO QUICK LOGIN</p>
-            <div className="grid grid-cols-2 gap-2">
-              {DEMO_USERS.map(({ label, icon: Icon, email: demoEmail }) => (
-                <button
-                  key={label} onClick={() => quickLogin(demoEmail)} disabled={loading}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all hover:opacity-80 disabled:opacity-50"
-                  style={{ background: "#F5F7FA", color: "#1A3C5E" }}
-                >
-                  <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: "#2BAE8E" }} />
-                  <span className="truncate">{label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>

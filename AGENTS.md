@@ -47,3 +47,10 @@ eHMS is a comprehensive **Subscription-Based** Hospitality and Facilities Manage
 - **Visitor & Access Management:** Once booked, visitors/guests are managed end-to-end.
 - **Facilities & Operations:** The user journey triggers downstream workflows starting from the **Frontdesk** (check-in/out), cascading to **Facilities Administrators**, **Housekeeping** (cleaning tasks), and **Maintenance** (vendor availability and repair planning).
 - **Back-Office (HR & Finance):** Operations are supported by complete HR processes (Employee Attendance, Shift rotations, Salary/Payroll) and a complete Finance workflow (Invoicing, General Ledger, Bank Reconciliation).
+
+## 6. Business Vertical Isolation & Scoping
+- **CRITICAL:** The business verticals (Hotels, Serviced Apartments, Apartment Rental, Workplace Services) operate as strictly isolated contexts.
+- **Login Switcher:** The user selects their active vertical context at the Login Screen. Authentication redirects the user to the vertical-scoped route (`/dashboard/${vertical}`) and persists the selected journey.
+- **Sidebar & UI Navigation:** Navigation elements must be dynamically filtered using `useJourney()` from `components/providers/JourneyProvider`. Only display navigation items allowed for the active vertical.
+- **Operational Separation:** Operations like Front Desk/Onboarding, Housekeeping, Maintenance, Staff (HRMS), and Vendors are scoped specifically to the active vertical and run specialized business logic. Do not write or design global features that mix these operations across different verticals. Make sure query filters restrict database mutations to the correct vertical context.
+

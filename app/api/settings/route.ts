@@ -6,9 +6,9 @@ export async function GET(req: NextRequest) {
     const sql = getDb();
     
     // Fetch the single settings row
-    const settings = await sql`
+    const settings = (await sql`
       SELECT * FROM system_settings LIMIT 1
-    `;
+    `) as any;
 
     if (settings.length === 0) {
       // Return defaults if not found (fallback)
@@ -46,7 +46,7 @@ export async function PUT(req: NextRequest) {
     } = body;
 
     // We assume there's always one row since we seeded it
-    const updated = await sql`
+    const updated = (await sql`
       UPDATE system_settings
       SET 
         company_name = COALESCE(${company_name}, company_name),
@@ -57,11 +57,11 @@ export async function PUT(req: NextRequest) {
         timezone = COALESCE(${timezone}, timezone),
         updated_at = NOW()
       RETURNING *
-    `;
+    `) as any;
 
     if (updated.length === 0) {
       // If table was empty, insert the first row
-      const inserted = await sql`
+      const inserted = (await sql`
         INSERT INTO system_settings (
           company_name, logo_url, primary_color, secondary_color, currency_symbol, timezone
         ) VALUES (
@@ -73,7 +73,7 @@ export async function PUT(req: NextRequest) {
           ${timezone || 'Asia/Kolkata'}
         )
         RETURNING *
-      `;
+      `) as any;
       return NextResponse.json({ data: inserted[0] });
     }
 

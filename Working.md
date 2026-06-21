@@ -596,6 +596,21 @@ Following the initial MVP rollout of the F&B and Maintenance modules, the system
   - *Trigger:* Any guest rating ≤ 3 stars for 'Maintenance' or 'Housekeeping' appears dynamically at the top of the Maintenance Dashboard as an "Action Required" card.
   - *Action:* The Engineering Manager can click "Raise Ticket" to immediately convert the complaint into a critical/high-priority `corrective` maintenance work order assigned directly to the guest's unit.
 
+## Step 12 — Journey Switcher to Login Page & Vertical Isolation
+
+To resolve confusion and avoid cross-business visibility, the workspace Journey Switcher was migrated from the main dashboard header to the login page. This forces users to choose their active workspace vertical (Hotels, Serviced Apartments, Apartment Rental, Workplace Services) at authentication time.
+
+### Implementation Details:
+1. **Login Page Switcher:**
+   - A styled dropdown was added to `app/page.tsx` with matching Lucide icons.
+   - Upon successful credentials/demo authentication, the user is dynamically routed to `/dashboard/${vertical}` (e.g. `/dashboard/rental`).
+2. **Dynamic Sidebar Filter:**
+   - Modified `components/layout/sidebar.tsx` to read the active vertical from the `useJourney` hook.
+   - Filters sidebar links dynamically to display only vertical-relevant items.
+   - Re-targets the main "Dashboard" link dynamically to target the chosen business vertical (e.g. `/dashboard/rental`).
+3. **Core Operational Journeys Isolation:**
+   - **Front Desk, Housekeeping, Maintenance, Staff (HRMS), and Vendors** are treated as isolated, vertical-specific domains rather than global shared states. Each vertical runs customized operations (e.g. high-frequency Hotel daily cleans and room matrix vs. Rental leasing onboarding workbench, tenant maintenance tickets, and contract painters/landscapers).
+
 ---
 
 *Working.md — eHMS Project • Created 18 June 2026 • Updated 20 June 2026*

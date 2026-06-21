@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ cate
     const sql = getDb();
     
     // Dynamic table name requires safe building. We know tableName is safe from our map.
-    const result = await sql(`SELECT * FROM ${tableName} ORDER BY created_at DESC`);
+    const result = await (sql as any)(`SELECT * FROM ${tableName} ORDER BY created_at DESC`);
     
     return NextResponse.json({ data: result });
   } catch (error: any) {
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cat
     const placeholders = keys.map((_, i) => `$${i + 1}`).join(", ");
     
     // Safe dynamic insert using pg parameterized queries
-    const result = await sql(`INSERT INTO ${tableName} (${columns}) VALUES (${placeholders}) RETURNING *`, values);
+    const result = await (sql as any)(`INSERT INTO ${tableName} (${columns}) VALUES (${placeholders}) RETURNING *`, values);
 
     return NextResponse.json({ data: result[0] });
   } catch (error: any) {
@@ -116,7 +116,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ cate
     const setClause = keys.map((k, i) => `"${k}" = $${i + 1}`).join(", ");
     values.push(id); // push id for the WHERE clause
     
-    const result = await sql(`UPDATE ${tableName} SET ${setClause}, updated_at = now() WHERE id = $${values.length} RETURNING *`, values);
+    const result = await (sql as any)(`UPDATE ${tableName} SET ${setClause}, updated_at = now() WHERE id = $${values.length} RETURNING *`, values);
 
     if (result.length === 0) {
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
@@ -151,7 +151,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ c
     }
 
     const sql = getDb();
-    const result = await sql(`DELETE FROM ${tableName} WHERE id = $1 RETURNING id`, [id]);
+    const result = await (sql as any)(`DELETE FROM ${tableName} WHERE id = $1 RETURNING id`, [id]);
 
     if (result.length === 0) {
       return NextResponse.json({ error: "Record not found" }, { status: 404 });

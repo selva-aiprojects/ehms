@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const sql = getDb();
     
     // Fetch main invoice and lines
-    const invoices = await sql`
+    const invoices = (await sql`
       SELECT 
         i.id as invoice_id, i.invoice_number, i.status, i.total_amount, i.amount_paid, i.balance_due,
         il.id as line_id, il.description, il.amount, il.tax_amount, il.line_type, il.created_at
@@ -24,15 +24,15 @@ export async function GET(req: NextRequest) {
       LEFT JOIN invoice_lines il ON il.invoice_id = i.id
       WHERE i.booking_id = ${bookingId}
       ORDER BY il.created_at ASC
-    `;
+    `) as any;
 
     // Fetch payments
-    const payments = await sql`
+    const payments = (await sql`
       SELECT p.id, p.payment_date, p.amount, p.payment_method, p.reference_number, p.status
       FROM payments p
       WHERE p.booking_id = ${bookingId} AND p.status = 'completed'
       ORDER BY p.payment_date ASC
-    `;
+    `) as any;
 
     // Group into a folio object
     const folio = {

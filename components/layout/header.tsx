@@ -1,12 +1,14 @@
 "use client";
 
-import { Bell, Search, ChevronDown, Menu, LogOut, User, Shield } from "lucide-react";
+import { Bell, Search, ChevronDown, Menu, LogOut, User, Shield, LayoutDashboard, Hotel, Building2, Home, Briefcase } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ROLE_LABELS } from "@/lib/role-access";
+import { useJourney } from "@/components/providers/JourneyProvider";
 
 export default function Header() {
   const { user, signOut } = useAuth();
+  const { activeJourney } = useJourney();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +46,56 @@ export default function Header() {
         <Menu className="w-5 h-5" />
       </button>
 
-      <div className="relative flex-1 max-w-sm">
+      <div className="flex items-center gap-3 ml-auto shrink-0">
+        {user && (
+          <span className="text-sm hidden md:inline" style={{ color: "#64748B" }}>
+            Welcome, <span className="font-semibold" style={{ color: "#1A2E44" }}>{user.first_name || user.email.split('@')[0]}</span>!
+          </span>
+        )}
+        <div className="h-4 w-px bg-slate-200 hidden md:block" />
+        <div 
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0"
+          style={{ 
+            background: "#F5F7FA",
+            border: "1px solid #E2E8F0",
+            color: "#1A2E44"
+          }}
+        >
+          <span className="text-[10px] uppercase font-bold tracking-wider opacity-60">Workspace:</span>
+          {activeJourney === "all" && (
+            <>
+              <LayoutDashboard className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+              <span className="font-semibold">All Workspaces</span>
+            </>
+          )}
+          {activeJourney === "hotels" && (
+            <>
+              <Hotel className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+              <span className="font-semibold">Hotels & Resorts</span>
+            </>
+          )}
+          {activeJourney === "apartments" && (
+            <>
+              <Building2 className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+              <span className="font-semibold">Serviced Apartments</span>
+            </>
+          )}
+          {activeJourney === "rental" && (
+            <>
+              <Home className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+              <span className="font-semibold">Apartment Rental</span>
+            </>
+          )}
+          {activeJourney === "workplace" && (
+            <>
+              <Briefcase className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+              <span className="font-semibold">Workplace Management</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="relative w-64 hidden lg:block shrink-0">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#64748B" }} />
         <input
           type="text"
