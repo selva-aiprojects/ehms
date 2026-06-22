@@ -2,7 +2,7 @@
 
 > **Enterprise Hospitality Management System**
 > Full progress log from project start to current state.
-> Last updated: 19 June 2026
+> Last updated: 21 June 2026
 
 ---
 
@@ -16,7 +16,7 @@
 | **Live URL** | https://ehms-app.vercel.app |
 | **Vercel project** | https://vercel.com/aiservicesselvakumar-8945s-projects/frontend |
 | **Git** | Local repo at `d:\Training\working\HMS\frontend` |
-| **Database schemas** | `d:\Training\working\HMS\database\` (12 SQL files) |
+| **Database schemas** | `d:\Training\working\HMS\database\` (18 SQL files) |
 
 
 ---
@@ -54,6 +54,15 @@ d:\Training\working\HMS\
 │   ├── 010_lease_tenancy.sql        ← Leases, rental agreements
 │   ├── 011_workplace.sql            ← Desks, memberships, access control
 │   ├── 012_notification_integration.sql
+│   ├── 013_master_data_dictionaries.sql ← Room categories, facilities, designations, bands
+│   ├── 014_frontdesk_operations.sql ← Check-in checklists, parking, guest requests, billing
+│   ├── 015_fnb_module.sql           ← Meal plans, F&B menu, orders, order items
+│   ├── 016_system_settings.sql      ← System configuration table
+│   ├── 017_hrms_extensions.sql      ← Leave types, leave requests, balances, timesheets
+│   ├── 018_masters_and_policies.sql ← Holidays, OT policies, attendance policies, doc types,
+│   │                                    policy documents, appraisals, increments, promotions,
+│   │                                    tax slabs, payment modes, booking sources, rate plans,
+│   │                                    ID proof types, asset categories, UOM, geo data
 │   └── seed.sql                     ← Demo data (passwords via pgcrypto crypt())
 │
 └── frontend/   ← (also mirrored at repo root)
@@ -287,9 +296,39 @@ middleware.ts
 | `/api/housekeeping/[id]` | PUT | `housekeeping_tasks`, `units` |
 | `/api/maintenance` | GET, POST | `maintenance_tickets`, `units` |
 | `/api/finance` | GET | `invoices`, `payments` |
-| `/api/hr/employees` | GET | `employees`, `departments`, `users` |
-| `/api/properties` | GET | `properties` + occupancy calc |
 | `/api/leases` | GET | `leases` + optional filters |
+| `/api/properties` | GET | `properties` + occupancy calc |
+| **HR API Routes** | | |
+| `/api/hr/employees` | GET, POST | `employees`, `departments`, `users` |
+| `/api/hr/employees/[id]` | GET, PUT | `employees` |
+| `/api/hr/departments` | GET, POST | `departments` |
+| `/api/hr/shifts` | GET, POST | `shifts` |
+| `/api/hr/timesheets` | GET, POST | `timesheets` |
+| `/api/hr/timesheets/[id]` | PUT | `timesheets` (clock-out) |
+| `/api/hr/leaves` | GET, POST | `leave_requests`, `leave_balances` |
+| `/api/hr/leaves/[id]` | PUT | `leave_requests` (approve/reject) |
+| `/api/hr/payroll` | GET, POST | `payroll_runs`, `payroll_items` |
+| `/api/hr/payroll/[id]` | GET, PUT | `payroll_runs` |
+| `/api/hr/compliance` | GET | PF/ESI/PT/TDS aggregation |
+| `/api/hr/holidays` | GET, POST | `holiday_calendar` |
+| `/api/hr/overtime-policies` | GET, POST | `overtime_policies` |
+| `/api/hr/attendance-policies` | GET, POST | `attendance_policies` |
+| `/api/hr/document-types` | GET, POST | `document_types` |
+| `/api/hr/policy-documents` | GET, POST | `policy_documents` |
+| `/api/hr/appraisal-cycles` | GET, POST | `appraisal_cycles` |
+| `/api/hr/appraisal-reviews` | GET, POST | `appraisal_reviews` |
+| `/api/hr/appraisal-goals` | GET, POST | `appraisal_goals` |
+| `/api/hr/increments` | GET, POST | `increments` |
+| `/api/hr/promotions` | GET, POST | `promotions` |
+| **Masters API Routes** | | |
+| `/api/masters/tax-slabs` | GET, POST | `tax_slabs` |
+| `/api/masters/payment-modes` | GET, POST | `payment_modes` |
+| `/api/masters/booking-sources` | GET, POST | `booking_sources` |
+| `/api/masters/rate-plans` | GET, POST | `rate_plans` |
+| `/api/masters/id-proof-types` | GET, POST | `id_proof_types` |
+| `/api/masters/asset-categories` | GET, POST | `asset_categories` |
+| `/api/masters/uom` | GET, POST | `uom` |
+| `/api/masters/locations` | GET | `countries`, `states`, `cities` |
 
 **Smart unit status sync** (automatic):
 | Action | Unit status becomes |
@@ -302,15 +341,46 @@ middleware.ts
 
 #### Data Hooks (`lib/hooks/index.ts`)
 ```typescript
-useStats()               // Dashboard KPIs — auto-refreshes every 30s
-useReservations(filters) // Paginated booking list
-useGuests(search, page)  // Guest search + pagination
-useHousekeeping(filters) // Task board — auto-refreshes every 15s
-useMaintenance(filters)  // Ticket list
-useFinance(propertyId)   // Revenue + invoices
-useEmployees(search)     // HR staff
-useProperties(vertical)  // Property occupancy
-useLeases(filters)       // Lease agreements
+// Dashboard
+useStats()                          // Dashboard KPIs — auto-refreshes every 30s
+useReservations(filters)            // Paginated booking list
+useGuests(search, page)             // Guest search + pagination
+useHousekeeping(filters)            // Task board — auto-refreshes every 15s
+useMaintenance(filters)             // Ticket list
+useFinance(propertyId)              // Revenue + invoices
+useProperties(vertical)             // Property occupancy
+useLeases(filters)                  // Lease agreements
+
+// HR
+useEmployees(search, deptId)        // Employee directory
+useDepartments()                    // Department list
+useShifts()                         // Shift schedule
+useTimesheets(filters)              // Timesheet records
+useLeaveRequests(filters)           // Leave requests
+useLeaveBalances(employeeId)        // Leave balance per employee
+usePayrollRuns(propertyId)          // Payroll runs
+usePayrollRun(id)                   // Single payroll run
+useCompliance()                     // PF/ESI/PT/TDS compliance
+useHolidays(year)                   // Holiday calendar
+useOvertimePolicies()               // OT policy list
+useAttendancePolicies()             // Attendance rules
+useDocumentTypes()                  // Document type list
+usePolicyDocuments(category)        // Policy document repository
+useAppraisalCycles(status)          // Appraisal cycles
+useAppraisalReviews(cycleId, empId)  // Appraisal reviews
+useAppraisalGoals(cycleId, empId)    // Appraisal goals
+useIncrements(empId, status)        // Increment records
+usePromotions(empId, status)        // Promotion records
+
+// Masters
+useTaxSlabs(taxType)                // Tax rate slabs
+usePaymentModes()                   // Payment method list
+useBookingSources()                 // OTA/booking source list
+useRatePlans()                      // Rate plan list
+useIdProofTypes()                   // ID proof document types
+useAssetCategories()                // Asset category list
+useUOM()                            // Units of measure
+useLocations(type, parentId)        // Countries/states/cities
 ```
 
 #### Mutation Hooks (`lib/hooks/mutations.ts`)
@@ -525,6 +595,7 @@ vercel --prod
 | `admin@ehms.demo` missing from DEMO_ROLE_MAP | Added `property_manager` mapping in `lib/role-access.ts` |
 | HMR WebSocket connection handshake failure (`_next/webpack-hmr` ERR_INVALID_HTTP_RESPONSE) | Excluded all Next.js internal paths `_next/` from the middleware matcher in `proxy.ts` to prevent request interception during WebSocket upgrade handshake. |
 | Submodule `frontend` out of sync with root repo changes | Ran `git pull` in `frontend` submodule to ensure both instances run identical updated files. |
+| `\u20B9` (₹) Unicode escape displays literally as text in JSX | Wrapped in `{'\u20B9'}` expression syntax so React renders the symbol instead of the raw escape sequence |
 
 ---
 
@@ -547,9 +618,12 @@ vercel --prod
 - Lease API endpoint
 - Shared utility constants
 - Hydration error fix
+- \u20B9 Unicode escape fix across finance/HR pages
+- **Full HRMS Module** (See Step 13)
+- **Missing Masters + Appraisal/Increment/Promotion** (See Step 14)
 
 ### What May Need Attention
-1. Run `seed.sql` in Neon if demo data is missing
+1. Run `018_masters_and_policies.sql` via `npm run migrate` to create new tables + seed data
 2. Set `DATABASE_URL` + `JWT_SECRET` in Vercel env vars for production
 3. Change `JWT_SECRET` to a strong random value for production
 4. Consider bcrypt migration script for existing pgcrypto users if adding non-demo users
@@ -611,6 +685,152 @@ To resolve confusion and avoid cross-business visibility, the workspace Journey 
 3. **Core Operational Journeys Isolation:**
    - **Front Desk, Housekeeping, Maintenance, Staff (HRMS), and Vendors** are treated as isolated, vertical-specific domains rather than global shared states. Each vertical runs customized operations (e.g. high-frequency Hotel daily cleans and room matrix vs. Rental leasing onboarding workbench, tenant maintenance tickets, and contract painters/landscapers).
 
+## Step 13 — HRMS Module (Full Workflow)
+
+Built on 20–21 June 2026. The HR module was converted from a single static page with mock data into a full-featured HRMS with database-backed workflows spanning employee lifecycle, time tracking, leave management, payroll, and compliance.
+
+### Database: 017_hrms_extensions.sql
+| Table | Purpose |
+|---|---|
+| `leave_types` | Leave categories (sick, casual, annual, etc.) with entitlement |
+| `leave_requests` | Apply/approve/reject workflow with date range |
+| `leave_balances` | Per-employee leave balance tracking |
+| `timesheets` | Clock-in/out with geo-tagging and break tracking |
+
+### API Routes Created (11)
+| Route | Methods | Purpose |
+|---|---|---|
+| `/api/hr/employees` | GET, POST | Employee CRUD + employee code generation |
+| `/api/hr/employees/[id]` | GET, PUT | Single employee update |
+| `/api/hr/departments` | GET, POST | Department management |
+| `/api/hr/shifts` | GET, POST | Shift schedule management |
+| `/api/hr/timesheets` | GET, POST | Clock-in + timesheet listing |
+| `/api/hr/timesheets/[id]` | PUT | Clock-out |
+| `/api/hr/leaves` | GET, POST | Leave request list + apply |
+| `/api/hr/leaves/[id]` | PUT | Approve/reject leave |
+| `/api/hr/payroll` | GET, POST | Payroll run creation + listing |
+| `/api/hr/payroll/[id]` | GET, PUT | Single run detail + approve |
+| `/api/hr/compliance` | GET | PF/ESI/PT/TDS aggregation per period |
+
+### Pages Built (7)
+| Page | Path | Features |
+|---|---|---|
+| **Employees** | `/dashboard/hr/employees` | Employee directory, add/edit form, department/shift/band selection |
+| **Timesheet** | `/dashboard/hr/timesheet` | Dual-view: clock-in/out for self + team timesheet grid with date filters |
+| **Leave** | `/dashboard/hr/leave` | Leave balance cards, apply form, approval workflow with status badges |
+| **Payroll** | `/dashboard/hr/payroll` | Run list, create with auto-compute (PF/ESI/PT/TDS), approve workflow |
+| **Compliance** | `/dashboard/hr/compliance` | PF summary, ESI summary, PT deduction, TDS challenge, aggregated dashboard |
+| **Shifts** | `/dashboard/hr/shifts` | Shift type management (name, time window, grace) |
+| **Settings** | `/dashboard/hr/settings` | Tabbed: Departments, Designations, Employee Bands, Salary Structures |
+
+### SWR Hooks Added (10)
+- `useTimesheets()`, `useLeaveRequests()`, `useLeaveBalances()`, `usePayrollRuns()`, `usePayrollRun()`, `useCompliance()`, `useShifts()`, `useDepartments()`
+
+### Seed Data
+- 4 leave types (Sick, Casual, Annual, Comp-off) with 2026 balances for all employees
+- 3 shifts (General, Evening, Night)
+- Attendance entries + leave requests for demo employees
+- One payroll run with computed items
+
 ---
 
-*Working.md — eHMS Project • Created 18 June 2026 • Updated 20 June 2026*
+## Step 14 — Missing Masters + Appraisal/Increment/Promotion Workflow
+
+Built on 21 June 2026. Extended the system with all missing master data dictionaries across HR, Finance, Procurement & Inventory, and Hospitality domains, plus an end-to-end appraisal workflow with linked increment and promotion tracking.
+
+### Database: 018_masters_and_policies.sql
+
+#### HR Masters
+| Table | Purpose |
+|---|---|
+| `holiday_calendar` | Per-property holiday list (public/optional/restricted) |
+| `overtime_policies` | OT rules with multiplier, thresholds, applicable shifts |
+| `attendance_policies` | Late/early/grace rules per property |
+| `document_types` | Employee/policy/compliance document categories |
+
+#### Policy Document Repository
+| Table | Purpose |
+|---|---|
+| `policy_documents` | HR policies, forms, handbooks with base64 file storage, versioning, category |
+
+#### Appraisal, Increment & Promotion Workflow
+| Table | Purpose |
+|---|---|
+| `appraisal_cycles` | Review cycles (annual/half-yearly/quarterly) with rating scale and status |
+| `appraisal_goals` | Per-employee goals with weightage and target dates |
+| `appraisal_reviews` | Self + reviewer ratings, scores, and workflow status |
+| `increments` | CTC change tracking linked to appraisal results, auto-computed amount |
+| `promotions` | Designation/band change tracking with CTC impact, approval workflow |
+
+#### App-Wide Masters
+| Table | Purpose |
+|---|---|
+| `tax_slabs` | GST/TDS/Income-tax rate slabs with min/max amounts |
+| `payment_modes` | Online/offline/wallet payment methods |
+| `booking_sources` | OTA/direct booking channels with commission |
+| `rate_plans` | Per-property pricing plans with refund/cancellation policy |
+| `id_proof_types` | Guest ID document types (Aadhaar, Passport, DL, etc.) |
+| `asset_categories` | Maintenance asset classification (Electrical, HVAC, etc.) |
+| `uom` | Units of measure for procurement |
+| `countries`/`states`/`cities` | Geographic reference data (India seeded) |
+
+### API Routes Created (14)
+| Route | Methods | Purpose |
+|---|---|---|
+| **HR Masters** | | |
+| `/api/hr/holidays` | GET, POST | Holiday calendar CRUD |
+| `/api/hr/overtime-policies` | GET, POST | OT policy management |
+| `/api/hr/attendance-policies` | GET, POST | Attendance rules management |
+| `/api/hr/document-types` | GET, POST | Document type management |
+| `/api/hr/policy-documents` | GET, POST | Policy doc upload/list with base64 |
+| **Appraisal** | | |
+| `/api/hr/appraisal-cycles` | GET, POST | Cycle management |
+| `/api/hr/appraisal-reviews` | GET, POST | Review (upsert on conflict) |
+| `/api/hr/appraisal-goals` | GET, POST | Goal management |
+| **Compensation** | | |
+| `/api/hr/increments` | GET, POST | Increment records |
+| `/api/hr/promotions` | GET, POST | Promotion records |
+| **App Masters** | | |
+| `/api/masters/tax-slabs` | GET, POST | Tax slab CRUD |
+| `/api/masters/payment-modes` | GET, POST | Payment mode CRUD |
+| `/api/masters/booking-sources` | GET, POST | Booking source CRUD |
+| `/api/masters/rate-plans` | GET, POST | Rate plan CRUD |
+| `/api/masters/id-proof-types` | GET, POST | ID proof type CRUD |
+| `/api/masters/asset-categories` | GET, POST | Asset category CRUD |
+| `/api/masters/uom` | GET, POST | Unit of measure CRUD |
+| `/api/masters/locations` | GET | Countries/states/cities with hierarchy filters |
+
+### Pages Built (5) + Extended (1)
+| Page | Path | Features |
+|---|---|---|
+| **HR Masters** | `/dashboard/hr/masters` | 4 tabs: Holidays, Overtime Policies, Attendance Policies, Document Types |
+| **Policy Documents** | `/dashboard/hr/policies` | Upload with base64, category filter, download via Blob |
+| **Appraisal** | `/dashboard/hr/appraisal` | 3 tabs: Cycles, Reviews (filter by cycle), Goals (filter by cycle + employee) |
+| **Compensation** | `/dashboard/hr/compensation` | 2 tabs: Increments (auto compute %), Promotions (band/designation change) |
+| **Admin Masters** (extended) | `/dashboard/admin/masters` | 3 new tabs: Finance & Tax (GST/TDS slabs), Payments & Bookings (payment modes, booking sources, rate plans), Assets & Inventory (asset categories, UOM, ID proof types) |
+
+### SWR Hooks Added (19)
+- HR Masters: `useHolidays()`, `useOvertimePolicies()`, `useAttendancePolicies()`, `useDocumentTypes()`, `usePolicyDocuments()`
+- Appraisal: `useAppraisalCycles()`, `useAppraisalReviews()`, `useAppraisalGoals()`
+- Compensation: `useIncrements()`, `usePromotions()`
+- App Masters: `useTaxSlabs()`, `usePaymentModes()`, `useBookingSources()`, `useRatePlans()`, `useIdProofTypes()`, `useAssetCategories()`, `useUOM()`, `useLocations()`
+
+### Sidebar Updates
+4 new nav items added under HRMS: **Masters**, **Policies**, **Appraisal**, **Compensation** (accessible to `super_admin`, `executive`, `hr_manager`, `hr_executive`)
+
+### Seed Data (pre-seeded in migration)
+- 10 document types (Aadhaar, PAN, Bank Proof, Contract, NDA, etc.)
+- 8 payment modes (Cash, Credit/Debit Card, UPI, Net Banking, etc.)
+- 7 booking sources (Direct, MakeMyTrip, GoIbibo, Booking.com, etc.)
+- 5 ID proof types (Aadhaar, Passport, DL, Voter ID, PAN)
+- 8 asset categories (Electrical, Plumbing, HVAC, Furniture, etc.)
+- 10 UOM (Pcs, Kg, G, L, Ml, M, Sqm, Box, Pack, Dozen)
+- India + 12 states + 18 cities
+- GST (0/5/12/18/28%) + TDS slabs
+- 2026 holiday calendar (7 public holidays)
+- 3 overtime policies (Weekday 1.5x, Weekend 2x, Holiday 2.5x)
+- Standard attendance policy
+
+---
+
+*Working.md — eHMS Project • Created 18 June 2026 • Updated 21 June 2026*
