@@ -16,7 +16,7 @@
 | **Live URL** | https://ehms-app.vercel.app |
 | **Vercel project** | https://vercel.com/aiservicesselvakumar-8945s-projects/frontend |
 | **Git** | Local repo at `d:\Training\working\HMS\frontend` |
-| **Database schemas** | `d:\Training\working\HMS\database\` (18 SQL files) |
+| **Database schemas** | `d:\Training\working\HMS\database\` (19 SQL files) |
 
 
 ---
@@ -637,9 +637,11 @@ vercel --prod
 - \u20B9 Unicode escape fix across finance/HR pages
 - **Full HRMS Module** (See Step 13)
 - **Missing Masters + Appraisal/Increment/Promotion** (See Step 14)
+- **Housekeeping Workflow — Sub-pages, API routes, linen/inspection tracking** (See Step 15)
+- **Maintenance Workflow — Sub-pages, API routes, asset/ticket/parts tracking** (See Step 16)
 
 ### What May Need Attention
-1. Run `018_masters_and_policies.sql` via `npm run migrate` to create new tables + seed data
+1. Run `019_housekeeping_maintenance_workflows.sql` via `npm run migrate` to create new tables (linen items, inspections, ticket parts, time entries, approvals)
 2. Set `DATABASE_URL` + `JWT_SECRET` in Vercel env vars for production
 3. Change `JWT_SECRET` to a strong random value for production
 4. Consider bcrypt migration script for existing pgcrypto users if adding non-demo users
@@ -846,6 +848,83 @@ Built on 21 June 2026. Extended the system with all missing master data dictiona
 - 2026 holiday calendar (7 public holidays)
 - 3 overtime policies (Weekday 1.5x, Weekend 2x, Holiday 2.5x)
 - Standard attendance policy
+
+---
+
+## Step 15 — Housekeeping Workflow — Sub-pages & API Routes
+
+Built on 22 June 2026. Extended the Housekeeping module from a single static dashboard into a full workflow with dedicated sub-pages for task management, linen tracking, quality inspections, and staff performance.
+
+### Database: 019_housekeeping_maintenance_workflows.sql
+| Table | Purpose |
+|---|---|
+| `linen_items` | Individual linen item tracking with RFID, status, lifecycle count |
+| `housekeeping_inspections` | Quality control with JSONB checklist, score, pass/fail |
+
+### API Routes Created (6)
+| Route | Methods | Purpose |
+|---|---|---|
+| `/api/housekeeping/linen/batches` | GET, POST | Linen batch CRUD (existing table) |
+| `/api/housekeeping/linen/items` | GET, POST | Individual linen item tracking |
+| `/api/housekeeping/linen/transactions` | GET, POST | Linen checkout/return transactions |
+| `/api/housekeeping/checklists` | GET, POST | Inspection checklist templates |
+| `/api/housekeeping/inspections` | GET, POST | Quality inspection records with score computation |
+| `/api/housekeeping/stats` | GET | Aggregated dashboard: task counts by status, staff performance, floor summary, linen summary |
+
+### Pages Built (4)
+| Page | Path | Features |
+|---|---|---|
+| **Tasks** | `/dashboard/housekeeping/tasks` | Filter by status/priority/floor/room, expandable rows with detail, checklist modal, workflow actions (start/in-progress/complete/skip), auto-refresh |
+| **Linen** | `/dashboard/housekeeping/linen` | 3-tab: Batches (create/status), Items (RFID view), Transactions (checkout/return history) |
+| **Inspections** | `/dashboard/housekeeping/inspections` | Stats bar (total/pass/fail/pending), filter by area/floor, expandable rows with checklist items and pass/fail badges |
+| **Staff** | `/dashboard/housekeeping/staff` | Performance cards from stats API (tasks completed, rating, efficiency) |
+
+### SWR Hooks Added (6)
+`useLinenBatches()`, `useLinenItems()`, `useLinenTransactions()`, `useHKChecklists()`, `useHKInspections()`, `useHKStats()`
+
+### Key UI Patterns
+- **Badge variants**: `teal` (completed/pass), `amber` (in-progress/pending), `red` (failed/skipped), `gray` (cancelled)
+- **Stats bar**: 4 KPI cards at top with gradient backgrounds (rooms in-progress, pending, completed, inspections)
+- **Expandable table rows**: Click to reveal detail panel with full description, room info, timestamps
+
+---
+
+## Step 16 — Maintenance Workflow — Sub-pages & API Routes
+
+Built on 22 June 2026. Extended the Maintenance module from a static dashboard into a full workflow with ticket lifecycle management, asset register, parts inventory, time tracking, and approvals.
+
+### Database: 019_housekeeping_maintenance_workflows.sql
+| Table | Purpose |
+|---|---|
+| `maintenance_ticket_parts` | Parts used per maintenance ticket with auto-computed total cost |
+| `maintenance_time_entries` | Technician time tracking with auto duration computation |
+| `maintenance_approvals` | Approval workflow log (assign/approve/reject/close) with role-based actions |
+
+### API Routes Created (6)
+| Route | Methods | Purpose |
+|---|---|---|
+| `/api/maintenance/assets` | GET, POST | Asset register CRUD with warranty tracking |
+| `/api/maintenance/tickets/[id]` | PUT | Status transitions with approval logging (assign → in-progress → resolved → closed) |
+| `/api/maintenance/ticket-parts` | GET, POST | Parts usage logging with atomic inventory decrement |
+| `/api/maintenance/time-entries` | GET, POST | Technician time tracking |
+| `/api/maintenance/approvals` | GET, POST | Approval log for ticket actions |
+| `/api/maintenance/stats` | GET | Aggregated dashboard: ticket counts by status/category/priority, upcoming PM, expiring AMC, low stock parts |
+
+### Pages Built (3)
+| Page | Path | Features |
+|---|---|---|
+| **Tickets** | `/dashboard/maintenance/tickets` | Stats bar (critical/high/open/resolved), filter by status/category/priority, workflow buttons (assign modal, start, resolve, close), approval logging, expandable detail with parts/time/approvals tabs |
+| **Assets** | `/dashboard/maintenance/assets` | Asset register with warranty badges (color-coded by days remaining: teal >90d, amber 30-90d, red <30d, gray expired), add/edit asset modal |
+| **Parts** | `/dashboard/maintenance/parts` | Stock bar visualization, low stock badge (<10 units), add stock modal, category filter |
+
+### SWR Hooks Added (5)
+`useMaintenanceAssets()`, `useMaintenanceTicketParts()`, `useMaintenanceTimeEntries()`, `useMaintenanceApprovals()`, `useMaintenanceStats()`
+
+### Sidebar Updates
+7 new nav items under Housekeeping & Maintenance: **Tasks**, **Linen**, **Inspections**, **Staff** (HK) and **Tickets**, **Parts**, **Assets** (Maint) — with Lucide icons (Layers, CheckCircle, Ticket, Package)
+
+### Known Issue
+- `Date.now()` was initially flagged by `react-hooks/purity` ESLint rule inside `useMemo` for warranty badge computation. Fixed by hoisting to a module-level `const NOW = Date.now()`.
 
 ---
 
