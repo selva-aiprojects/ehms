@@ -193,7 +193,7 @@ export default function FinancePage() {
             </div>
             <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-lg font-bold">\u20B912.5L</div>
+                <div className="text-lg font-bold">{'\u20B9'}12.5L</div>
                 <Banknote className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">Vendor Payouts</div>
@@ -233,7 +233,7 @@ export default function FinancePage() {
                 { key: "id", header: "Invoice #", render: (inv) => <span className="font-mono text-xs" style={{ color: "#2BAE8E" }}>{inv.id}</span> },
                 { key: "guest_name", header: "Guest / Tenant", render: (inv) => <span className="text-sm">{inv.guest_name || inv.guest || "\u2014"}</span> },
                 { key: "property_name", header: "Property", render: (inv) => <span className="text-xs" style={{ color: "#64748B" }}>{inv.property_name || inv.property || "\u2014"}</span> },
-                { key: "grand_total", header: "Amount", render: (inv) => <span className="font-medium">\u20B9{(inv.grand_total || inv.amount || 0).toLocaleString()}</span> },
+                { key: "grand_total", header: "Amount", render: (inv) => <span className="font-medium">{'\u20B9'}{(inv.grand_total || inv.amount || 0).toLocaleString()}</span> },
                 { key: "due_date", header: "Due Date", render: (inv) => <span className="text-xs" style={{ color: "#64748B" }}>{inv.due_date || "\u2014"}</span> },
                 { key: "status", header: "Status", render: (inv) => (
                   <Badge variant={INVOICE_BADGE[inv.status] || "gray"}>{inv.status}</Badge>
@@ -408,11 +408,11 @@ export default function FinancePage() {
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div className="p-2 rounded" style={{ background: "rgba(42,157,143,0.08)" }}>
                       <span style={{ color: "#64748B" }}>GST</span>
-                      <div className="font-semibold" style={{ color: "#2BAE8E" }}>\u20B9{q.gst.toLocaleString()}</div>
+                      <div className="font-semibold" style={{ color: "#2BAE8E" }}>{'\u20B9'}{q.gst.toLocaleString()}</div>
                     </div>
                     <div className="p-2 rounded" style={{ background: "rgba(26,60,94,0.08)" }}>
                       <span style={{ color: "#64748B" }}>Income Tax</span>
-                      <div className="font-semibold" style={{ color: "#1A3C5E" }}>\u20B9{q.incomeTax.toLocaleString()}</div>
+                      <div className="font-semibold" style={{ color: "#1A3C5E" }}>{'\u20B9'}{q.incomeTax.toLocaleString()}</div>
                     </div>
                   </div>
                   <div className="mt-1.5 text-[10px] flex items-center gap-1" style={{ color: "#94A3B8" }}>
@@ -487,7 +487,7 @@ export default function FinancePage() {
               </div>
               <div className="flex items-center gap-2">
                 <span className={`font-medium ${txn.amount >= 0 ? "" : "text-red-500"}`} style={{ color: txn.amount >= 0 ? "#1A3C5E" : "#E53E3E" }}>
-                  {txn.amount >= 0 ? "+" : ""}\u20B9{Math.abs(txn.amount).toLocaleString()}
+                  {txn.amount >= 0 ? "+" : ""}{'\u20B9'}{Math.abs(txn.amount).toLocaleString()}
                 </span>
                 <Badge variant={txn.status === "matched" ? "teal" : "amber"}>{txn.status}</Badge>
               </div>

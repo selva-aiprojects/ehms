@@ -1,7 +1,8 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
-import { Users, AlertCircle, Loader2, RefreshCw, Search as SearchIcon, Calendar, Clock, BadgePercent, UserCheck, UserX, Briefcase, Mail, Phone, MapPin, Award, BookOpen, GraduationCap, LineChart, ListTodo, Star, UserPlus, UserMinus, ClipboardList, PieChart, TrendingUp, DollarSign } from "lucide-react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Users, AlertCircle, Loader2, RefreshCw, Search as SearchIcon, Calendar, Clock, BadgePercent, UserCheck, UserX, Briefcase, Mail, Phone, MapPin, Award, BookOpen, GraduationCap, LineChart, ListTodo, Star, UserPlus, UserMinus, ClipboardList, PieChart, TrendingUp, DollarSign, Settings } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Table from "@/components/ui/table";
@@ -158,13 +159,32 @@ export default function HRPage() {
             </div>
             <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-2xl font-bold">\u20B912.5L</div>
+                <div className="text-2xl font-bold">{'\u20B9'}12.5L</div>
                 <Briefcase className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">Payroll MTD</div>
             </div>
           </>
         )}
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        {[
+          { label: "Directory", icon: Users, href: "/dashboard/hr/employees", color: "#1A3C5E" },
+          { label: "Timesheets", icon: Clock, href: "/dashboard/hr/timesheet", color: "#2BAE8E" },
+          { label: "Leave", icon: Calendar, href: "/dashboard/hr/leave", color: "#F5A623" },
+          { label: "Payroll", icon: DollarSign, href: "/dashboard/hr/payroll", color: "#E53E3E" },
+          { label: "Compliance", icon: BadgePercent, href: "/dashboard/hr/compliance", color: "#2BAE8E" },
+          { label: "Shifts", icon: Clock, href: "/dashboard/hr/shifts", color: "#64748B" },
+          { label: "Settings", icon: Settings, href: "/dashboard/hr/settings", color: "#1A3C5E" },
+        ].map((item) => (
+          <a key={item.label} href={item.href}
+            className="flex flex-col items-center justify-center p-3 rounded-xl text-center transition-all hover:scale-105"
+            style={{ background: `${item.color}10`, color: item.color }}>
+            <item.icon className="w-5 h-5 mb-1" />
+            <span className="text-xs font-medium">{item.label}</span>
+          </a>
+        ))}
       </div>
 
       <Card>
@@ -258,10 +278,10 @@ export default function HRPage() {
           {["Front Office", "Housekeeping", "Maintenance", "Finance", "HR", "F&B"].map((dept) => {
             const count = displayEmployees.filter((e: any) => (e.dept || e.department?.name) === dept).length;
             return (
-              <div key={dept} className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-                <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{count || Math.floor(Math.random() * 15) + 3}</div>
-                <div className="text-xs" style={{ color: "#64748B" }}>{dept}</div>
-              </div>
+               <div key={dept} className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
+                 <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{count || "—"}</div>
+                 <div className="text-xs" style={{ color: "#64748B" }}>{dept}</div>
+               </div>
             );
           })}
         </div>
