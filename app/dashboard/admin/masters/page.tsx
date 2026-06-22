@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Settings, BedDouble, Tag, Truck, Users } from "lucide-react";
+import { Settings, BedDouble, Tag, Truck, Users, DollarSign, CreditCard, Package } from "lucide-react";
+import Card, { CardHeader } from "@/components/ui/card";
+import { useTaxSlabs, usePaymentModes, useBookingSources, useRatePlans, useIdProofTypes, useAssetCategories, useUOM } from "@/lib/hooks";
 import MasterDataTable from "./components/MasterDataTable";
 
 export default function MastersHubPage() {
@@ -12,6 +14,9 @@ export default function MastersHubPage() {
     { key: "business", label: "Business & Sales", icon: Tag },
     { key: "procurement", label: "Procurement & Inventory", icon: Truck },
     { key: "hr", label: "HR & Staffing", icon: Users },
+    { key: "finance", label: "Finance & Tax", icon: DollarSign },
+    { key: "payments", label: "Payments & Bookings", icon: CreditCard },
+    { key: "assets", label: "Assets & Inventory", icon: Package },
   ];
 
   return (
@@ -188,7 +193,193 @@ export default function MastersHubPage() {
             />
           </div>
         )}
+
+        {activeTab === "finance" && <FinanceTab />}
+        {activeTab === "payments" && <PaymentsTab />}
+        {activeTab === "assets" && <AssetsTab />}
       </div>
+    </div>
+  );
+}
+
+function FinanceTab() {
+  const { taxSlabs: gstSlabs, isLoading: gstLoading } = useTaxSlabs("gst");
+  const { taxSlabs: tdsSlabs, isLoading: tdsLoading } = useTaxSlabs("tds");
+
+  return (
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <Card>
+        <CardHeader title="GST Tax Slabs" subtitle="Goods & Services Tax slabs" />
+        <InlineTable
+          columns={[
+            { key: "name", label: "Slab Name" },
+            { key: "rate_pct", label: "Rate (%)" },
+            { key: "applicable_from", label: "Effective From" },
+          ]}
+          data={gstSlabs}
+          loading={gstLoading}
+        />
+      </Card>
+      <Card>
+        <CardHeader title="TDS Tax Slabs" subtitle="Tax Deducted at Source slabs" />
+        <InlineTable
+          columns={[
+            { key: "name", label: "Slab Name" },
+            { key: "rate_pct", label: "Rate (%)" },
+            { key: "threshold_amount", label: "Threshold (₹)" },
+          ]}
+          data={tdsSlabs}
+          loading={tdsLoading}
+        />
+      </Card>
+    </div>
+  );
+}
+
+function PaymentsTab() {
+  const { paymentModes, isLoading: pmLoading } = usePaymentModes();
+  const { bookingSources, isLoading: bsLoading } = useBookingSources();
+  const { ratePlans, isLoading: rpLoading } = useRatePlans();
+
+  return (
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <Card>
+        <CardHeader title="Payment Modes" subtitle="Accepted payment methods" />
+        <InlineTable
+          columns={[
+            { key: "name", label: "Mode Name" },
+            { key: "code", label: "Code" },
+            { key: "is_active", label: "Active" },
+          ]}
+          data={paymentModes}
+          loading={pmLoading}
+        />
+      </Card>
+      <Card>
+        <CardHeader title="Booking Sources" subtitle="Channels & OTA sources" />
+        <InlineTable
+          columns={[
+            { key: "name", label: "Source Name" },
+            { key: "code", label: "Code" },
+            { key: "commission_rate", label: "Commission %" },
+          ]}
+          data={bookingSources}
+          loading={bsLoading}
+        />
+      </Card>
+      <Card>
+        <CardHeader title="Rate Plans" subtitle="Pricing plans & rate cards" />
+        <InlineTable
+          columns={[
+            { key: "name", label: "Plan Name" },
+            { key: "code", label: "Code" },
+            { key: "base_price", label: "Base Price" },
+            { key: "is_active", label: "Active" },
+          ]}
+          data={ratePlans}
+          loading={rpLoading}
+        />
+      </Card>
+    </div>
+  );
+}
+
+function AssetsTab() {
+  const { assetCategories, isLoading: acLoading } = useAssetCategories();
+  const { uom, isLoading: uomLoading } = useUOM();
+  const { idProofTypes, isLoading: idpLoading } = useIdProofTypes();
+
+  return (
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <Card>
+        <CardHeader title="Asset Categories" subtitle="Fixed asset classification" />
+        <InlineTable
+          columns={[
+            { key: "name", label: "Category Name" },
+            { key: "code", label: "Code" },
+            { key: "description", label: "Description" },
+          ]}
+          data={assetCategories}
+          loading={acLoading}
+        />
+      </Card>
+      <Card>
+        <CardHeader title="Units of Measure (UOM)" subtitle="Measurement units" />
+        <InlineTable
+          columns={[
+            { key: "name", label: "Unit Name" },
+            { key: "code", label: "Code" },
+          ]}
+          data={uom}
+          loading={uomLoading}
+        />
+      </Card>
+      <Card>
+        <CardHeader title="ID Proof Types" subtitle="Accepted identification documents" />
+        <InlineTable
+          columns={[
+            { key: "name", label: "Proof Type" },
+            { key: "code", label: "Code" },
+          ]}
+          data={idProofTypes}
+          loading={idpLoading}
+        />
+      </Card>
+    </div>
+  );
+}
+
+function InlineTable({
+  columns,
+  data,
+  loading,
+}: {
+  columns: { key: string; label: string }[];
+  data: any[] | undefined;
+  loading: boolean;
+}) {
+  if (loading) {
+    return <div className="text-sm text-slate-400 text-center py-8">Loading...</div>;
+  }
+  if (!data || data.length === 0) {
+    return <div className="text-sm text-slate-400 text-center py-8">No records found.</div>;
+  }
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-slate-200">
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                className="text-left py-2.5 px-3 font-medium text-slate-500 text-xs uppercase tracking-wider"
+              >
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item: any, i: number) => (
+            <tr key={item.id || i} className="border-b border-slate-100 hover:bg-slate-50">
+              {columns.map((col) => {
+                const val = item[col.key];
+                const display =
+                  col.key === "is_active"
+                    ? val
+                      ? "Yes"
+                      : "No"
+                    : val ?? "-";
+                return (
+                  <td key={col.key} className="py-2.5 px-3 text-slate-700">
+                    {display}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

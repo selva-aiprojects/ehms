@@ -33,3 +33,33 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Failed to fetch employees" }, { status: 500 });
   }
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    const sql = getDb();
+    const body = await req.json();
+
+    const countRows = await sql`SELECT COALESCE(MAX(CAST(SUBSTRING(employee_code, 5) AS INTEGER)), 0) + 1 AS next_code FROM employees`;
+    const nextCode = (countRows[0] as { next_code: number }).next_code;
+    const employeeCode = `EMP-${String(nextCode).padStart(4, "0")}`;
+
+    const rows = await sql`
+      INSERT INTO employees (
+        employee_code, user_id, department_id, designation, employment_type, doj,
+        base_salary, bank_account, bank_ifsc, pan_number, uan_number, esi_number,
+        reporting_manager_id, shift_id, band_id
+      ) VALUES (
+        ${employeeCode}, ${body.user_id}, ${body.department_id}, ${body.designation},
+        ${body.employment_type}, ${body.doj}, ${body.base_salary}, ${body.bank_account},
+        ${body.bank_ifsc}, ${body.pan_number}, ${body.uan_number}, ${body.esi_number},
+        ${body.reporting_manager_id}, ${body.shift_id}, ${body.band_id}
+      )
+      RETURNING *
+    `;
+
+    return NextResponse.json({ data: rows[0] }, { status: 201 });
+  } catch (error) {
+    console.error("[hr/employees POST]", error);
+    return NextResponse.json({ error: "Failed to create employee" }, { status: 500 });
+  }
+}

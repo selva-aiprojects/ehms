@@ -61,6 +61,8 @@ async function run() {
     "014_frontdesk_operations.sql",
     "015_fnb_module.sql",
     "016_system_settings.sql",
+    "017_hrms_extensions.sql",
+    "018_masters_and_policies.sql",
     "seed.sql",
   ];
 

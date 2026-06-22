@@ -4,9 +4,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  LayoutDashboard, CalendarCheck, Users,
+  LayoutDashboard, CalendarCheck, Users, Clock, Calendar,
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
-  UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star
+  UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star, BadgePercent,
+  Settings, DollarSign
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
@@ -30,33 +31,50 @@ const ALL_NAV_ITEMS = [
   { label: "Housekeeping", icon: Sparkles,        href: "/dashboard/housekeeping", roles: ["super_admin","executive","housekeeping_supervisor","housekeeping_staff"] },
   { label: "Maintenance",  icon: Wrench,          href: "/dashboard/maintenance", roles: ["super_admin","executive","maintenance_staff","maintenance_supervisor"] },
   { label: "Finance",      icon: CreditCard,      href: "/dashboard/finance", roles: ["super_admin","executive","finance_manager","finance_executive"] },
-  { label: "HRMS",         icon: Users,           href: "/dashboard/hr", roles: ["super_admin","executive","hr_manager","hr_executive"] },
+  { label: "HRMS",         icon: Users,           href: "/dashboard/hr", roles: ["super_admin","executive","hr_manager","hr_executive","employee_manager"] },
+  { label: "Employees",    icon: Users,           href: "/dashboard/hr/employees", roles: ["super_admin","executive","hr_manager","hr_executive"] },
+  { label: "Timesheets",   icon: Clock,           href: "/dashboard/hr/timesheet", roles: ["super_admin","executive","hr_manager","hr_executive","employee_manager"] },
+  { label: "Leave",        icon: Calendar,         href: "/dashboard/hr/leave", roles: ["super_admin","executive","hr_manager","hr_executive","employee_manager"] },
+  { label: "Payroll",      icon: CreditCard,      href: "/dashboard/hr/payroll", roles: ["super_admin","executive","hr_manager","hr_executive"] },
+  { label: "Compliance",   icon: BadgePercent,    href: "/dashboard/hr/compliance", roles: ["super_admin","executive","hr_manager","hr_executive"] },
+  { label: "Masters",      icon: Settings,         href: "/dashboard/hr/masters", roles: ["super_admin","executive","hr_manager","hr_executive"] },
+  { label: "Policies",     icon: ClipboardList,    href: "/dashboard/hr/policies", roles: ["super_admin","executive","hr_manager","hr_executive"] },
+  { label: "Appraisal",    icon: Star,             href: "/dashboard/hr/appraisal", roles: ["super_admin","executive","hr_manager","hr_executive"] },
+  { label: "Compensation", icon: DollarSign,       href: "/dashboard/hr/compensation", roles: ["super_admin","executive","hr_manager","hr_executive"] },
   { label: "Admin",        icon: UserCog,         href: "/dashboard/admin", roles: ["super_admin","executive","property_manager"] },
 ];
 
-const PRIMARY_LABELS = ["Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio", "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"];
+const PRIMARY_LABELS = ["Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio", "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance", "Masters", "Policies", "Appraisal", "Compensation", "Admin"];
 
 const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
   all: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
     "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental",
-    "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"
+    "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS",
+    "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
   ],
   hotels: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
     "F&B / Pantry", "Requests", "Feedbacks", "Housekeeping", "Maintenance", "Finance",
-    "HRMS", "Admin"
+    "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
   ],
   apartments: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
     "F&B / Pantry", "Requests", "Feedbacks", "Housekeeping", "Maintenance", "Finance",
-    "HRMS", "Admin"
+    "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
   ],
   rental: [
-    "Dashboard", "Rental", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"
+    "Dashboard", "Rental", "Housekeeping", "Maintenance", "Finance",
+    "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
   ],
   workplace: [
-    "Dashboard", "Workplace", "Housekeeping", "Maintenance", "Finance", "HRMS", "Admin"
+    "Dashboard", "Workplace", "Housekeeping", "Maintenance", "Finance",
+    "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
   ]
 };
 

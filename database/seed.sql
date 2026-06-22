@@ -228,4 +228,59 @@ JOIN (VALUES
 JOIN departments d ON d.name = e.dept_name
 ON CONFLICT DO NOTHING;
 
+-- Shift Rotations
+INSERT INTO shift_rotations (property_id, name, start_time, end_time)
+SELECT p.id, s.name, s.start_time::time, s.end_time::time
+FROM properties p, (VALUES
+  ('Morning', '06:00', '14:00'),
+  ('Afternoon', '14:00', '22:00'),
+  ('Night', '22:00', '06:00')
+) AS s(name, start_time, end_time)
+WHERE p.code = 'OVH'
+ON CONFLICT DO NOTHING;
+
+-- Leave Balances (allocate for each employee)
+INSERT INTO leave_balances (employee_id, leave_type_id, total_allocated, used, pending)
+SELECT e.id, lt.id, lt.days_per_year, (random() * lt.days_per_year * 0.4)::int, 0
+FROM employees e
+CROSS JOIN leave_types lt
+ON CONFLICT DO NOTHING;
+
+-- Sample Attendance Records (last 30 days)
+INSERT INTO attendance_records (employee_id, property_id, clock_in, clock_out, status)
+SELECT
+  e.id,
+  (SELECT p.id FROM properties p WHERE p.code = 'OVH' LIMIT 1),
+  (now() - (d.offset || ' days')::interval)::date + time '09:00',
+  (now() - (d.offset || ' days')::interval)::date + time '18:00',
+  CASE WHEN random() < 0.85 THEN 'present' WHEN random() < 0.5 THEN 'late' ELSE 'present' END
+FROM employees e
+CROSS JOIN (SELECT generate_series(0, 29) AS offset) d
+WHERE random() < 0.95
+ON CONFLICT DO NOTHING;
+
+-- Sample Payroll Run (current month)
+INSERT INTO payroll_runs (property_id, period_start, period_end, status, processed_by)
+SELECT p.id, date_trunc('month', now())::date, (date_trunc('month', now()) + interval '1 month - 1 day')::date, 'paid', u.id
+FROM properties p
+CROSS JOIN users u
+WHERE p.code = 'OVH' AND u.email = 'hr@ehms.demo'
+ON CONFLICT DO NOTHING;
+
+-- Payroll Lines for each employee
+INSERT INTO payroll_lines (payroll_id, employee_id, gross_pay, pf_deduction, esi_deduction, pt_deduction, tds_deduction, other_deductions)
+SELECT
+  pr.id,
+  e.id,
+  e.base_salary / 2,
+  LEAST(e.base_salary * 0.5 * 0.12, 1800),
+  CASE WHEN e.base_salary <= 21000 THEN e.base_salary * 0.0075 ELSE 0 END,
+  200,
+  CASE WHEN e.base_salary > 25000 THEN e.base_salary * 0.10 ELSE 0 END,
+  0
+FROM payroll_runs pr
+CROSS JOIN employees e
+WHERE pr.status = 'paid' AND e.is_active = true
+ON CONFLICT DO NOTHING;
+
 SELECT 'Seed complete! eHMS demo data loaded.' AS status;
