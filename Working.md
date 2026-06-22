@@ -12,10 +12,10 @@
 |---|---|
 | **Project** | eHMS — Enterprise Hospitality Management System |
 | **Stack** | Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · NeonDB (PostgreSQL) |
-| **Local dev** | `http://localhost:3001` |
+| **Local dev** | `http://localhost:3000` |
 | **Live URL** | https://ehms-app.vercel.app |
 | **Vercel project** | https://vercel.com/aiservicesselvakumar-8945s-projects/frontend |
-| **Git** | Local repo at `d:\Training\working\HMS\frontend` |
+| **Git** | https://github.com/selva-aiprojects/ehms.git |
 | **Database schemas** | `d:\Training\working\HMS\database\` (19 SQL files) |
 
 

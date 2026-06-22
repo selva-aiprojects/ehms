@@ -7,9 +7,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 # eHMS AI Agent Guidelines
 
 ## 1. Repository Structure & Dev Setup
-- The root workspace is `d:\Training\working\HMS` (which is a git clone).
-- A nested clone of the repository is at `d:\Training\working\HMS\frontend` (submodule/nested clone).
-- **CRITICAL:** The dev server runs in the nested `d:\Training\working\HMS\frontend` folder. Keep both folders synchronized. Run `git pull` or copy modifications between them when editing source files.
+- The workspace is `d:\Training\working\HMS` (a git clone). This is the single source of truth.
+- The dev server runs from this directory via `npm run dev`.
 
 ## 2. Database (NeonDB)
 - The codebase was migrated from Supabase to **NeonDB** (PostgreSQL 16).
