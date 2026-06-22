@@ -63,6 +63,7 @@ async function run() {
     "016_system_settings.sql",
     "017_hrms_extensions.sql",
     "018_masters_and_policies.sql",
+    "019_housekeeping_maintenance_workflows.sql",
     "seed.sql",
   ];
 

@@ -377,3 +377,79 @@ export function useLocations(type: "countries" | "states" | "cities", parentId?:
   const { data, error, isLoading, mutate } = useSWR(`/api/masters/locations?${params}`, fetcher);
   return { locations: data?.data, isLoading, isError: !!error, mutate };
 }
+
+// ── Housekeeping Workflow ──
+export function useLinenBatches(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/housekeeping/linen/batches${params}`, fetcher);
+  return { linenBatches: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useLinenItems(propertyId?: string, status?: string) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (status) params.set("status", status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/housekeeping/linen/items?${params}`, fetcher);
+  return { linenItems: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useLinenTransactions(propertyId?: string, batchId?: string) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (batchId) params.set("batch_id", batchId);
+  const { data, error, isLoading, mutate } = useSWR(`/api/housekeeping/linen/transactions?${params}`, fetcher);
+  return { linenTransactions: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useHKChecklists(taskId?: string) {
+  const params = taskId ? `?task_id=${taskId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/housekeeping/checklists${params}`, fetcher);
+  return { checklists: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useHKInspections(unitId?: string, status?: string) {
+  const params = new URLSearchParams();
+  if (unitId) params.set("unit_id", unitId);
+  if (status) params.set("status", status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/housekeeping/inspections?${params}`, fetcher);
+  return { inspections: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useHKStats() {
+  const { data, error, isLoading, mutate } = useSWR("/api/housekeeping/stats", fetcher, { refreshInterval: 30000 });
+  return { hkStats: data, isLoading, isError: !!error, mutate };
+}
+
+// ── Maintenance Workflow ──
+export function useMaintenanceAssets(propertyId?: string, status?: string) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (status) params.set("status", status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/assets?${params}`, fetcher);
+  return { assets: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useMaintenanceTicketParts(ticketId?: string) {
+  const params = ticketId ? `?ticket_id=${ticketId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/ticket-parts${params}`, fetcher);
+  return { ticketParts: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useMaintenanceTimeEntries(ticketId?: string, technicianId?: string) {
+  const params = new URLSearchParams();
+  if (ticketId) params.set("ticket_id", ticketId);
+  if (technicianId) params.set("technician_id", technicianId);
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/time-entries?${params}`, fetcher);
+  return { timeEntries: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useMaintenanceApprovals(ticketId?: string) {
+  const params = ticketId ? `?ticket_id=${ticketId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/approvals${params}`, fetcher);
+  return { approvals: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useMaintenanceStats() {
+  const { data, error, isLoading, mutate } = useSWR("/api/maintenance/stats", fetcher, { refreshInterval: 30000 });
+  return { maintStats: data, isLoading, isError: !!error, mutate };
+}
