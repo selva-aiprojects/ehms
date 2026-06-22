@@ -2,7 +2,7 @@
 
 > **Enterprise Hospitality Management System**
 > Full progress log from project start to current state.
-> Last updated: 21 June 2026
+> Last updated: 22 June 2026
 
 ---
 
@@ -29,11 +29,27 @@ eHMS is a **subscription-based** Enterprise Hospitality and Facilities Managemen
 3. **Apartment Management (Long-term Rental)**
 4. **Workplace Services Management**
 
+### Vertical Isolation Architecture (Per-Workspace Modules)
+
+Each business vertical operates as a **strictly isolated context** with its own operational workflows:
+
+| Module | Vertical-Scoped | Shared Across Verticals |
+|--------|:-:|:-:|
+| **HRMS** (Employees, Payroll, Leave, Appraisal) | ✅ Per-vertical (staff assigned to specific property) | — |
+| **Accounts/Finance** (Invoicing, GL, Reconciliation) | ✅ Per-vertical (property-level P&L) | Consolidated org view |
+| **Vendors** (Procurement, Contracts, POs) | ✅ Per-vertical (service agreements per property) | — |
+| **Housekeeping** (Tasks, Linen, Inspections) | ✅ Per-vertical (rooms/units belong to one vertical) | — |
+| **Maintenance** (Tickets, AMC, Parts, Assets) | ✅ Per-vertical (assets tied to vertical property) | — |
+| **Front Desk** (Check-in/out, Guest Mgmt) | ✅ Per-vertical (Hotels, Apartments) | — |
+| **Admin/Masters** (Properties, Users, Roles) | — | ✅ Shared |
+
+**Implementation:** All queries filter by `property_id` which inherently scopes operations to the correct vertical. The Journey Switcher on login determines the active vertical context, and the sidebar/navigation dynamically filters to show only relevant modules.
+
 ### The Complete End-to-End Workflow:
 1. **OTAs & Bookings:** Hospitality vendors/OTAs (e.g., MakeMyTrip, GoIbibo) and end-users initiate the journey via advanced bookings or walk-ins. Features, grades, and levels are dictated by the price/tier of the room/flat.
 2. **Visitor Management:** Once booked, guests/visitors are formally checked in through the **Frontdesk** with comprehensive visitor management.
-3. **Facilities Management:** The guest's presence triggers downstream operational workflows. **Facilities administrators**, **Housekeeping**, and **Maintenance vendors** collaborate to maintain the property. Maintenance incorporates vendor availability and repair planning.
-4. **Back-Office Processes:** All operational tasks are tied back to **HR processes** (employee attendance, shift rotations, and salary processing) and an integrated **Finance workflow** (ledger, invoices, payments, reconciliation).
+3. **Facilities Management:** The guest's presence triggers downstream operational workflows. **Facilities administrators**, **Housekeeping** (cleaning, linen, inspections), and **Maintenance** (repairs, AMC, parts) collaborate to maintain the property. Maintenance incorporates vendor availability and repair planning with approval workflows.
+4. **Back-Office Processes:** All operational tasks are tied back to **HR processes** (employee attendance, shift rotations, salary processing, appraisal) and an integrated **Finance workflow** (ledger, invoices, payments, reconciliation, vendor payables).
 
 ---
 
@@ -833,4 +849,4 @@ Built on 21 June 2026. Extended the system with all missing master data dictiona
 
 ---
 
-*Working.md — eHMS Project • Created 18 June 2026 • Updated 21 June 2026*
+*Working.md — eHMS Project • Created 18 June 2026 • Updated 22 June 2026*
