@@ -94,7 +94,7 @@ function getLocalDemoUser(): UserProfile | null {
   try { const r = localStorage.getItem("ehms_demo_session"); return r ? JSON.parse(r) : null; } catch { return null; }
 }
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; onMobileClose?: () => void }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -142,15 +142,8 @@ export default function Sidebar() {
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
 
-  return (
-    <aside
-      className="relative flex flex-col transition-all duration-300 select-none hidden md:flex"
-      style={{
-        background: "#2C3547",
-        width: collapsed ? 64 : 240,
-        minWidth: collapsed ? 64 : 240,
-      }}
-    >
+  const sidebarContent = (
+    <>
       <div
         className="flex flex-col items-center justify-center py-6 px-3 shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
@@ -175,6 +168,7 @@ export default function Sidebar() {
             <Link
               key={item.href + item.label}
               href={item.href}
+              onClick={onMobileClose}
               className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all relative"
               style={{
                 background: active ? "rgba(255,255,255,0.10)" : "transparent",
@@ -215,18 +209,60 @@ export default function Sidebar() {
           </div>
         </div>
       )}
+    </>
+  );
 
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-24 w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all hover:scale-110"
+  return (
+    <>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 md:hidden" onClick={onMobileClose}>
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
+      )}
+
+      {/* Mobile sidebar */}
+      <aside
+        className={`fixed top-0 left-0 z-50 flex flex-col transition-transform duration-300 md:hidden ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
         style={{
-          background: settings.secondary_color,
-          border: "2px solid #F5F7FA",
-          color: "#fff",
+          background: "#2C3547",
+          width: 280,
+          height: "100dvh",
         }}
       >
-        <ChevronLeft className={`w-3 h-3 transition-transform ${collapsed ? "rotate-180" : ""}`} />
-      </button>
-    </aside>
+        <div className="flex items-center justify-end p-3">
+          <button onClick={onMobileClose} className="p-1.5 rounded-lg" style={{ color: "rgba(255,255,255,0.6)" }}>
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        </div>
+        {sidebarContent}
+      </aside>
+
+      {/* Desktop sidebar */}
+      <aside
+        className="relative flex-col transition-all duration-300 select-none hidden md:flex"
+        style={{
+          background: "#2C3547",
+          width: collapsed ? 64 : 240,
+          minWidth: collapsed ? 64 : 240,
+        }}
+      >
+        {sidebarContent}
+
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-3 top-24 w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all hover:scale-110"
+          style={{
+            background: settings.secondary_color,
+            border: "2px solid #F5F7FA",
+            color: "#fff",
+          }}
+        >
+          <ChevronLeft className={`w-3 h-3 transition-transform ${collapsed ? "rotate-180" : ""}`} />
+        </button>
+      </aside>
+    </>
   );
 }

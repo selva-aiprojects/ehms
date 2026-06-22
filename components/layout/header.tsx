@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { ROLE_LABELS } from "@/lib/role-access";
 import { useJourney } from "@/components/providers/JourneyProvider";
 
-export default function Header() {
+export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user, signOut } = useAuth();
   const { activeJourney } = useJourney();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -39,6 +39,7 @@ export default function Header() {
       style={{ background: "#FFFFFF", borderBottom: "1px solid #E2E8F0" }}
     >
       <button
+        onClick={onMenuClick}
         className="w-9 h-9 flex items-center justify-center rounded-lg transition-colors shrink-0"
         style={{ color: "#1A3C5E" }}
         aria-label="Toggle menu"
