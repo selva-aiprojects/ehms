@@ -1,7 +1,8 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Loader2, RefreshCw, CheckCircle, Banknote, CreditCard, Receipt, BarChart3, Percent, CalendarDays, PieChart, ArrowUpRight, ArrowDownRight, Wallet, Landmark, ScrollText, TrendingUpDown, GitCompareArrows, ReceiptText, CalendarCheck } from "lucide-react";
+import Link from "next/link";
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Loader2, RefreshCw, CheckCircle, Banknote, CreditCard, Receipt, BarChart3, Percent, CalendarDays, PieChart, ArrowUpRight, ArrowDownRight, Wallet, Landmark, ScrollText, TrendingUpDown, GitCompareArrows, ReceiptText, CalendarCheck, BookOpen, Calculator, PiggyBank, Building2, Settings, FileText } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Table from "@/components/ui/table";
@@ -146,6 +147,30 @@ export default function FinancePage() {
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
+      </div>
+
+      {/* Quick navigation to sub-modules */}
+      <div className="flex flex-wrap gap-2">
+        {[
+          { label: "Chart of Accounts", icon: BookOpen, href: "/dashboard/finance/accounts" },
+          { label: "Journal", icon: FileText, href: "/dashboard/finance/journal" },
+          { label: "Ledger", icon: Calculator, href: "/dashboard/finance/ledger" },
+          { label: "Receivables", icon: Receipt, href: "/dashboard/finance/receivables" },
+          { label: "Payables", icon: Landmark, href: "/dashboard/finance/payables" },
+          { label: "Budget", icon: PiggyBank, href: "/dashboard/finance/budget" },
+          { label: "Tax", icon: ScrollText, href: "/dashboard/finance/tax" },
+          { label: "Fixed Assets", icon: Building2, href: "/dashboard/finance/assets" },
+          { label: "Reports", icon: BarChart3, href: "/dashboard/finance/reports" },
+          { label: "Settings", icon: Settings, href: "/dashboard/finance/settings" },
+        ].map((item) => (
+          <Link key={item.href} href={item.href}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:opacity-80"
+            style={{ background: "rgba(43,174,142,0.1)", color: "#2BAE8E" }}
+          >
+            <item.icon className="w-3.5 h-3.5" />
+            {item.label}
+          </Link>
+        ))}
       </div>
 
       {isError && (

@@ -95,3 +95,136 @@ export function useCreateLease() {
   });
   return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
 }
+
+// ── Accounts Module Mutations ──
+export function useCreateAccount() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/accounts", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && (k.startsWith("/api/finance/accounts") || k.startsWith("/api/finance/reports"))),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateAccount() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/accounts", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && (k.startsWith("/api/finance/accounts") || k.startsWith("/api/finance/reports"))),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/finance/accounts/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreateJournalEntry() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/journal-entries", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && (k.startsWith("/api/finance/journal-entries") || k.startsWith("/api/finance/ledger") || k.startsWith("/api/finance/reports"))),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function usePostJournalEntry() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/journal-entries", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && (k.startsWith("/api/finance/journal-entries") || k.startsWith("/api/finance/ledger") || k.startsWith("/api/finance/reports"))),
+  });
+  return {
+    trigger: async (id: string) => mutation.trigger({ _url: `/api/finance/journal-entries/${id}`, _method: "PUT", _action: "post" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreateVendorBill() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/vendor-bills", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/vendor-bills")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useApproveVendorBill() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/vendor-bills", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/vendor-bills")),
+  });
+  return {
+    trigger: async (id: string) => mutation.trigger({ _url: `/api/finance/vendor-bills/${id}`, _method: "PUT", _action: "approve" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreateBillPayment() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/bill-payments", jsonFetcher, {
+    onSuccess: () => { mutate((k) => typeof k === "string" && k.startsWith("/api/finance/bill-payments")); mutate((k) => typeof k === "string" && k.startsWith("/api/finance/vendor-bills")); },
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateFixedAsset() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/fixed-assets", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/fixed-assets")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useRecordDepreciation() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/depreciation", jsonFetcher, {
+    onSuccess: () => { mutate((k) => typeof k === "string" && k.startsWith("/api/finance/depreciation")); mutate((k) => typeof k === "string" && k.startsWith("/api/finance/fixed-assets")); },
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateTaxFiling() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/tax-filings", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/tax-filings")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useFileTaxReturn() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/tax-filings", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/tax-filings")),
+  });
+  return {
+    trigger: async (id: string, filedBy: string) => mutation.trigger({ _url: `/api/finance/tax-filings/${id}`, _method: "PUT", _action: "file", filed_by: filedBy } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreateBudgetHead() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/budget/heads", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/budget")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateBudgetEntry() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/budget", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/budget")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateFiscalYear() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/fiscal-years", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/fiscal-years")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateCostCenter() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/cost-centers", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/cost-centers")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}

@@ -107,8 +107,9 @@ export function usePartsInventory(propertyId?: string) {
   return { inventory: data?.data, isLoading, isError: !!error, mutate };
 }
 
-export function useVendors() {
-  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/vendors`, fetcher);
+export function useVendors(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/maintenance/vendors${params}`, fetcher);
   return { vendors: data?.data, isLoading, isError: !!error, mutate };
 }
 
@@ -124,33 +125,43 @@ export function useFinance(propertyId?: string) {
   return { finance: data, isLoading, isError: !!error, mutate };
 }
 
-export function useEmployees(search?: string, departmentId?: string) {
+export function useEmployees(search?: string, departmentId?: string, propertyId?: string) {
   const params = new URLSearchParams();
   if (search) params.set("search", search);
   if (departmentId) params.set("department_id", departmentId);
+  if (propertyId) params.set("property_id", propertyId);
   const { data, error, isLoading, mutate } = useSWR(`/api/hr/employees?${params}`, fetcher);
   return { employees: data?.data, isLoading, isError: !!error, mutate };
 }
 
-export function useProperties(verticalType?: string) {
-  const params = verticalType ? `?vertical_type=${verticalType}` : "";
-  const { data, error, isLoading, mutate } = useSWR(`/api/properties${params}`, fetcher);
+export function useProperties(verticalType?: string, includeInactive?: boolean) {
+  const params = new URLSearchParams();
+  if (verticalType) params.set("vertical_type", verticalType);
+  if (includeInactive) params.set("include_inactive", "true");
+  const { data, error, isLoading, mutate } = useSWR(`/api/properties?${params}`, fetcher);
   return { properties: data?.data, isLoading, isError: !!error, mutate };
 }
 
-export function useLeases(filters?: { status?: string; renewal_due?: boolean }) {
+export function useProperty(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/properties/${id}` : null, fetcher);
+  return { property: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useLeases(filters?: { status?: string; renewal_due?: boolean; property_id?: string }) {
   const params = new URLSearchParams();
   if (filters?.status) params.set("status", filters.status);
   if (filters?.renewal_due) params.set("renewal_due", "true");
+  if (filters?.property_id) params.set("property_id", filters.property_id);
   const { data, error, isLoading, mutate } = useSWR(`/api/leases?${params}`, fetcher);
   return { leases: data?.data, isLoading, isError: !!error, mutate };
 }
 
-export function useAdminUsers(filters?: { role?: string; status?: string; search?: string }) {
+export function useAdminUsers(filters?: { role?: string; status?: string; search?: string; property_id?: string }) {
   const params = new URLSearchParams();
   if (filters?.role) params.set("role", filters.role);
   if (filters?.status) params.set("status", filters.status);
   if (filters?.search) params.set("search", filters.search);
+  if (filters?.property_id) params.set("property_id", filters.property_id);
   const { data, error, isLoading, mutate } = useSWR(`/api/admin/users?${params}`, fetcher);
   return { users: data?.data, isLoading, isError: !!error, mutate };
 }
@@ -407,10 +418,11 @@ export function useHKChecklists(taskId?: string) {
   return { checklists: data?.data, isLoading, isError: !!error, mutate };
 }
 
-export function useHKInspections(unitId?: string, status?: string) {
+export function useHKInspections(unitId?: string, status?: string, propertyId?: string) {
   const params = new URLSearchParams();
   if (unitId) params.set("unit_id", unitId);
   if (status) params.set("status", status);
+  if (propertyId) params.set("property_id", propertyId);
   const { data, error, isLoading, mutate } = useSWR(`/api/housekeeping/inspections?${params}`, fetcher);
   return { inspections: data?.data, isLoading, isError: !!error, mutate };
 }
@@ -452,4 +464,179 @@ export function useMaintenanceApprovals(ticketId?: string) {
 export function useMaintenanceStats() {
   const { data, error, isLoading, mutate } = useSWR("/api/maintenance/stats", fetcher, { refreshInterval: 30000 });
   return { maintStats: data, isLoading, isError: !!error, mutate };
+}
+
+// ── Admin Module ──
+export function useAdminUser(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/admin/users/${id}` : null, fetcher);
+  return { user: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useAdminRoles() {
+  const { data, error, isLoading, mutate } = useSWR("/api/admin/roles", fetcher);
+  return { roles: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useAdminSessions() {
+  const { data, error, isLoading, mutate } = useSWR("/api/admin/sessions", fetcher, { refreshInterval: 30000 });
+  return { sessions: data?.data, total: data?.total, isLoading, isError: !!error, mutate };
+}
+
+export function useAdminBackups() {
+  const { data, error, isLoading, mutate } = useSWR("/api/admin/backup", fetcher);
+  return { backups: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useAdminAuditEvents(filters?: { event_type?: string; severity?: string; days?: number; limit?: number }) {
+  const params = new URLSearchParams();
+  if (filters?.event_type) params.set("event_type", filters.event_type);
+  if (filters?.severity) params.set("severity", filters.severity);
+  if (filters?.days) params.set("days", String(filters.days));
+  if (filters?.limit) params.set("limit", String(filters.limit));
+  const { data, error, isLoading, mutate } = useSWR(`/api/admin/audit-events?${params}`, fetcher, { refreshInterval: 15000 });
+  return { auditEvents: data?.data, isLoading, isError: !!error, mutate };
+}
+
+// ── Accounts Module ──
+export function useAccounts(filters?: { property_id?: string; account_type?: string; active?: boolean }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.account_type) params.set("account_type", filters.account_type);
+  if (filters?.active === false) params.set("active", "false");
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/accounts?${params}`, fetcher);
+  return { accounts: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useAccount(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/finance/accounts/${id}` : null, fetcher);
+  return { account: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useJournalEntries(filters?: { property_id?: string; from_date?: string; to_date?: string; status?: string; journal_type?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.from_date) params.set("from_date", filters.from_date);
+  if (filters?.to_date) params.set("to_date", filters.to_date);
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.journal_type) params.set("journal_type", filters.journal_type);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/journal-entries?${params}`, fetcher);
+  return { journalEntries: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useJournalEntry(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/finance/journal-entries/${id}` : null, fetcher);
+  return { journalEntry: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useLedger(filters: { account_id: string; property_id?: string; from_date?: string; to_date?: string }) {
+  const params = new URLSearchParams({ account_id: filters.account_id });
+  if (filters.property_id) params.set("property_id", filters.property_id);
+  if (filters.from_date) params.set("from_date", filters.from_date);
+  if (filters.to_date) params.set("to_date", filters.to_date);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/ledger?${params}`, fetcher);
+  return { ledger: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useVendorBills(filters?: { property_id?: string; status?: string; vendor_id?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.vendor_id) params.set("vendor_id", filters.vendor_id);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/vendor-bills?${params}`, fetcher);
+  return { vendorBills: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useVendorBill(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/finance/vendor-bills/${id}` : null, fetcher);
+  return { vendorBill: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useBillPayments(filters?: { property_id?: string; bill_id?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.bill_id) params.set("bill_id", filters.bill_id);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/bill-payments?${params}`, fetcher);
+  return { billPayments: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useBudget(filters?: { property_id?: string; fiscal_year_id?: string; budget_head_id?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.fiscal_year_id) params.set("fiscal_year_id", filters.fiscal_year_id);
+  if (filters?.budget_head_id) params.set("budget_head_id", filters.budget_head_id);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/budget?${params}`, fetcher);
+  return { budgetEntries: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useBudgetHeads(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/budget/heads${params}`, fetcher);
+  return { budgetHeads: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useFixedAssets(filters?: { property_id?: string; status?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.status) params.set("status", filters.status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/fixed-assets?${params}`, fetcher);
+  return { fixedAssets: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useFixedAsset(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/finance/fixed-assets/${id}` : null, fetcher);
+  return { fixedAsset: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useDepreciationSchedule(filters?: { asset_id?: string; is_posted?: boolean }) {
+  const params = new URLSearchParams();
+  if (filters?.asset_id) params.set("asset_id", filters.asset_id);
+  if (filters?.is_posted !== undefined) params.set("is_posted", String(filters.is_posted));
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/depreciation?${params}`, fetcher);
+  return { depreciation: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useTaxFilings(filters?: { property_id?: string; tax_type?: string; status?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.tax_type) params.set("tax_type", filters.tax_type);
+  if (filters?.status) params.set("status", filters.status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/tax-filings?${params}`, fetcher);
+  return { taxFilings: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useCostCenters(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/cost-centers${params}`, fetcher);
+  return { costCenters: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useFiscalYears(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/fiscal-years${params}`, fetcher);
+  return { fiscalYears: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useTrialBalance(filters?: { property_id?: string; as_at_date?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.as_at_date) params.set("as_at_date", filters.as_at_date);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/reports/trial-balance?${params}`, fetcher);
+  return { trialBalance: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useProfitLoss(filters?: { property_id?: string; from_date?: string; to_date?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.from_date) params.set("from_date", filters.from_date);
+  if (filters?.to_date) params.set("to_date", filters.to_date);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/reports/profit-loss?${params}`, fetcher);
+  return { profitLoss: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useBalanceSheet(filters?: { property_id?: string; as_at_date?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.as_at_date) params.set("as_at_date", filters.as_at_date);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/reports/balance-sheet?${params}`, fetcher);
+  return { balanceSheet: data?.data, isLoading, isError: !!error, mutate };
 }

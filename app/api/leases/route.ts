@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const renewalDue = searchParams.get("renewal_due");
+    const propertyId = searchParams.get("property_id");
 
     const rows = await sql`
       SELECT
@@ -21,6 +22,7 @@ export async function GET(req: NextRequest) {
       WHERE 1=1
         ${status ? sql`AND la.status = ${status}` : sql``}
         ${renewalDue ? sql`AND la.status IN ('active', 'renewal_due')` : sql``}
+        ${propertyId ? sql`AND la.property_id = ${propertyId}` : sql``}
       ORDER BY la.created_at DESC
     `;
 

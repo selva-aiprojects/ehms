@@ -8,13 +8,18 @@ export async function GET(req: NextRequest) {
     const role = searchParams.get("role");
     const status = searchParams.get("status");
     const search = searchParams.get("search");
+    const propertyId = searchParams.get("property_id");
 
     const rows = await sql`
       SELECT
         u.id, u.email, u.first_name, u.last_name, u.phone, u.is_active, u.created_at, u.last_login_at,
         COALESCE(
-          json_agg(json_build_object('role', json_build_object('id', r.id, 'name', r.name, 'description', r.description)))
-          FILTER (WHERE r.id IS NOT NULL),
+          json_agg(
+            json_build_object(
+              'role', json_build_object('id', r.id, 'name', r.name, 'description', r.description),
+              'property_id', ur.property_id
+            )
+          ) FILTER (WHERE r.id IS NOT NULL),
           '[]'
         ) AS user_roles
       FROM users u
@@ -23,6 +28,7 @@ export async function GET(req: NextRequest) {
       WHERE 1=1
         ${status === "active" ? sql`AND u.is_active = true` : status === "inactive" ? sql`AND u.is_active = false` : sql``}
         ${search ? sql`AND (u.first_name ILIKE ${"%" + search + "%"} OR u.last_name ILIKE ${"%" + search + "%"} OR u.email ILIKE ${"%" + search + "%"})` : sql``}
+        ${propertyId ? sql`AND ur.property_id = ${propertyId}` : sql``}
       GROUP BY u.id
       HAVING 1=1
         ${role ? sql`AND bool_or(r.name = ${role})` : sql``}

@@ -2,7 +2,7 @@
 
 > **Enterprise Hospitality Management System**
 > Full progress log from project start to current state.
-> Last updated: 22 June 2026
+> Last updated: 23 June 2026
 
 ---
 
@@ -16,7 +16,7 @@
 | **Live URL** | https://ehms-app.vercel.app |
 | **Vercel project** | https://vercel.com/aiservicesselvakumar-8945s-projects/frontend |
 | **Git** | https://github.com/selva-aiprojects/ehms.git |
-| **Database schemas** | `d:\Training\working\HMS\database\` (19 SQL files) |
+| **Database schemas** | `d:\Training\working\HMS\database\` (20 SQL files) |
 
 
 ---
@@ -79,6 +79,11 @@ d:\Training\working\HMS\
 │   │                                    policy documents, appraisals, increments, promotions,
 │   │                                    tax slabs, payment modes, booking sources, rate plans,
 │   │                                    ID proof types, asset categories, UOM, geo data
+│   ├── 019_housekeeping_maintenance_workflows.sql ← Linen items, inspections, ticket parts,
+│   │                                    time entries, approvals
+│   └── 020_admin_module.sql         ← System sessions, login attempts, backup jobs,
+│                                         audit events, admin notifications
+│
 │   └── seed.sql                     ← Demo data (passwords via pgcrypto crypt())
 │
 └── frontend/   ← (also mirrored at repo root)
@@ -98,7 +103,13 @@ d:\Training\working\HMS\
     │   │   ├── apartments/          ← Service apartment portfolio (506 lines)
     │   │   ├── rental/              ← Leases + rent roll (509 lines)
     │   │   ├── workplace/           ← Floor plan + memberships (511 lines)
-    │   │   └── admin/               ← System admin + compliance (503 lines)
+    │   │   ├── admin/               ← System admin + compliance (503 lines)
+│   │   ├── page.tsx          ← Admin dashboard (Overview/User Mgmt/Compliance/Audit)
+│   │   ├── roles/            ← Role & permission management
+│   │   ├── audit/            ← Audit trail viewer
+│   │   ├── backup/           ← Backup & restore management
+│   │   └── masters/          ← App-wide master dictionaries
+│   └── properties/            ← Property workspace management (CRUD)
     │   └── api/                     ← Next.js Route Handlers
     │       ├── auth/login/          ← pgcrypto + bcrypt dual-verify
     │       ├── auth/logout/
@@ -113,6 +124,17 @@ d:\Training\working\HMS\
     │       ├── finance/
     │       ├── hr/employees/
     │       ├── properties/
+    │       │   ├── route.ts           ← CRUD properties
+    │       │   └── [id]/route.ts      ← Single property get/put/delete
+    │       ├── admin/
+    │       │   ├── users/route.ts     ← Admin user CRUD
+    │       │   ├── users/[id]/route.ts
+    │       │   ├── compliance/route.ts← Compliance CRUD
+    │       │   ├── compliance/[id]/route.ts
+    │       │   ├── roles/route.ts     ← Roles & permissions
+    │       │   ├── sessions/route.ts  ← Active session management
+    │       │   ├── backup/route.ts    ← Backup/restore operations
+    │       │   └── audit-events/route.ts ← Audit event log
     │       ├── visitors/
     │       ├── workplace/
     │       └── leases/
@@ -345,6 +367,15 @@ middleware.ts
 | `/api/masters/asset-categories` | GET, POST | `asset_categories` |
 | `/api/masters/uom` | GET, POST | `uom` |
 | `/api/masters/locations` | GET | `countries`, `states`, `cities` |
+| **Admin API Routes** | | |
+| `/api/admin/users` | GET, POST | `users`, `user_roles`, `employees` |
+| `/api/admin/users/[id]` | GET, PUT | `users` |
+| `/api/admin/compliance` | GET, POST | `statutory_compliance` |
+| `/api/admin/compliance/[id]` | GET, PUT | `statutory_compliance` |
+| `/api/admin/roles` | GET | `roles`, `user_roles` |
+| `/api/admin/sessions` | GET | `user_sessions` (active) |
+| `/api/admin/backup` | GET, POST | `backup_jobs` |
+| `/api/admin/audit-events` | GET | `audit_events` |
 
 **Smart unit status sync** (automatic):
 | Action | Unit status becomes |
@@ -397,6 +428,17 @@ useIdProofTypes()                   // ID proof document types
 useAssetCategories()                // Asset category list
 useUOM()                            // Units of measure
 useLocations(type, parentId)        // Countries/states/cities
+
+// Admin
+useAdminUsers(search, role)         // Admin user list with search/filter
+useAdminUser(id)                    // Single admin user detail
+useAdminRoles()                     // All roles with user count
+useAdminSessions()                  // Active user sessions
+useAdminBackups()                   // Backup job history
+useAdminAuditEvents(filters)        // Audit event log
+
+// Properties
+useProperty(id)                     // Single property detail
 ```
 
 #### Mutation Hooks (`lib/hooks/mutations.ts`)
@@ -408,6 +450,15 @@ useCreateGuest()         // New guest profile
 useUpdateHousekeepingTask() // Update task status
 useCreateHousekeepingTask() // Create new housekeeping task
 useCreateMaintenanceTicket() // Create maintenance ticket
+
+// Admin
+useCreateAdminUser()         // Create system user
+useUpdateAdminUser()         // Update user profile/status
+useDeleteAdminUser()         // Soft-delete user
+
+// Properties
+useCreateProperty()          // Create new property/workspace
+useUpdateProperty()          // Update property details
 ```
 
 ---
@@ -478,6 +529,7 @@ Password for all: `Demo@1234`
 | **hotels** | 517 | Property cards, performance summary, occupancy stats, amenities overview, group bookings, seasonal comparison, guest satisfaction, channel performance |
 | **apartments** | 506 | Property cards, occupancy trend, performance KPIs, extended stay monitoring, unit turnaround, guest nationality, corporate vs leisure, monthly metrics |
 | **admin** | 503 | Tabbed interface (Overview/User Mgmt/Compliance/Audit), system health, compliance vault, role mgmt, security settings, system config, backup/restore, API keys |
+| **properties** | — | Property workspace CRUD with vertical filter, status badges, search, add/edit modal |
 
 ### Shared Patterns
 - All pages use `useSWR` hooks with `isLoading`/`isError` states
@@ -519,7 +571,8 @@ Password for all: `Demo@1234`
 | `fe7691f` | Initial commit from Create Next App |
 | `55a7dbe` | feat: apply eHMS theme, redesign dashboard, sidebar, header |
 | `fd0b913` | feat: full database integration (originally Supabase) |
-| *(current)* | fix: migrate to NeonDB, fix login (pgcrypto compat), fix sidebar RBAC, fix hydration |
+| *(3 prior)* | NeonDB migrate, RBAC, Journey Switcher, HRMS, Masters, HK/Maint workflows |
+| *current* | feat: Admin Module (sessions/audit/backup/roles) + Property CRUD + per-property scoping |
 
 ---
 
@@ -639,9 +692,11 @@ vercel --prod
 - **Missing Masters + Appraisal/Increment/Promotion** (See Step 14)
 - **Housekeeping Workflow — Sub-pages, API routes, linen/inspection tracking** (See Step 15)
 - **Maintenance Workflow — Sub-pages, API routes, asset/ticket/parts tracking** (See Step 16)
+- **Admin Module — System session management, audit trail, backup/restore** (See Step 17)
+- **Property Workspace Management — Full CRUD, per-property scoping** (See Step 18)
 
 ### What May Need Attention
-1. Run `019_housekeeping_maintenance_workflows.sql` via `npm run migrate` to create new tables (linen items, inspections, ticket parts, time entries, approvals)
+1. Run `020_admin_module.sql` via `npm run migrate` to create new admin tables (sessions, login attempts, backup jobs, audit events, admin notifications)
 2. Set `DATABASE_URL` + `JWT_SECRET` in Vercel env vars for production
 3. Change `JWT_SECRET` to a strong random value for production
 4. Consider bcrypt migration script for existing pgcrypto users if adding non-demo users
@@ -928,4 +983,159 @@ Built on 22 June 2026. Extended the Maintenance module from a static dashboard i
 
 ---
 
-*Working.md — eHMS Project • Created 18 June 2026 • Updated 22 June 2026*
+## Step 17 — Admin Module — System Session, Audit & Backup Management
+
+Built on 23 June 2026. Extended the Admin module from a single overview page into a full system administration suite with role management, session monitoring, audit trail, and backup/restore capabilities.
+
+### Database: 020_admin_module.sql
+| Table | Purpose |
+|---|---|
+| `user_sessions` | Active login sessions with IP, user agent, last activity |
+| `login_attempts` | Login audit with success/failure tracking and rate limiting |
+| `backup_jobs` | Backup/restore job queue with status, size, metadata |
+| `audit_events` | Global audit log tracking CRUD operations across all modules |
+| `admin_notifications` | System-level admin alerts (backup failures, security events) |
+
+### API Routes Created (8)
+| Route | Methods | Purpose |
+|---|---|---|
+| `/api/admin/users` | GET, POST | Admin user list (with employee join) + create user |
+| `/api/admin/users/[id]` | GET, PUT | Single user detail + status/role update (soft-delete) |
+| `/api/admin/compliance` | GET, POST | Statutory compliance records |
+| `/api/admin/compliance/[id]` | GET, PUT | Single compliance record |
+| `/api/admin/roles` | GET | All roles with user count aggregation |
+| `/api/admin/sessions` | GET | Active sessions with inactivity detection |
+| `/api/admin/backup` | GET, POST | Backup job history + trigger new backup |
+| `/api/admin/audit-events` | GET | Paginated audit log with action/resource/date filters |
+
+### Pages Built (3) + Extended (1)
+| Page | Path | Features |
+|---|---|---|
+| **Roles & Permissions** | `/dashboard/admin/roles` | Role list with user counts, permission indicators (create/read/update/delete for each module), search/filter |
+| **Audit Trail** | `/dashboard/admin/audit` | Audit log table with user/resource/action columns, filter by action/resource/user, timezone-aware timestamps (Asia/Kolkata), search |
+| **Backup & Restore** | `/dashboard/admin/backup` | Backup job list with status badges (completed/failed/running), trigger backup button, file size display, created/updated timestamps |
+| **Admin Masters** (extended) | `/dashboard/admin/masters` | Previously added 3 new tabs: Finance & Tax, Payments & Bookings, Assets & Inventory |
+
+### SWR Hooks Added (6)
+`useAdminUsers()`, `useAdminUser()`, `useAdminRoles()`, `useAdminSessions()`, `useAdminBackups()`, `useAdminAuditEvents()`
+
+### Mutation Hooks Added (4)
+`useCreateAdminUser()`, `useUpdateAdminUser()`, `useDeleteAdminUser()`
+
+### Sidebar Updates
+5 new nav items under Admin: **Roles**, **Audit**, **Backup** (with lock/scroll/cloud icons)
+
+---
+
+## Step 18 — Property (Workspace) Management — Full CRUD & Per-Property Scoping
+
+Built on 23 June 2026. Introduced full property/workspace CRUD with dedicated API routes, UI page, and per-property scoping enhancements across all existing modules.
+
+### API Routes Created (2)
+| Route | Methods | Purpose |
+|---|---|---|
+| `/api/properties` | GET, POST | List all properties + create property with enterprise/region/vertical/address |
+| `/api/properties/[id]` | GET, PUT | Single property detail + update |
+
+### Pages Built (1)
+| Page | Path | Features |
+|---|---|---|
+| **Properties** | `/dashboard/properties` | Property cards with vertical filter, status badges (Active/Maintenance/Closed), search, add/edit modal with all fields (name, type, vertical, address, contact, status) |
+
+### Per-Property Scoping Enhanced Across All Modules
+
+The following hooks and API routes were enriched with `property_id` support for cross-module data isolation:
+
+| Module | Hooks Updated | API Routes Enhanced |
+|---|---|---|
+| **HR** | `useEmployees()`, `useShifts()`, `useTimesheets()`, `useLeaveRequests()`, `usePayrollRuns()`, `useHolidays()`, `useOvertimePolicies()`, `useAttendancePolicies()`, `useCompliance()` | `/api/hr/employees`, `/api/hr/shifts`, `/api/hr/timesheets`, `/api/hr/leaves`, `/api/hr/payroll`, `/api/hr/holidays`, `/api/hr/overtime-policies`, `/api/hr/attendance-policies`, `/api/hr/compliance` |
+| **Housekeeping** | `useHousekeeping()`, `useHKStats()`, `useHKInspections()` | `/api/housekeeping`, `/api/housekeeping/stats`, `/api/housekeeping/inspections` |
+| **Maintenance** | `useMaintenance()`, `useMaintenanceAssets()`, `useMaintenanceStats()` | `/api/maintenance`, `/api/maintenance/assets`, `/api/maintenance/stats` |
+| **Vendors** | `useVendors()`, `useVendorContracts()`, `useVendorOrders()` | `/api/vendors`, `/api/vendors/contracts`, `/api/vendors/orders` |
+
+### SWR Hooks Added (1)
+`useProperty()`
+
+### Mutation Hooks Added (2)
+`useCreateProperty()`, `useUpdateProperty()`
+
+---
+
+## Step 19 — Full Accounts Module (UI/API/DB)
+
+Built on 23 June 2026. Extended the Finance module from a single dashboard page into a full-fledged Accounts module with Chart of Accounts, Journal Entries, General Ledger, Accounts Receivable/Payable, Budgeting, Fixed Assets, Tax Management, and Financial Reports.
+
+### Database: 021_accounts_module.sql
+| Table | Purpose |
+|---|---|
+| `fiscal_years` | Accounting periods with open/close status per property |
+| `cost_centers` | Departmental cost allocation (FK → departments) |
+| `vendor_bills` | Accounts Payable — vendor invoices with status workflow |
+| `bill_line_items` | Line-level detail for vendor bills |
+| `bill_payments` | AP payment transactions against bills |
+| `budget_heads` | Budget categories linked to chart of accounts |
+| `budget_entries` | Monthly budget amounts vs actuals per head/fiscal year |
+| `fixed_assets` | Asset register with purchase cost, depreciation, book value |
+| `depreciation_schedule` | Period depreciation entries per asset |
+| `tax_filings` | GST/TDS/Income Tax return filing tracker |
+
+### Schema Extensions
+- `chart_of_accounts` — added `sub_type`, `is_active`, `opening_balance`, `description`, `created_at`
+- `journal_entries` — added `fiscal_period_id`, `is_adjusting`, `journal_type`, `updated_at`
+- `invoices` — added `cost_center_id`, `invoice_type`, `updated_at`
+- `payments` — added `cost_center_id`, `notes`, `updated_at`
+
+### API Routes Created (20 files)
+
+| Route | Methods | Purpose |
+|---|---|---|
+| `/api/finance/accounts` | GET, POST | Chart of accounts CRUD |
+| `/api/finance/accounts/[id]` | GET, PUT | Single account detail/update |
+| `/api/finance/journal-entries` | GET, POST | Journal entries with line items |
+| `/api/finance/journal-entries/[id]` | GET, PUT | Single entry detail/post action |
+| `/api/finance/ledger` | GET | GL account ledger with running balance |
+| `/api/finance/vendor-bills` | GET, POST | Vendor bills CRUD with lines |
+| `/api/finance/vendor-bills/[id]` | GET, PUT | Single bill detail/approve/cancel |
+| `/api/finance/bill-payments` | GET, POST | AP payments (auto-updates bill balance) |
+| `/api/finance/budget` | GET, POST | Budget entries with upsert |
+| `/api/finance/budget/heads` | GET, POST | Budget head management |
+| `/api/finance/fixed-assets` | GET, POST | Fixed asset register CRUD |
+| `/api/finance/fixed-assets/[id]` | GET, PUT | Single asset detail/dispose |
+| `/api/finance/depreciation` | GET, POST | Depreciation schedule recording |
+| `/api/finance/tax-filings` | GET, POST | Tax return filing tracker |
+| `/api/finance/tax-filings/[id]` | PUT | File/pay tax return |
+| `/api/finance/cost-centers` | GET, POST | Cost center management |
+| `/api/finance/fiscal-years` | GET, POST | Fiscal year management |
+| `/api/finance/reports/trial-balance` | GET | Trial balance (all accounts with balances) |
+| `/api/finance/reports/profit-loss` | GET | P&L statement (income vs expenses) |
+| `/api/finance/reports/balance-sheet` | GET | Balance sheet (assets = liabilities + equity) |
+
+### SWR Hooks Added (20)
+`useAccounts()`, `useAccount()`, `useJournalEntries()`, `useJournalEntry()`, `useLedger()`, `useVendorBills()`, `useVendorBill()`, `useBillPayments()`, `useBudget()`, `useBudgetHeads()`, `useFixedAssets()`, `useFixedAsset()`, `useDepreciationSchedule()`, `useTaxFilings()`, `useCostCenters()`, `useFiscalYears()`, `useTrialBalance()`, `useProfitLoss()`, `useBalanceSheet()`
+
+### Mutation Hooks Added (15)
+`useCreateAccount()`, `useUpdateAccount()`, `useCreateJournalEntry()`, `usePostJournalEntry()`, `useCreateVendorBill()`, `useApproveVendorBill()`, `useCreateBillPayment()`, `useCreateFixedAsset()`, `useRecordDepreciation()`, `useCreateTaxFiling()`, `useFileTaxReturn()`, `useCreateBudgetHead()`, `useCreateBudgetEntry()`, `useCreateFiscalYear()`, `useCreateCostCenter()`
+
+### UI Pages Built (10)
+| Page | Path | Features |
+|---|---|---|
+| **Chart of Accounts** | `/dashboard/finance/accounts` | Account list with type/sub-type badges, add/edit modal, filter by type |
+| **Journal Entries** | `/dashboard/finance/journal` | Entry list with type/status badges, dynamic line items entry (debits=credits validation), post action |
+| **General Ledger** | `/dashboard/finance/ledger` | Account selector, date range, running balance table, opening/closing totals |
+| **Receivables** | `/dashboard/finance/receivables` | Invoice list with status filters, summary stats, days overdue indicator |
+| **Payables** | `/dashboard/finance/payables` | Vendor bills with status filters, approve action, "Record Bill" modal |
+| **Budget** | `/dashboard/finance/budget` | Budget vs actual amounts, variance analysis, add entry modal |
+| **Tax** | `/dashboard/finance/tax` | Tax return filing tracker, file/pay actions, liability summary |
+| **Fixed Assets** | `/dashboard/finance/assets` | Asset register with book value, add asset modal, category filters |
+| **Reports** | `/dashboard/finance/reports` | 3-tab: Trial Balance, P&L, Balance Sheet with as-at date picker |
+| **Settings** | `/dashboard/finance/settings` | 3-tab: Cost Centers, Fiscal Years, Budget Heads with add modals |
+
+### Sidebar Updates
+11 finance nav items: **Finance** (dashboard), **Chart of Accts**, **Journal**, **Ledger**, **Receivables**, **Payables**, **Budget**, **Tax**, **Fixed Assets**, **Reports**, **Fin Settings** — with BookOpen, FileText, Calculator, Receipt, Landmark, PiggyBank, ScrollText, Building2, BarChart3, Settings icons.
+
+### Existing Dashboard Enhanced
+Finance main dashboard now includes a quick-navigation bar linking to all 10 sub-pages.
+
+---
+
+*Working.md — eHMS Project • Created 18 June 2026 • Updated 23 June 2026*

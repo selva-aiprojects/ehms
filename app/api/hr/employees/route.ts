@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search");
     const deptId = searchParams.get("department_id");
+    const propertyId = searchParams.get("property_id");
 
     const rows = await sql`
       SELECT
@@ -18,6 +19,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN users u ON u.id = e.user_id
       WHERE e.is_active = true
         ${deptId ? sql`AND e.department_id = ${deptId}` : sql``}
+        ${propertyId ? sql`AND e.property_id = ${propertyId}` : sql``}
         ${search ? sql`AND (
           e.employee_code ILIKE ${"%" + search + "%"} OR
           u.first_name ILIKE ${"%" + search + "%"} OR
@@ -47,12 +49,12 @@ export async function POST(req: NextRequest) {
       INSERT INTO employees (
         employee_code, user_id, department_id, designation, employment_type, doj,
         base_salary, bank_account, bank_ifsc, pan_number, uan_number, esi_number,
-        reporting_manager_id, shift_id, band_id
+        reporting_manager_id, shift_id, band_id, property_id
       ) VALUES (
         ${employeeCode}, ${body.user_id}, ${body.department_id}, ${body.designation},
         ${body.employment_type}, ${body.doj}, ${body.base_salary}, ${body.bank_account},
         ${body.bank_ifsc}, ${body.pan_number}, ${body.uan_number}, ${body.esi_number},
-        ${body.reporting_manager_id}, ${body.shift_id}, ${body.band_id}
+        ${body.reporting_manager_id}, ${body.shift_id}, ${body.band_id}, ${body.property_id || null}
       )
       RETURNING *
     `;

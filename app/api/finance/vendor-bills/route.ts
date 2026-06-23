@@ -1,0 +1,57 @@
+export const dynamic = "force-dynamic";
+import { NextRequest, NextResponse } from "next/server";
+import { getDb } from "@/lib/db";
+
+export async function GET(req: NextRequest) {
+  try {
+    const sql = getDb();
+    const { searchParams } = new URL(req.url);
+    const propertyId = searchParams.get("property_id");
+    const status = searchParams.get("status");
+    const vendorId = searchParams.get("vendor_id");
+
+    let query = sql`
+      SELECT vb.*, v.name as vendor_name, v.code as vendor_code
+      FROM vendor_bills vb
+      LEFT JOIN vendors v ON v.id = vb.vendor_id
+      WHERE 1=1`;
+    if (propertyId) query = sql`${query} AND vb.property_id = ${propertyId}`;
+    if (status) query = sql`${query} AND vb.status = ${status}`;
+    if (vendorId) query = sql`${query} AND vb.vendor_id = ${vendorId}`;
+    query = sql`${query} ORDER BY vb.bill_date DESC LIMIT 100`;
+
+    const rows = await query;
+    return NextResponse.json({ data: rows });
+  } catch (error) {
+    console.error("[finance/vendor-bills GET]", error);
+    return NextResponse.json({ error: "Failed to fetch vendor bills" }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const sql = getDb();
+    const body = await req.json();
+    const { lines, ...bill } = body;
+
+    const bills = await sql`
+      INSERT INTO vendor_bills (property_id, vendor_id, bill_number, bill_date, due_date, category, subtotal, tax_total, grand_total, status, notes, created_by)
+      VALUES (${bill.property_id}, ${bill.vendor_id}, ${bill.bill_number}, ${bill.bill_date}, ${bill.due_date}, ${bill.category || null}, ${bill.subtotal || 0}, ${bill.tax_total || 0}, ${bill.grand_total || 0}, ${bill.status || 'pending'}, ${bill.notes || null}, ${bill.created_by})
+      RETURNING *`;
+
+    if (lines && lines.length > 0) {
+      const billId = bills[0].id;
+      for (const line of lines) {
+        await sql`
+          INSERT INTO bill_line_items (bill_id, description, quantity, unit_price, tax_rate, account_id, cost_center_id)
+          VALUES (${billId}, ${line.description}, ${line.quantity || 1}, ${line.unit_price}, ${line.tax_rate || 0}, ${line.account_id || null}, ${line.cost_center_id || null})`;
+      }
+      return NextResponse.json({ data: bills[0] }, { status: 201 });
+    }
+
+    return NextResponse.json({ data: bills[0] }, { status: 201 });
+  } catch (error) {
+    console.error("[finance/vendor-bills POST]", error);
+    return NextResponse.json({ error: "Failed to create vendor bill" }, { status: 500 });
+  }
+}

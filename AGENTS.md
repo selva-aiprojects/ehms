@@ -53,3 +53,20 @@ eHMS is a comprehensive **Subscription-Based** Hospitality and Facilities Manage
 - **Sidebar & UI Navigation:** Navigation elements must be dynamically filtered using `useJourney()` from `components/providers/JourneyProvider`. Only display navigation items allowed for the active vertical.
 - **Operational Separation:** Operations like Front Desk/Onboarding, Housekeeping, Maintenance, Staff (HRMS), and Vendors are scoped specifically to the active vertical and run specialized business logic. Do not write or design global features that mix these operations across different verticals. Make sure query filters restrict database mutations to the correct vertical context.
 
+## 7. Current Session Context (23 Jun 2026)
+- **Last built:** Admin Module (sessions/audit/backup/roles CRUD) + Property (Workspace) CRUD + per-property scoping across HR, Housekeeping, Maintenance, Vendors
+- **Migration to run:** `020_admin_module.sql` creates `user_sessions`, `login_attempts`, `backup_jobs`, `audit_events`, `admin_notifications`
+- **Admin API routes:** `/api/admin/users`, `/api/admin/compliance`, `/api/admin/roles`, `/api/admin/sessions`, `/api/admin/backup`, `/api/admin/audit-events`
+- **Admin pages:** Roles & Permissions, Audit Trail, Backup & Restore, Properties
+- **New hooks:** `useAdminUsers`, `useAdminUser`, `useAdminRoles`, `useAdminSessions`, `useAdminBackups`, `useAdminAuditEvents`, `useProperty`
+- **Mut hooks:** `useCreateAdminUser`, `useUpdateAdminUser`, `useDeleteAdminUser`, `useCreateProperty`, `useUpdateProperty`
+- **Per-property scoping:** Most HR, HK, Maint, Vendor hooks now accept optional `property_id` param
+
+## 8. Accounts Module (23 Jun 2026)
+- **DB migration:** `021_accounts_module.sql` adds fiscal_years, cost_centers, vendor_bills, bill_line_items, bill_payments, budget_heads, budget_entries, fixed_assets, depreciation_schedule, tax_filings + extends existing finance tables
+- **API routes:** `/api/finance/accounts`, `/api/finance/journal-entries`, `/api/finance/ledger`, `/api/finance/vendor-bills`, `/api/finance/bill-payments`, `/api/finance/budget`, `/api/finance/fixed-assets`, `/api/finance/depreciation`, `/api/finance/tax-filings`, `/api/finance/cost-centers`, `/api/finance/fiscal-years`, `/api/finance/reports/*`
+- **UI sub-pages (10):** Chart of Accounts, Journal, Ledger, Receivables, Payables, Budget, Tax, Fixed Assets, Reports, Settings
+- **New hooks (20):** `useAccounts`, `useJournalEntries`, `useLedger`, `useVendorBills`, `useBudget`, `useFixedAssets`, `useTaxFilings`, `useTrialBalance`, `useProfitLoss`, `useBalanceSheet` etc.
+- **New mut hooks (15):** `useCreateAccount`, `useCreateJournalEntry`, `useCreateVendorBill`, `useCreateFixedAsset`, `useCreateBudgetEntry`, etc.
+- **Sidebar:** 11 finance nav items
+

@@ -7,7 +7,8 @@ import {
   LayoutDashboard, CalendarCheck, Users, Clock, Calendar,
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
   UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star, BadgePercent,
-  Settings, DollarSign, Layers, CheckCircle, Ticket, Package
+  Settings, DollarSign, Layers, CheckCircle, Ticket, Package, FileText, Database,
+  BookOpen, Receipt, Landmark, BarChart3, PiggyBank, ScrollText, Calculator, FolderOpen
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
@@ -38,6 +39,16 @@ const ALL_NAV_ITEMS = [
   { label: "Parts",        icon: Package,         href: "/dashboard/maintenance/parts", roles: ["super_admin","executive","maintenance_supervisor"] },
   { label: "Assets",       icon: Building2,       href: "/dashboard/maintenance/assets", roles: ["super_admin","executive","maintenance_supervisor"] },
   { label: "Finance",      icon: CreditCard,      href: "/dashboard/finance", roles: ["super_admin","executive","finance_manager","finance_executive"] },
+  { label: "Chart of Accts",icon: BookOpen,        href: "/dashboard/finance/accounts", roles: ["super_admin","executive","finance_manager"] },
+  { label: "Journal",       icon: FileText,        href: "/dashboard/finance/journal", roles: ["super_admin","executive","finance_manager"] },
+  { label: "Ledger",        icon: Calculator,      href: "/dashboard/finance/ledger", roles: ["super_admin","executive","finance_manager","finance_executive"] },
+  { label: "Receivables",   icon: Receipt,         href: "/dashboard/finance/receivables", roles: ["super_admin","executive","finance_manager","finance_executive"] },
+  { label: "Payables",      icon: Landmark,        href: "/dashboard/finance/payables", roles: ["super_admin","executive","finance_manager"] },
+  { label: "Budget",        icon: PiggyBank,       href: "/dashboard/finance/budget", roles: ["super_admin","executive","finance_manager"] },
+  { label: "Tax",           icon: ScrollText,      href: "/dashboard/finance/tax", roles: ["super_admin","executive","finance_manager","finance_executive"] },
+  { label: "Fixed Assets",  icon: Building2,       href: "/dashboard/finance/assets", roles: ["super_admin","executive","finance_manager"] },
+  { label: "Reports",       icon: BarChart3,       href: "/dashboard/finance/reports", roles: ["super_admin","executive","finance_manager","finance_executive"] },
+  { label: "Fin Settings",  icon: Settings,        href: "/dashboard/finance/settings", roles: ["super_admin","executive","finance_manager"] },
   { label: "HRMS",         icon: Users,           href: "/dashboard/hr", roles: ["super_admin","executive","hr_manager","hr_executive","employee_manager"] },
   { label: "Employees",    icon: Users,           href: "/dashboard/hr/employees", roles: ["super_admin","executive","hr_manager","hr_executive"] },
   { label: "Timesheets",   icon: Clock,           href: "/dashboard/hr/timesheet", roles: ["super_admin","executive","hr_manager","hr_executive","employee_manager"] },
@@ -48,45 +59,65 @@ const ALL_NAV_ITEMS = [
   { label: "Policies",     icon: ClipboardList,    href: "/dashboard/hr/policies", roles: ["super_admin","executive","hr_manager","hr_executive"] },
   { label: "Appraisal",    icon: Star,             href: "/dashboard/hr/appraisal", roles: ["super_admin","executive","hr_manager","hr_executive"] },
   { label: "Compensation", icon: DollarSign,       href: "/dashboard/hr/compensation", roles: ["super_admin","executive","hr_manager","hr_executive"] },
-  { label: "Admin",        icon: UserCog,         href: "/dashboard/admin", roles: ["super_admin","executive","property_manager"] },
+  { label: "Admin",          icon: UserCog,         href: "/dashboard/admin", roles: ["super_admin","executive","property_manager"] },
+  { label: "Workspaces",    icon: Building2,       href: "/dashboard/admin/properties", roles: ["super_admin","executive","property_manager"] },
+  { label: "Roles",         icon: Shield,          href: "/dashboard/admin/roles", roles: ["super_admin","executive"] },
+  { label: "Audit Trail",   icon: FileText,        href: "/dashboard/admin/audit", roles: ["super_admin","executive"] },
+  { label: "Backup",        icon: Database,        href: "/dashboard/admin/backup", roles: ["super_admin","executive"] },
 ];
 
-const PRIMARY_LABELS = ["Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio", "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff", "Maintenance", "Tickets", "Parts", "Assets", "Finance", "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance", "Masters", "Policies", "Appraisal", "Compensation", "Admin"];
+const PRIMARY_LABELS = ["Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio", "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff", "Maintenance", "Tickets", "Parts", "Assets", "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget", "Tax", "Fixed Assets", "Reports", "Fin Settings", "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance", "Masters", "Policies", "Appraisal", "Compensation", "Admin", "Workspaces", "Roles", "Audit Trail", "Backup"];
 
 const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
   all: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
     "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental",
     "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
-    "Maintenance", "Tickets", "Parts", "Assets", "Finance", "HRMS",
+    "Maintenance", "Tickets", "Parts", "Assets", "Finance",
+    "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
+    "Tax", "Fixed Assets", "Reports", "Fin Settings",
+    "HRMS",
     "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
-    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin",
+    "Workspaces", "Roles", "Audit Trail", "Backup"
   ],
   hotels: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
     "F&B / Pantry", "Requests", "Feedbacks", "Housekeeping", "HK Tasks", "Linen",
     "Inspections", "HK Staff", "Maintenance", "Tickets", "Parts", "Assets",
-    "Finance", "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
-    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
+    "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
+    "Tax", "Fixed Assets", "Reports", "Fin Settings",
+    "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin",
+    "Workspaces", "Roles", "Audit Trail", "Backup"
   ],
   apartments: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
     "F&B / Pantry", "Requests", "Feedbacks", "Housekeeping", "HK Tasks", "Linen",
     "Inspections", "HK Staff", "Maintenance", "Tickets", "Parts", "Assets",
-    "Finance", "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
-    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
+    "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
+    "Tax", "Fixed Assets", "Reports", "Fin Settings",
+    "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin",
+    "Workspaces", "Roles", "Audit Trail", "Backup"
   ],
   rental: [
     "Dashboard", "Rental", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
-    "Maintenance", "Tickets", "Parts", "Assets", "Finance",
+    "Maintenance", "Tickets", "Parts", "Assets",
+    "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
+    "Tax", "Fixed Assets", "Reports", "Fin Settings",
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
-    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin",
+    "Workspaces", "Roles", "Audit Trail", "Backup"
   ],
   workplace: [
     "Dashboard", "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
-    "Maintenance", "Tickets", "Parts", "Assets", "Finance",
+    "Maintenance", "Tickets", "Parts", "Assets",
+    "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
+    "Tax", "Fixed Assets", "Reports", "Fin Settings",
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
-    "Masters", "Policies", "Appraisal", "Compensation", "Admin"
+    "Masters", "Policies", "Appraisal", "Compensation", "Admin",
+    "Workspaces", "Roles", "Audit Trail", "Backup"
   ]
 };
 
