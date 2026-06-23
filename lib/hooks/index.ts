@@ -640,3 +640,106 @@ export function useBalanceSheet(filters?: { property_id?: string; as_at_date?: s
   const { data, error, isLoading, mutate } = useSWR(`/api/finance/reports/balance-sheet?${params}`, fetcher);
   return { balanceSheet: data?.data, isLoading, isError: !!error, mutate };
 }
+
+// ── Front Desk Hooks ──
+export function useActiveBookings(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/front-desk/active-bookings${params}`, fetcher, { refreshInterval: 15000 });
+  return { activeBookings: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useGuestRequests(filters?: { property_id?: string; status?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.status) params.set("status", filters.status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/front-desk/requests?${params}`, fetcher, { refreshInterval: 15000 });
+  return { requests: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useFrontDeskBilling() {
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/front-desk/billing`, fetcher);
+  return { billing: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useCheckinChecklist() {
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/front-desk/checkin`, fetcher);
+  return { checklist: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useFrontDeskStats() {
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/front-desk/stats`, fetcher, { refreshInterval: 30000 });
+  return { fdStats: data, isLoading, isError: !!error, mutate };
+}
+
+// ── Vendors Hooks ──
+export function useVendorsList(filters?: { property_id?: string; status?: string; search?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.search) params.set("search", filters.search);
+  const { data, error, isLoading, mutate } = useSWR(`/api/vendors?${params}`, fetcher);
+  return { vendors: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useVendor(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/vendors/${id}` : null, fetcher);
+  return { vendor: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useVendorServices(vendorId?: string) {
+  const { data, error, isLoading, mutate } = useSWR(vendorId ? `/api/vendors/services?vendor_id=${vendorId}` : null, fetcher);
+  return { services: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useVendorOrders(vendorId?: string, status?: string) {
+  const params = new URLSearchParams();
+  if (vendorId) params.set("vendor_id", vendorId);
+  if (status) params.set("status", status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/vendors/orders?${params}`, fetcher);
+  return { orders: data?.data, isLoading, isError: !!error, mutate };
+}
+
+// ── Inventory Hooks ──
+export function useInventoryCategories(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/inventory/categories${params}`, fetcher);
+  return { categories: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useInventoryItems(filters?: { property_id?: string; category_id?: string; low_stock?: boolean; search?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.category_id) params.set("category_id", filters.category_id);
+  if (filters?.low_stock) params.set("low_stock", "true");
+  if (filters?.search) params.set("search", filters.search);
+  const { data, error, isLoading, mutate } = useSWR(`/api/inventory/items?${params}`, fetcher, { refreshInterval: 15000 });
+  return { inventoryItems: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useInventoryItem(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/inventory/items/${id}` : null, fetcher);
+  return { inventoryItem: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useInventoryTransactions(filters?: { item_id?: string; property_id?: string; transaction_type?: string; from_date?: string; to_date?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.item_id) params.set("item_id", filters.item_id);
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.transaction_type) params.set("transaction_type", filters.transaction_type);
+  if (filters?.from_date) params.set("from_date", filters.from_date);
+  if (filters?.to_date) params.set("to_date", filters.to_date);
+  const { data, error, isLoading, mutate } = useSWR(`/api/inventory/transactions?${params}`, fetcher);
+  return { transactions: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useWarehouses(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/inventory/warehouses${params}`, fetcher);
+  return { warehouses: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useInventoryStats(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/inventory/stats${params}`, fetcher, { refreshInterval: 30000 });
+  return { invStats: data?.data, isLoading, isError: !!error, mutate };
+}

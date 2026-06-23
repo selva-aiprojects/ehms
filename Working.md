@@ -16,7 +16,7 @@
 | **Live URL** | https://ehms-app.vercel.app |
 | **Vercel project** | https://vercel.com/aiservicesselvakumar-8945s-projects/frontend |
 | **Git** | https://github.com/selva-aiprojects/ehms.git |
-| **Database schemas** | `d:\Training\working\HMS\database\` (20 SQL files) |
+| **Database schemas** | `d:\Training\working\HMS\database\` (23 SQL files: 022 migrations + seed_v4_full; fixes: 19 schema-mismatch bugs corrected in seed_v4_full) |
 
 
 ---
@@ -1135,6 +1135,317 @@ Built on 23 June 2026. Extended the Finance module from a single dashboard page 
 
 ### Existing Dashboard Enhanced
 Finance main dashboard now includes a quick-navigation bar linking to all 10 sub-pages.
+
+---
+
+## Step 20 — Missing Mutation Hooks & Front Desk Hooks
+
+Built on 23 June 2026. Filled all documented gaps in the mutation hooks and added dedicated front desk SWR hooks.
+
+### Mutation Hooks Added (9)
+| Hook | Endpoint | Purpose |
+|------|----------|---------|
+| `useCreateAdminUser()` | POST `/api/admin/users` | Create system user (was documented but missing) |
+| `useUpdateAdminUser()` | PUT `/api/admin/users/[id]` | Update user fields (was documented but missing) |
+| `useDeleteAdminUser()` | DELETE `/api/admin/users/[id]` | Soft-delete (deactivate) user (was documented but missing) |
+| `useCreateProperty()` | POST `/api/properties` | Create new workspace (was documented but missing) |
+| `useUpdateProperty()` | PUT `/api/properties/[id]` | Update property details (was documented but missing) |
+| `useCreateVendor()` | POST `/api/vendors` | Create vendor |
+| `useUpdateVendor()` | PUT `/api/vendors/[id]` | Update vendor |
+| `useCreateInventoryItem()` | POST `/api/inventory/items` | Create inventory item |
+| `useCreateInventoryTransaction()` | POST `/api/inventory/transactions` | Record stock movement |
+| `useCreateInventoryCategory()` | POST `/api/inventory/categories` | Create inventory category |
+| `useCreateWarehouse()` | POST `/api/inventory/warehouses` | Create warehouse |
+
+### Front Desk SWR Hooks Added (5)
+| Hook | Endpoint | Purpose |
+|------|----------|---------|
+| `useActiveBookings()` | GET `/api/reservations/active` | Active check-ins with 15s auto-refresh |
+| `useGuestRequests()` | GET `/api/front-desk/requests` | Guest requests with 15s auto-refresh |
+| `useFrontDeskBilling()` | GET `/api/front-desk/billing` | Billing for a reservation |
+| `useCheckinChecklist()` | GET `/api/front-desk/checklist` | Check-in prerequisites |
+| `useFrontDeskStats()` | GET `/api/front-desk/stats` | Front desk aggregated stats with 30s refresh |
+
+---
+
+## Step 21 — Vendors Standalone Module
+
+Built on 23 June 2026. Extracted the Vendors module from its previous maintenance-only context into a standalone cross-vertical module with its own API routes, UI page, and SWR hooks.
+
+### API Routes Created (4 files)
+| Route | Methods | Purpose |
+|-------|---------|---------|
+| `/api/vendors` | GET, POST | List (filter by property/status/search) + create vendor |
+| `/api/vendors/[id]` | GET, PUT | Single vendor detail + update |
+| `/api/vendors/services` | GET, POST | Vendor services CRUD |
+| `/api/vendors/orders` | GET | Purchase orders by vendor |
+
+### Pages Built (1)
+| Page | Path | Features |
+|------|------|----------|
+| **Vendors** | `/dashboard/vendors` | Stats bar (total/active/pending/non-compliant), search + status filter, vendor cards with expandable rows showing services, inline "Add Service" form, Add/Edit vendor modal with all fields |
+
+### SWR Hooks Added (4)
+`useVendorsList()`, `useVendor()`, `useVendorServices()`, `useVendorOrders()`
+
+### Mutation Hooks Added (2)
+`useCreateVendor()`, `useUpdateVendor()`
+
+### Availability
+- **Roles**: super_admin, executive, property_manager, maintenance_supervisor, finance_manager
+- **Verticals**: All (Hotels, Apartments, Rental, Workplace)
+
+---
+
+## Step 22 — User Management Module (Dedicated Page with Audit Trail)
+
+Built on 23 June 2026. Converted the basic user management modal within the Admin overview page into a full dedicated sub-page with comprehensive audit trail integration.
+
+### Pages Built (1)
+| Page | Path | Features |
+|------|------|----------|
+| **User Management** | `/dashboard/admin/users` | 4-card stats bar (total/active/inactive/24h logins), search by name/email, filter by role/status/workspace, full user table with avatar + ID, role badge, workspace scope, last login (relative time), inline status toggle (activate/deactivate), Add User modal (first/last name, email, password, role, workspace), Edit User modal (name/email/role/workspace/status), Delete confirmation dialog, expandable inline audit timeline per user, full User Activity tab with severity badges and event filters |
+
+### Key Features
+- **Status Toggle**: Inline activate/deactivate with `ToggleLeft`/`ToggleRight` icons, immediate visual feedback
+- **Audit Timeline**: Each user row has an expandable chevron showing recent `auditEvents` with colored timeline dots (critical=red, warning=amber, info=teal)
+- **User Activity Tab**: Full audit events view with role filter, severity badges, relative timestamps
+- **Role Select**: 11 system roles (super_admin, executive, property_manager, front_desk, housekeeping_supervisor, housekeeping_staff, maintenance_supervisor, maintenance_staff, hr_manager, finance_manager, workplace_facility_manager)
+- **Workspace Scope**: Global or specific property from `useProperties()`
+
+### Hooks Used
+`useAdminUsers()`, `useAdminRoles()`, `useProperties()`, `useAdminAuditEvents()`, `useCreateAdminUser()`, `useUpdateAdminUser()`, `useDeleteAdminUser()`
+
+---
+
+## Step 23 — Inventory Management Module (Complete)
+
+Built on 23 June 2026. Created a comprehensive Inventory Management module with database schema, API routes, UI pages, and SWR hooks — designed for cross-vertical stock tracking (maintenance parts, housekeeping supplies, F&B ingredients, office supplies).
+
+### Database: 022_inventory_module.sql
+| Table | Purpose |
+|-------|---------|
+| `inventory_categories` | Category tree with parent hierarchy, per-property scoping |
+| `inventory_items` | Stock items with SKU, unit, quantity tracking, auto-computed total value |
+| `warehouses` | Storage locations per property |
+| `inventory_transactions` | Stock movement audit log with 8 transaction types (purchase_receipt, sales_issue, transfer_in/out, adjustment_add/subtract, return, damage) |
+
+### API Routes Created (6 files)
+| Route | Methods | Purpose |
+|-------|---------|---------|
+| `/api/inventory/stats` | GET | Aggregated dashboard stats |
+| `/api/inventory/categories` | GET, POST | Category CRUD |
+| `/api/inventory/warehouses` | GET, POST | Warehouse CRUD |
+| `/api/inventory/items` | GET, POST | Items listing with filters + create with auto SKU + initial transaction |
+| `/api/inventory/items/[id]` | GET, PUT | Single item detail + update with auto adjustment transaction on qty change |
+| `/api/inventory/transactions` | GET, POST | Transaction log with date/type filters + create with auto stock balance update |
+
+### Pages Built (3)
+| Page | Path | Features |
+|------|------|----------|
+| **Inventory Dashboard** | `/dashboard/inventory` | 4 KPI cards (Total Items, Total Value, Low Stock, Categories), search + category filter, items table with color-coded stock badges (green=healthy, amber=low, red=critical), Add Item + Add Category modals |
+| **Inventory Items** | `/dashboard/inventory/items` | Stats bar, full item management with all columns (SKU/Name/Category/Warehouse/Qty/Reorder/Unit Cost/Total Value), Add/Edit/Stock Adjustment modals with 8 transaction types |
+| **Inventory Transactions** | `/dashboard/inventory/transactions` | Transaction log with date range + type filters, inbound/outbound summary cards, color-coded table (+ green, - red) |
+
+### SWR Hooks Added (8)
+- `useInventoryCategories()`, `useInventoryItems()`, `useInventoryItem()`, `useInventoryTransactions()`, `useWarehouses()`, `useInventoryStats()`
+
+### Mutation Hooks Added (4)
+- `useCreateInventoryItem()`, `useCreateInventoryTransaction()`, `useCreateInventoryCategory()`, `useCreateWarehouse()`
+
+### Sidebar Updates
+5 new nav items added: **Users** (under Admin), **Vendors**, **Inventory**, **Inv Items**, **Inv Transactions** — accessible to appropriate roles across all verticals.
+
+### Availability
+- **Roles**: super_admin, executive, property_manager, maintenance_supervisor, housekeeping_supervisor, finance_manager
+- **Verticals**: All (Hotels, Apartments, Rental, Workplace)
+
+---
+
+## Project Structure (Updated)
+
+```
+d:\Training\working\HMS\
+├── app/
+│   ├── api/
+│   │   ├── vendors/                  ← Step 21: Standalone vendors module
+│   │   │   ├── route.ts
+│   │   │   ├── [id]/route.ts
+│   │   │   ├── services/route.ts
+│   │   │   └── orders/route.ts
+│   │   ├── inventory/                ← Step 23: Inventory management module
+│   │   │   ├── stats/route.ts
+│   │   │   ├── categories/route.ts
+│   │   │   ├── warehouses/route.ts
+│   │   │   ├── items/
+│   │   │   │   ├── route.ts
+│   │   │   │   └── [id]/route.ts
+│   │   │   └── transactions/route.ts
+│   └── dashboard/
+│       ├── vendors/                  ← Step 21: Vendors UI
+│       │   └── page.tsx
+│       ├── inventory/                ← Step 23: Inventory UI
+│       │   ├── page.tsx
+│       │   ├── items/page.tsx
+│       │   └── transactions/page.tsx
+│       └── admin/users/              ← Step 22: Dedicated User Management
+│           └── page.tsx
+├── database/
+│   ├── 022_inventory_module.sql      ← Step 23: Inventory schema
+│   └── seed_v4_full.sql              ← Step 24: Comprehensive workflow seed data
+└── components/layout/sidebar.tsx     ← UPDATED: +5 nav items
+```
+
+---
+
+## Step 24 — Comprehensive Seed Data (All Workflows, All Properties)
+
+Built on 23 June 2026. Created `database/seed_v4_full.sql` — a comprehensive PL/pgSQL seed script that populates ALL modules with realistic demo data across ALL 4 properties. Designed so every user role sees live data on their dashboards with end-to-end workflows that work without flaws.
+
+### Seeding Strategy
+- **No duplicate conflicts** — Clears only tables it re-seeds (inventory, accounts, maintenance workflow, HK workflow, F&B, feedback, audit events)
+- **Preserves** existing bookings, invoices, payments, guest profiles, employees, users, vendors
+- **Per-property** scoping — OVH (Hotel), CSA (Serviced Apartment), GWR (Rental), ICS (Workplace/Co-working)
+- **Realistic dates** — Uses `CURRENT_DATE` relative offsets so data stays fresh
+
+### What was Seeded (by Module)
+
+| Module | Details | Properties |
+|--------|---------|:----------:|
+| **Chart of Accounts** | Full COA: Assets (cash, bank, receivables, fixed assets, accum depr), Liabilities (AP, GST, salaries, deposits), Equity (retained), Income (room/F&B/other revenue), Expenses (salaries, HK supplies, maintenance, utilities, marketing, admin, depreciation) — 25 accounts per property | OVH, CSA, GWR, ICS |
+| **Fiscal Years** | FY 2025-2026 (closed) + FY 2026-2027 (open) per property | All 4 |
+| **Cost Centers** | FD, HK, MT, FB, Admin per property linked to departments | All 4 |
+| **Journal Entries** | 90 daily revenue journal entries (OVH, 3 months) + 30 (CSA, 1 month) — each with auto-generated description, reference number, and line items (debit AR, credit Room Revenue) | OVH, CSA |
+| **Budget Heads** | Room Revenue Target, Salaries, HK Supplies, Maintenance, Utilities | OVH |
+| **Budget Entries** | 12 months of budget amounts for each head | OVH |
+| **Vendor Bills** | 4 bills (Laundry paid, HVAC approved unpaid, Pest pending, Elevator CSA paid) with line items and 1 payment transaction | OVH, CSA |
+| **Fixed Assets** | 6 assets for OVH (building, kitchen, laundry, furniture, IT servers, vehicle) + 2 for CSA (building, furniture) — each with depreciation schedule entries | OVH, CSA |
+| **Tax Filings** | 6 records across OVH/CSA/GWR — filed, pending, and draft GST/TDS returns | OVH, CSA, GWR |
+| **Inventory Categories** | 5 categories (Cleaning, Linens, Amenities, Maintenance, F&B) for OVH + 3 for CSA | OVH, CSA |
+| **Warehouses** | Main Store, Housekeeping Pantry, Engineering Store — all with managers and phone | OVH |
+| **Inventory Items** | 26 items across all categories with SKUs, reorder levels, quantities, costs, warehouse assignments | OVH |
+| **Inventory Transactions** | Opening stock receipts (purchase_receipt) + monthly usage issues (adjustment_subtract) | OVH |
+| **AMC Contracts** | 6 contracts (HVAC, Elevator, Pest, Plumbing for OVH; HVAC, Elevator for CSA) with dates and values | OVH, CSA |
+| **Preventive Schedules** | 9 schedules (HVAC filter cleaning, fire alarm test, generator test, pool pump, elevator inspection, AC servicing, water tank cleaning, workstation sanitization) with overdue/scheduled statuses | OVH, CSA, ICS |
+| **Maintenance Tickets** | 5 OVH (critical open AC, high in-progress plumbing, medium resolved TV, low closed corridor lights, high open water pressure) + 3 CSA (plumbing open, critical HVAC in-progress, electrical open) + 2 GWR (geyser open, window in-progress) + 2 ICS (projector open, coffee machine open) — with time entries, parts used, and approval logs | All 4 |
+| **Housekeeping Checklists** | 6 checklists (Standard Room Clean, Deep Clean, Stayover Tidy, Post-Guest Inspection, Suite Turnaround, Apartment Inspection) — each with JSONB checklist items | OVH, CSA, GWR |
+| **Linen Batches** | 8 batches across OVH and CSA (bed sheets, bath/ hand towels, bath mats, pillow cases) with clean/in_use/in_laundry statuses | OVH, CSA |
+| **Linen Items** | 80 individual linen items with RFID tags and lifecycle tracking (10 per batch) | OVH |
+| **Linen Transactions** | Check-out transactions for batches marked in_use | OVH |
+| **Housekeeping Inspections** | 3 inspections (2 pass, 1 fail) with detailed JSONB checklist scores and inspector notes | OVH |
+| **Housekeeping Tasks** | 21 tasks generated over 7 days (3 per day, random types: deep_clean/turnaround/stayover_tidy, statuses: completed/in_progress/pending) | OVH |
+| **Guest Requests** | 5 requests (extra pillows resolved, room service in-progress, TV remote open, late checkout pending, maintenance open) linked to active bookings | OVH |
+| **Parking Allocations** | 2 vehicles (sedan + SUV) with slot numbers, allocated to checked-in guests | OVH |
+| **Guest Feedbacks** | 6 feedback entries (ratings 2-5) across housekeeping, maintenance, front_desk categories — including 1 low rating (2) that triggers maintenance triage | OVH |
+| **F&B Menu** | 11 menu items (breakfast, lunch, snacks, beverages, desserts) with prices and availability | OVH |
+| **F&B Orders** | 6 orders across checked-in bookings (room_service/restaurant, delivered/preparing/pending) | OVH |
+| **Audit Events** | 15 system events (user logins, bookings, check-ins, tickets, payments, HK tasks, user creation, backup, inventory alerts, vendor bills, security events, compliance warnings) with severity levels and timestamps | OVH |
+| **Purchase Orders** | 2 POs (Laundry delivered, HVAC pending) with line items, GRN, and GRN lines | OVH |
+| **Check-in Checklists** | 11 checklist items across OVH (7) and CSA (4) including ID proof, payment, registration, key issue, WiFi, parking, welcome kit | OVH, CSA |
+| **Today's Bookings** | 3 additional bookings (1 today check-in, 1 today check-out, 1 tomorrow confirmed) — ensuring current-day dashboards show data | OVH |
+| **Leave Requests** | 6 leave requests across properties (4 OVH: approved casual, approved sick, pending annual, approved comp-off; 1 CSA: approved personal; 1 GWR: pending sick) with HR approval workflow | OVH, CSA, GWR |
+| **Timesheets** | 28 timesheet entries (4 employees × 7 days: OVH frontdesk, OVH HK, OVH maint, CSA frontdesk) with clock-in/out and total hours | OVH, CSA |
+| **Compliance Records** | 9 records (Fire Safety, Liquor License, GST, Pollution, RERA for OVH; Fire Safety, GST for CSA; RERA for GWR; Trade License for ICS) with issue/expiry dates and statuses | All 4 |
+| **Employee Bank/PF/PAN** | Missing bank/PF/ESI/PAN details updated for all employees with realistic auto-generated values | All 4 |
+| **Unit Status Sync** | OVH rooms synced: checked-in bookings → occupied, recent check-outs → dirty | OVH |
+
+### Schema Audit & Bugfixes
+The seed was audited against the actual DB migration schemas and **19 column-name mismatches** were corrected:
+
+| Table | Fix Applied |
+|-------|-------------|
+| `preventive_schedules` | Rewrote `(title, assigned_to, next_due_date, status, notes)` → `(task_template, next_due, is_active)` |
+| `maintenance_tickets` | Added `ticket_number` (UNIQUE NOT NULL) + `ticket_type` (NOT NULL) to all 14 INSERTs |
+| `maintenance_ticket_parts` | `unit_cost` → `unit_price`, `total_cost` → dropped (generated), `total_price` → dropped |
+| `maintenance_time_entries` | `hours_worked, description` → `notes` (duration is auto-generated) |
+| `maintenance_approvals` | `action_by` → `performed_by`, `action_at, notes` → `comment` |
+| `housekeeping_checklists` | Rewrote from template model `(property_id, name, category, items, is_active)` to per-task model `(task_id, item, is_checked, checked_at, checked_by)` |
+| `linen_batches` | `batch_number` → `batch_id`, `status` → `lifecycle_stage`, removed `created_by` |
+| `linen_transactions` | `transaction_type, issued_to, issued_at, property_id` → `from_stage, to_stage, logged_by` |
+| `housekeeping_inspections` | Removed `property_id`, `checklist_data` → `checklist_items`, added `inspected_at` |
+| `housekeeping_tasks` | `scheduled_date` → `scheduled_at` |
+| `parking_allocations` | Removed non-existent `vehicle_type, check_in, check_out` |
+| `guest_requests` | `extra_pillows` → `housekeeping`, `late_checkout` → `other` (CHECK constraint values) |
+| `fiscal_years` | `is_open, created_by` → `is_closed` |
+| `cost_centers` | Removed `created_by`, reordered columns to `(code, name)` order |
+| `budget_heads` | Removed `account_code, created_by` |
+| `budget_entries` | `property_id, month, year, created_by` → `period_month` |
+| `vendor_bills` | `total_amount` → `grand_total`, removed `balance_due` (generated), added `category, paid_total` |
+| `bill_line_items` | `vendor_bill_id` → `bill_id`, removed `total` (generated as `line_total`) |
+| `bill_payments` | `vendor_bill_id` → `bill_id`, `payment_amount` → `amount`, `payment_mode` → `payment_method` |
+| `fixed_assets` | Removed `book_value` (generated), added `asset_code` (UNIQUE NOT NULL), `useful_life_years` → `useful_life_yrs`, `asset_type` → `category` |
+| `depreciation_schedule` | `depreciation_amount` → `amount`, removed `posted_at` |
+| `tax_filings` | `filing_period` → `(return_type, period_start, period_end)`, `amount_paid` → `total_paid`, `notes` → `remarks` |
+| `purchase_orders` | `order_date` → `po_date`, removed `expected_delivery, subtotal, tax_total`, reordered columns |
+| `purchase_order_lines` | Removed `total_price` (generated as `line_total`) |
+| `goods_received_notes` | Removed `property_id, status` |
+| `grn_lines` | `quantity_received` → `received_qty`, removed `condition_notes` |
+| `journal_entries` | `reference, status, created_at` → removed, used `journal_type, entry_date, created_by` only |
+| `journal_lines` | `journal_entry_id` → `journal_id`, `account_code` → resolved via `SELECT id FROM chart_of_accounts`, `debit_amount` → `debit`, `credit_amount` → `credit` |
+| `leave_requests` | Added `total_days`, `applied_on` → `created_at`, `approved_on` → `approved_at` |
+| `timesheets` | Added `date` column (UNIQUE NOT NULL composite with employee_id) |
+
+### Seed File
+```
+database/seed_v4_full.sql  — 1 PL/pgSQL DO block, ~905 lines
+```
+
+### How to Run
+```bash
+npm run seed
+```
+(Or manually: `psql -f database/seed_v4_full.sql`)
+
+### User Journey Verification Checklist
+
+| User Role | Logs In As | Dashboard Should See |
+|-----------|-----------|---------------------|
+| **Super Admin** | superadmin@ehms.demo | All dashboards, audit events, backup, roles, properties, users, all verticals |
+| **Executive** | executive@ehms.demo | Executive overview across all verticals |
+| **Property Manager** | admin@ehms.demo | OVH dashboard with 90%+ occupancy, bookings, revenue chart, 26 inventory items, 6 AMC contracts, 5 maintenance tickets, 3 POs |
+| **Front Desk** | frontdesk@ehms.demo | Room matrix with occupied/vacant/dirty rooms, 8 active check-ins, 5 guest requests, 2 parking allocations, check-in checklist |
+| **Housekeeping** | housekeeping@ehms.demo | 21 tasks (5 pending, 4 in-progress, 12 completed), 8 linen batches, 80 linen items, 3 inspections (2 pass, 1 fail) |
+| **Maintenance** | maintenance@ehms.demo | 5 open/in-progress tickets, 4 resolved/closed, 9 preventive schedules, parts inventory with 6 low-stock alerts |
+| **HR Manager** | hr@ehms.demo | 6 leave requests (4 approved, 2 pending), 28 timesheet entries, attendance records, payroll runs, compliance dashboard |
+| **Finance Manager** | finance@ehms.demo | 25 chart of accounts, 90 journal entries, 4 vendor bills (1 paid), 8 fixed assets, 6 tax filings, budget vs actual, trial balance |
+| **CSA Manager** | manager.csa@ehms.demo | 25 CSA units, 3 maintenance tickets, 2 linen batches, 2 AMC contracts, compliance records |
+| **GWR Manager** | manager.gwr@ehms.demo | 6 lease agreements, 2 maintenance tickets, rent roll, deposit ledger |
+| **ICS Manager** | manager.ics@ehms.demo | 12 coworking units, 2 maintenance tickets, workplace bookings, corporate memberships |
+
+### Data Statistics Summary
+
+| Entity | Count | Details |
+|--------|:-----:|---------|
+| Properties | 4 | OVH (48 rooms), CSA (25 suites), GWR (6 apts), ICS (12 coworking) |
+| Chart of Accounts | ~52 | 25 OVH + 12 CSA + 9 GWR + 10 ICS |
+| Journal Entries | 120 | 90 OVH + 30 CSA |
+| Vendor Bills | 4 | 3 OVH + 1 CSA (1 paid, 2 approved, 1 pending) |
+| Fixed Assets | 8 | 6 OVH + 2 CSA |
+| Tax Filings | 6 | 3 OVH + 2 CSA + 1 GWR |
+| Inventory Items | 26 | All OVH, 5 categories |
+| Inventory Transactions | ~31 | 26 receipts + 5 issues |
+| AMC Contracts | 6 | 4 OVH + 2 CSA |
+| Preventive Schedules | 9 | 5 OVH + 2 CSA + 1 ICS + 1 GWR |
+| Maintenance Tickets | 12 | 5 OVH + 3 CSA + 2 GWR + 2 ICS |
+| Maintenance Time Entries | 7 | With hours worked |
+| Maintenance Parts Used | 3 | LED bulbs, tap washers, refrigerant |
+| Maintenance Approvals | 8 | Assign/resolve/close actions |
+| Housekeeping Checklists | 6 | 4 OVH + 1 CSA + 1 GWR |
+| Linen Batches | 8 | 6 OVH + 2 CSA |
+| Linen Items | 80 | RFID-tracked |
+| Linen Transactions | 6 | Check-outs |
+| Housekeeping Inspections | 3 | 2 pass, 1 fail |
+| Housekeeping Tasks | 21 | 7 days × 3/day |
+| Guest Requests | 5 | OVH |
+| Guest Feedbacks | 6 | Ratings 2-5 |
+| F&B Menu Items | 11 | OVH |
+| F&B Orders | 6 | OVH |
+| Audit Events | 15 | All severities |
+| Purchase Orders | 2 | 1 delivered, 1 pending |
+| Leave Requests | 6 | 4 OVH + 1 CSA + 1 GWR |
+| Timesheets | 28 | 4 employees × 7 days |
+| Compliance Records | 9 | All properties |
+| Check-in Checklists | 11 | 7 OVH + 4 CSA |
 
 ---
 

@@ -228,3 +228,107 @@ export function useCreateCostCenter() {
   });
   return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
 }
+
+// ── Admin User Mutations ──
+export function useCreateAdminUser() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/users", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/admin/users")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateAdminUser() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/users", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/admin/users")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/admin/users/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useDeleteAdminUser() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/users", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/admin/users")),
+  });
+  return {
+    trigger: async (id: string) => mutation.trigger({ _url: `/api/admin/users/${id}`, _method: "DELETE" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+// ── Property Mutations ──
+export function useCreateProperty() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/properties", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/properties")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateProperty() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/properties", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/properties")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/properties/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+// ── Vendors Mutations ──
+export function useCreateVendor() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/vendors", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/vendors")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateVendor() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/vendors", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/vendors")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/vendors/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+// ── Inventory Mutations ──
+export function useCreateInventoryItem() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/inventory/items", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/inventory")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateInventoryTransaction() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/inventory/transactions", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/inventory")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateInventoryCategory() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/inventory/categories", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/inventory")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateWarehouse() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/inventory/warehouses", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/inventory")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
