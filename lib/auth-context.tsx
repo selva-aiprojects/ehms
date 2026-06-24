@@ -11,6 +11,8 @@ export interface UserProfile {
   avatar_url: string | null;
   role_name: string;
   role_id: string;
+  tenant_code: string;
+  tenant_schema: string;
 }
 
 interface AuthState {

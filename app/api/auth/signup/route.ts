@@ -87,6 +87,8 @@ export async function POST(req: NextRequest) {
       first_name: newUser.first_name as string,
       last_name: newUser.last_name as string | null,
       avatar_url: newUser.avatar_url as string | null,
+      tenant_code: process.env.DEFAULT_TENANT_CODE || "VISWA",
+      tenant_schema: process.env.DEFAULT_TENANT_SCHEMA || "viswa",
     };
 
     const token = signToken(payload);

@@ -2,19 +2,25 @@ import { neon } from "@neondatabase/serverless";
 
 const databaseUrl = process.env.DATABASE_URL || "";
 
-let _sql: ReturnType<typeof neon> | null = null;
+const connections = new Map<string, ReturnType<typeof neon>>();
 
-export function getDb() {
-  if (!_sql) {
-    // Set search_path to tenant schema (viswa) with public fallback for extensions
-    // This enables schema-per-tenant isolation transparently — all existing
-    // API routes continue to work without schema-qualified table names.
+let _publicDb: ReturnType<typeof neon> | null = null;
+
+export function getDb(schema?: string) {
+  const targetSchema = schema || process.env.DEFAULT_TENANT_SCHEMA || "viswa";
+  if (!connections.has(targetSchema)) {
     const url = new URL(databaseUrl);
-    url.searchParams.set(
-      "options",
-      "--search_path=viswa,public"
-    );
-    _sql = neon(url.toString());
+    url.searchParams.set("options", `--search_path=${targetSchema},public`);
+    connections.set(targetSchema, neon(url.toString()));
   }
-  return _sql;
+  return connections.get(targetSchema)!;
+}
+
+export function getPublicDb() {
+  if (!_publicDb) {
+    const url = new URL(databaseUrl);
+    url.searchParams.set("options", "--search_path=public");
+    _publicDb = neon(url.toString());
+  }
+  return _publicDb;
 }

@@ -1,13 +1,35 @@
 "use client";
 
 import Image from "next/image";
-import { Building2, ArrowRight, Eye, EyeOff, ChevronDown, Hotel, Home, LayoutDashboard, Briefcase } from "lucide-react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Building2, ArrowRight, Eye, EyeOff, ChevronDown, Hotel, Home, LayoutDashboard, Briefcase, Server, ArrowLeft, Shield } from "lucide-react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useJourney, type VerticalJourney } from "@/components/providers/JourneyProvider";
+import Link from "next/link";
 
-export default function LoginPage() {
+export default function LoginPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#F5F7FA" }}>
+        <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+interface TenantInfo {
+  id: string;
+  name: string;
+  code: string;
+  schema_name: string;
+  logo_url: string | null;
+}
+
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { activeJourney, setJourney } = useJourney();
 
   const [email, setEmail] = useState("");
@@ -16,6 +38,28 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [remember, setRemember] = useState(false);
+  const [tenant, setTenant] = useState<TenantInfo | null>(null);
+  const [tenantLoading, setTenantLoading] = useState(true);
+
+  const tenantCode = searchParams.get("tenant");
+
+  useEffect(() => {
+    if (!tenantCode) {
+      setTenantLoading(false);
+      return;
+    }
+
+    fetch(`/api/admin/tenants`)
+      .then((r) => r.json())
+      .then((data) => {
+        const found = (data.tenants || []).find(
+          (t: TenantInfo) => t.code === tenantCode
+        );
+        setTenant(found || null);
+      })
+      .catch(() => setTenant(null))
+      .finally(() => setTenantLoading(false));
+  }, [tenantCode]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -25,7 +69,11 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          tenant_code: tenantCode,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -43,6 +91,59 @@ export default function LoginPage() {
       setError("Network error. Please try again.");
     }
     setLoading(false);
+  }
+
+  if (!tenantCode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1A2E" }}>
+        <div className="text-center max-w-sm">
+          <Server className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(245,247,250,0.15)" }} />
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#F5F7FA" }}>No Tenant Selected</h2>
+          <p className="text-sm mb-6" style={{ color: "rgba(245,247,250,0.5)" }}>
+            Please select an organization shard before signing in.
+          </p>
+          <Link
+            href="/tenants"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+            style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
+          >
+            <ArrowLeft className="w-4 h-4" /> Browse Tenants
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (tenantLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1A2E" }}>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm" style={{ color: "rgba(245,247,250,0.5)" }}>Loading tenant...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!tenant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1A2E" }}>
+        <div className="text-center max-w-sm">
+          <Server className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(245,247,250,0.15)" }} />
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#F5F7FA" }}>Tenant Not Found</h2>
+          <p className="text-sm mb-6" style={{ color: "rgba(245,247,250,0.5)" }}>
+            No tenant with code &quot;{tenantCode}&quot; exists.
+          </p>
+          <Link
+            href="/tenants"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+            style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
+          >
+            <ArrowLeft className="w-4 h-4" /> Browse Tenants
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -77,6 +178,22 @@ export default function LoginPage() {
           <div className="lg:hidden flex justify-center mb-8">
             <Image src="/eHMS_logo.png" alt="eHMS" width={100} height={40} className="object-contain" />
           </div>
+
+          {/* Tenant badge */}
+          <Link
+            href="/tenants"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium mb-4 transition-colors hover:opacity-80"
+            style={{
+              background: "rgba(43,174,142,0.08)",
+              color: "#2BAE8E",
+              border: "1px solid rgba(43,174,142,0.15)",
+            }}
+          >
+            <Server className="w-3.5 h-3.5" />
+            {tenant.name}
+            <span className="font-mono opacity-60">({tenant.code})</span>
+            <ArrowLeft className="w-3 h-3 opacity-60" />
+          </Link>
 
           <h2 className="text-2xl font-bold mb-1" style={{ color: "#1A3C5E" }}>eHMS Portal</h2>
           <p className="text-sm mb-6" style={{ color: "#64748B" }}>Access your hospitality workspace</p>

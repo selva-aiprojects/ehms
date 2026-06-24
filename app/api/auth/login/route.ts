@@ -1,31 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDb } from "@/lib/db";
+import { getDb, getPublicDb } from "@/lib/db";
 import { signToken, comparePassword } from "@/lib/auth";
 import { DEMO_ROLE_MAP } from "@/lib/role-access";
 
-// Demo users whose passwords are stored via pgcrypto crypt() in the seed.sql
-// We verify them directly in SQL using crypt() for compatibility
 const DEMO_EMAILS = new Set(Object.keys(DEMO_ROLE_MAP));
 const DEMO_PASSWORD = "Demo@1234";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { email, password, tenant_code } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password required" }, { status: 400 });
     }
 
-    const sql = getDb();
+    if (!tenant_code) {
+      return NextResponse.json({ error: "Tenant selection required" }, { status: 400 });
+    }
 
-    // Determine if this is a demo user (passwords stored with pgcrypto crypt())
+    const publicSql = getPublicDb();
+    const tenantRows = await publicSql`
+      SELECT id, name, code, schema_name, is_active
+      FROM public.tenants WHERE code = ${tenant_code} AND is_active = true LIMIT 1
+    `;
+    const tenant = (tenantRows as Record<string, unknown>[])[0];
+
+    if (!tenant) {
+      return NextResponse.json({ error: "Invalid or inactive tenant" }, { status: 401 });
+    }
+
+    const targetSchema = tenant.schema_name as string;
+    const sql = getDb(targetSchema);
+
     const isDemoUser = DEMO_EMAILS.has(email.toLowerCase());
 
     let rows;
-
     if (isDemoUser) {
-      // For demo users: verify password in-database using pgcrypto crypt()
-      // This handles the seed.sql which uses crypt('Demo@1234', gen_salt('bf'))
       rows = await sql`
         SELECT
           u.id, u.email, u.password_hash, u.first_name, u.last_name, u.avatar_url,
@@ -45,7 +55,6 @@ export async function POST(req: NextRequest) {
         LIMIT 1
       `;
     } else {
-      // For regular users: fetch row and compare with bcrypt
       rows = await sql`
         SELECT
           u.id, u.email, u.password_hash, u.first_name, u.last_name, u.avatar_url,
@@ -72,13 +81,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // Validate password
     let valid = false;
     if (isDemoUser) {
-      // pwd_ok was computed in SQL via pgcrypto
       valid = user.pwd_ok === true;
     } else {
-      // bcrypt compare for non-demo users
       valid = await comparePassword(password, user.password_hash as string);
     }
 
@@ -94,11 +100,12 @@ export async function POST(req: NextRequest) {
       first_name: user.first_name as string,
       last_name: user.last_name as string | null,
       avatar_url: user.avatar_url as string | null,
+      tenant_code,
+      tenant_schema: targetSchema,
     };
 
     const token = signToken(payload);
 
-    // Update last login (fire and forget)
     sql`UPDATE users SET last_login_at = now() WHERE id = ${user.id}`.catch(() => {});
 
     const response = NextResponse.json({
@@ -110,8 +117,11 @@ export async function POST(req: NextRequest) {
         avatar_url: payload.avatar_url,
         role_name: payload.role_name,
         role_id: payload.role_id,
+        tenant_code,
+        tenant_schema: targetSchema,
       },
       token,
+      tenant: { name: (tenant as Record<string, unknown>).name, code: tenant_code },
     });
 
     response.cookies.set("ehms_token", token, {

@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
       avatar_url: payload.avatar_url,
       role_name: payload.role_name,
       role_id: payload.role_id,
+      tenant_code: payload.tenant_code,
+      tenant_schema: payload.tenant_schema,
     },
   });
 }

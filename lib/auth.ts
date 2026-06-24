@@ -11,6 +11,8 @@ export interface JwtPayload {
   first_name: string;
   last_name: string | null;
   avatar_url: string | null;
+  tenant_code: string;
+  tenant_schema: string;
 }
 
 export function signToken(payload: JwtPayload): string {
