@@ -2,23 +2,23 @@ import { NextResponse, type NextRequest } from "next/server";
 import { verifyToken, type JwtPayload } from "@/lib/auth";
 import { ROLE_ACCESS } from "@/lib/role-access";
 
-const PUBLIC_ROUTES = ["/", "/_next/", "/favicon.ico", "/eHMS_logo.png", "/favicon.png"];
+const PUBLIC_ROUTES = ["/", "/login", "/_next/", "/favicon.ico", "/eHMS_logo.png", "/favicon.png"];
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_ROUTES.some((p) => pathname.startsWith(p));
 }
 
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   const token = request.cookies.get("ehms_token")?.value;
   const payload: JwtPayload | null = token ? verifyToken(token) : null;
 
   if (!payload && !isPublic(pathname)) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (payload && pathname === "/") {
+  if (payload && (pathname === "/" || pathname === "/login")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

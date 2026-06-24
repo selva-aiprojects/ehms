@@ -17,9 +17,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Seed runner is available via `npm run seed` (`scripts/seed-only.mjs`) and database reset + migrate via `npm run migrate` (`scripts/migrate.mjs`).
 
 ## 3. Middleware & Proxy Setup
-- Next.js uses `middleware.ts` in the app root, which acts as a wrapper calling `proxy` from `proxy.ts`.
-- The middleware matcher is defined in `proxy.ts`.
-- **CRITICAL:** The matcher must exclude `_next` entirely (`/((?!_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)`) to prevent intercepting Next.js internal paths and HMR WebSockets, which causes `ERR_INVALID_HTTP_RESPONSE` connection failures on `_next/webpack-hmr`.
+- Next.js 16 uses `proxy.ts` (NOT `middleware.ts`). The `proxy.ts` file at the app root exports a default `proxy` function and a `config` matcher.
+- The matcher must exclude `_next` entirely (`/((?!_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)`) to prevent intercepting Next.js internal paths and HMR WebSockets, which causes `ERR_INVALID_HTTP_RESPONSE` connection failures on `_next/webpack-hmr`.
+- Do NOT create both `middleware.ts` and `proxy.ts` — Next.js 16 will error: "Both middleware file and proxy file are detected. Please use `proxy.ts` only."
 
 ## 4. Authentication & RBAC
 - JWT-based authentication using httpOnly cookie `ehms_token`.
@@ -69,4 +69,16 @@ eHMS is a comprehensive **Subscription-Based** Hospitality and Facilities Manage
 - **New hooks (20):** `useAccounts`, `useJournalEntries`, `useLedger`, `useVendorBills`, `useBudget`, `useFixedAssets`, `useTaxFilings`, `useTrialBalance`, `useProfitLoss`, `useBalanceSheet` etc.
 - **New mut hooks (15):** `useCreateAccount`, `useCreateJournalEntry`, `useCreateVendorBill`, `useCreateFixedAsset`, `useCreateBudgetEntry`, etc.
 - **Sidebar:** 11 finance nav items
+
+## 9. Multi-Tenant Schema Sharding (24 Jun 2026)
+- **Architecture:** Schema-per-tenant — each tenant gets isolated PostgreSQL schema
+- **Migration:** `023_multi_tenant_sharding.sql` — creates `public.tenants` registry, `viswa` schema, moves all 136+ tables + 9 ENUMs from `public` → `viswa`
+- **First tenant:** Viswa Group of Estates (schema: `viswa`, code: `VISWA`)
+- **Helper function:** `public.provision_tenant_schema(name, code, schema)` to clone the template for new tenants
+- **`lib/db.ts`:** Now sets `search_path = viswa, public` — all existing API routes work unchanged
+- **`scripts/migrate.mjs`:** Updated to create tables in `viswa` schema; extensions in `public`
+- **Landing page:** `app/page.tsx` → eHMS product landing with Viswa tenant showcase
+- **Login:** Moved to `app/login/page.tsx`
+- **proxy.ts:** Auth redirects now target `/login` instead of `/`
+- **Future tenants:** Admin calls `provision_tenant_schema()` → new schema cloned from `viswa` template
 

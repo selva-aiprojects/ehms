@@ -36,6 +36,10 @@ if (!DB_URL) {
 
 const sql = neon(DB_URL);
 
+async function setSearchPath() {
+  await sql.query("SET search_path TO viswa, public");
+}
+
 async function runSeedFile(filePath, label) {
   if (!existsSync(filePath)) {
     console.warn(`⚠  Skipping — not found: ${label}`);
@@ -90,10 +94,13 @@ async function main() {
   console.log("🌱 eHMS Seed Runner v2");
   console.log("=".repeat(50));
 
+  // Set search_path for multi-tenant schema sharding
+  await setSearchPath();
+
   // Check current state
   try {
     const tables = await sql.query(
-      "SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema='public'"
+      "SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema='viswa'"
     );
     console.log(`📊 Tables in DB: ${tables[0].cnt}`);
 

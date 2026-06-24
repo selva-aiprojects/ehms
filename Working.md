@@ -2,7 +2,7 @@
 
 > **Enterprise Hospitality Management System**
 > Full progress log from project start to current state.
-> Last updated: 23 June 2026
+> Last updated: 24 June 2026
 
 ---
 
@@ -12,11 +12,13 @@
 |---|---|
 | **Project** | eHMS — Enterprise Hospitality Management System |
 | **Stack** | Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · NeonDB (PostgreSQL) |
+| **Architecture** | **Schema-per-Tenant Multi-Tenancy** — each tenant in isolated PostgreSQL schema |
+| **Primary Tenant** | Viswa Group of Estates (schema: `viswa`) |
 | **Local dev** | `http://localhost:3000` |
 | **Live URL** | https://ehms-app.vercel.app |
 | **Vercel project** | https://vercel.com/aiservicesselvakumar-8945s-projects/frontend |
 | **Git** | https://github.com/selva-aiprojects/ehms.git |
-| **Database schemas** | `d:\Training\working\HMS\database\` (23 SQL files: 022 migrations + seed_v4_full; fixes: 19 schema-mismatch bugs corrected in seed_v4_full) |
+| **Database schemas** | `d:\Training\working\HMS\database\` (24 SQL files: 023 migrations + seed_v4_full; fixes: 19 schema-mismatch bugs corrected in seed_v4_full) |
 
 
 ---
@@ -1449,4 +1451,113 @@ npm run seed
 
 ---
 
-*Working.md — eHMS Project • Created 18 June 2026 • Updated 23 June 2026*
+---
+
+## Step 25 — Multi-Tenant Schema Sharding (Schema-per-Tenant Architecture)
+
+Built on 24 June 2026. Migrated eHMS from single-schema (`public`) to **schema-per-tenant** multi-tenancy. Each tenant gets an isolated PostgreSQL schema with the complete database structure. This enables strict data isolation, independent backups, and per-tenant scaling.
+
+### Architecture Decision: Schema-Per-Tenant
+
+| Approach | Chosen? | Why |
+|----------|:-------:|-----|
+| **Schema-per-Tenant** | ✅ | Native PostgreSQL isolation, same DB connection, no app-level filtering, easy to provision new tenants via `CREATE SCHEMA ... LIKE viswa INCLUDING ALL` |
+| Database-per-Tenant | ❌ | Connection pooling overhead, harder to manage migrations across N databases |
+| Row-level Tenant ID | ❌ | Risk of cross-tenant data leaks if a `WHERE tenant_id =` is missed; every query must be audited |
+
+### Migration: `database/023_multi_tenant_sharding.sql`
+
+| Component | Details |
+|-----------|---------|
+| **Schema** | `viswa` — first tenant shard (Viswa Group of Estates) |
+| **Registry** | `public.tenants` table tracks all tenants (id, name, code, schema_name, config) |
+| **Move** | All 136+ tables, 9 ENUM types, sequences moved from `public` → `viswa` via `ALTER ... SET SCHEMA` |
+| **Helper** | `public.provision_tenant_schema(name, code, schema)` — clones viswa structure for new tenants |
+
+### Updated `scripts/migrate.mjs`
+
+- Now creates tables directly in the `viswa` schema (via `search_path`)
+- Extensions (`uuid-ossp`, `pgcrypto`) created explicitly in `public`
+- After all migrations, seeds the `public.tenants` registry with Viswa Group of Estates
+- Template schema approach — future tenants can be provisioned from `viswa` template
+
+### Updated `lib/db.ts`
+
+- `getDb()` now sets `search_path = viswa, public` via connection options
+- All existing API routes continue to work without changes (no schema-qualified table names needed)
+- Future: can accept a `tenantCode` parameter to route to different schema
+
+### Tenant Onboarding Flow
+
+```
+New Tenant Request
+  └─ Admin calls: SELECT provision_tenant_schema('Name', 'CODE', 'schema_name')
+       └─ Creates new PostgreSQL schema with all tables (empty)
+       └─ Copies ENUM types
+       └─ Registers in public.tenants
+       └─ Returns tenant UUID
+  └─ Tenant admin: seeds master data (properties, units, users, etc.)
+```
+
+### Landing Page & Auth Updates
+
+| Change | Details |
+|--------|---------|
+| **Landing Page** | `app/page.tsx` → eHMS product landing page with "Viswa Group of Estates" tenant showcase |
+| **Login Page** | Moved to `app/login/page.tsx` |
+| **proxy.ts** | Auth redirects now target `/login` instead of `/` |
+| **globals.css** | Added premium CSS animation keyframes (gradient-shift, float, pulse-glow, slide-up, scale-in) |
+
+### Viswa Group of Estates — Tenant Record
+
+Seeded in `public.tenants`:
+
+| Field | Value |
+|-------|-------|
+| **name** | Viswa Group of Estates |
+| **code** | VISWA |
+| **schema_name** | viswa |
+| **config** | `{ is_primary: true, vertical_types: [hotel, service_apartment, rental_apartment, workplace] }` |
+
+### Existing Properties (now scoped under Viswa tenant)
+
+All 4 properties (Oceanview Hotel, Cityscape Serviced Apts, Greenwood Residency, Innovate Coworking) along with their units, bookings, employees, and all associated data now reside in the `viswa` schema, isolated under the Viswa Group of Estates tenant.
+
+---
+
+### v2.0 Database Structure
+
+```
+PostgreSQL Cluster
+├── public schema
+│   ├── tenants                    ← Tenant registry
+│   ├── provision_tenant_schema()  ← Helper function
+│   ├── pgcrypto extensions
+│   └── uuid-ossp extensions
+│
+├── viswa schema  ← ⬅️ Viswa Group of Estates (first shard)
+│   ├── enterprises
+│   ├── regions
+│   ├── properties
+│   ├── units
+│   ├── users
+│   ├── roles
+│   ├── bookings
+│   ├── invoices
+│   ├── ... (136+ tables, 9 ENUMs)
+│   └── seed data (all properties, employees, etc.)
+│
+├── tenant_abc schema  ← future tenant
+│   ├── properties
+│   ├── units
+│   ├── ... (full copy of structure, empty data)
+│
+└── tenant_xyz schema  ← future tenant
+    ├── properties
+    ├── units
+    ├── ... (full copy of structure, empty data)
+```
+
+---
+
+*Working.md — eHMS Project • Created 18 June 2026 • Updated 24 June 2026*
