@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
+export async function GET(req: NextRequest) {
+  try {
+    const sql = getDb();
+    const { searchParams } = new URL(req.url);
+    const propertyId = searchParams.get("property_id");
+    const status = searchParams.get("status");
+
+    const rows = await sql`
+      SELECT * FROM compliance_records
+      WHERE 1=1
+        ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
+        ${status ? sql`AND status = ${status}` : sql``}
+      ORDER BY created_at DESC
+    `;
+
+    return NextResponse.json({ data: rows });
+  } catch (error: any) {
+    console.error("[admin/compliance GET]", error);
+    return NextResponse.json({ error: error?.message || "Failed to fetch compliance records" }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const sql = getDb();

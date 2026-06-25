@@ -801,3 +801,11 @@ export function useInventoryStats(propertyId?: string) {
   const { data, error, isLoading, mutate } = useSWR(`/api/inventory/stats${params}`, fetcher, { refreshInterval: 30000 });
   return { invStats: data?.data, isLoading, isError: !!error, mutate };
 }
+
+export function useReconciliations(filters?: { status?: string; property_id?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  const { data, error, isLoading, mutate } = useSWR(`/api/finance/reconciliation?${params}`, fetcher);
+  return { reconciliations: data?.data, isLoading, isError: !!error, mutate };
+}

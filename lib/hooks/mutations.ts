@@ -401,3 +401,49 @@ export function useCreateWarehouse() {
   });
   return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
 }
+
+export function useCreateMembership() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/workplace/memberships", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/workplace/memberships")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useVisitorCheckIn() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/visitors", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/visitors")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useVisitorCheckOut() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/visitors", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/visitors")),
+  });
+  return {
+    trigger: async (id: string) => mutation.trigger({ _url: `/api/visitors/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreateReconciliation() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/reconciliation", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/reconciliation")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateReconciliation() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/finance/reconciliation", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/finance/reconciliation")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/finance/reconciliation/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}

@@ -2,6 +2,29 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
+export async function POST(req: NextRequest) {
+  try {
+    const sql = getDb();
+    const body = await req.json();
+    const { corporate_id, plan_id, start_date, end_date, seat_allocated, status, notes } = body;
+
+    if (!corporate_id || !plan_id || !start_date) {
+      return NextResponse.json({ error: "Corporate, plan, and start date are required" }, { status: 400 });
+    }
+
+    const result = await sql`
+      INSERT INTO corporate_memberships (corporate_id, plan_id, start_date, end_date, seat_allocated, status, notes)
+      VALUES (${corporate_id}, ${plan_id}, ${start_date}, ${end_date || null}, ${seat_allocated || 0}, ${status || "active"}, ${notes || null})
+      RETURNING *
+    ` as any[];
+
+    return NextResponse.json({ data: result[0] }, { status: 201 });
+  } catch (error) {
+    console.warn("[memberships POST] table may not exist:", error);
+    return NextResponse.json({ error: "Failed to create membership" }, { status: 500 });
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
