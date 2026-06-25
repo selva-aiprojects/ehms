@@ -8,7 +8,8 @@ import {
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
   UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star, BadgePercent,
   Settings, DollarSign, Layers, CheckCircle, Ticket, Package, FileText, Database,
-  BookOpen, Receipt, Landmark, BarChart3, PiggyBank, ScrollText, Calculator, FolderOpen, Globe
+  BookOpen, Receipt, Landmark, BarChart3, PiggyBank, ScrollText, Calculator, FolderOpen, Globe,
+  ChevronDown,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
@@ -72,7 +73,16 @@ const ALL_NAV_ITEMS = [
   { label: "Inv Transactions", icon: FileText,     href: "/dashboard/inventory/transactions", roles: ["super_admin","executive","property_manager","maintenance_supervisor","finance_manager"] },
 ];
 
-const PRIMARY_LABELS = ["Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio", "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff", "Maintenance", "Tickets", "Parts", "Assets", "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget", "Tax", "Fixed Assets", "Reports", "Fin Settings", "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance", "Masters", "Policies", "Appraisal", "Compensation", "Admin", "Tenants", "Workspaces", "Roles", "Audit Trail", "Backup", "Users", "Vendors", "Inventory", "Inv Items", "Inv Transactions"];
+const NAV_GROUPS = [
+  { label: "Front Desk & Guests",   icon: CalendarCheck, items: ["Dashboard","Command Center","Guest Profiles","Check-Ins","Billing & Folio","F&B / Pantry","Requests","Feedbacks"] },
+  { label: "Properties & Verticals", icon: Building2,    items: ["Hotels","Apartments","Rental","Workplace"] },
+  { label: "Housekeeping",           icon: Sparkles,     items: ["Housekeeping","HK Tasks","Linen","Inspections","HK Staff"] },
+  { label: "Maintenance",            icon: Wrench,       items: ["Maintenance","Tickets","Parts","Assets"] },
+  { label: "Finance & Accounts",     icon: CreditCard,   items: ["Finance","Chart of Accts","Journal","Ledger","Receivables","Payables","Budget","Tax","Fixed Assets","Reports","Fin Settings"] },
+  { label: "Human Resources",        icon: Users,        items: ["HRMS","Employees","Timesheets","Leave","Payroll","Compliance","Masters","Policies","Appraisal","Compensation"] },
+  { label: "Administration",         icon: Shield,       items: ["Admin","Tenants","Workspaces","Roles","Audit Trail","Backup","Users"] },
+  { label: "Procurement & Inventory", icon: Package,     items: ["Vendors","Inventory","Inv Items","Inv Transactions"] },
+];
 
 const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
   all: [
@@ -132,6 +142,8 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
   ]
 };
 
+const navItemMap = new Map(ALL_NAV_ITEMS.map((item) => [item.label, item]));
+
 function getLocalDemoUser(): UserProfile | null {
   try { const r = localStorage.getItem("ehms_demo_session"); return r ? JSON.parse(r) : null; } catch { return null; }
 }
@@ -139,7 +151,7 @@ function getLocalDemoUser(): UserProfile | null {
 export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; onMobileClose?: () => void }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [showAll, setShowAll] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(NAV_GROUPS.map((g) => g.label)));
   const { user: authUser } = useAuth();
   const [fallbackUser, setFallbackUser] = useState<UserProfile | null>(null);
   const { settings } = useGlobalSettings();
@@ -147,45 +159,72 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
 
   useEffect(() => {
     const demo = getLocalDemoUser();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (demo) setFallbackUser(demo);
   }, []);
 
   const user = authUser || fallbackUser;
   const role = user?.role_name || "unknown";
 
-  const visibleItems = ALL_NAV_ITEMS.map((item) => {
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
+
+  const visibleItemSet = new Set(ALL_NAV_ITEMS.map((item) => {
     if (item.label === "Dashboard") {
       const targetHref = activeJourney === "all" ? "/dashboard" : `/dashboard/${activeJourney}`;
-      if (hasAccess(role, targetHref)) {
-        return { ...item, href: targetHref };
-      }
+      if (hasAccess(role, targetHref)) return { ...item, href: targetHref };
     }
     return item;
   }).filter((item) => {
     if (!item.roles.includes(role) || !hasAccess(role, item.href)) return false;
-    
-    // Platform admin sees only their items — no journey filtering
     if (role === "platform_super_admin") return true;
-    
-    // Filter based on active journey mapping
     const allowedForJourney = JOURNEY_ALLOWED_ITEMS[activeJourney] || JOURNEY_ALLOWED_ITEMS.all;
     if (!allowedForJourney.includes(item.label)) return false;
-    
     return true;
-  });
+  }).map((item) => item.label));
 
-  const primaryNav = visibleItems.filter((item) =>
-    PRIMARY_LABELS.includes(item.label)
-  );
-  const secondaryNav = visibleItems.filter(
-    (item) => !PRIMARY_LABELS.includes(item.label)
-  );
+  function itemIsVisible(label: string): boolean {
+    return visibleItemSet.has(label);
+  }
 
-  const navItems = showAll ? visibleItems : primaryNav;
+  function renderItem(label: string) {
+    const def = navItemMap.get(label);
+    if (!def) return null;
+    const href = label === "Dashboard"
+      ? (activeJourney === "all" ? "/dashboard" : `/dashboard/${activeJourney}`)
+      : def.href;
+    const active = isActive(href);
+    return (
+      <Link
+        key={href + label}
+        href={href}
+        onClick={onMobileClose}
+        className="flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative"
+        style={{
+          background: active ? "rgba(255,255,255,0.10)" : "transparent",
+          color: active ? "#FFFFFF" : "rgba(255,255,255,0.60)",
+          borderLeft: active ? `3px solid ${settings.secondary_color}` : "3px solid transparent",
+        }}
+        onMouseEnter={(e) => {
+          if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+        }}
+        onMouseLeave={(e) => {
+          if (!active) e.currentTarget.style.background = "transparent";
+        }}
+      >
+        <def.icon className="w-4 h-4 shrink-0" />
+        {!collapsed && <span className="truncate">{label}</span>}
+      </Link>
+    );
+  }
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  function toggleGroup(label: string) {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  }
 
   const sidebarContent = (
     <>
@@ -206,41 +245,51 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
         )}
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-4 space-y-0.5">
-        {navItems.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={item.href + item.label}
-              href={item.href}
-              onClick={onMobileClose}
-              className="flex items-center gap-3 mx-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all relative"
-              style={{
-                background: active ? "rgba(255,255,255,0.10)" : "transparent",
-                color: active ? "#FFFFFF" : "rgba(255,255,255,0.60)",
-                borderLeft: active ? `3px solid ${settings.secondary_color}` : "3px solid transparent",
-              }}
-              onMouseEnter={(e) => {
-                if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-              }}
-              onMouseLeave={(e) => {
-                if (!active) e.currentTarget.style.background = "transparent";
-              }}
-            >
-              <item.icon className="w-4 h-4 shrink-0" />
-              {!collapsed && <span className="truncate">{item.label}</span>}
-            </Link>
-          );
-        })}
-
-        {!collapsed && visibleItems.length > primaryNav.length && (
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-xs w-full text-left transition-all"
-            style={{ color: "rgba(255,255,255,0.40)" }}
-          >
-            <span>{showAll ? "← Less" : `More → (${secondaryNav.length})`}</span>
-          </button>
+      <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+        {collapsed ? (
+          ALL_NAV_ITEMS.filter((item) => itemIsVisible(item.label)).map((item) => {
+            const href = item.label === "Dashboard"
+              ? (activeJourney === "all" ? "/dashboard" : `/dashboard/${activeJourney}`)
+              : item.href;
+            const active = isActive(href);
+            return (
+              <Link
+                key={href + item.label}
+                href={href}
+                onClick={onMobileClose}
+                className="flex items-center justify-center mx-1 p-2 rounded-lg text-sm font-medium transition-all relative"
+                style={{
+                  background: active ? "rgba(255,255,255,0.10)" : "transparent",
+                  color: active ? "#FFFFFF" : "rgba(255,255,255,0.60)",
+                }}
+                title={item.label}
+              >
+                <item.icon className="w-4 h-4 shrink-0" />
+              </Link>
+            );
+          })
+        ) : (
+          NAV_GROUPS.map((group) => {
+            const visible = group.items.filter(itemIsVisible);
+            if (visible.length === 0) return null;
+            const open = expandedGroups.has(group.label);
+            return (
+              <div key={group.label} className="space-y-0.5">
+                <button
+                  onClick={() => toggleGroup(group.label)}
+                  className="flex items-center gap-2 w-full mx-2 px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all"
+                  style={{ color: "rgba(255,255,255,0.35)" }}
+                >
+                  <group.icon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{group.label}</span>
+                  <ChevronDown
+                    className={`w-3 h-3 ml-auto shrink-0 transition-transform ${open ? "rotate-0" : "-rotate-90"}`}
+                  />
+                </button>
+                {open && visible.map((label) => renderItem(label))}
+              </div>
+            );
+          })
         )}
       </nav>
 
