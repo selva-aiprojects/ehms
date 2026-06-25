@@ -18,10 +18,11 @@ let _publicSql: WrappedSql | null = null;
 
 function makeWrappedSql(schema: string): WrappedSql {
   const sql = neon(databaseUrl) as SqlFn;
+  const setPathSQL = `SET search_path TO ${schema}, public`;
 
   const wrapped = (async (strings: TemplateStringsArray, ...values: unknown[]) => {
     const results = await sql.transaction([
-      sql`SET search_path TO ${schema}, public`,
+      sql.query(setPathSQL),
       sql(strings, ...values),
     ]);
     return results[1] as Record<string, unknown>[];
@@ -29,7 +30,7 @@ function makeWrappedSql(schema: string): WrappedSql {
 
   wrapped.query = ((text: string, params?: unknown[], opts?: Record<string, unknown>) => {
     return sql.transaction([
-      sql`SET search_path TO ${schema}, public`,
+      sql.query(setPathSQL),
       sql.query(text, params, opts),
     ]).then((results: unknown[]) => results[1]);
   }) as WrappedSql["query"];
