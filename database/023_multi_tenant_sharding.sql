@@ -46,12 +46,13 @@ BEGIN
         EXECUTE format('ALTER TYPE public.%I SET SCHEMA viswa;', obj.name);
     END LOOP;
 
-    -- Move all BASE TABLEs
+    -- Move all BASE TABLEs (exclude registry tables that must stay in public)
     FOR obj IN
         SELECT table_name AS name
         FROM information_schema.tables
         WHERE table_schema = 'public'
           AND table_type = 'BASE TABLE'
+          AND table_name NOT IN ('tenants', 'platform_admins')
     LOOP
         EXECUTE format('ALTER TABLE IF EXISTS public.%I SET SCHEMA viswa;', obj.name);
     END LOOP;

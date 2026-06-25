@@ -30,13 +30,97 @@ const sql = neon(DB_URL);
 
 function splitStatements(content) {
   const noComments = content.replace(/--.*$/gm, "").trim();
-  return noComments
-    .split(";")
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
+  const statements = [];
+  let current = "";
+  let inDollar = false;
+  let dollarTag = "";
+  let inSingleQuote = false;
+
+  for (let i = 0; i < noComments.length; i++) {
+    const ch = noComments[i];
+    const next = noComments[i + 1] || "";
+
+    // Toggle single-quote (skip if preceded by backslash)
+    if (ch === "'" && (i === 0 || noComments[i - 1] !== "\\")) {
+      if (!inDollar) inSingleQuote = !inSingleQuote;
+    }
+
+    // Detect dollar-quote start
+    if (!inSingleQuote && !inDollar && ch === "$" && next === "$") {
+      inDollar = true;
+      dollarTag = "$$";
+      current += ch + next;
+      i++;
+      continue;
+    }
+    // Detect tagged dollar-quote start (e.g., $func$)
+    if (!inSingleQuote && !inDollar && ch === "$") {
+      let j = i + 1;
+      while (j < noComments.length && /[a-zA-Z0-9_]/.test(noComments[j])) j++;
+      if (j < noComments.length && noComments[j] === "$") {
+        inDollar = true;
+        dollarTag = noComments.slice(i, j + 1);
+        current += dollarTag;
+        i = j;
+        continue;
+      }
+    }
+
+    // Detect dollar-quote end
+    if (inDollar && noComments.startsWith(dollarTag, i)) {
+      const endLen = dollarTag.length;
+      current += dollarTag;
+      i += endLen - 1;
+      inDollar = false;
+      dollarTag = "";
+      continue;
+    }
+
+    // Top-level semicolon = statement boundary
+    if (!inDollar && !inSingleQuote && ch === ";") {
+      const trimmed = current.trim();
+      if (trimmed) statements.push(trimmed);
+      current = "";
+      continue;
+    }
+
+    current += ch;
+  }
+
+  const remaining = current.trim();
+  if (remaining) statements.push(remaining);
+  return statements;
 }
 
 async function run() {
+  // ── Step 0: Clean up any leftover eHMS objects from public schema ──
+  console.log("🧹 Cleaning public schema of leftover eHMS objects...");
+  const oldTables = await sql.query(`
+    SELECT table_name FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+      AND table_name NOT IN ('tenants', 'platform_admins')
+  `);
+  for (const t of oldTables) {
+    await sql.query(`DROP TABLE IF EXISTS public.${t.table_name} CASCADE`);
+  }
+
+  const oldTypes = await sql.query(`
+    SELECT t.typname FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'public' AND t.typtype = 'e'
+  `);
+  for (const t of oldTypes) {
+    await sql.query(`DROP TYPE IF EXISTS public.${t.typname} CASCADE`);
+  }
+
+  const oldSeqs = await sql.query(`
+    SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = 'public'
+  `);
+  for (const s of oldSeqs) {
+    await sql.query(`DROP SEQUENCE IF EXISTS public.${s.sequence_name}`);
+  }
+  console.log("  Done.");
+
   // ── Step 1: Reset tenant schema (preserve public for extensions) ──
   console.log(`🧹 Dropping tenant schema "${TENANT_SCHEMA}" for clean rebuild...`);
   await sql.query(`DROP SCHEMA IF EXISTS ${TENANT_SCHEMA} CASCADE`);
@@ -91,8 +175,9 @@ async function run() {
     console.log(`▶ ${file} (${statements.length} statements)`);
     for (const stmt of statements) {
       try {
-        // Re-assert search_path before each file in case a migration changes it
-        await sql.query(`SET search_path TO ${TENANT_SCHEMA}, public; ${stmt};`);
+        // Re-assert search_path before each statement
+        await sql.query(`SET search_path TO ${TENANT_SCHEMA}, public`);
+        await sql.query(`${stmt};`);
       } catch (err) {
         console.error(`  ✗ Error: ${err.message}`);
         console.error(`  Statement: ${stmt.substring(0, 120)}...`);
@@ -109,7 +194,8 @@ async function run() {
     const shardingStatements = splitStatements(shardingContent);
     for (const stmt of shardingStatements) {
       try {
-        await sql.query(`SET search_path TO public; ${stmt};`);
+        await sql.query(`SET search_path TO public`);
+        await sql.query(`${stmt};`);
       } catch (err) {
         console.error(`  ✗ Error: ${err.message}`);
         console.error(`  Statement: ${stmt.substring(0, 120)}...`);
@@ -126,9 +212,11 @@ async function run() {
     const platformStatements = splitStatements(platformContent);
     for (const stmt of platformStatements) {
       try {
-        await sql.query(`SET search_path TO public; ${stmt};`);
+        await sql.query(`SET search_path TO public`);
+        await sql.query(`${stmt};`);
       } catch (err) {
         console.error(`  ✗ Error: ${err.message}`);
+        console.error(`  Statement: ${stmt.substring(0, 120)}...`);
         process.exit(1);
       }
     }
