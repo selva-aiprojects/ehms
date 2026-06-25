@@ -118,7 +118,25 @@ async function run() {
     }
   }
 
-  // ── Step 6: Verify ──
+  // ── Step 6: Run platform admins migration ──
+  console.log("▶ 024_platform_admins.sql (public schema)");
+  const platformPath = join(DATABASE_DIR, "024_platform_admins.sql");
+  if (existsSync(platformPath)) {
+    const platformContent = readFileSync(platformPath, "utf-8");
+    const platformStatements = splitStatements(platformContent);
+    for (const stmt of platformStatements) {
+      try {
+        await sql.query(`SET search_path TO public; ${stmt};`);
+      } catch (err) {
+        console.error(`  ✗ Error: ${err.message}`);
+        process.exit(1);
+      }
+    }
+    const adminCount = await sql.query("SELECT count(*) AS cnt FROM public.platform_admins");
+    console.log(`  Platform admins: ${adminCount[0].cnt}`);
+  }
+
+  // ── Step 7: Verify ──
   console.log("\n✅ Migration complete. Verifying tables...");
   const tables = await sql.query(
     `SELECT table_name FROM information_schema.tables WHERE table_schema = '${TENANT_SCHEMA}' ORDER BY table_name`

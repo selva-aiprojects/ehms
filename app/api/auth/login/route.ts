@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb, getPublicDb } from "@/lib/db";
-import { signToken, comparePassword } from "@/lib/auth";
+import { signToken, comparePassword, type Vertical } from "@/lib/auth";
 import { DEMO_ROLE_MAP } from "@/lib/role-access";
 
 const DEMO_EMAILS = new Set(Object.keys(DEMO_ROLE_MAP));
-const DEMO_PASSWORD = "Demo@1234";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,16 +19,37 @@ export async function POST(req: NextRequest) {
 
     const publicSql = getPublicDb();
     const tenantRows = await publicSql`
-      SELECT id, name, code, schema_name, is_active
-      FROM public.tenants WHERE code = ${tenant_code} AND is_active = true LIMIT 1
+      SELECT id, name, code, schema_name, is_active, config
+      FROM public.tenants WHERE code = ${tenant_code} LIMIT 1
     `;
     const tenant = (tenantRows as Record<string, unknown>[])[0];
 
     if (!tenant) {
-      return NextResponse.json({ error: "Invalid or inactive tenant" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid tenant" }, { status: 401 });
+    }
+
+    const config = (tenant.config as Record<string, unknown>) || {};
+    const suspended = config.suspended === true;
+
+    if (suspended) {
+      return NextResponse.json({
+        error: "This tenant account has been suspended. Contact your platform administrator.",
+        suspended: true,
+      }, { status: 403 });
+    }
+
+    if (tenant.is_active !== true) {
+      return NextResponse.json({ error: "This tenant is not active" }, { status: 401 });
     }
 
     const targetSchema = tenant.schema_name as string;
+    const tenantName = tenant.name as string;
+
+    let tenantVerticals: Vertical[] = (config.verticals as Vertical[]) || [];
+    if (tenantVerticals.length === 0) {
+      tenantVerticals = ["hotels", "apartments", "rental", "workplace"];
+    }
+
     const sql = getDb(targetSchema);
 
     const isDemoUser = DEMO_EMAILS.has(email.toLowerCase());
@@ -102,6 +122,8 @@ export async function POST(req: NextRequest) {
       avatar_url: user.avatar_url as string | null,
       tenant_code,
       tenant_schema: targetSchema,
+      tenant_name: tenantName,
+      tenant_verticals: tenantVerticals,
     };
 
     const token = signToken(payload);
@@ -119,9 +141,11 @@ export async function POST(req: NextRequest) {
         role_id: payload.role_id,
         tenant_code,
         tenant_schema: targetSchema,
+        tenant_name: tenantName,
+        tenant_verticals: tenantVerticals,
       },
       token,
-      tenant: { name: (tenant as Record<string, unknown>).name, code: tenant_code },
+      tenant: { name: tenantName, code: tenant_code, verticals: tenantVerticals },
     });
 
     response.cookies.set("ehms_token", token, {

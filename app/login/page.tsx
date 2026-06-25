@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Building2, ArrowRight, Eye, EyeOff, ChevronDown, Hotel, Home, LayoutDashboard, Briefcase, Server, ArrowLeft, Shield } from "lucide-react";
+import { Building2, ArrowRight, Eye, EyeOff, ChevronDown, Hotel, Home, LayoutDashboard, Briefcase, Server, ArrowLeft, Ban, CheckCircle } from "lucide-react";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useJourney, type VerticalJourney } from "@/components/providers/JourneyProvider";
@@ -25,18 +25,27 @@ interface TenantInfo {
   code: string;
   schema_name: string;
   logo_url: string | null;
+  config: Record<string, unknown> | null;
 }
+
+const VERTICAL_LABELS: Record<string, string> = {
+  hotels: "Hotels & Resorts",
+  apartments: "Serviced Apartments",
+  rental: "Apartment Rental",
+  workplace: "Workplace",
+};
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { activeJourney, setJourney } = useJourney();
+  const { activeJourney, setJourney, allowedJourneys } = useJourney();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suspended, setSuspended] = useState(false);
   const [remember, setRemember] = useState(false);
   const [tenant, setTenant] = useState<TenantInfo | null>(null);
   const [tenantLoading, setTenantLoading] = useState(true);
@@ -65,6 +74,7 @@ function LoginContent() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuspended(false);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -79,12 +89,17 @@ function LoginContent() {
       if (res.ok) {
         if (data.user) {
           localStorage.setItem("ehms_demo_session", JSON.stringify(data.user));
+          localStorage.setItem("ehms_tenant_verticals", JSON.stringify(data.user.tenant_verticals || []));
+          localStorage.setItem("ehms_tenant_name", data.tenant?.name || "");
         }
         const targetDashboard = activeJourney === "all" ? "/dashboard" : `/dashboard/${activeJourney}`;
         router.push(targetDashboard);
         router.refresh();
         setLoading(false);
         return;
+      }
+      if (data.suspended) {
+        setSuspended(true);
       }
       setError(data.error || "Login failed");
     } catch {
@@ -93,12 +108,23 @@ function LoginContent() {
     setLoading(false);
   }
 
+  function getTenantVerticals(t: TenantInfo): string[] {
+    const config = t.config || {};
+    const v = config.verticals as string[] | undefined;
+    return v && v.length > 0 ? v : ["hotels", "apartments", "rental", "workplace"];
+  }
+
+  function isSuspended(t: TenantInfo): boolean {
+    const config = t.config || {};
+    return config.suspended === true;
+  }
+
   if (!tenantCode) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1A2E" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
         <div className="text-center max-w-sm">
           <Server className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(245,247,250,0.15)" }} />
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#F5F7FA" }}>No Tenant Selected</h2>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#F5F7FA" }}>No Organization Selected</h2>
           <p className="text-sm mb-6" style={{ color: "rgba(245,247,250,0.5)" }}>
             Please select an organization shard before signing in.
           </p>
@@ -107,7 +133,7 @@ function LoginContent() {
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
             style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
           >
-            <ArrowLeft className="w-4 h-4" /> Browse Tenants
+            <ArrowLeft className="w-4 h-4" /> Browse Organizations
           </Link>
         </div>
       </div>
@@ -116,10 +142,10 @@ function LoginContent() {
 
   if (tenantLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1A2E" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm" style={{ color: "rgba(245,247,250,0.5)" }}>Loading tenant...</p>
+          <p className="text-sm" style={{ color: "rgba(245,247,250,0.5)" }}>Loading organization...</p>
         </div>
       </div>
     );
@@ -127,19 +153,46 @@ function LoginContent() {
 
   if (!tenant) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0B1A2E" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
         <div className="text-center max-w-sm">
           <Server className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(245,247,250,0.15)" }} />
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#F5F7FA" }}>Tenant Not Found</h2>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#F5F7FA" }}>Organization Not Found</h2>
           <p className="text-sm mb-6" style={{ color: "rgba(245,247,250,0.5)" }}>
-            No tenant with code &quot;{tenantCode}&quot; exists.
+            No organization with code &quot;{tenantCode}&quot; exists.
           </p>
           <Link
             href="/tenants"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
             style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
           >
-            <ArrowLeft className="w-4 h-4" /> Browse Tenants
+            <ArrowLeft className="w-4 h-4" /> Browse Organizations
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const tenantVerticals = getTenantVerticals(tenant);
+  const tenantSuspended = isSuspended(tenant);
+
+  if (tenantSuspended) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
+        <div className="text-center max-w-sm">
+          <Ban className="w-12 h-12 mx-auto mb-4" style={{ color: "#E53E3E" }} />
+          <h2 className="text-xl font-bold mb-2" style={{ color: "#F5F7FA" }}>Account Suspended</h2>
+          <p className="text-sm mb-2" style={{ color: "rgba(245,247,250,0.6)" }}>
+            <strong>{tenant.name}</strong> has been suspended.
+          </p>
+          <p className="text-sm mb-6" style={{ color: "rgba(245,247,250,0.5)" }}>
+            Contact your platform administrator for assistance.
+          </p>
+          <Link
+            href="/tenants"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+            style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
+          >
+            <ArrowLeft className="w-4 h-4" /> Browse Organizations
           </Link>
         </div>
       </div>
@@ -195,6 +248,24 @@ function LoginContent() {
             <ArrowLeft className="w-3 h-3 opacity-60" />
           </Link>
 
+          {/* Subscribed verticals */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {tenantVerticals.map((v) => (
+              <span
+                key={v}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium"
+                style={{
+                  background: "rgba(43,174,142,0.06)",
+                  color: "rgba(43,174,142,0.7)",
+                  border: "1px solid rgba(43,174,142,0.1)",
+                }}
+              >
+                <CheckCircle className="w-2.5 h-2.5" />
+                {VERTICAL_LABELS[v] || v}
+              </span>
+            ))}
+          </div>
+
           <h2 className="text-2xl font-bold mb-1" style={{ color: "#1A3C5E" }}>eHMS Portal</h2>
           <p className="text-sm mb-6" style={{ color: "#64748B" }}>Access your hospitality workspace</p>
 
@@ -209,10 +280,10 @@ function LoginContent() {
                   style={{ borderColor: "#E2E8F0" }}
                 >
                   <option value="all">All Workspaces</option>
-                  <option value="hotels">Hotels & Resorts</option>
-                  <option value="apartments">Serviced Apartments</option>
-                  <option value="rental">Apartment Rental (Long-term)</option>
-                  <option value="workplace">Workplace Management</option>
+                  {allowedJourneys.includes("hotels") && <option value="hotels">Hotels & Resorts</option>}
+                  {allowedJourneys.includes("apartments") && <option value="apartments">Serviced Apartments</option>}
+                  {allowedJourneys.includes("rental") && <option value="rental">Apartment Rental (Long-term)</option>}
+                  {allowedJourneys.includes("workplace") && <option value="workplace">Workplace Management</option>}
                 </select>
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#2BAE8E" }}>
                   {activeJourney === "all" && <LayoutDashboard className="w-4 h-4" />}
@@ -295,7 +366,11 @@ function LoginContent() {
             </div>
 
             {error && (
-              <div className="rounded-lg px-4 py-2.5 text-sm" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+              <div className="rounded-lg px-4 py-2.5 text-sm" style={{
+                background: suspended ? "rgba(229,62,62,0.08)" : "rgba(229,62,62,0.08)",
+                color: "#E53E3E",
+                border: `1px solid rgba(229,62,62,0.2)`,
+              }}>
                 {error}
               </div>
             )}

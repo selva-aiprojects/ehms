@@ -8,7 +8,7 @@ import {
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
   UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star, BadgePercent,
   Settings, DollarSign, Layers, CheckCircle, Ticket, Package, FileText, Database,
-  BookOpen, Receipt, Landmark, BarChart3, PiggyBank, ScrollText, Calculator, FolderOpen
+  BookOpen, Receipt, Landmark, BarChart3, PiggyBank, ScrollText, Calculator, FolderOpen, Globe
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
@@ -17,7 +17,7 @@ import { useGlobalSettings } from "@/components/providers/SettingsProvider";
 import { useJourney, type VerticalJourney } from "@/components/providers/JourneyProvider";
 
 const ALL_NAV_ITEMS = [
-  { label: "Dashboard",    icon: LayoutDashboard, href: "/dashboard", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor","housekeeping_staff","maintenance_staff","maintenance_supervisor","hr_manager","hr_executive","finance_manager","finance_executive","security_staff","vendor_user","workplace_facility_manager"] },
+  { label: "Dashboard",    icon: LayoutDashboard, href: "/dashboard", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor","housekeeping_staff","maintenance_staff","maintenance_supervisor","hr_manager","hr_executive","finance_manager","finance_executive","security_staff","vendor_user","workplace_facility_manager","platform_super_admin"] },
   { label: "Command Center",icon: CalendarCheck,  href: "/dashboard/front-desk", roles: ["super_admin","executive","front_desk"] },
   { label: "Guest Profiles",icon: Users,          href: "/dashboard/front-desk/guests", roles: ["super_admin","executive","front_desk"] },
   { label: "Check-Ins",     icon: ClipboardList,  href: "/dashboard/front-desk/check-ins", roles: ["super_admin","executive","front_desk"] },
@@ -60,6 +60,7 @@ const ALL_NAV_ITEMS = [
   { label: "Appraisal",    icon: Star,             href: "/dashboard/hr/appraisal", roles: ["super_admin","executive","hr_manager","hr_executive"] },
   { label: "Compensation", icon: DollarSign,       href: "/dashboard/hr/compensation", roles: ["super_admin","executive","hr_manager","hr_executive"] },
   { label: "Admin",          icon: UserCog,         href: "/dashboard/admin", roles: ["super_admin","executive","property_manager"] },
+  { label: "Tenants",       icon: Globe,           href: "/dashboard/admin/tenants", roles: ["super_admin","executive","platform_super_admin"] },
   { label: "Workspaces",    icon: Building2,       href: "/dashboard/admin/properties", roles: ["super_admin","executive","property_manager"] },
   { label: "Roles",         icon: Shield,          href: "/dashboard/admin/roles", roles: ["super_admin","executive"] },
   { label: "Audit Trail",   icon: FileText,        href: "/dashboard/admin/audit", roles: ["super_admin","executive"] },
@@ -71,7 +72,7 @@ const ALL_NAV_ITEMS = [
   { label: "Inv Transactions", icon: FileText,     href: "/dashboard/inventory/transactions", roles: ["super_admin","executive","property_manager","maintenance_supervisor","finance_manager"] },
 ];
 
-const PRIMARY_LABELS = ["Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio", "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff", "Maintenance", "Tickets", "Parts", "Assets", "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget", "Tax", "Fixed Assets", "Reports", "Fin Settings", "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance", "Masters", "Policies", "Appraisal", "Compensation", "Admin", "Workspaces", "Roles", "Audit Trail", "Backup", "Users", "Vendors", "Inventory", "Inv Items", "Inv Transactions"];
+const PRIMARY_LABELS = ["Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio", "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental", "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff", "Maintenance", "Tickets", "Parts", "Assets", "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget", "Tax", "Fixed Assets", "Reports", "Fin Settings", "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance", "Masters", "Policies", "Appraisal", "Compensation", "Admin", "Tenants", "Workspaces", "Roles", "Audit Trail", "Backup", "Users", "Vendors", "Inventory", "Inv Items", "Inv Transactions"];
 
 const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
   all: [
@@ -85,7 +86,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Vendors", "Inventory", "Inv Items", "Inv Transactions"
+    "Users", "Tenants", "Vendors", "Inventory", "Inv Items", "Inv Transactions"
   ],
   hotels: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
@@ -96,7 +97,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Vendors", "Inventory", "Inv Items", "Inv Transactions"
+    "Users", "Tenants", "Vendors", "Inventory", "Inv Items", "Inv Transactions"
   ],
   apartments: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
@@ -107,7 +108,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Vendors", "Inventory", "Inv Items", "Inv Transactions"
+    "Users", "Tenants", "Vendors", "Inventory", "Inv Items", "Inv Transactions"
   ],
   rental: [
     "Dashboard", "Rental", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
@@ -127,7 +128,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Vendors", "Inventory", "Inv Items", "Inv Transactions"
+    "Users", "Tenants", "Vendors", "Inventory", "Inv Items", "Inv Transactions"
   ]
 };
 
@@ -163,6 +164,9 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
     return item;
   }).filter((item) => {
     if (!item.roles.includes(role) || !hasAccess(role, item.href)) return false;
+    
+    // Platform admin sees only their items — no journey filtering
+    if (role === "platform_super_admin") return true;
     
     // Filter based on active journey mapping
     const allowedForJourney = JOURNEY_ALLOWED_ITEMS[activeJourney] || JOURNEY_ALLOWED_ITEMS.all;

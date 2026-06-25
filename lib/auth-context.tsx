@@ -10,9 +10,12 @@ export interface UserProfile {
   last_name: string | null;
   avatar_url: string | null;
   role_name: string;
-  role_id: string;
-  tenant_code: string;
-  tenant_schema: string;
+  is_platform_admin: boolean;
+  // Shard tenant fields (undefined for platform admins)
+  tenant_code?: string;
+  tenant_schema?: string;
+  tenant_name?: string;
+  tenant_verticals?: string[];
 }
 
 interface AuthState {
@@ -54,6 +57,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } catch {}
+    // Clear tenant-specific storage
+    localStorage.removeItem("ehms_tenant_verticals");
+    localStorage.removeItem("ehms_tenant_name");
     setState({ user: null, loading: false, error: null });
     router.push("/");
     router.refresh();

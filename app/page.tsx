@@ -6,7 +6,7 @@ import {
   Building2, Hotel, Home, Briefcase, ChevronRight,
   Shield, Users, LayoutDashboard, BarChart3, Key,
   Globe, Server, Database, ArrowUpRight, Menu, X,
-  GraduationCap, Sparkles
+  GraduationCap, Sparkles, ChevronDown, CheckCircle
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 
@@ -39,7 +39,7 @@ export default function LandingPage() {
     `opacity-0 animate-slide-up ${visibleSections["hero"] ? delay : "animation-delay-500"}`;
 
   return (
-    <div className="min-h-screen" style={{ background: "#0B1A2E", color: "#F5F7FA" }}>
+    <div className="min-h-screen" style={{ background: "var(--color-dark-navy)", color: "var(--color-light)" }}>
       {/* ─── NAV ─── */}
       <nav
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
@@ -119,7 +119,6 @@ export default function LandingPage() {
         ref={observeRef}
         className="relative min-h-screen flex items-center overflow-hidden"
       >
-        {/* Animated gradient background */}
         <div
           className="absolute inset-0 animate-gradient"
           style={{
@@ -127,8 +126,6 @@ export default function LandingPage() {
             backgroundSize: "400% 400%",
           }}
         />
-
-        {/* Glow orbs */}
         <div
           className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full animate-pulse-glow pointer-events-none"
           style={{ background: "radial-gradient(circle, rgba(43,174,142,0.12) 0%, transparent 70%)" }}
@@ -149,14 +146,14 @@ export default function LandingPage() {
               </div>
 
               <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4 opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-200" : ""}`}>
-                <span style={{ color: "#FFFFFF" }}>Enterprise Hospitality<br/>Managed by </span>
-                <span style={{ color: "#2BAE8E" }}>Viswa Group</span>
+                <span style={{ color: "#FFFFFF" }}>Enterprise Hospitality<br/>Powered by </span>
+                <span style={{ color: "#2BAE8E" }}>eHMS</span>
               </h1>
 
               <p className={`text-lg sm:text-xl mb-8 max-w-xl leading-relaxed opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-300" : ""}`}
                 style={{ color: "rgba(245,247,250,0.6)" }}
               >
-                A unified multi-vertical platform powering hotels, serviced apartments,
+                A unified multi-tenant platform powering hotels, serviced apartments,
                 rental properties, and workplace management — with isolated tenant
                 architecture for enterprise-grade security.
               </p>
@@ -188,38 +185,34 @@ export default function LandingPage() {
                   backdropFilter: "blur(4px)",
                 }}
               >
-                {/* Floating decorative elements */}
-                <div className="absolute top-8 left-8 p-4 rounded-xl animate-float"
-                  style={{ background: "rgba(43,174,142,0.1)", border: "1px solid rgba(43,174,142,0.15)" }}>
-                  <Hotel className="w-8 h-8" style={{ color: "#2BAE8E" }} />
-                </div>
-                <div className="absolute top-12 right-10 p-4 rounded-xl animate-float"
-                  style={{ background: "rgba(212,168,83,0.08)", border: "1px solid rgba(212,168,83,0.15)", animationDelay: "1s" }}>
-                  <Building2 className="w-8 h-8" style={{ color: "#D4A853" }} />
-                </div>
-                <div className="absolute bottom-14 left-12 p-4 rounded-xl animate-float"
-                  style={{ background: "rgba(77,184,138,0.08)", border: "1px solid rgba(77,184,138,0.15)", animationDelay: "2s" }}>
-                  <Home className="w-8 h-8" style={{ color: "#4DB88A" }} />
-                </div>
-                <div className="absolute bottom-10 right-12 p-4 rounded-xl animate-float"
-                  style={{ background: "rgba(245,247,250,0.05)", border: "1px solid rgba(245,247,250,0.1)", animationDelay: "3s" }}>
-                  <Briefcase className="w-8 h-8" style={{ color: "rgba(245,247,250,0.7)" }} />
-                </div>
-                {/* Center globe */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full animate-spin-slow"
-                    style={{ background: "conic-gradient(from 0deg, #2BAE8E, #D4A853, #4DB88A, #2BAE8E)" }} />
-                </div>
-                <div className="absolute bottom-6 inset-x-6 p-3 rounded-lg text-center text-xs font-mono"
-                  style={{ background: "rgba(11,26,46,0.7)", color: "rgba(245,247,250,0.6)" }}>
-                  <span style={{ color: "#2BAE8E" }}>$ </span>schema → viswa · tenant → VISWA
+                <div className="p-8 flex flex-col justify-center h-full">
+                  <div className="text-center mb-6">
+                    <div className="text-4xl font-bold mb-2" style={{ color: "#2BAE8E" }}>eHMS</div>
+                    <div className="text-xs tracking-widest uppercase" style={{ color: "rgba(245,247,250,0.4)" }}>
+                      Multi-Tenant Platform
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { label: "Tenants Secured", value: "1+" },
+                      { label: "Verticals", value: "4" },
+                      { label: "Tables per Tenant", value: "136" },
+                      { label: "API Routes", value: "100+" },
+                    ].map((s) => (
+                      <div key={s.label} className="flex justify-between items-center px-4 py-2 rounded-lg"
+                        style={{ background: "rgba(255,255,255,0.03)" }}
+                      >
+                        <span className="text-xs" style={{ color: "rgba(245,247,250,0.5)" }}>{s.label}</span>
+                        <span className="text-sm font-bold" style={{ color: "var(--color-gold)" }}>{s.value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 inset-x-0 flex justify-center opacity-0 animate-fade-in"
           style={{ animationDelay: "1.5s", animationFillMode: "forwards" }}>
           <div className="w-6 h-10 rounded-full border-2 flex justify-center pt-2"
@@ -229,23 +222,57 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── STATS ─── */}
-      <section
-        data-section="stats"
-        ref={observeRef}
-        className="py-16 lg:py-20"
+      {/* ─── TRUSTED BY ─── */}
+      <section data-section="trusted" ref={observeRef} className="py-16 lg:py-20"
         style={{ background: "rgba(15,36,56,0.5)" }}
       >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-xs font-semibold tracking-widest uppercase mb-8"
+            style={{ color: "rgba(245,247,250,0.3)" }}
+          >
+            Trusted By Leading Hospitality Groups
+          </p>
+          <div className="flex flex-wrap justify-center gap-8 items-center">
+            {[
+              { name: "Viswa Group of Estates", code: "VISWA", vert: "All 4 Verticals" },
+              { name: "GRT Group (Coming Soon)", code: "GRT", vert: "Hotels & Resorts" },
+              { name: "Raintree (Coming Soon)", code: "RAINTREE", vert: "Hotels, Apartments" },
+              { name: "DLF (Coming Soon)", code: "DLF", vert: "Rental, Workplace" },
+            ].map((t) => (
+              <div key={t.code} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center"
+                  style={{ background: "rgba(43,174,142,0.1)" }}
+                >
+                  <Building2 className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+                </div>
+                <div className="text-left">
+                  <div className="text-sm font-semibold" style={{ color: "#FFFFFF" }}>{t.name}</div>
+                  <div className="text-xs" style={{ color: "rgba(245,247,250,0.35)" }}>
+                    <span className="font-mono" style={{ color: "var(--color-gold)" }}>{t.code}</span> &middot; {t.vert}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── STATS ─── */}
+      <section data-section="stats" ref={observeRef} className="py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { value: "4+", label: "Business Verticals", icon: LayoutDashboard },
-              { value: "136+", label: "Database Tables", icon: Database },
-              { value: "50+", label: "API Endpoints", icon: Server },
+              { value: "136+", label: "Database Tables / Tenant", icon: Database },
+              { value: "100+", label: "API Endpoints", icon: Server },
               { value: "99.9%", label: "Platform Uptime", icon: Shield },
             ].map((stat, i) => (
-              <div
-                key={stat.label}
+              <div key={stat.label}
                 className={`text-center opacity-0 animate-slide-up ${visibleSections["stats"] ? `animation-delay-${(i + 1) * 100}` : ""}`}
               >
                 <stat.icon className="w-6 h-6 mx-auto mb-3" style={{ color: "#2BAE8E" }} />
@@ -258,7 +285,9 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PRODUCT ─── */}
-      <section id="product" data-section="product" ref={observeRef} className="py-20 lg:py-28">
+      <section id="product" data-section="product" ref={observeRef} className="py-20 lg:py-28"
+        style={{ background: "rgba(15,36,56,0.3)" }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase mb-4 border opacity-0 animate-slide-up ${visibleSections["product"] ? "animation-delay-100" : ""}`}
@@ -284,13 +313,9 @@ export default function LandingPage() {
               { icon: Home, title: "Apartment Rental", desc: "Long-term lease management with tenant onboarding, rent collection, deposit ledger, and maintenance coordination." },
               { icon: Briefcase, title: "Workplace Services", desc: "Coworking and managed office space with desk bookings, membership plans, visitor management, and access control." },
             ].map((v, i) => (
-              <div
-                key={v.title}
+              <div key={v.title}
                 className={`group p-6 rounded-2xl transition-all duration-300 hover:scale-[1.03] opacity-0 animate-slide-up ${visibleSections["product"] ? `animation-delay-${(i + 1) * 100 + 200}` : ""}`}
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                }}
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300"
                   style={{ background: "rgba(43,174,142,0.1)" }}>
@@ -305,41 +330,41 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PLATFORM (Multi-Tenant Architecture) ─── */}
-      <section id="platform" data-section="platform" ref={observeRef} className="py-20 lg:py-28"
-        style={{ background: "rgba(15,36,56,0.3)" }}>
+      <section id="platform" data-section="platform" ref={observeRef} className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase mb-4 border opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-100" : ""}`}
-                style={{ background: "rgba(212,168,83,0.1)", borderColor: "rgba(212,168,83,0.25)", color: "#D4A853" }}>
+                style={{ background: "rgba(212,168,83,0.1)", borderColor: "rgba(212,168,83,0.25)", color: "var(--color-gold)" }}>
                 <Shield className="w-3.5 h-3.5" /> Multi-Tenant by Design
               </div>
 
               <h2 className={`text-3xl sm:text-4xl font-bold mb-4 opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-200" : ""}`}
                 style={{ color: "#FFFFFF" }}>
                 Schema-Isolated{" "}
-                <span style={{ color: "#D4A853" }}>Tenant Architecture</span>
+                <span style={{ color: "var(--color-gold)" }}>Tenant Architecture</span>
               </h2>
 
               <p className={`text-base leading-relaxed mb-8 opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-300" : ""}`}
                 style={{ color: "rgba(245,247,250,0.55)" }}>
                 Every tenant gets their own PostgreSQL schema — complete data isolation
-                without the operational overhead of separate databases. Zero risk of
-                cross-tenant data leakage, independent backups, and per-tenant scaling.
+                without the operational overhead of separate databases. Each tenant also
+                picks which verticals to subscribe to, paying only for what they use.
               </p>
 
               <div className={`space-y-4 opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-400" : ""}`}>
                 {[
                   { icon: Shield, title: "Complete Data Isolation", desc: "Each tenant operates in an isolated PostgreSQL schema with its own tables, indexes, and sequences." },
                   { icon: Server, title: "Single Database, Infinite Tenants", desc: "All tenants share one database connection. New tenants provisioned in seconds via schema cloning." },
-                  { icon: Key, title: "Transparent to Application Code", desc: "Search path routing means zero changes to existing API routes. Just swap the schema context." },
-                  { icon: Globe, title: "Per-Tenant Configuration", desc: "Timezone, currency, vertical types, and feature flags configurable per tenant in the registry." },
+                  { icon: Key, title: "Per-Tenant Feature Selection", desc: "Tenants subscribe only to the verticals they need — Hotels, Apartments, Rental, Workplace, or any combination." },
+                  { icon: Globe, title: "Lifecycle Management", desc: "Provision, suspend, or remove tenants independently. Suspended tenants block all access while preserving data." },
                 ].map((f, i) => (
                   <div key={f.title} className="flex gap-4 p-4 rounded-xl"
-                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}
+                  >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                       style={{ background: "rgba(212,168,83,0.1)" }}>
-                      <f.icon className="w-5 h-5" style={{ color: "#D4A853" }} />
+                      <f.icon className="w-5 h-5" style={{ color: "var(--color-gold)" }} />
                     </div>
                     <div>
                       <div className="font-medium text-sm mb-0.5" style={{ color: "#FFFFFF" }}>{f.title}</div>
@@ -351,30 +376,25 @@ export default function LandingPage() {
             </div>
 
             <div className={`hidden lg:block opacity-0 animate-slide-left ${visibleSections["platform"] ? "animation-delay-300" : ""}`}>
-              <div
-                className="rounded-2xl p-6 font-mono text-xs leading-relaxed"
-                style={{
-                  background: "rgba(11,26,46,0.8)",
-                  border: "1px solid rgba(43,174,142,0.1)",
-                }}
+              <div className="rounded-2xl p-6 font-mono text-xs leading-relaxed"
+                style={{ background: "rgba(11,26,46,0.8)", border: "1px solid rgba(43,174,142,0.1)" }}
               >
                 <div style={{ color: "rgba(245,247,250,0.3)" }}>── tenant architecture ──</div>
                 <br/>
-                <span style={{ color: "#D4A853" }}>PostgreSQL</span> Cluster<br/>
+                <span style={{ color: "var(--color-gold)" }}>PostgreSQL</span> Cluster<br/>
                 ├── <span style={{ color: "#2BAE8E" }}>public</span> schema<br/>
-                │   ├── tenants &nbsp;&nbsp;<span style={{ color: "rgba(245,247,250,0.3)" }}>← registry</span><br/>
+                │   ├── tenants &nbsp;&nbsp;<span style={{ color: "rgba(245,247,250,0.3)" }}>← registry + config</span><br/>
                 │   └── extensions<br/>
                 │<br/>
-                ├── <span style={{ color: "#4DB88A" }}>viswa</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(245,247,250,0.3)" }}>← Viswa Group of Estates</span><br/>
-                │   ├── 136 tables<br/>
-                │   ├── 9 enums<br/>
-                │   └── seed data<br/>
+                ├── <span style={{ color: "#4DB88A" }}>viswa</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(245,247,250,0.3)" }}>← Viswa Group — all 4 verticals</span><br/>
                 │<br/>
-                ├── <span style={{ color: "rgba(245,247,250,0.3)" }}>tenant_abc</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(245,247,250,0.2)" }}>← future tenant</span><br/>
+                ├── <span style={{ color: "rgba(245,247,250,0.3)" }}>grt</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(245,247,250,0.2)" }}>← GRT — Hotels only</span><br/>
                 │<br/>
-                └── <span style={{ color: "rgba(245,247,250,0.3)" }}>tenant_xyz</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(245,247,250,0.2)" }}>← future tenant</span><br/>
+                ├── <span style={{ color: "rgba(245,247,250,0.3)" }}>raintree</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(245,247,250,0.2)" }}>← Raintree — Hotels, Apartments</span><br/>
+                │<br/>
+                └── <span style={{ color: "rgba(245,247,250,0.3)" }}>dlf</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(245,247,250,0.2)" }}>← DLF — Rental, Workplace</span><br/>
                 <br/>
-                <span style={{ color: "#D4A853" }}>$</span> <span style={{ color: "#FFFFFF" }}>SELECT provision_tenant_schema('ABC Corp', 'ABC', 'abc');</span><br/>
+                <span style={{ color: "var(--color-gold)" }}>$</span> <span style={{ color: "#FFFFFF" }}>SELECT provision_tenant_schema('ABC Corp', 'ABC', 'abc');</span><br/>
                 <span style={{ color: "rgba(245,247,250,0.3)" }}>  → New schema cloned from viswa template</span>
               </div>
             </div>
@@ -383,7 +403,9 @@ export default function LandingPage() {
       </section>
 
       {/* ─── VERTICALS ─── */}
-      <section id="verticals" data-section="verticals" ref={observeRef} className="py-20 lg:py-28">
+      <section id="verticals" data-section="verticals" ref={observeRef} className="py-20 lg:py-28"
+        style={{ background: "rgba(15,36,56,0.3)" }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className={`text-3xl sm:text-4xl font-bold mb-4 opacity-0 animate-slide-up ${visibleSections["verticals"] ? "animation-delay-100" : ""}`}
@@ -405,8 +427,7 @@ export default function LandingPage() {
               { icon: Users, title: "Guest CRM", desc: "Profiles, preferences, loyalty, KYC" },
               { icon: LayoutDashboard, title: "Admin Suite", desc: "User roles, audit trail, backup, system settings" },
             ].map((f, i) => (
-              <div
-                key={f.title}
+              <div key={f.title}
                 className={`p-5 rounded-xl transition-all duration-200 hover:scale-[1.02] opacity-0 animate-slide-up ${visibleSections["verticals"] ? `animation-delay-${(i % 6 + 1) * 100}` : ""}`}
                 style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
               >
@@ -436,12 +457,13 @@ export default function LandingPage() {
             <span style={{ color: "#2BAE8E" }}>Hospitality Operations</span>?
           </h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto" style={{ color: "rgba(245,247,250,0.55)" }}>
-            Join Viswa Group of Estates and hundreds of properties already running on eHMS.
-            Experience enterprise-grade multi-tenant hospitality management.
+            Join forward-thinking hospitality groups already running on eHMS.
+            Experience enterprise-grade multi-tenant hospitality management with
+            per-tenant feature selection.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              href="/login"
+              href="/tenants"
               className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg"
               style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
             >
@@ -494,9 +516,9 @@ export default function LandingPage() {
           <div className="pt-8 text-center text-xs" style={{ borderTop: "1px solid rgba(255,255,255,0.05)", color: "rgba(245,247,250,0.25)" }}>
             &copy; {new Date().getFullYear()} eHMS — Enterprise Hospitality Management System. All rights reserved.
             <span className="mx-2">·</span>
-            Tenant: <span style={{ color: "#2BAE8E" }}>Viswa Group of Estates</span>
+            Multi-Tenant v2.0
             <span className="mx-2">·</span>
-            Schema: <span style={{ color: "#D4A853" }}>viswa</span>
+            Schema-Per-Tenant Architecture
           </div>
         </div>
       </footer>

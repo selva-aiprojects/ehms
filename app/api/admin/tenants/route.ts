@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPublicDb, getDb } from "@/lib/db";
+import { getPublicDb } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 
 export async function GET() {
@@ -7,9 +7,8 @@ export async function GET() {
     const sql = getPublicDb();
     const rows = await sql`
       SELECT id, name, code, schema_name, logo_url, domain, contact_email,
-             is_active, created_at
+             contact_phone, is_active, config, created_at
       FROM public.tenants
-      WHERE is_active = true
       ORDER BY created_at ASC
     `;
     return NextResponse.json({ tenants: rows });
@@ -23,11 +22,13 @@ export async function POST(req: NextRequest) {
   try {
     const token = req.cookies.get("ehms_token")?.value;
     const payload = token ? verifyToken(token) : null;
-    if (!payload || payload.role_name !== "super_admin") {
-      return NextResponse.json({ error: "Only super admins can provision tenants" }, { status: 403 });
+
+    // Only platform superadmins can provision tenants
+    if (!payload?.is_platform_admin) {
+      return NextResponse.json({ error: "Only platform superadmins can provision tenants" }, { status: 403 });
     }
 
-    const { name, code, schema } = await req.json();
+    const { name, code, schema, verticals } = await req.json();
 
     if (!name || !code || !schema) {
       return NextResponse.json({ error: "name, code, and schema are required" }, { status: 400 });
@@ -39,6 +40,17 @@ export async function POST(req: NextRequest) {
 
     if (!/^[A-Z][A-Z0-9_]{1,10}$/.test(code)) {
       return NextResponse.json({ error: "Invalid tenant code. Use uppercase, 2-11 chars." }, { status: 400 });
+    }
+
+    const selectedVerticals = Array.isArray(verticals) && verticals.length > 0
+      ? verticals
+      : ["hotels", "apartments", "rental", "workplace"];
+
+    const valid = selectedVerticals.every((v: string) =>
+      ["hotels", "apartments", "rental", "workplace"].includes(v)
+    );
+    if (!valid) {
+      return NextResponse.json({ error: "Invalid vertical. Allowed: hotels, apartments, rental, workplace" }, { status: 400 });
     }
 
     const publicDb = getPublicDb();
@@ -54,9 +66,21 @@ export async function POST(req: NextRequest) {
       SELECT public.provision_tenant_schema(${name}, ${code}, ${schema}) AS tenant_id
     `;
 
-    const tenantId = (result[0] as { tenant_id: string }).tenant_id;
+    const tenantId = ((result as Record<string, unknown>[])[0] as { tenant_id: string }).tenant_id;
 
-    return NextResponse.json({ tenant_id: tenantId, name, code, schema });
+    await publicDb`
+      UPDATE public.tenants
+      SET config = ${JSON.stringify({ verticals: selectedVerticals, suspended: false })}::jsonb
+      WHERE id = ${tenantId}
+    `;
+
+    return NextResponse.json({
+      tenant_id: tenantId,
+      name,
+      code,
+      schema,
+      verticals: selectedVerticals,
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Provisioning failed";
     return NextResponse.json({ error: message }, { status: 500 });

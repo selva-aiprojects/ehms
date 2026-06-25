@@ -12,7 +12,10 @@
   --color-primary:       #2BAE8E;   /* teal-green */
   --color-primary-dark:  #229F82;   /* hover darken */
   --color-secondary:     #4DB88A;   /* light green (logo accent) */
+  --color-gold:          #D4A853;   /* gold accent (landing, platform admin) */
   --color-navy:          #1A3C5E;   /* dark navy headings */
+  --color-dark-navy:     #0B1A2E;  /* deepest navy (landing background) */
+  --color-bg-surface:    #0F2438;  /* elevated surface on dark-navy */
   --color-amber:         #F5A623;   /* warm amber for warnings */
 
   /* Surfaces */
@@ -24,6 +27,12 @@
   --color-text:          #1A2E44;
   --color-text-muted:    #64748B;
 
+  /* RGB components for rgba() usage */
+  --color-light-rgb:     245, 247, 250;
+  --color-primary-rgb:   43, 174, 142;
+  --color-gold-rgb:      212, 168, 83;
+  --color-dark-navy-rgb: 11, 26, 46;
+
   /* Status */
   --color-danger:        #E53E3E;
   --color-success:       #2BAE8E;
@@ -33,7 +42,10 @@
 @theme inline {
   --color-ehms-primary:   #2BAE8E;
   --color-ehms-secondary: #4DB88A;
+  --color-ehms-gold:      #D4A853;
   --color-ehms-navy:      #1A3C5E;
+  --color-ehms-dark-navy: #0B1A2E;
+  --color-ehms-bg-surface:#0F2438;
   --color-ehms-sidebar:   #2C3547;
   --color-ehms-amber:     #F5A623;
   --color-ehms-light:     #F5F7FA;

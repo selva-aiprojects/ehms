@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { hashPassword, signToken } from "@/lib/auth";
+import { hashPassword, signToken, type Vertical } from "@/lib/auth";
 
 const ALLOWED_SIGNUP_ROLES = new Set([
   "super_admin",
@@ -89,6 +89,8 @@ export async function POST(req: NextRequest) {
       avatar_url: newUser.avatar_url as string | null,
       tenant_code: process.env.DEFAULT_TENANT_CODE || "VISWA",
       tenant_schema: process.env.DEFAULT_TENANT_SCHEMA || "viswa",
+      tenant_name: process.env.DEFAULT_TENANT_NAME || "Viswa Group of Estates",
+      tenant_verticals: ["hotels", "apartments", "rental", "workplace"] as Vertical[],
     };
 
     const token = signToken(payload);
