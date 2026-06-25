@@ -60,6 +60,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     }
 
+    if (body.config !== undefined) {
+      updates.push(`config = config || $${idx++}::jsonb`);
+      values.push(JSON.stringify(body.config));
+    }
+
     if (updates.length === 0) {
       return NextResponse.json({ error: "No fields to update" }, { status: 400 });
     }

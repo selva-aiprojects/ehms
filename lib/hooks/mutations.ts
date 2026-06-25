@@ -321,6 +321,25 @@ export function useUpdateProperty() {
   };
 }
 
+export function useUpdatePropertyConfig() {
+  const { mutate } = useSWRConfig();
+  return {
+    trigger: async (id: string, config: Record<string, unknown>) => {
+      const res = await fetch(`/api/properties/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ config }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Failed to update config" }));
+        throw new Error(err.error || "Failed to update config");
+      }
+      mutate((k) => typeof k === "string" && k.startsWith("/api/properties"));
+      return res.json();
+    },
+  };
+}
+
 // ── Vendors Mutations ──
 export function useCreateVendor() {
   const { mutate } = useSWRConfig();

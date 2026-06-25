@@ -802,6 +802,16 @@ export function useInventoryStats(propertyId?: string) {
   return { invStats: data?.data, isLoading, isError: !!error, mutate };
 }
 
+export function usePropertyFeatures(propertyId?: string) {
+  const { property, isLoading } = useProperty(propertyId);
+  const features = property?.config?.features || {};
+  return {
+    features: features as Record<string, { enabled: boolean; label: string }>,
+    isFeatureEnabled: (key: string) => !!features[key]?.enabled,
+    isLoading,
+  };
+}
+
 export function useReconciliations(filters?: { status?: string; property_id?: string }) {
   const params = new URLSearchParams();
   if (filters?.status) params.set("status", filters.status);

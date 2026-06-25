@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Building2, Plus, Edit2, Settings, MapPin, Phone, Mail, Star, ChevronRight, Loader2, CheckCircle, AlertCircle, RefreshCw, Search, X, Hotel, Home, Briefcase, Building, Eye, EyeOff } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
@@ -29,6 +30,7 @@ const BOOKING_LABELS: Record<string, string> = {
 };
 
 export default function PropertiesPage() {
+  const router = useRouter();
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editProperty, setEditProperty] = useState<any>(null);
@@ -36,6 +38,19 @@ export default function PropertiesPage() {
   const [filterVertical, setFilterVertical] = useState("");
 
   const { properties = [], isLoading, mutate } = useProperties();
+
+  const DEFAULT_FEATURES = {
+    rooms_map:     { enabled: true,  label: "Rooms Map" },
+    rate_card:     { enabled: true,  label: "Rate Card" },
+    restaurant:    { enabled: false, label: "Restaurant" },
+    bar:           { enabled: false, label: "Bar" },
+    laundry:       { enabled: true,  label: "Laundry" },
+    maintenance:   { enabled: true,  label: "Maintenance" },
+    gym:           { enabled: false, label: "Gym" },
+    yoga:          { enabled: false, label: "Yoga" },
+    swimming_pool: { enabled: false, label: "Swimming Pool" },
+    spa:           { enabled: false, label: "Spa" },
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -51,6 +66,8 @@ export default function PropertiesPage() {
     latitude: "",
     longitude: "",
   });
+  const [featureConfig, setFeatureConfig] = useState<Record<string, { enabled: boolean; label: string }>>(DEFAULT_FEATURES);
+  const [showConfig, setShowConfig] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -62,6 +79,8 @@ export default function PropertiesPage() {
 
   function resetForm() {
     setFormData({ name: "", code: "", vertical_type: "hotel", booking_model: "nightly", address: "", phone: "", email: "", check_in_time: "14:00", check_out_time: "11:00", star_rating: 3, latitude: "", longitude: "" });
+    setFeatureConfig(DEFAULT_FEATURES);
+    setShowConfig(false);
   }
 
   function handleEdit(prop: any) {
@@ -80,6 +99,8 @@ export default function PropertiesPage() {
       latitude: prop.latitude?.toString() || "",
       longitude: prop.longitude?.toString() || "",
     });
+    const parsed = prop.config ? (typeof prop.config === "string" ? JSON.parse(prop.config) : prop.config) : null;
+    setFeatureConfig(parsed?.features || DEFAULT_FEATURES);
     setShowAddModal(true);
   }
 
@@ -92,10 +113,12 @@ export default function PropertiesPage() {
       const url = isEdit ? `/api/properties/${editProperty.id}` : "/api/properties";
       const method = isEdit ? "PUT" : "POST";
 
+      const payload = { ...formData };
+      (payload as any).config = { features: featureConfig };
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (res.ok) {
@@ -225,7 +248,8 @@ export default function PropertiesPage() {
                       className="p-1.5 rounded hover:bg-slate-100 transition-colors" style={{ color: "#64748B" }}>
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
-                    <button className="p-1.5 rounded hover:bg-slate-100 transition-colors" style={{ color: "#64748B" }}>
+                    <button onClick={() => router.push(`/dashboard/admin/properties/${p.id}`)}
+                      className="p-1.5 rounded hover:bg-slate-100 transition-colors" style={{ color: "#64748B" }}>
                       <Settings className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -334,6 +358,31 @@ export default function PropertiesPage() {
                     onChange={(e) => setFormData({ ...formData, check_out_time: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
                 </div>
+              </div>
+
+              <div>
+                <button type="button" onClick={() => setShowConfig(!showConfig)}
+                  className="flex items-center gap-2 text-xs font-medium py-2 px-3 rounded-lg transition-colors"
+                  style={{ background: showConfig ? "rgba(26,60,94,0.08)" : "#F8FAFC", color: "#1A3C5E", border: "1px solid #E2E8F0" }}>
+                  <Settings className="w-3.5 h-3.5" />
+                  {showConfig ? "Hide" : "Configure"} Feature Settings
+                  <ChevronRight className={`w-3 h-3 transition-transform ${showConfig ? "rotate-90" : ""}`} />
+                </button>
+                {showConfig && (
+                  <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {Object.entries(featureConfig).map(([key, feat]) => (
+                      <button key={key} type="button" onClick={() => setFeatureConfig((prev) => ({ ...prev, [key]: { ...prev[key], enabled: !prev[key].enabled } }))}
+                        className="flex items-center gap-2 p-2.5 rounded-lg text-xs transition-all text-left"
+                        style={{
+                          background: feat.enabled ? "rgba(42,157,143,0.08)" : "#F8FAFC",
+                          border: `1px solid ${feat.enabled ? "rgba(42,157,143,0.2)" : "#E2E8F0"}`,
+                        }}>
+                        {feat.enabled ? <Eye className="w-3 h-3" style={{ color: "#2BAE8E" }} /> : <EyeOff className="w-3 h-3" style={{ color: "#94A3B8" }} />}
+                        <span style={{ color: feat.enabled ? "#1A2E44" : "#64748B" }}>{feat.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>

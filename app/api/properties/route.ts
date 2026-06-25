@@ -10,7 +10,22 @@ export async function GET(req: NextRequest) {
     const verticalType = searchParams.get("vertical_type");
     const includeInactive = searchParams.get("include_inactive") === "true";
 
-    const rows = await sql`
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+    let idx = 1;
+    if (!includeInactive) {
+      conditions.push(`p.is_active = true`);
+    }
+    if (propertyId) {
+      conditions.push(`p.id = $${idx++}::uuid`);
+      params.push(propertyId);
+    }
+    if (verticalType) {
+      conditions.push(`p.vertical_type = $${idx++}`);
+      params.push(verticalType);
+    }
+    const whereClause = conditions.length > 0 ? conditions.join(' AND ') : '1=1';
+    const query = `
       SELECT
         p.*, r.name AS region_name, r.city, r.state, r.country,
         COALESCE(
@@ -22,12 +37,11 @@ export async function GET(req: NextRequest) {
       LEFT JOIN units u ON u.floor_id IN (
         SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE b.property_id = p.id
       )
-      WHERE ${includeInactive ? sql`1=1` : sql`p.is_active = true`}
-        ${propertyId ? sql`AND p.id = ${propertyId}` : sql``}
-        ${verticalType ? sql`AND p.vertical_type = ${verticalType}` : sql``}
+      WHERE ${whereClause}
       GROUP BY p.id, r.name, r.city, r.state, r.country
       ORDER BY p.name
     `;
+    const rows = await sql.query(query, params.length > 0 ? params : undefined);
 
     const withOccupancy = (rows as any[]).map(p => {
       const units = p.units || [];
@@ -52,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     const sql = getDb();
     const body = await req.json();
-    const { name, code, vertical_type, booking_model, region_id, address, phone, email, check_in_time, check_out_time, star_rating, latitude, longitude } = body;
+    const { name, code, vertical_type, booking_model, region_id, address, phone, email, check_in_time, check_out_time, star_rating, latitude, longitude, config } = body;
 
     if (!name || !code || !vertical_type || !booking_model) {
       return NextResponse.json({ error: "Name, code, vertical type, and booking model are required" }, { status: 400 });
@@ -76,9 +90,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "A property with this code already exists" }, { status: 400 });
     }
 
+    const defaultFeatures = {
+      rooms_map:     { enabled: true,  label: "Rooms Map" },
+      rate_card:     { enabled: true,  label: "Rate Card" },
+      restaurant:    { enabled: false, label: "Restaurant" },
+      bar:           { enabled: false, label: "Bar" },
+      laundry:       { enabled: true,  label: "Laundry" },
+      maintenance:   { enabled: true,  label: "Maintenance" },
+      gym:           { enabled: false, label: "Gym" },
+      yoga:          { enabled: false, label: "Yoga" },
+      swimming_pool: { enabled: false, label: "Swimming Pool" },
+      spa:           { enabled: false, label: "Spa" },
+    };
+
+    const configValue = config?.features
+      ? { features: config.features, settings: config.settings || { timezone: "Asia/Kolkata", currency: "INR" } }
+      : { features: defaultFeatures, settings: { timezone: "Asia/Kolkata", currency: "INR" } };
+
     const result = await sql`
-      INSERT INTO properties (region_id, name, code, vertical_type, booking_model, address, phone, email, check_in_time, check_out_time, star_rating, latitude, longitude)
-      VALUES (${regionId}, ${name}, ${code}, ${vertical_type}, ${booking_model}, ${address || null}, ${phone || null}, ${email || null}, ${check_in_time || "14:00"}, ${check_out_time || "11:00"}, ${star_rating || null}, ${latitude || null}, ${longitude || null})
+      INSERT INTO properties (region_id, name, code, vertical_type, booking_model, address, phone, email, check_in_time, check_out_time, star_rating, latitude, longitude, config)
+      VALUES (${regionId}, ${name}, ${code}, ${vertical_type}, ${booking_model}, ${address || null}, ${phone || null}, ${email || null}, ${check_in_time || "14:00"}, ${check_out_time || "11:00"}, ${star_rating || null}, ${latitude || null}, ${longitude || null}, ${JSON.stringify(configValue)}::jsonb)
       RETURNING *
     ` as any[];
 
