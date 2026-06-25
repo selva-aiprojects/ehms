@@ -13,8 +13,8 @@ export async function GET(req: NextRequest) {
 
     if (!accountId) return NextResponse.json({ error: "account_id is required" }, { status: 400 });
 
-    const account = await sql`SELECT * FROM chart_of_accounts WHERE id = ${accountId}`;
-    if (!(account as any[]).length) return NextResponse.json({ error: "Account not found" }, { status: 404 });
+    const account = (await sql`SELECT * FROM chart_of_accounts WHERE id = ${accountId}`) as Record<string, unknown>[];
+    if (!account.length) return NextResponse.json({ error: "Account not found" }, { status: 404 });
 
     let query = sql`
       SELECT jl.*, je.entry_date, je.description as journal_description, je.reference_type, je.reference_id
@@ -29,8 +29,9 @@ export async function GET(req: NextRequest) {
     const lines = await query;
 
     const linesList = lines as any[];
-    let runningBalance = Number(account[0].opening_balance || 0);
-    const isDebitAccount = ["asset", "expense"].includes(account[0].account_type);
+    const acct = account[0] as Record<string, unknown>;
+    let runningBalance = Number(acct.opening_balance || 0);
+    const isDebitAccount = ["asset", "expense"].includes(acct.account_type as string);
     const entries = linesList.map((l: any) => {
       const debit = Number(l.debit);
       const credit = Number(l.credit);
@@ -40,8 +41,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       data: {
-        account: account[0],
-        opening_balance: Number(account[0].opening_balance || 0),
+        account: acct,
+        opening_balance: Number(acct.opening_balance || 0),
         entries,
         total_debits: linesList.reduce((s: number, l: any) => s + Number(l.debit), 0),
         total_credits: linesList.reduce((s: number, l: any) => s + Number(l.credit), 0),

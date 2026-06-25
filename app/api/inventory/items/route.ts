@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       RETURNING *
     `;
 
-    const item = rows[0];
+    const item = rows[0] as any;
 
     if (parseFloat(item.quantity_on_hand) > 0) {
       await sql`
