@@ -81,13 +81,30 @@ These users exist inside **every** tenant shard (VISWA, GRT, etc.):
 
 This account exists in the `public.platform_admins` table (not inside any tenant shard) and manages all tenants.
 
-## 2.3 First-Time Flow
+## 2.3 Login Workflow
+
+### Path A: Regular Tenant (SHARD) User
 
 ```
-Landing Page (/) → Tenants Page (/tenants)
-  → Select a shard → Login Page (/login?tenant=CODE)
-    → Dashboard (/dashboard)
+Landing Page (/) → Login Page (/login)
+  → Pick org from tenant shard grid
+  → Login Form (/login?tenant=CODE)
+    → Enter email + password
+    → POST /api/auth/login
+    → Dashboard (/dashboard or /dashboard/{vertical})
 ```
+
+### Path B: Platform Superadmin
+
+```
+Landing Page (/) → Login Page (/login)
+  → Click "Platform Admin Sign In" (gold border button)
+  → Modal login (email + password)
+  → POST /api/auth/platform-login
+  → Admin Dashboard (/dashboard/admin/tenants)
+```
+
+**Key difference:** Platform superadmin is NEVER asked to select a tenant shard.
 
 ---
 
@@ -104,20 +121,21 @@ Each tenant (organization) runs on an **isolated PostgreSQL schema**:
 
 Each schema contains **136+ tables** + **9 ENUM types** cloned from the `viswa` template. Data never crosses schema boundaries.
 
-## 3.2 Tenant Selection Page
+## 3.2 Tenant Selection (on Login Page)
 
-**URL:** `/tenants`
+**URL:** `/login` (no `?tenant=` param)
 
-This is the public entry point. It displays:
+The `/login` page serves as the tenant selection entry point when no tenant is pre-selected. It displays:
 
-- All provisioned tenant shards as cards
+- All provisioned tenant shards as org cards
 - Each card shows: organization name, shard code, subscribed vertical badges
 - **Suspended** tenants are greyed out with a "Suspended" badge
-- Click any active tenant → redirected to `/login?tenant=CODE`
+- Click any active tenant → URL updates to `/login?tenant=CODE` and shows the login form
+- Below the grid, a **"Platform Admin Sign In"** button (gold border, lock icon) opens a modal for platform superadmin login (bypasses tenant selection entirely)
 
 ## 3.3 Provisioning a New Shard
 
-Click **"Platform Admin — Sign In to Provision"** at the bottom of `/tenants`.
+Click **"Platform Admin Sign In"** at the bottom of `/login` (or go to `/dashboard/admin/tenants` if already logged in as platform superadmin).
 
 After authenticating as platform superadmin, fill in:
 
@@ -145,9 +163,9 @@ After success, you are redirected to `/login?tenant=CODE`.
 
 The **Platform Superadmin** is not a user inside any shard — they authenticate via the `public.platform_admins` table at the platform level.
 
-**Login:** `/tenants` → "Platform Admin — Sign In to Provision"
+**Login:** `/login` → click **"Platform Admin Sign In"** button (gold border) → modal login
 
-Or from the admin tenant management page at `/dashboard/admin/tenants`.
+Or navigate directly to `/dashboard/admin/tenants` if already authenticated.
 
 ## 4.2 Tenant Management Dashboard
 
@@ -176,14 +194,35 @@ When a tenant is suspended:
 
 ## 5.1 Login Flow
 
-**URL:** `/login?tenant=CODE`
+**URL:** `/login` (two modes)
 
-1. If `?tenant=` is missing → "No Organization Selected" screen
-2. If tenant code is invalid → "Invalid Organization" screen
-3. If tenant is suspended → "Account Suspended" screen
-4. If valid → login form with email + password
-5. On success → JWT stored in httpOnly cookie `ehms_token`, redirected to dashboard
-6. The login API reads the tenant's `config.verticals` and passes them to the frontend
+### Mode 1: No `?tenant=` param — Tenant Selection Grid
+
+Shows all provisioned tenant shards as org cards. Pick one → URL updates to `/login?tenant=CODE`.
+
+Below the grid, a **"Platform Admin Sign In"** button opens a modal for platform superadmin login (bypasses tenant selection).
+
+### Mode 2: `?tenant=CODE` — Login Form
+
+| Guard | Behavior |
+|-------|----------|
+| Invalid tenant code | Shows "Invalid Organization" screen |
+| Suspended tenant | Shows "Account Suspended" screen |
+| Valid tenant | Shows login form with tenant badge, subscribed vertical badges, vertical workspace selector |
+
+**On successful login:**
+1. JWT stored in httpOnly cookie `ehms_token`
+2. Frontend receives `{ tenant_verticals, tenant_name, user, ... }`
+3. Redirects to `/dashboard` or `/dashboard/{activeJourney}`
+4. Every subsequent API request carries `x-tenant-schema` header (set by proxy.ts) to scope queries to the correct schema
+
+### Mode 3: Platform Superadmin (via modal)
+
+1. Click "Platform Admin Sign In" on `/login`
+2. Modal opens — enter platform admin email + password
+3. `POST /api/auth/platform-login` — no tenant context required
+4. On success → JWT with `is_platform_admin: true` cookie set
+5. Redirects to `/dashboard/admin/tenants`
 
 ## 5.2 Role-Based Access Control (RBAC)
 

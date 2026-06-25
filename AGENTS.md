@@ -70,15 +70,114 @@ eHMS is a comprehensive **Subscription-Based** Hospitality and Facilities Manage
 - **New mut hooks (15):** `useCreateAccount`, `useCreateJournalEntry`, `useCreateVendorBill`, `useCreateFixedAsset`, `useCreateBudgetEntry`, etc.
 - **Sidebar:** 11 finance nav items
 
-## 9. Multi-Tenant Schema Sharding (24 Jun 2026)
-- **Architecture:** Schema-per-tenant — each tenant gets isolated PostgreSQL schema
-- **Migration:** `023_multi_tenant_sharding.sql` — creates `public.tenants` registry, `viswa` schema, moves all 136+ tables + 9 ENUMs from `public` → `viswa`
-- **First tenant:** Viswa Group of Estates (schema: `viswa`, code: `VISWA`)
-- **Helper function:** `public.provision_tenant_schema(name, code, schema)` to clone the template for new tenants
-- **`lib/db.ts`:** Now sets `search_path = viswa, public` — all existing API routes work unchanged
-- **`scripts/migrate.mjs`:** Updated to create tables in `viswa` schema; extensions in `public`
-- **Landing page:** `app/page.tsx` → eHMS product landing with Viswa tenant showcase
-- **Login:** Moved to `app/login/page.tsx`
-- **proxy.ts:** Auth redirects now target `/login` instead of `/`
-- **Future tenants:** Admin calls `provision_tenant_schema()` → new schema cloned from `viswa` template
+## 10. UI/UX Design Workflow (ui-ux-pro-max skill)
+
+The project uses the **ui-ux-pro-max** skill (v2.x) for AI-driven UI/UX design guidance:
+
+### Global Design System (per project)
+Generate and persist a master design system once per project:
+```bash
+python3 skills/ui-ux-pro-max/scripts/search.py "<product description>" --design-system --persist -p "<ProjectName>"
+```
+Creates `design-system/<project>/MASTER.md` — global source of truth.
+
+### Per-Page Auto-Design (NEW workflow)
+For **each page** you build, use `--page-design` to get auto page-specific guidance:
+```bash
+python3 skills/ui-ux-pro-max/scripts/search.py "<page description>" --page-design -p "<ProjectName>" [--page "<page-name>"]
+```
+- Auto-detects page type (dashboard, checkout, login, settings, etc.)
+- Checks MASTER.md if it exists and combines with page overrides
+- Returns tailored layout, sections, components, and recommendations
+- No manual file management needed
+
+### Quick Reference
+- `--design-system` — full project design system
+- `--page-design` — auto per-page guidance (detects page from query)
+- `--domain <domain>` — search specific domain (style, color, ux, typography, etc.)
+- `--stack <stack>` — stack-specific guidelines (html-tailwind, react, nextjs)
+- `--persist` — save to `design-system/` folder
+- `--page <name>` — specify page name (for override files or --page-design hint)
+
+## 11. Login Workflow: Platform Superadmin vs Regular Tenant (SHARD)
+
+### Flow Diagram
+
+```
+                        ┌─────────────────────────────┐
+                        │   Landing Page (/)           │
+                        │   "Sign In" / "Get Started"  │
+                        └──────────┬──────────────────┘
+                                   │ all CTAs → /login
+                                   ▼
+                        ┌─────────────────────────────┐
+                        │   /login                     │
+                        │   (no ?tenant= param)        │
+                        │                              │
+                        │   ┌──────────────────┐       │
+                        │   │ Tenant Shard Grid │       │
+                        │   │ Pick org card     │       │
+                        │   └────────┬─────────┘       │
+                        │            │                  │
+                        │   ╔════════╧══════════╗       │
+                        │   ║ "Platform Admin   ║       │
+                        │   ║  Sign In" button  ║       │
+                        │   ╚════════╤══════════╝       │
+                        └───────────┼───────────────────┘
+                                    │
+                  ┌─────────────────┴─────────────────┐
+                  │                                   │
+         (click org card)                 (click Platform Admin Sign In)
+                  │                                   │
+                  ▼                                   ▼
+  ┌────────────────────────────┐    ┌──────────────────────────────┐
+  │ /login?tenant=VISWA        │    │ Platform Login Modal         │
+  │                            │    │ (email + password)           │
+  │ ┌──────────────────────┐   │    │                              │
+  │ │ Tenant badge (click  │   │    │ POST /api/auth/platform-login│
+  │ │ to switch shard)     │   │    └──────────┬───────────────────┘
+  │ │ Vertical selector    │   │               │
+  │ │ Email + Password     │   │               ▼
+  │ │ POST /api/auth/login │   │    ┌──────────────────────────────┐
+  │ └──────────┬───────────┘   │    │ /dashboard/admin/tenants     │
+  └────────────┼───────────────┘    │ (Provision shards,           │
+               │                    │  manage tenants)             │
+               ▼                    │ No tenant context            │
+  ┌────────────────────────┐        └──────────────────────────────┘
+  │ /dashboard             │
+  │ -or-                   │
+  │ /dashboard/{vertical}  │
+  │                        │
+  │ Scoped to tenant       │
+  │ schema (e.g., `viswa`) │
+  └────────────────────────┘
+```
+
+### Path A: Regular Tenant (SHARD) User
+
+| Step | Screen | What happens | Key Code |
+|------|--------|-------------|----------|
+| 1 | **Landing Page** (`/`) | Clicks "Sign In" or "Get Started" | All CTAs link to `/login` (`app/page.tsx`) |
+| 2 | **Tenant Selection** (`/login`) | Sees grid of org cards (fetched from `GET /api/admin/tenants`). Picks one (e.g., VISWA). | `app/login/page.tsx` — `!tenantCode` branch shows shard grid |
+| 3 | **Login Form** (`/login?tenant=VISWA`) | Sees login form with tenant badge, subscribed vertical badges, vertical workspace dropdown, email/password, demo autofill. Enters credentials and submits. | `app/login/page.tsx` — `tenantCode` branch shows form. `POST /api/auth/login` with `{ email, password, tenant_code }` |
+| 4 | **Auth API** | Backend resolves tenant from `public.tenants` by code, sets `search_path = viswa, public`, queries shard's `users`/`roles` tables, validates password, builds JWT with `{ tenant_code, tenant_schema, tenant_name, tenant_verticals, ... }`, sets `ehms_token` httpOnly cookie. | `app/api/auth/login/route.ts` + `lib/db.ts` |
+| 5 | **Dashboard** | Client stores `ehms_tenant_verticals`, `ehms_tenant_name` in localStorage. Redirects to `/dashboard` or `/dashboard/{activeJourney}`. Proxy sets `x-tenant-schema` header on every request; API routes call `getDb(tenant_schema)` to scope queries. | `proxy.ts`, `app/login/page.tsx` |
+
+### Path B: Platform Superadmin
+
+| Step | Screen | What happens | Key Code |
+|------|--------|-------------|----------|
+| 1 | **Landing Page** (`/`) | Clicks "Sign In" or "Get Started" | Same CTA goes to `/login` |
+| 2 | **Tenant Selection** (`/login`) | Ignores the org grid. Scrolls down and clicks **"Platform Admin Sign In"** button (gold border, lock icon). | `app/login/page.tsx` — "Platform Admin divider" section below tenant grid |
+| 3 | **Platform Login Modal** | Modal opens. Enters platform admin email + password. Submits. **No tenant selection required.** | `app/login/page.tsx` — `showPlatformLogin` modal. `POST /api/auth/platform-login` |
+| 4 | **Auth API** | Backend authenticates against platform admin credentials (separate from shard users). On success, sets `ehms_token` cookie with `is_platform_admin: true`. No tenant context. | `app/api/auth/platform-login/route.ts` |
+| 5 | **Admin Dashboard** | Redirects to `/dashboard/admin/tenants`. Proxy restricts platform admin to this path only. All tenant-related headers are empty. Can provision new shards via `provision_tenant_schema()`. | `proxy.ts` (line 40-44), `app/tenants/page.tsx` |
+
+### Key Rules
+
+- **Every login starts at `/login`** — there is no separate admin login page. The tenant selection grid + platform admin button coexist on the same page.
+- **Platform superadmin is NEVER asked for a tenant shard** — the platform admin login modal bypasses tenant selection entirely.
+- **`/tenants` page** still exists for **platform admin shard provisioning only** (accessed via `/dashboard/admin/tenants` or direct URL). Regular users should never need it.
+- **`proxy.ts` auth redirects:** Authenticated users on `/`, `/login`, or `/tenants` are redirected away. Platform admins go to `/dashboard/admin/tenants`, shard users go to `/dashboard`.
+- **Schema isolation:** Each tenant's data lives in its own PostgreSQL schema (e.g., `viswa`). `lib/db.ts` uses `search_path = {schema}, public` to scope queries.
 

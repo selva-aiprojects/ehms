@@ -67,7 +67,7 @@ export default function LandingPage() {
                 </Link>
               ))}
               <Link
-                href="/tenants"
+                href="/login"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg"
                 style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
               >
@@ -102,7 +102,7 @@ export default function LandingPage() {
               </Link>
             ))}
             <Link
-              href="/tenants"
+              href="/login"
               onClick={() => setMenuOpen(false)}
               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold"
               style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
@@ -160,7 +160,7 @@ export default function LandingPage() {
 
               <div className={`flex flex-wrap gap-4 opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-400" : ""}`}>
                 <Link
-                  href="/tenants"
+                  href="/login"
                   className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105 hover:shadow-lg"
                   style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
                 >
@@ -463,7 +463,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              href="/tenants"
+              href="/login"
               className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg"
               style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
             >

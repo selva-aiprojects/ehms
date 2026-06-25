@@ -1,16 +1,32 @@
 "use client";
 
 import Image from "next/image";
-import { Building2, ArrowRight, Eye, EyeOff, ChevronDown, Hotel, Home, LayoutDashboard, Briefcase, Server, ArrowLeft, Ban, CheckCircle } from "lucide-react";
+import {
+  Building2, ArrowRight, Eye, EyeOff, ChevronDown,
+  Hotel, Home, LayoutDashboard, Briefcase, Server,
+  ArrowLeft, Ban, CheckCircle, Loader2, Database,
+  UserCog, Lock, X, AlertCircle, Globe, Plus
+} from "lucide-react";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useJourney, type VerticalJourney } from "@/components/providers/JourneyProvider";
 import Link from "next/link";
 
+type VerticalKey = "hotels" | "apartments" | "rental" | "workplace";
+
+const VERTICAL_META: Record<VerticalKey, { label: string; icon: typeof Building2 }> = {
+  hotels: { label: "Hotels & Resorts", icon: Hotel },
+  apartments: { label: "Serviced Apartments", icon: Building2 },
+  rental: { label: "Apartment Rental", icon: Home },
+  workplace: { label: "Workplace", icon: Briefcase },
+};
+
+const ALL_VERTICAL_KEYS = Object.keys(VERTICAL_META) as VerticalKey[];
+
 export default function LoginPageWrapper() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#F5F7FA" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
         <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin" />
       </div>
     }>
@@ -25,15 +41,12 @@ interface TenantInfo {
   code: string;
   schema_name: string;
   logo_url: string | null;
+  domain: string | null;
+  contact_email: string | null;
+  is_active: boolean;
   config: Record<string, unknown> | null;
+  created_at: string;
 }
-
-const VERTICAL_LABELS: Record<string, string> = {
-  hotels: "Hotels & Resorts",
-  apartments: "Serviced Apartments",
-  rental: "Apartment Rental",
-  workplace: "Workplace",
-};
 
 function LoginContent() {
   const router = useRouter();
@@ -48,17 +61,42 @@ function LoginContent() {
   const [suspended, setSuspended] = useState(false);
   const [remember, setRemember] = useState(false);
   const [tenant, setTenant] = useState<TenantInfo | null>(null);
+  const [tenants, setTenants] = useState<TenantInfo[]>([]);
   const [tenantLoading, setTenantLoading] = useState(true);
+  const [tenantsError, setTenantsError] = useState<string | null>(null);
+
+  // Platform admin modal
+  const [showPlatformLogin, setShowPlatformLogin] = useState(false);
+  const [plEmail, setPlEmail] = useState("");
+  const [plPassword, setPlPassword] = useState("");
+  const [plShowPwd, setPlShowPwd] = useState(false);
+  const [plLoading, setPlLoading] = useState(false);
+  const [plError, setPlError] = useState<string | null>(null);
 
   const tenantCode = searchParams.get("tenant");
 
+  // Fetch all tenants on mount
+  useEffect(() => {
+    fetch("/api/admin/tenants")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.tenants) setTenants(data.tenants);
+        else setTenantsError(data.error || "Failed to load tenants");
+      })
+      .catch(() => setTenantsError("Network error"))
+      .finally(() => setTenantLoading(false));
+  }, []);
+
+  // Resolve a single tenant by code
   useEffect(() => {
     if (!tenantCode) {
+      setTenant(null);
       setTenantLoading(false);
       return;
     }
 
-    fetch(`/api/admin/tenants`)
+    setTenantLoading(true);
+    fetch("/api/admin/tenants")
       .then((r) => r.json())
       .then((data) => {
         const found = (data.tenants || []).find(
@@ -108,10 +146,37 @@ function LoginContent() {
     setLoading(false);
   }
 
-  function getTenantVerticals(t: TenantInfo): string[] {
+  function selectTenant(code: string) {
+    router.push(`/login?tenant=${code}`);
+  }
+
+  function getTenantVerticals(t: TenantInfo): VerticalKey[] {
     const config = t.config || {};
-    const v = config.verticals as string[] | undefined;
-    return v && v.length > 0 ? v : ["hotels", "apartments", "rental", "workplace"];
+    const v = config.verticals as VerticalKey[] | undefined;
+    return v && v.length > 0 ? v : ALL_VERTICAL_KEYS;
+  }
+
+  async function handlePlatformLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setPlLoading(true);
+    setPlError(null);
+    try {
+      const res = await fetch("/api/auth/platform-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: plEmail.trim(), password: plPassword }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        router.push("/dashboard/admin/tenants");
+        router.refresh();
+      } else {
+        setPlError(data.error || "Login failed");
+      }
+    } catch {
+      setPlError("Network error");
+    }
+    setPlLoading(false);
   }
 
   function isSuspended(t: TenantInfo): boolean {
@@ -119,27 +184,211 @@ function LoginContent() {
     return config.suspended === true;
   }
 
+  // ── Shard selection screen ──
   if (!tenantCode) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
-        <div className="text-center max-w-sm">
-          <Server className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(245,247,250,0.15)" }} />
-          <h2 className="text-xl font-bold mb-2" style={{ color: "#F5F7FA" }}>No Organization Selected</h2>
-          <p className="text-sm mb-6" style={{ color: "rgba(245,247,250,0.5)" }}>
-            Please select an organization shard before signing in.
-          </p>
-          <Link
-            href="/tenants"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
-            style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
-          >
-            <ArrowLeft className="w-4 h-4" /> Browse Organizations
-          </Link>
+      <>
+        <div className="min-h-screen flex flex-col" style={{ background: "var(--color-dark-navy)" }}>
+          {/* Mini nav */}
+          <nav className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
+            <Link href="/">
+              <Image src="/eHMS_logo.png" alt="eHMS" width={100} height={40} className="object-contain brightness-110" priority />
+            </Link>
+            <Link href="/" className="text-sm font-medium transition-colors" style={{ color: "rgba(245,247,250,0.5)" }}
+              onMouseEnter={e => e.currentTarget.style.color = "#2BAE8E"}
+              onMouseLeave={e => e.currentTarget.style.color = "rgba(245,247,250,0.5)"}>
+              ← Back to Home
+            </Link>
+          </nav>
+
+          <div className="flex-1 flex items-center justify-center px-4 py-12">
+            <div className="w-full max-w-3xl">
+              <div className="text-center mb-10">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase mb-4 border"
+                  style={{ background: "rgba(43,174,142,0.1)", borderColor: "rgba(43,174,142,0.25)", color: "#2BAE8E" }}>
+                  <Database className="w-3.5 h-3.5" /> Multi-Tenant Shard Selection
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: "#F5F7FA" }}>
+                  Select Your Organization
+                </h1>
+                <p className="text-sm" style={{ color: "rgba(245,247,250,0.5)" }}>
+                  Choose an organization shard to sign in. Each shard has isolated data and subscribed features.
+                </p>
+              </div>
+
+              {tenantLoading && (
+                <div className="flex justify-center py-16">
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#2BAE8E" }} />
+                </div>
+              )}
+
+              {tenantsError && (
+                <div className="text-center py-16">
+                  <Server className="w-12 h-12 mx-auto mb-3" style={{ color: "rgba(229,62,62,0.4)" }} />
+                  <p className="text-sm" style={{ color: "#E53E3E" }}>{tenantsError}</p>
+                </div>
+              )}
+
+              {!tenantLoading && !tenantsError && tenants.length > 0 && (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {tenants.map((t, i) => {
+                    const verts = getTenantVerticals(t);
+                    const suspendedFlag = isSuspended(t);
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => !suspendedFlag && selectTenant(t.code)}
+                        disabled={suspendedFlag}
+                        className={`group relative text-left rounded-2xl p-5 transition-all duration-200 cursor-pointer ${
+                          suspendedFlag ? "opacity-40 cursor-not-allowed" : "hover:scale-[1.02] hover:shadow-xl"
+                        }`}
+                        style={{
+                          background: "linear-gradient(135deg, rgba(43,174,142,0.06) 0%, rgba(26,60,94,0.12) 100%)",
+                          border: `1px solid ${suspendedFlag ? "rgba(229,62,62,0.2)" : "rgba(43,174,142,0.12)"}`,
+                          animation: `slide-up 0.4s ease-out ${i * 0.08}s both`,
+                        }}
+                      >
+                        {suspendedFlag && (
+                          <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold"
+                            style={{ background: "rgba(229,62,62,0.15)", color: "#E53E3E" }}>
+                            <Ban className="w-3 h-3" /> Suspended
+                          </div>
+                        )}
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                          style={{ background: "rgba(43,174,142,0.12)" }}>
+                          <Building2 className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+                        </div>
+                        <h3 className="text-base font-bold mb-0.5" style={{ color: "#F5F7FA" }}>{t.name}</h3>
+                        <span className="inline-block text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded mb-3"
+                          style={{ background: "rgba(43,174,142,0.1)", color: "#2BAE8E", border: "1px solid rgba(43,174,142,0.2)" }}>
+                          {t.code}
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {verts.map((v) => {
+                            const meta = VERTICAL_META[v];
+                            if (!meta) return null;
+                            const Icon = meta.icon;
+                            return (
+                              <span key={v}
+                                className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium"
+                                style={{ background: "rgba(43,174,142,0.06)", color: "rgba(43,174,142,0.7)", border: "1px solid rgba(43,174,142,0.1)" }}>
+                                <Icon className="w-2.5 h-2.5" /> {meta.label}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {!tenantLoading && !tenantsError && tenants.length === 0 && (
+                <div className="text-center py-16">
+                  <Server className="w-12 h-12 mx-auto mb-3" style={{ color: "rgba(245,247,250,0.1)" }} />
+                  <p className="text-sm" style={{ color: "rgba(245,247,250,0.4)" }}>No organizations found.</p>
+                </div>
+              )}
+
+              {/* Platform Admin divider */}
+              {!tenantLoading && (
+                <div className="mt-12 text-center">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.06)" }} />
+                    <UserCog className="w-4 h-4" style={{ color: "rgba(212,168,83,0.4)" }} />
+                    <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.06)" }} />
+                  </div>
+                  <button
+                    onClick={() => setShowPlatformLogin(true)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105 cursor-pointer"
+                    style={{ border: "1px solid rgba(212,168,83,0.2)", color: "var(--color-gold)" }}
+                  >
+                    <Lock className="w-4 h-4" /> Platform Admin Sign In
+                  </button>
+                  <p className="mt-2 text-xs" style={{ color: "rgba(245,247,250,0.3)" }}>
+                    Authenticate as eHMS platform superadmin to manage tenant shards
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* Platform Login Modal */}
+        {showPlatformLogin && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}>
+            <div className="relative w-full max-w-sm rounded-2xl p-8 animate-slide-up"
+              style={{ background: "var(--color-bg-surface)", border: "1px solid rgba(212,168,83,0.15)" }}>
+              <button onClick={() => setShowPlatformLogin(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors cursor-pointer"
+                style={{ color: "rgba(245,247,250,0.4)" }}>
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: "rgba(212,168,83,0.12)" }}>
+                  <UserCog className="w-5 h-5" style={{ color: "var(--color-gold)" }} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold" style={{ color: "#F5F7FA" }}>Platform Admin</h3>
+                  <p className="text-xs" style={{ color: "rgba(245,247,250,0.5)" }}>
+                    Sign in to manage eHMS tenant shards
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handlePlatformLogin} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
+                    Platform Email
+                  </label>
+                  <input type="email" value={plEmail} required
+                    onChange={(e) => setPlEmail(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+                    style={{ borderColor: "rgba(212,168,83,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}
+                    placeholder="admin@ehms.co" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input type={plShowPwd ? "text" : "password"} value={plPassword} required
+                      onChange={(e) => setPlPassword(e.target.value)}
+                      className="w-full px-4 py-2.5 pr-10 rounded-lg border text-sm outline-none transition-colors"
+                      style={{ borderColor: "rgba(212,168,83,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}
+                      placeholder="••••••••" />
+                    <button type="button" onClick={() => setPlShowPwd(!plShowPwd)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+                      style={{ color: "rgba(245,247,250,0.4)" }}>
+                      {plShowPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {plError && (
+                  <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
+                    style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+                    <AlertCircle className="w-4 h-4 shrink-0" /> {plError}
+                  </div>
+                )}
+
+                <button type="submit" disabled={plLoading}
+                  className="w-full py-2.5 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-60 cursor-pointer"
+                  style={{ background: "linear-gradient(135deg, #D4A853 0%, #C49A3C 100%)" }}>
+                  {plLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Signing in...</> : <><Lock className="w-4 h-4" /> Platform Sign In</>}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 
+  // ── Loading / Error / Suspended states ──
   if (tenantLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
@@ -160,13 +409,13 @@ function LoginContent() {
           <p className="text-sm mb-6" style={{ color: "rgba(245,247,250,0.5)" }}>
             No organization with code &quot;{tenantCode}&quot; exists.
           </p>
-          <Link
-            href="/tenants"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+          <button
+            onClick={() => router.push("/login")}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 cursor-pointer"
             style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
           >
             <ArrowLeft className="w-4 h-4" /> Browse Organizations
-          </Link>
+          </button>
         </div>
       </div>
     );
@@ -187,18 +436,19 @@ function LoginContent() {
           <p className="text-sm mb-6" style={{ color: "rgba(245,247,250,0.5)" }}>
             Contact your platform administrator for assistance.
           </p>
-          <Link
-            href="/tenants"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
+          <button
+            onClick={() => router.push("/login")}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 cursor-pointer"
             style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
           >
             <ArrowLeft className="w-4 h-4" /> Browse Organizations
-          </Link>
+          </button>
         </div>
       </div>
     );
   }
 
+  // ── Login form (tenant selected) ──
   return (
     <div className="min-h-screen flex" style={{ background: "#F5F7FA" }}>
       <div
@@ -232,10 +482,10 @@ function LoginContent() {
             <Image src="/eHMS_logo.png" alt="eHMS" width={100} height={40} className="object-contain" />
           </div>
 
-          {/* Tenant badge */}
-          <Link
-            href="/tenants"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium mb-4 transition-colors hover:opacity-80"
+          {/* Tenant badge — click to switch shard */}
+          <button
+            onClick={() => router.push("/login")}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium mb-4 transition-colors hover:opacity-80 cursor-pointer"
             style={{
               background: "rgba(43,174,142,0.08)",
               color: "#2BAE8E",
@@ -246,24 +496,28 @@ function LoginContent() {
             {tenant.name}
             <span className="font-mono opacity-60">({tenant.code})</span>
             <ArrowLeft className="w-3 h-3 opacity-60" />
-          </Link>
+          </button>
 
-          {/* Subscribed verticals */}
+          {/* Subscribed verticals badges */}
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {tenantVerticals.map((v) => (
-              <span
-                key={v}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium"
-                style={{
-                  background: "rgba(43,174,142,0.06)",
-                  color: "rgba(43,174,142,0.7)",
-                  border: "1px solid rgba(43,174,142,0.1)",
-                }}
-              >
-                <CheckCircle className="w-2.5 h-2.5" />
-                {VERTICAL_LABELS[v] || v}
-              </span>
-            ))}
+            {tenantVerticals.map((v) => {
+              const meta = VERTICAL_META[v];
+              if (!meta) return null;
+              const Icon = meta.icon;
+              return (
+                <span key={v}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium"
+                  style={{
+                    background: "rgba(43,174,142,0.06)",
+                    color: "rgba(43,174,142,0.7)",
+                    border: "1px solid rgba(43,174,142,0.1)",
+                  }}
+                >
+                  <Icon className="w-2.5 h-2.5" />
+                  {meta.label}
+                </span>
+              );
+            })}
           </div>
 
           <h2 className="text-2xl font-bold mb-1" style={{ color: "#1A3C5E" }}>eHMS Portal</h2>
@@ -321,18 +575,18 @@ function LoginContent() {
                   onFocus={e => e.target.style.borderColor = "#2BAE8E"}
                   onBlur={e => e.target.style.borderColor = "#E2E8F0"}
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#64748B" }}>
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer" style={{ color: "#64748B" }}>
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} style={{ accentColor: "#2BAE8E" }} />
                 <span style={{ color: "#64748B" }}>Remember me</span>
               </label>
-              <button type="button" className="hover:underline" style={{ color: "#2BAE8E" }}>Forgot password?</button>
+              <button type="button" className="hover:underline cursor-pointer" style={{ color: "#2BAE8E" }}>Forgot password?</button>
             </div>
 
             <div className="pt-2">
@@ -369,7 +623,7 @@ function LoginContent() {
               <div className="rounded-lg px-4 py-2.5 text-sm" style={{
                 background: suspended ? "rgba(229,62,62,0.08)" : "rgba(229,62,62,0.08)",
                 color: "#E53E3E",
-                border: `1px solid rgba(229,62,62,0.2)`,
+                border: "1px solid rgba(229,62,62,0.2)",
               }}>
                 {error}
               </div>
