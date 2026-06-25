@@ -699,6 +699,40 @@ export function useVendorOrders(vendorId?: string, status?: string) {
   return { orders: data?.data, isLoading, isError: !!error, mutate };
 }
 
+// ── Procurement Hooks ──
+export function usePurchaseOrders(filters?: { vendor_id?: string; property_id?: string; status?: string; search?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.vendor_id) params.set("vendor_id", filters.vendor_id);
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.search) params.set("search", filters.search);
+  const { data, error, isLoading, mutate } = useSWR(`/api/procurement/purchase-orders?${params}`, fetcher);
+  return { purchaseOrders: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function usePurchaseOrder(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/procurement/purchase-orders/${id}` : null, fetcher);
+  return { purchaseOrder: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useGrnList(filters?: { po_id?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.po_id) params.set("po_id", filters.po_id);
+  const { data, error, isLoading, mutate } = useSWR(`/api/procurement/grn?${params}`, fetcher);
+  return { grns: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useGrn(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/procurement/grn/${id}` : null, fetcher);
+  return { grn: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useProcurementStats(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/procurement/stats${params}`, fetcher, { refreshInterval: 30000 });
+  return { procurementStats: data?.data, isLoading, isError: !!error, mutate };
+}
+
 // ── Inventory Hooks ──
 export function useInventoryCategories(propertyId?: string) {
   const params = propertyId ? `?property_id=${propertyId}` : "";

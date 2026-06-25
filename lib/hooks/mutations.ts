@@ -300,6 +300,34 @@ export function useUpdateVendor() {
   };
 }
 
+// ── Procurement Mutations ──
+export function useCreatePurchaseOrder() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/procurement/purchase-orders", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/procurement")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdatePurchaseOrder() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/procurement/purchase-orders", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/procurement")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/procurement/purchase-orders/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreateGrn() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/procurement/grn", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/procurement")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
 // ── Inventory Mutations ──
 export function useCreateInventoryItem() {
   const { mutate } = useSWRConfig();
