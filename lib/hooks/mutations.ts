@@ -96,6 +96,47 @@ export function useCreateLease() {
   return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
 }
 
+export function useUpdateLease() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/leases", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/leases"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/properties"));
+    },
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/leases/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreateRentInvoice() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/rent-invoices", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/rent-invoices")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateRentInvoice() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/rent-invoices", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && (k.startsWith("/api/rent-invoices") || k.startsWith("/api/leases"))),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/rent-invoices/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreateDepositTransaction() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/deposits", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/deposits")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
 // ── Accounts Module Mutations ──
 export function useCreateAccount() {
   const { mutate } = useSWRConfig();

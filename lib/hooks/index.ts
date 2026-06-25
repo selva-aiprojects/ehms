@@ -156,6 +156,30 @@ export function useLeases(filters?: { status?: string; renewal_due?: boolean; pr
   return { leases: data?.data, isLoading, isError: !!error, mutate };
 }
 
+export function useLease(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/leases/${id}` : null, fetcher);
+  return { lease: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useRentInvoices(filters?: { lease_id?: string; status?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.lease_id) params.set("lease_id", filters.lease_id);
+  if (filters?.status) params.set("status", filters.status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/rent-invoices?${params}`, fetcher);
+  return { invoices: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useRentInvoice(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/rent-invoices/${id}` : null, fetcher);
+  return { invoice: data?.data, isLoading, isError: !!error, mutate };
+}
+
+export function useDeposits(leaseId?: string) {
+  const params = leaseId ? `?lease_id=${leaseId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/deposits${params}`, fetcher);
+  return { deposits: data?.data, isLoading, isError: !!error, mutate };
+}
+
 export function useAdminUsers(filters?: { role?: string; status?: string; search?: string; property_id?: string }) {
   const params = new URLSearchParams();
   if (filters?.role) params.set("role", filters.role);
