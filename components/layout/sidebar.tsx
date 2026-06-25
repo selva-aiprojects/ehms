@@ -74,6 +74,10 @@ const ALL_NAV_ITEMS = [
   { label: "Inventory",        icon: Package,     href: "/dashboard/inventory", roles: ["super_admin","executive","property_manager","maintenance_supervisor","housekeeping_supervisor","finance_manager"] },
   { label: "Inv Items",        icon: Package,     href: "/dashboard/inventory/items", roles: ["super_admin","executive","property_manager","maintenance_supervisor"] },
   { label: "Inv Transactions", icon: FileText,    href: "/dashboard/inventory/transactions", roles: ["super_admin","executive","property_manager","maintenance_supervisor","finance_manager"] },
+  { label: "Warehouses",       icon: Building2,   href: "/dashboard/inventory/warehouses", roles: ["super_admin","executive","property_manager","maintenance_supervisor"] },
+  { label: "Inv Categories",   icon: Layers,      href: "/dashboard/inventory/categories", roles: ["super_admin","executive","property_manager","maintenance_supervisor"] },
+  { label: "Vendor Orders",    icon: FileText,    href: "/dashboard/vendors/orders", roles: ["super_admin","executive","property_manager","maintenance_supervisor","finance_manager"] },
+  { label: "Vendor Services",  icon: Wrench,      href: "/dashboard/vendors/services", roles: ["super_admin","executive","property_manager","maintenance_supervisor","finance_manager"] },
   { label: "Shifts",           icon: Clock,         href: "/dashboard/hr/shifts", roles: ["super_admin","executive","hr_manager","hr_executive","employee_manager"] },
   { label: "HR Settings",      icon: Settings,      href: "/dashboard/hr/settings", roles: ["super_admin","executive","hr_manager","hr_executive"] },
   { label: "Settings",         icon: Settings,      href: "/dashboard/admin/settings", roles: ["super_admin","executive","property_manager"] },
@@ -96,8 +100,8 @@ const NAV_GROUPS = [
   { label: "Finance & Accounts",     icon: CreditCard,   items: ["Finance","Chart of Accts","Journal","Ledger","Receivables","Payables","Budget","Tax","Fixed Assets","Reports","Fin Settings","Reconciliation"] },
   { label: "Human Resources",        icon: Users,        items: ["HRMS","Employees","Timesheets","Leave","Payroll","Compliance","Masters","Policies","Appraisal","Compensation","Shifts","HR Settings"] },
   { label: "Administration",         icon: Shield,       items: ["Admin","Tenants","Workspaces","Roles","Audit Trail","Backup","Users","Settings","Master Data","Sessions","Compliance"] },
-  { label: "Procurement",           icon: ClipboardList, items: ["Procurement","Vendors","Purchase Orders","Goods Receipt"] },
-  { label: "Inventory",             icon: Package,       items: ["Inventory","Inv Items","Inv Transactions"] },
+  { label: "Procurement",           icon: ClipboardList, items: ["Procurement","Vendors","Vendor Orders","Vendor Services","Purchase Orders","Goods Receipt"] },
+  { label: "Inventory",             icon: Package,       items: ["Inventory","Inv Items","Inv Transactions","Warehouses","Inv Categories"] },
 ];
 
 const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
@@ -114,7 +118,8 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
     "Users", "Tenants", "Settings", "Master Data", "Sessions", "Compliance",
-    "Procurement", "Vendors", "Purchase Orders", "Goods Receipt", "Inventory", "Inv Items", "Inv Transactions",
+    "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
+    "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
     "Memberships", "Visitors", "Reconciliation"
   ],
   hotels: [
@@ -127,7 +132,8 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
     "Users", "Tenants", "Settings", "Master Data", "Sessions", "Compliance",
-    "Procurement", "Vendors", "Purchase Orders", "Goods Receipt", "Inventory", "Inv Items", "Inv Transactions",
+    "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
+    "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
     "Memberships", "Visitors", "Reconciliation"
   ],
   apartments: [
@@ -139,7 +145,8 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Tenants", "Settings", "Master Data", "Procurement", "Vendors", "Purchase Orders", "Goods Receipt", "Inventory", "Inv Items", "Inv Transactions"
+    "Users", "Tenants", "Settings", "Master Data",     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
+    "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories"
   ],
   rental: [
     "Dashboard", "Rental", "Leases", "Rent Invoices", "Deposits",
@@ -163,7 +170,8 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
     "Users", "Tenants", "Settings", "Master Data", "Sessions", "Compliance",
-    "Procurement", "Vendors", "Purchase Orders", "Goods Receipt", "Inventory", "Inv Items", "Inv Transactions",
+    "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
+    "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
     "Memberships", "Visitors", "Reconciliation"
   ]
 };
