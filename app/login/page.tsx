@@ -126,6 +126,11 @@ function LoginContent() {
       const data = await res.json();
       if (res.ok) {
         if (data.user) {
+          if (data.tenant?.code !== tenantCode) {
+            setError(`Tenant mismatch: server returned "${data.tenant?.code}" but expected "${tenantCode}". Please try again.`);
+            setLoading(false);
+            return;
+          }
           localStorage.setItem("ehms_demo_session", JSON.stringify(data.user));
           localStorage.setItem("ehms_tenant_verticals", JSON.stringify(data.user.tenant_verticals || []));
           localStorage.setItem("ehms_tenant_name", data.tenant?.name || "");
@@ -147,6 +152,9 @@ function LoginContent() {
   }
 
   function selectTenant(code: string) {
+    localStorage.removeItem("ehms_demo_session");
+    localStorage.removeItem("ehms_tenant_verticals");
+    localStorage.removeItem("ehms_tenant_name");
     router.push(`/login?tenant=${code}`);
   }
 
