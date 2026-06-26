@@ -99,6 +99,36 @@ python3 skills/ui-ux-pro-max/scripts/search.py "<page description>" --page-desig
 - `--persist` — save to `design-system/` folder
 - `--page <name>` — specify page name (for override files or --page-design hint)
 
+## 12. Property Configuration & Feature Toggles (25 Jun 2026)
+- **DB migration:** `025_property_config_features.sql` — documents the `properties.config` JSONB schema with 10 feature toggles
+- **Config Schema:** stored in existing `properties.config` JSONB column:
+  ```json
+  {
+    "features": {
+      "rooms_map":     { "enabled": true,  "label": "Rooms Map" },
+      "rate_card":     { "enabled": true,  "label": "Rate Card" },
+      "restaurant":    { "enabled": false, "label": "Restaurant" },
+      "bar":           { "enabled": false, "label": "Bar" },
+      "laundry":       { "enabled": true,  "label": "Laundry" },
+      "maintenance":   { "enabled": true,  "label": "Maintenance" },
+      "gym":           { "enabled": false, "label": "Gym" },
+      "yoga":          { "enabled": false, "label": "Yoga" },
+      "swimming_pool": { "enabled": false, "label": "Swimming Pool" },
+      "spa":           { "enabled": false, "label": "Spa" }
+    },
+    "settings": { "timezone": "Asia/Kolkata", "currency": "INR" }
+  }
+  ```
+- **API routes:** `POST /api/properties` — accepts `config` on create; `PUT /api/properties/[id]` — supports partial config merge via JSONB `||`
+- **UI pages:**
+  - **Property Detail** (`/dashboard/admin/properties/[id]`) — tabs: Overview (property details, buildings, feature status) + Configuration (10 grouped feature toggles with save/reset)
+  - **Create/Edit Modal** — collapsible "Configure Feature Settings" section with toggle buttons for all 10 features
+- **Hooks:** `usePropertyFeatures(propertyId)` returns `{ features, isFeatureEnabled(key), isLoading }`
+- **Mutation:** `useUpdatePropertyConfig()` — update config without touching other property fields
+- **Workflow Integration:** `isFeatureEnabled("restaurant")` pattern allows any module to conditionally show/hide UI based on property feature config
+- **Navigation:** Settings icon on property cards navigates to the property detail page
+- **Note:** The `GET /api/properties` endpoint was rewritten to use `sql.query()` instead of nested tagged template literals to avoid a driver compatibility issue with empty `sql\`\`` fragments.
+
 ## 11. Login Workflow: Platform Superadmin vs Regular Tenant (SHARD)
 
 ### Flow Diagram

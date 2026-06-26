@@ -5,7 +5,7 @@
 > **Verticals:** Hotels & Resorts | Service Apartments | Apartment Leasing & Rental | Workplace & Managed Offices  
 > **Tech Stack:** Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 · NeonDB (PostgreSQL 16) · SWR  
 > **Auth:** JWT (httpOnly cookie) · bcryptjs · RBAC  
-> **Last Updated:** 23 June 2026
+> **Last Updated:** 25 June 2026
 
 ---
 
@@ -21,8 +21,10 @@
 8. [Workplace & Managed Office Management — Complete Module](#8-workplace--managed-office-management--complete-module)
 9. [Cross-Cutting Operational Modules](#9-cross-cutting-operational-modules)
 10. [Database Schema Map](#10-database-schema-map)
-11. [Architecture Diagrams](#11-architecture-diagrams)
-12. [API Endpoint Reference](#12-api-endpoint-reference)
+11. [Property Configuration & Feature Toggles](#11-property-configuration--feature-toggles)
+12. [Architecture Diagrams](#12-architecture-diagrams)
+13. [API Endpoint Reference](#13-api-endpoint-reference)
+14. [Test Users & User Journeys by Workspace](#14-test-users--user-journeys-by-workspace)
 
 ---
 
@@ -1248,7 +1250,13 @@ Additional considerations in schema:
 **APIs:** `/api/inventory/*` (categories, items, warehouses, transactions, stats)  
 **Key Tables:** `inventory_categories`, `inventory_items`, `warehouses`, `inventory_transactions`
 
-### 9.8 Admin (Global)
+### 9.8 Property Configuration (Per-Property)
+
+**Pages (2):** Property Detail (`/dashboard/admin/properties/[id]`), Properties (extended)  
+**APIs:** `POST/PUT /api/properties` — accepts `config` payload; `PUT /api/properties/[id]` — partial config merge  
+**Hooks:** `usePropertyFeatures(propertyId)`, `useUpdatePropertyConfig()`
+
+### 9.9 Admin (Global)
 
 **Pages (7):** Overview, Roles, Audit, Backup, Properties, Users, Masters  
 **APIs:** `/api/admin/*` (users, compliance, roles, sessions, backup, audit-events)  
@@ -1258,7 +1266,7 @@ Additional considerations in schema:
 
 ## 10. Database Schema Map
 
-### 10.1 Complete Table Inventory (22 Migrations, ~85+ Tables)
+### 10.1 Complete Table Inventory (23 Migrations, ~85+ Tables)
 
 | Migration # | File | Key Tables | Domain |
 |---|---|---|---|
@@ -1284,6 +1292,7 @@ Additional considerations in schema:
 | 020 | `020_admin_module.sql` | user_sessions, login_attempts, system_backups, system_audit_events, admin_notifications | Admin Module |
 | 021 | `021_accounts_module.sql` | fiscal_years, cost_centers, vendor_bills, bill_line_items, bill_payments, budget_heads, budget_entries, fixed_assets, depreciation_schedule, tax_filings | Accounts Module |
 | 022 | `022_inventory_module.sql` | inventory_categories, warehouses, inventory_items, inventory_transactions | Inventory Module |
+| 025 | `025_property_config_features.sql` | (Documents `properties.config` JSONB schema — no new tables) | Property Config |
 
 ### 10.2 Entity Relationship (Core Tables)
 
@@ -1317,7 +1326,70 @@ enterprises (1) ──→ (N) regions (1) ──→ (N) properties (1)
 
 ---
 
-## 11. Architecture Diagrams
+## 11. Property Configuration & Feature Toggles
+
+### 11.1 Overview
+
+Per-property feature configuration system that toggles optional modules (restaurant, bar, gym, spa, etc.) on/off at the property level. Uses the existing `properties.config` JSONB column.
+
+### 11.2 Config Schema
+
+```json
+{
+  "features": {
+    "rooms_map":     { "enabled": true,  "label": "Rooms Map" },
+    "rate_card":     { "enabled": true,  "label": "Rate Card" },
+    "restaurant":    { "enabled": false, "label": "Restaurant" },
+    "bar":           { "enabled": false, "label": "Bar" },
+    "laundry":       { "enabled": true,  "label": "Laundry" },
+    "maintenance":   { "enabled": true,  "label": "Maintenance" },
+    "gym":           { "enabled": false, "label": "Gym" },
+    "yoga":          { "enabled": false, "label": "Yoga" },
+    "swimming_pool": { "enabled": false, "label": "Swimming Pool" },
+    "spa":           { "enabled": false, "label": "Spa" }
+  },
+  "settings": { "timezone": "Asia/Kolkata", "currency": "INR" }
+}
+```
+
+### 11.3 Database
+
+| Migration | Purpose |
+|-----------|---------|
+| `025_property_config_features.sql` | Documents the `properties.config` JSONB schema; no new tables |
+
+### 11.4 API Endpoints
+
+| Endpoint | Change | Details |
+|----------|--------|---------|
+| `POST /api/properties` | Extended | Accepts optional `config` payload; auto-applies default features |
+| `PUT /api/properties/[id]` | Extended | Supports partial config merge via JSONB `\|\|` operator |
+| `GET /api/properties` | Rewritten | Changed from tagged template literals to `sql.query()` to fix driver issue |
+
+### 11.5 UI Pages
+
+| Page | Path | Features |
+|------|------|----------|
+| **Property Detail** | `/dashboard/admin/properties/[id]` | Two tabs: **Overview** (property details, buildings, feature status sidebar) + **Configuration** (10 grouped feature toggles with save/reset) |
+| **Properties** (extended) | `/dashboard/admin/properties` | Collapsible "Configure Feature Settings" section in Add/Edit modal; Settings icon navigates to detail page |
+
+### 11.6 Hooks
+
+| Hook | Returns | Purpose |
+|------|---------|---------|
+| `usePropertyFeatures(propertyId)` | `{ features, isFeatureEnabled(key), isLoading }` | Any module can conditionally render UI based on feature state |
+| `useUpdatePropertyConfig()` | mutation | Update config without touching other property fields |
+
+### 11.7 Architecture
+
+- **Storage**: Existing `properties.config` JSONB column (was unused before)
+- **Migration**: Applied via `scripts/apply-025.mjs`
+- **Workflow Integration**: `isFeatureEnabled("restaurant")` pattern for conditional rendering
+- **Build**: Zero type errors, 149 static routes
+
+---
+
+## 12. Architecture Diagrams
 
 ### 11.1 Full System Architecture (Text Diagram)
 
@@ -1550,7 +1622,7 @@ enterprises (1) ──→ (N) regions (1) ──→ (N) properties (1)
 
 ---
 
-## 12. API Endpoint Reference
+## 13. API Endpoint Reference
 
 ### 12.1 Complete API Endpoint Inventory
 
@@ -1578,8 +1650,8 @@ enterprises (1) ──→ (N) regions (1) ──→ (N) properties (1)
 | | `/api/reservations/[id]` | GET/PUT | Single booking operations |
 | **Guests** | `/api/guests` | GET/POST | Guest profile CRUD |
 | | `/api/guests/[id]` | GET/PUT | Single guest operations |
-| **Properties** | `/api/properties` | GET | List all properties |
-| | `/api/properties/[id]` | GET/PUT | Single property operations |
+| **Properties** | `/api/properties` | GET/POST | List all properties (rewritten with sql.query()) + create with optional config |
+| | `/api/properties/[id]` | GET/PUT | Single property operations + partial config merge via JSONB `\|\|` |
 | **Leases** | `/api/leases` | GET/POST | Lease agreement CRUD |
 | **Housekeeping** | `/api/housekeeping` | GET/POST | HK task CRUD |
 | | `/api/housekeeping/[id]` | GET/PUT | Single HK task |
@@ -1689,11 +1761,11 @@ enterprises (1) ──→ (N) regions (1) ──→ (N) properties (1)
 
 ---
 
-## 13. Test Users & User Journeys by Workspace
+## 14. Test Users & User Journeys by Workspace
 
 This section defines **sample test users** for each vertical workspace, with complete **user journey walkthroughs** that test end-to-end business flows. All passwords use the common demo password: **`Demo@1234`**
 
-### 13.1 Common/Shared System Demo Users (Pre-Seeded)
+### 14.1 Common/Shared System Demo Users (Pre-Seeded)
 
 These 8 demo users exist in the database seed data and can access any vertical:
 
@@ -1710,9 +1782,9 @@ These 8 demo users exist in the database seed data and can access any vertical:
 
 ---
 
-### 13.2 Vertical: Hotels & Resorts — Test Users & Journeys
+### 14.2 Vertical: Hotels & Resorts — Test Users & Journeys
 
-#### 13.2.1 Hotel-Specific Test Users
+#### 14.2.1 Hotel-Specific Test Users
 
 | Test User | Email | Role | Property Context | Purpose |
 |---|---|---|---|---|
@@ -1726,7 +1798,7 @@ These 8 demo users exist in the database seed data and can access any vertical:
 | **Vikram (HR)** | `hr.ovh@ehms.demo` | hr_manager | Oceanview Grand Hotel | Hotel staff attendance, shifts, payroll |
 | **Guest: John Smith** | `john.smith@guest.demo` | guest | Oceanview Grand Hotel | Pre-arrival, check-in, stay, check-out |
 
-#### 13.2.2 Hotel User Journey 1: Full Guest Cycle (Booking → Check-In → Stay → Check-Out)
+#### 14.2.2 Hotel User Journey 1: Full Guest Cycle (Booking → Check-In → Stay → Check-Out)
 
 ```
 JOURNEY: Hotel Full Guest Cycle
@@ -1807,7 +1879,7 @@ TEST ASSERTIONS:
   └── Feedback appears in /dashboard/front-desk/feedbacks
 ```
 
-#### 13.2.3 Hotel User Journey 2: Housekeeping Linen & Inspection Workflow
+#### 14.2.3 Hotel User Journey 2: Housekeeping Linen & Inspection Workflow
 
 ```
 JOURNEY: Hotel Housekeeping Linen & Quality Control
@@ -1841,9 +1913,9 @@ TEST ASSERTIONS:
 
 ---
 
-### 13.3 Vertical: Service Apartments — Test Users & Journeys
+### 14.3 Vertical: Service Apartments — Test Users & Journeys
 
-#### 13.3.1 Service Apartment-Specific Test Users
+#### 14.3.1 Service Apartment-Specific Test Users
 
 | Test User | Email | Role | Property Context | Purpose |
 |---|---|---|---|---|
@@ -1855,7 +1927,7 @@ TEST ASSERTIONS:
 | **Anand (Finance)** | `finance.csa@ehms.demo` | finance_manager | Casa Serene Apartments | Split billing (room + utilities), corp invoicing |
 | **Guest: Robert Brown** | `robert.brown@guest.demo` | guest | Casa Serene Apartments | 14-day extended stay with utility billing |
 
-#### 13.3.2 Service Apartment User Journey 1: Extended Stay Booking → Check-In → Stay → Check-Out
+#### 14.3.2 Service Apartment User Journey 1: Extended Stay Booking → Check-In → Stay → Check-Out
 
 ```
 JOURNEY: Service Apartment Extended Stay
@@ -1924,9 +1996,9 @@ TEST ASSERTIONS:
 
 ---
 
-### 13.4 Vertical: Apartment Leasing & Rent — Test Users & Journeys
+### 14.4 Vertical: Apartment Leasing & Rent — Test Users & Journeys
 
-#### 13.4.1 Rental-Specific Test Users
+#### 14.4.1 Rental-Specific Test Users
 
 | Test User | Email | Role | Property Context | Purpose |
 |---|---|---|---|---|
@@ -1937,7 +2009,7 @@ TEST ASSERTIONS:
 | **Tenant: Priya Sharma** | `priya.sharma@tenant.demo` | tenant | Greenwood Residency (3BHK-05) | Pay rent, request maintenance, renew lease |
 | **Tenant: Rohan Mehta** | `rohan.mehta@tenant.demo` | tenant | Greenwood Residency (2BHK-12) | Test late payment flow, notice period |
 
-#### 13.4.2 Rental User Journey 1: Complete Tenant Lifecycle (Prospect → Move-In → Pay Rent → Maintenance → Renew → Move-Out)
+#### 14.4.2 Rental User Journey 1: Complete Tenant Lifecycle (Prospect → Move-In → Pay Rent → Maintenance → Renew → Move-Out)
 
 ```
 JOURNEY: Rental Tenant Full Lifecycle
@@ -2071,7 +2143,7 @@ TEST: Verify rent collection percentage calculated correctly
 TEST: Verify deposit refund reduces held deposit balance
 ```
 
-#### 13.4.3 Rental User Journey 2: Multi-Property Portfolio Management
+#### 14.4.3 Rental User Journey 2: Multi-Property Portfolio Management
 
 ```
 JOURNEY: Rental Portfolio Overview & Property Comparison
@@ -2105,9 +2177,9 @@ TEST: Verify forecast calculations based on active + upcoming leases
 
 ---
 
-### 13.5 Vertical: Workplace & Managed Offices — Test Users & Journeys
+### 14.5 Vertical: Workplace & Managed Offices — Test Users & Journeys
 
-#### 13.5.1 Workplace-Specific Test Users
+#### 14.5.1 Workplace-Specific Test Users
 
 | Test User | Email | Role | Property Context | Purpose |
 |---|---|---|---|---|
@@ -2118,7 +2190,7 @@ TEST: Verify forecast calculations based on active + upcoming leases
 | **Visitor: Ankit** | `ankit@visitor.demo` | visitor | Innovate Coworking Space | Day-pass visitor, pre-registration |
 | **Priya (Finance)** | `finance.ics@ehms.demo` | finance_manager | Innovate Coworking Space | Membership billing, overage invoicing |
 
-#### 13.5.2 Workplace User Journey 1: Corporate Membership → Desk Booking → Visit → Billing
+#### 14.5.2 Workplace User Journey 1: Corporate Membership → Desk Booking → Visit → Billing
 
 ```
 JOURNEY: Workplace Coworking Full Cycle
@@ -2254,7 +2326,7 @@ TEST: Verify stat cards reflect real-time data
 
 ---
 
-### 13.6 Cross-Vertical HR Workflow — Test User Journey
+### 14.6 Cross-Vertical HR Workflow — Test User Journey
 
 ```
 JOURNEY: Cross-Vertical HR — Employee Lifecycle (Applicable to ALL 4 Verticals)
@@ -2311,7 +2383,7 @@ TEST ASSERTIONS:
   └── Appraisal score triggers increment percentage
 ```
 
-### 13.7 Cross-Vertical Finance Workflow — Test User Journey
+### 14.7 Cross-Vertical Finance Workflow — Test User Journey
 
 ```
 JOURNEY: Cross-Vertical Finance — Month-End Close (Applicable to ALL 4 Verticals)
@@ -2356,7 +2428,7 @@ TEST ASSERTIONS:
   └── Reports reconcile correctly
 ```
 
-### 13.8 Cross-Vertical Admin — Test User Journey
+### 14.8 Cross-Vertical Admin — Test User Journey (Including Property Configuration)
 
 ```
 JOURNEY: Admin Module — System Configuration & Monitoring
@@ -2389,16 +2461,25 @@ STEP 5: BACKUP
   └── View backup job history
   └── Trigger new backup → DB: INSERT system_backups
 
+STEP 6: PROPERTY CONFIGURATION (Feature Toggles)
+  └── Navigate to: /dashboard/admin/properties → Click property card Settings icon
+  └── View Property Detail page → Configuration tab
+  └── Toggle features: Enable "Restaurant", Disable "Bar"
+  └── Click Save → DB: UPDATE properties SET config = config || '{"features":{"restaurant":...,"bar":...}}'::jsonb
+  └── Verify: Feature status badges update in Overview tab
+  └── Verify: Modules can check isFeatureEnabled("restaurant") to conditionally render UI
+
 TEST ASSERTIONS:
   ├── Property created reflects in all dropdowns
   ├── New user can login with assigned role permissions
   ├── Audit trail captures all CREATE/UPDATE/DELETE actions
-  └── Backup job recorded in system_backups table
+  ├── Backup job recorded in system_backups table
+  └── Property feature config persisted and retrievable via GET endpoint
 ```
 
 ---
 
-### 13.9 Test Data Summary Matrix
+### 14.9 Test Data Summary Matrix
 
 | Vertical | User Journey | Test Users Involved | Key Pages Tested | API Endpoints Hit |
 |---|---|---|---|---|
@@ -2412,7 +2493,7 @@ TEST ASSERTIONS:
 | **Cross** | Finance Close | Ananya | finance/* | finance/journal-entries, ledger, reports/* |
 | **Cross** | Admin Config | Super Admin | admin/* | admin/users, roles, audit-events, backup |
 
-### 13.10 Login Credentials Quick Reference
+### 14.10 Login Credentials Quick Reference
 
 | Persona | Email | Password | Role | Best For Testing |
 |---|---|---|---|---|
@@ -2480,5 +2561,5 @@ TEST ASSERTIONS:
 
 ---
 
-*Document generated from eHMS codebase analysis — 23 June 2026*  
-*Source: `d:\Training\working\HMS` — 22 SQL migrations, 100+ API routes, 40+ pages, 80+ hooks*
+*Document generated from eHMS codebase analysis — 25 June 2026*  
+*Source: `d:\Training\working\HMS` — 23 SQL migrations, 100+ API routes, 40+ pages, 80+ hooks*

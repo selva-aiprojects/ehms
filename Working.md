@@ -2,7 +2,7 @@
 
 > **Enterprise Hospitality Management System**
 > Full progress log from project start to current state.
-> Last updated: 24 June 2026
+> Last updated: 25 June 2026
 
 ---
 
@@ -18,7 +18,7 @@
 | **Live URL** | https://ehms-app.vercel.app |
 | **Vercel project** | https://vercel.com/aiservicesselvakumar-8945s-projects/frontend |
 | **Git** | https://github.com/selva-aiprojects/ehms.git |
-| **Database schemas** | `d:\Training\working\HMS\database\` (24 SQL files: 023 migrations + seed_v4_full; fixes: 19 schema-mismatch bugs corrected in seed_v4_full) |
+| **Database schemas** | `d:\Training\working\HMS\database\` (26 SQL files: 025 migrations + seed_v4_full; fixes: 19 schema-mismatch bugs corrected in seed_v4_full) |
 
 
 ---
@@ -83,10 +83,15 @@ d:\Training\working\HMS\
 │   │                                    ID proof types, asset categories, UOM, geo data
 │   ├── 019_housekeeping_maintenance_workflows.sql ← Linen items, inspections, ticket parts,
 │   │                                    time entries, approvals
-│   └── 020_admin_module.sql         ← System sessions, login attempts, backup jobs,
-│                                         audit events, admin notifications
+│   ├── 020_admin_module.sql         ← System sessions, login attempts, backup jobs,
+│   │                                    audit events, admin notifications
+│   ├── 021_accounts_module.sql      ← Fiscal years, cost centers, vendor bills,
+│   │                                    fixed assets, budget, tax filings
+│   ├── 022_inventory_module.sql     ← Inventory categories, items, warehouses, transactions
+│   ├── 023_multi_tenant_sharding.sql← Schema-per-tenant (viswa shard), tenant registry
+│   └── 025_property_config_features.sql ← Property config JSONB schema with 10 feature toggles
 │
-│   └── seed.sql                     ← Demo data (passwords via pgcrypto crypt())
+│   └── seed_v4_full.sql             ← Comprehensive demo data (all workflows, 4 properties)
 │
 └── frontend/   ← (also mirrored at repo root)
     ├── app/
@@ -569,12 +574,13 @@ Password for all: `Demo@1234`
 ## Git Commit History
 
 | Hash | Message |
-|---|---|
+|---|---|---|
 | `fe7691f` | Initial commit from Create Next App |
 | `55a7dbe` | feat: apply eHMS theme, redesign dashboard, sidebar, header |
 | `fd0b913` | feat: full database integration (originally Supabase) |
 | *(3 prior)* | NeonDB migrate, RBAC, Journey Switcher, HRMS, Masters, HK/Maint workflows |
-| *current* | feat: Admin Module (sessions/audit/backup/roles) + Property CRUD + per-property scoping |
+| *prev* | feat: Admin Module (sessions/audit/backup/roles) + Property CRUD + per-property scoping |
+| *current* | feat: Property Configuration & Feature Toggles (10 toggles, config UI, hooks) |
 
 ---
 
@@ -696,6 +702,7 @@ vercel --prod
 - **Maintenance Workflow — Sub-pages, API routes, asset/ticket/parts tracking** (See Step 16)
 - **Admin Module — System session management, audit trail, backup/restore** (See Step 17)
 - **Property Workspace Management — Full CRUD, per-property scoping** (See Step 18)
+- **Property Configuration & Feature Toggles — 10 per-property feature toggles** (See Step 26)
 
 ### What May Need Attention
 1. Run `020_admin_module.sql` via `npm run migrate` to create new admin tables (sessions, login attempts, backup jobs, audit events, admin notifications)
@@ -1560,4 +1567,68 @@ PostgreSQL Cluster
 
 ---
 
-*Working.md — eHMS Project • Created 18 June 2026 • Updated 24 June 2026*
+## Step 26 — Property Configuration & Feature Toggles
+
+Built on 25 June 2026. Added per-property feature configuration — a JSONB settings panel on each property that toggles optional modules (restaurant, bar, gym, spa, etc.) on/off at the property level.
+
+### Database: 025_property_config_features.sql
+Documents the standard `properties.config` JSONB schema with 10 feature toggles grouped into 4 categories:
+
+| Group | Features |
+|-------|----------|
+| **Property Core** | Rooms Map, Rate Card |
+| **F&B** | Restaurant, Bar |
+| **Guest Services** | Laundry, Maintenance |
+| **Wellness** | Gym, Yoga, Swimming Pool, Spa |
+
+Default config for all properties after migration:
+```json
+{
+  "features": {
+    "rooms_map":     { "enabled": true,  "label": "Rooms Map" },
+    "rate_card":     { "enabled": true,  "label": "Rate Card" },
+    "restaurant":    { "enabled": false, "label": "Restaurant" },
+    "bar":           { "enabled": false, "label": "Bar" },
+    "laundry":       { "enabled": true,  "label": "Laundry" },
+    "maintenance":   { "enabled": true,  "label": "Maintenance" },
+    "gym":           { "enabled": false, "label": "Gym" },
+    "yoga":          { "enabled": false, "label": "Yoga" },
+    "swimming_pool": { "enabled": false, "label": "Swimming Pool" },
+    "spa":           { "enabled": false, "label": "Spa" }
+  },
+  "settings": { "timezone": "Asia/Kolkata", "currency": "INR" }
+}
+```
+
+### API Changes (3 endpoints)
+
+| Route | Change | Details |
+|-------|--------|---------|
+| `POST /api/properties` | Extended | Accepts optional `config` payload; auto-applies default features if not provided |
+| `PUT /api/properties/[id]` | Extended | Supports partial `config` merge via JSONB `\|\|` operator — send only the features you want to change |
+| `GET /api/properties` | Rewritten | Changed from nested tagged template literals to `sql.query()` to avoid driver compatibility issue with empty `sql\`\`` fragments that caused 500 errors |
+
+### Pages Built (1) + Extended (1)
+
+| Page | Path | Features |
+|------|------|----------|
+| **Property Detail** | `/dashboard/admin/properties/[id]` | Two tabs: **Overview** (property details, buildings list, feature status sidebar) + **Configuration** (10 grouped feature toggles with individual save/reset) |
+| **Properties** (extended) | `/dashboard/admin/properties` | Collapsible "Configure Feature Settings" section in Add/Edit modal with toggle buttons for all 10 features; Settings icon on property cards navigates to detail page |
+
+### Hooks Added (2)
+
+| Hook | Purpose |
+|------|---------|
+| `usePropertyFeatures(propertyId)` | Returns `{ features, isFeatureEnabled(key), isLoading }` — any module can conditionally render UI based on feature state |
+| `useUpdatePropertyConfig()` | Mutation to update config without touching other property fields |
+
+### Architecture
+
+- **Storage**: Uses the existing `properties.config` JSONB column (was defined but previously unused in the schema)
+- **Migration**: `scripts/apply-025.mjs` applies defaults to all existing properties
+- **Workflow Integration**: `isFeatureEnabled("restaurant")` pattern allows any module to show/hide UI based on property config
+- **Build Verification**: `npx next build` passes with 149 static routes and zero type errors
+
+---
+
+*Working.md — eHMS Project • Created 18 June 2026 • Updated 25 June 2026*
