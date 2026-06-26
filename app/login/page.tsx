@@ -87,7 +87,7 @@ function LoginContent() {
       .finally(() => setTenantLoading(false));
   }, []);
 
-  // Resolve a single tenant by code
+  // Resolve a single tenant by code using direct lookup
   useEffect(() => {
     if (!tenantCode) {
       setTenant(null);
@@ -96,13 +96,31 @@ function LoginContent() {
     }
 
     setTenantLoading(true);
-    fetch("/api/admin/tenants")
+    fetch(`/api/admin/tenants/verify?code=${encodeURIComponent(tenantCode)}`)
       .then((r) => r.json())
       .then((data) => {
-        const found = (data.tenants || []).find(
-          (t: TenantInfo) => t.code === tenantCode
-        );
-        setTenant(found || null);
+        if (data.tenant) {
+          const t = data.tenant;
+          setTenant({
+            id: t.id,
+            name: t.name,
+            code: t.code,
+            schema_name: t.schema_name,
+            logo_url: null,
+            domain: null,
+            contact_email: null,
+            is_active: t.is_active,
+            config: {
+              suspended: t.suspended,
+              verticals: t.verticals,
+              workspaces: t.workspaces,
+              contact_email: t.contact_email,
+            },
+            created_at: t.created_at,
+          });
+        } else {
+          setTenant(null);
+        }
       })
       .catch(() => setTenant(null))
       .finally(() => setTenantLoading(false));
