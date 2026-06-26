@@ -2,41 +2,50 @@
 
 /* ─── eHMS Design System ─── */
 :root {
+  /* Tenant theme — set dynamically by TenantThemeProvider, falls back to defaults */
+  --tenant-primary:       #2BAE8E;
+  --tenant-primary-dark:  #229F82;
+  --tenant-secondary:     #4DB88A;
+  --tenant-accent:        #D4A853;
+  --tenant-sidebar:       #2C3547;
+  --tenant-sidebar-hover: rgba(255,255,255,0.07);
+  --tenant-sidebar-active: #2BAE8E;
+
   /* Sidebar / Shell */
-  --color-sidebar:       #2C3547;
-  --color-sidebar-hover: rgba(255,255,255,0.07);
-  --color-sidebar-active-bg: rgba(43,174,142,0.18);
-  --color-sidebar-active-text: #2BAE8E;
+  --color-sidebar:        var(--tenant-sidebar);
+  --color-sidebar-hover:  var(--tenant-sidebar-hover);
+  --color-sidebar-active-bg: color-mix(in srgb, var(--tenant-sidebar-active) 18%, transparent);
+  --color-sidebar-active-text: var(--tenant-sidebar-active);
 
   /* Brand palette */
-  --color-primary:       #2BAE8E;   /* teal-green */
-  --color-primary-dark:  #229F82;   /* hover darken */
-  --color-secondary:     #4DB88A;   /* light green (logo accent) */
-  --color-gold:          #D4A853;   /* gold accent (landing, platform admin) */
-  --color-navy:          #1A3C5E;   /* dark navy headings */
-  --color-dark-navy:     #0B1A2E;  /* deepest navy (landing background) */
-  --color-bg-surface:    #0F2438;  /* elevated surface on dark-navy */
-  --color-amber:         #F5A623;   /* warm amber for warnings */
+  --color-primary:        var(--tenant-primary);
+  --color-primary-dark:   var(--tenant-primary-dark);
+  --color-secondary:      var(--tenant-secondary);
+  --color-gold:           var(--tenant-accent);
+  --color-navy:           #1A3C5E;
+  --color-dark-navy:      #0B1A2E;
+  --color-bg-surface:     #0F2438;
+  --color-amber:          #F5A623;
 
   /* Surfaces */
-  --color-light:         #F5F7FA;
-  --color-white:         #FFFFFF;
-  --color-border:        #E2E8F0;
+  --color-light:          #F5F7FA;
+  --color-white:          #FFFFFF;
+  --color-border:         #E2E8F0;
 
   /* Text */
-  --color-text:          #1A2E44;
-  --color-text-muted:    #64748B;
+  --color-text:           #1A2E44;
+  --color-text-muted:     #64748B;
 
   /* RGB components for rgba() usage */
-  --color-light-rgb:     245, 247, 250;
-  --color-primary-rgb:   43, 174, 142;
-  --color-gold-rgb:      212, 168, 83;
-  --color-dark-navy-rgb: 11, 26, 46;
+  --color-light-rgb:      245, 247, 250;
+  --color-primary-rgb:    43, 174, 142;
+  --color-gold-rgb:       212, 168, 83;
+  --color-dark-navy-rgb:  11, 26, 46;
 
   /* Status */
-  --color-danger:        #E53E3E;
-  --color-success:       #2BAE8E;
-  --color-warning:       #F5A623;
+  --color-danger:         #E53E3E;
+  --color-success:        var(--tenant-primary);
+  --color-warning:        #F5A623;
 }
 
 @theme inline {

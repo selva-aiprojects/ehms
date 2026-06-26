@@ -220,3 +220,10 @@ python3 skills/ui-ux-pro-max/scripts/search.py "<page description>" --page-desig
 - **`proxy.ts` auth redirects:** Authenticated users on `/`, `/login`, or `/tenants` are redirected away. Platform admins go to `/dashboard/admin/tenants`, shard users go to `/dashboard`.
 - **Schema isolation:** Each tenant's data lives in its own PostgreSQL schema (e.g., `viswa`). `lib/db.ts` uses `search_path = {schema}, public` to scope queries.
 
+## 14. Design System & UI/UX Pro Max
+- Design system persisted at `design-system/ehms/MASTER.md` (generated via `ui-ux-pro-max` skill).
+- **Colors:** Primary `#1E3A8A`, Secondary `#3B82F6`, CTA/Accent `#CA8A04`, Background `#F8FAFC`, Text `#1E40AF`.
+- **Typography:** Playfair Display SC (headings), Karla (body).
+- **Welcome email** in `lib/email.ts` uses the above design system tokens.
+- Run `python3 scripts/search.py "<query>" --page-design -p "eHMS"` from `skills/ui-ux-pro-max/` for per-page guidance.
+

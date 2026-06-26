@@ -1,6 +1,8 @@
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { getPublicDb } from "@/lib/db";
-import { verifyToken } from "@/lib/auth";
+import { getDb, getPublicDb } from "@/lib/db";
+import { verifyToken, hashPassword } from "@/lib/auth";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function GET() {
   try {
@@ -27,10 +29,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Only platform superadmins can provision tenants" }, { status: 403 });
     }
 
-    const { name, code, schema, workspaces, primary_contact_name, payment_mode, subscription_charges_type, price } = await req.json();
+    const { name, code, schema, workspaces, primary_contact_name, contact_email, payment_mode, subscription_charges_type, price } = await req.json();
 
     if (!name || !code || !schema) {
       return NextResponse.json({ error: "name, code, and schema are required" }, { status: 400 });
+    }
+
+    if (!contact_email) {
+      return NextResponse.json({ error: "contact_email is required to send welcome credentials" }, { status: 400 });
     }
 
     if (!/^[a-z][a-z0-9_]{1,61}[a-z0-9]$/.test(schema)) {
@@ -73,6 +79,51 @@ export async function POST(req: NextRequest) {
 
     const tenantId = ((result as Record<string, unknown>[])[0] as { tenant_id: string }).tenant_id;
 
+    // ── Create admin user in the new tenant schema ──
+    const tempPassword = crypto.randomBytes(4).toString("hex") + "@A1";
+    const passwordHash = await hashPassword(tempPassword);
+
+    const adminFirstName = primary_contact_name || "Administrator";
+    const adminEmail = contact_email;
+
+    const tenantDb = getDb(schema);
+    await tenantDb`
+      INSERT INTO users (email, first_name, password_hash, is_active)
+      VALUES (${adminEmail}, ${adminFirstName}, ${passwordHash}, true)
+    `;
+
+    const userResult = await tenantDb`
+      SELECT id FROM users WHERE email = ${adminEmail} LIMIT 1
+    ` as { id: string }[];
+    const adminUserId = userResult[0]?.id;
+
+    if (adminUserId) {
+      const roleResult = await tenantDb`
+        SELECT id FROM roles WHERE name = 'super_admin' LIMIT 1
+      ` as { id: string }[];
+      const superAdminRoleId = roleResult[0]?.id;
+
+      if (superAdminRoleId) {
+        await tenantDb`
+          INSERT INTO user_roles (user_id, role_id)
+          VALUES (${adminUserId}::uuid, ${superAdminRoleId}::uuid)
+        `;
+      }
+    }
+
+    // ── Send welcome email ──
+    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/login?tenant=${code}`;
+
+    await sendWelcomeEmail(
+      adminEmail,
+      name,
+      adminFirstName,
+      adminEmail,
+      tempPassword,
+      loginUrl
+    );
+
+    // ── Store contact_email in tenants config ──
     const config: Record<string, unknown> = {
       verticals: selectedVerticals,
       suspended: false,
@@ -84,6 +135,7 @@ export async function POST(req: NextRequest) {
     };
 
     if (primary_contact_name) config.primary_contact_name = primary_contact_name;
+    if (contact_email) config.contact_email = contact_email;
     if (payment_mode) config.payment_mode = payment_mode;
     if (subscription_charges_type) config.subscription_charges = subscription_charges_type;
     if (price != null) config.price = price;
@@ -101,6 +153,8 @@ export async function POST(req: NextRequest) {
       schema,
       verticals: selectedVerticals,
       workspaces: config.workspaces,
+      admin_email: adminEmail,
+      email_sent: true,
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Provisioning failed";

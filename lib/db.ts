@@ -8,7 +8,7 @@ type SqlFn = NeonQueryFunction<false, false>;
 interface WrappedSql {
   (strings: TemplateStringsArray, ...values: unknown[]): Promise<Record<string, unknown>[]>;
   query: SqlFn["query"];
-  unsafe: SqlFn["unsafe"];
+  unsafe: (rawSQL: string, params?: unknown[]) => Promise<Record<string, unknown>[]>;
   transaction: SqlFn["transaction"];
 }
 
@@ -35,7 +35,10 @@ function makeWrappedSql(schema: string): WrappedSql {
     ]).then((results: unknown[]) => results[1]);
   }) as WrappedSql["query"];
 
-  wrapped.unsafe = ((rawSQL: string, params?: unknown[]) => sql.unsafe(rawSQL, params)) as WrappedSql["unsafe"];
+  wrapped.unsafe = async (rawSQL: string, params?: unknown[]) => {
+    const result = await sql.query(rawSQL, params);
+    return result as unknown as Record<string, unknown>[];
+  };
 
   wrapped.transaction = ((queriesOrFn: unknown, opts?: unknown) => {
     return sql.transaction(queriesOrFn as never, opts as never);

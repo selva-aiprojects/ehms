@@ -9,7 +9,7 @@ import {
   UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star, BadgePercent,
   Settings, DollarSign, Layers, CheckCircle, Ticket, Package, FileText, Database,
   BookOpen, Receipt, Landmark, BarChart3, PiggyBank, ScrollText, Calculator, FolderOpen, Globe,
-  ChevronDown,
+  ChevronDown, Palette,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
@@ -81,6 +81,7 @@ const ALL_NAV_ITEMS = [
   { label: "Shifts",           icon: Clock,         href: "/dashboard/hr/shifts", roles: ["super_admin","executive","hr_manager","hr_executive","employee_manager"] },
   { label: "HR Settings",      icon: Settings,      href: "/dashboard/hr/settings", roles: ["super_admin","executive","hr_manager","hr_executive"] },
   { label: "Settings",         icon: Settings,      href: "/dashboard/admin/settings", roles: ["super_admin","executive","property_manager"] },
+  { label: "Branding",         icon: Palette,       href: "/dashboard/settings/branding", roles: ["super_admin","executive","property_manager"] },
   { label: "Master Data",      icon: Database,      href: "/dashboard/admin/masters", roles: ["super_admin","executive","property_manager"] },
   { label: "Sessions",         icon: Clock,         href: "/dashboard/admin/sessions", roles: ["super_admin","executive"] },
   { label: "Compliance",       icon: Shield,        href: "/dashboard/admin/compliance", roles: ["super_admin","executive"] },
@@ -101,7 +102,7 @@ const NAV_GROUPS = [
   { label: "Maintenance",            icon: Wrench,       items: ["Maintenance","Tickets","Parts","Assets"] },
   { label: "Finance & Accounts",     icon: CreditCard,   items: ["Finance","Chart of Accts","Journal","Ledger","Receivables","Payables","Budget","Tax","Fixed Assets","Reports","Fin Settings","Reconciliation"] },
   { label: "Human Resources",        icon: Users,        items: ["HRMS","Employees","Timesheets","Leave","Payroll","Compliance","Masters","Policies","Appraisal","Compensation","Shifts","HR Settings"] },
-  { label: "Administration",         icon: Shield,       items: ["Admin","Tenants","Workspaces","Roles","Audit Trail","Backup","Users","Settings","Master Data","Sessions","Compliance","Support Tickets","My Tickets"] },
+  { label: "Administration",         icon: Shield,       items: ["Admin","Tenants","Workspaces","Roles","Audit Trail","Backup","Users","Settings","Branding","Master Data","Sessions","Compliance","Support Tickets","My Tickets"] },
   { label: "Procurement",           icon: ClipboardList, items: ["Procurement","Vendors","Vendor Orders","Vendor Services","Purchase Orders","Goods Receipt"] },
   { label: "Inventory",             icon: Package,       items: ["Inventory","Inv Items","Inv Transactions","Warehouses","Inv Categories"] },
 ];
@@ -119,7 +120,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Tenants", "Settings", "Master Data", "Sessions", "Compliance",
+    "Users", "Tenants", "Settings", "Branding", "Master Data", "Sessions", "Compliance",
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
     "Memberships", "Visitors", "Reconciliation"
@@ -133,7 +134,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Tenants", "Settings", "Master Data", "Sessions", "Compliance",
+    "Users", "Tenants", "Settings", "Branding", "Master Data", "Sessions", "Compliance",
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
     "Memberships", "Visitors", "Reconciliation"
@@ -147,7 +148,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Tenants", "Settings", "Master Data",     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
+    "Users", "Tenants", "Settings", "Branding", "Master Data",     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories"
   ],
   rental: [
@@ -159,7 +160,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Settings", "Master Data", "Sessions", "Compliance",
+    "Users", "Settings", "Branding", "Master Data", "Sessions", "Compliance",
     "Procurement", "Vendors", "Purchase Orders", "Goods Receipt", "Inventory", "Inv Items", "Inv Transactions",
     "Memberships", "Visitors", "Reconciliation"
   ],
@@ -171,7 +172,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
     "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
     "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Tenants", "Settings", "Master Data", "Sessions", "Compliance",
+    "Users", "Tenants", "Settings", "Branding", "Master Data", "Sessions", "Compliance",
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
     "Memberships", "Visitors", "Reconciliation"
@@ -238,7 +239,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
         style={{
           background: active ? "rgba(255,255,255,0.10)" : "transparent",
           color: active ? "#FFFFFF" : "rgba(255,255,255,0.60)",
-          borderLeft: active ? `3px solid ${settings.secondary_color}` : "3px solid transparent",
+          borderLeft: active ? "3px solid var(--tenant-sidebar-active, #2BAE8E)" : "3px solid transparent",
         }}
         onMouseEnter={(e) => {
           if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.06)";
@@ -332,7 +333,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
       {user && !collapsed && (
         <div className="p-3 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center gap-2 px-2 py-1.5">
-            <Shield className="w-3 h-3" style={{ color: settings.secondary_color }} />
+            <Shield className="w-3 h-3" style={{ color: "var(--color-primary, #2BAE8E)" }} />
             <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
               {user.email}
             </span>
@@ -357,7 +358,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: "#2C3547",
+          background: "var(--color-sidebar, #2C3547)",
           width: 280,
           height: "100dvh",
         }}
@@ -374,7 +375,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
       <aside
         className="relative flex-col transition-all duration-300 select-none hidden md:flex"
         style={{
-          background: "#2C3547",
+          background: "var(--color-sidebar, #2C3547)",
           width: collapsed ? 64 : 240,
           minWidth: collapsed ? 64 : 240,
         }}
@@ -385,8 +386,8 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
           onClick={() => setCollapsed(!collapsed)}
           className="absolute -right-3 top-24 w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all hover:scale-110"
           style={{
-            background: settings.secondary_color,
-            border: "2px solid #F5F7FA",
+            background: "var(--color-primary, #2BAE8E)",
+            border: "2px solid var(--color-light, #F5F7FA)",
             color: "#fff",
           }}
         >

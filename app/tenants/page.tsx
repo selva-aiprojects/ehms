@@ -7,7 +7,7 @@ import {
   Building2, Database, Shield, Server,
   Plus, Globe, ChevronRight, X, Loader2, CheckCircle,
   AlertCircle, Sparkles, ArrowLeft, Hotel, Home, Briefcase, Ban,
-  UserCog, Lock, Eye, EyeOff, Trash2, CreditCard, DollarSign, User
+  UserCog, Lock, Eye, EyeOff, Trash2, CreditCard, DollarSign, User, Mail
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -47,6 +47,7 @@ export default function TenantsPage() {
     name: "", code: "", schema: "",
     workspaces: [{ type: "" as VerticalKey | "", name: "", is_primary: true }],
     primary_contact_name: "",
+    contact_email: "",
     payment_mode: "monthly",
     subscription_charges_type: "Monthly",
     price: 0,
@@ -176,6 +177,7 @@ export default function TenantsPage() {
         schema: form.schema,
         workspaces: form.workspaces.map((w) => ({ type: w.type, name: w.name, is_primary: w.is_primary })),
         primary_contact_name: form.primary_contact_name || undefined,
+        contact_email: form.contact_email || undefined,
         payment_mode: form.payment_mode,
         subscription_charges_type: form.subscription_charges_type,
         price: form.price > 0 ? form.price : undefined,
@@ -183,7 +185,7 @@ export default function TenantsPage() {
     });
       const data = await res.json();
       if (res.ok) {
-        setProvisionResult({ ok: true, msg: `"${form.name}" provisioned successfully! Redirecting...` });
+        setProvisionResult({ ok: true, msg: `"${form.name}" provisioned! Welcome kit sent to ${form.contact_email}. Redirecting...` });
         setTimeout(() => router.push(`/login?tenant=${form.code}`), 1500);
       } else {
         setProvisionResult({ ok: false, msg: data.error || "Provisioning failed" });
@@ -499,13 +501,24 @@ export default function TenantsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
-                  <User className="w-3.5 h-3.5 inline mr-1" /> Primary Contact Name
-                </label>
-                <input type="text" value={form.primary_contact_name} onChange={(e) => setForm({ ...form, primary_contact_name: e.target.value })}
-                  placeholder="e.g. John Doe" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
-                  style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
-              </div>
+                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
+                    <User className="w-3.5 h-3.5 inline mr-1" /> Primary Contact Name
+                  </label>
+                  <input type="text" value={form.primary_contact_name} onChange={(e) => setForm({ ...form, primary_contact_name: e.target.value })}
+                    placeholder="e.g. John Doe" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
+                    <Mail className="w-3.5 h-3.5 inline mr-1" /> Contact Email <span style={{ color: "#E53E3E" }}>*</span>
+                  </label>
+                  <input type="email" value={form.contact_email} required onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
+                    placeholder="admin@org.com" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+                  <p className="text-[10px] mt-1" style={{ color: "rgba(245,247,250,0.35)" }}>
+                    Welcome kit with admin credentials will be sent to this email
+                  </p>
+                </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">

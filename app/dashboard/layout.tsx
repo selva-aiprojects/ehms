@@ -5,12 +5,14 @@ import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import MobileNav from "@/components/layout/mobile-nav";
 import { AuthProvider } from "@/lib/auth-context";
+import { TenantThemeProvider } from "@/components/providers/TenantThemeProvider";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
     <AuthProvider>
+      <TenantThemeProvider>
       <div className="flex h-screen overflow-hidden">
         <Sidebar mobileOpen={mobileSidebarOpen} onMobileClose={() => setMobileSidebarOpen(false)} />
         <div className="flex-1 flex flex-col min-w-0">
@@ -21,6 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         <MobileNav />
       </div>
+      </TenantThemeProvider>
     </AuthProvider>
   );
 }
