@@ -108,51 +108,30 @@ BEGIN
 
   -- Department lookups per property
   -- OVH
-  SELECT id INTO dept_ovh_fd FROM hr_departments WHERE code = 'FD' AND property_id = ovh_id LIMIT 1;
-  IF dept_ovh_fd IS NULL THEN SELECT id INTO dept_ovh_fd FROM departments WHERE code = 'FD' AND property_id = ovh_id LIMIT 1; END IF;
-  SELECT id INTO dept_ovh_hk FROM hr_departments WHERE code = 'HK' AND property_id = ovh_id LIMIT 1;
-  IF dept_ovh_hk IS NULL THEN SELECT id INTO dept_ovh_hk FROM departments WHERE code = 'HK' AND property_id = ovh_id LIMIT 1; END IF;
-  SELECT id INTO dept_ovh_mt FROM hr_departments WHERE code = 'MT' AND property_id = ovh_id LIMIT 1;
-  IF dept_ovh_mt IS NULL THEN SELECT id INTO dept_ovh_mt FROM departments WHERE code = 'MT' AND property_id = ovh_id LIMIT 1; END IF;
-  SELECT id INTO dept_ovh_fn FROM hr_departments WHERE code = 'FN' AND property_id = ovh_id LIMIT 1;
-  IF dept_ovh_fn IS NULL THEN SELECT id INTO dept_ovh_fn FROM departments WHERE code = 'FN' AND property_id = ovh_id LIMIT 1; END IF;
-  SELECT id INTO dept_ovh_hr FROM hr_departments WHERE code = 'HR' AND property_id = ovh_id LIMIT 1;
-  IF dept_ovh_hr IS NULL THEN SELECT id INTO dept_ovh_hr FROM departments WHERE code = 'HR' AND property_id = ovh_id LIMIT 1; END IF;
-  SELECT id INTO dept_ovh_fb FROM hr_departments WHERE code = 'FB' AND property_id = ovh_id LIMIT 1;
-  IF dept_ovh_fb IS NULL THEN SELECT id INTO dept_ovh_fb FROM departments WHERE code = 'FB' AND property_id = ovh_id LIMIT 1; END IF;
-  -- CSA
-  SELECT id INTO dept_csa_fd FROM hr_departments WHERE code = 'FD' AND property_id = csa_id LIMIT 1;
-  IF dept_csa_fd IS NULL THEN SELECT id INTO dept_csa_fd FROM departments WHERE code = 'FD' AND property_id = csa_id LIMIT 1; END IF;
-  SELECT id INTO dept_csa_hk FROM hr_departments WHERE code = 'HK' AND property_id = csa_id LIMIT 1;
-  IF dept_csa_hk IS NULL THEN SELECT id INTO dept_csa_hk FROM departments WHERE code = 'HK' AND property_id = csa_id LIMIT 1; END IF;
-  SELECT id INTO dept_csa_mt FROM hr_departments WHERE code = 'MT' AND property_id = csa_id LIMIT 1;
-  IF dept_csa_mt IS NULL THEN SELECT id INTO dept_csa_mt FROM departments WHERE code = 'MT' AND property_id = csa_id LIMIT 1; END IF;
-  SELECT id INTO dept_csa_fn FROM hr_departments WHERE code = 'FN' AND property_id = csa_id LIMIT 1;
-  IF dept_csa_fn IS NULL THEN SELECT id INTO dept_csa_fn FROM departments WHERE code = 'FN' AND property_id = csa_id LIMIT 1; END IF;
-  SELECT id INTO dept_csa_hr FROM hr_departments WHERE code = 'HR' AND property_id = csa_id LIMIT 1;
-  IF dept_csa_hr IS NULL THEN SELECT id INTO dept_csa_hr FROM departments WHERE code = 'HR' AND property_id = csa_id LIMIT 1; END IF;
-  -- GWR
-  SELECT id INTO dept_gwr_fd FROM hr_departments WHERE code = 'FD' AND property_id = gwr_id LIMIT 1;
-  IF dept_gwr_fd IS NULL THEN SELECT id INTO dept_gwr_fd FROM departments WHERE code = 'FD' AND property_id = gwr_id LIMIT 1; END IF;
-  SELECT id INTO dept_gwr_hk FROM hr_departments WHERE code = 'HK' AND property_id = gwr_id LIMIT 1;
-  IF dept_gwr_hk IS NULL THEN SELECT id INTO dept_gwr_hk FROM departments WHERE code = 'HK' AND property_id = gwr_id LIMIT 1; END IF;
-  SELECT id INTO dept_gwr_mt FROM hr_departments WHERE code = 'MT' AND property_id = gwr_id LIMIT 1;
-  IF dept_gwr_mt IS NULL THEN SELECT id INTO dept_gwr_mt FROM departments WHERE code = 'MT' AND property_id = gwr_id LIMIT 1; END IF;
-  SELECT id INTO dept_gwr_fn FROM hr_departments WHERE code = 'FN' AND property_id = gwr_id LIMIT 1;
-  IF dept_gwr_fn IS NULL THEN SELECT id INTO dept_gwr_fn FROM departments WHERE code = 'FN' AND property_id = gwr_id LIMIT 1; END IF;
-  SELECT id INTO dept_gwr_hr FROM hr_departments WHERE code = 'HR' AND property_id = gwr_id LIMIT 1;
-  IF dept_gwr_hr IS NULL THEN SELECT id INTO dept_gwr_hr FROM departments WHERE code = 'HR' AND property_id = gwr_id LIMIT 1; END IF;
-  -- ICS
-  SELECT id INTO dept_ics_fd FROM hr_departments WHERE code = 'FD' AND property_id = ics_id LIMIT 1;
-  IF dept_ics_fd IS NULL THEN SELECT id INTO dept_ics_fd FROM departments WHERE code = 'FD' AND property_id = ics_id LIMIT 1; END IF;
-  SELECT id INTO dept_ics_hk FROM hr_departments WHERE code = 'HK' AND property_id = ics_id LIMIT 1;
-  IF dept_ics_hk IS NULL THEN SELECT id INTO dept_ics_hk FROM departments WHERE code = 'HK' AND property_id = ics_id LIMIT 1; END IF;
-  SELECT id INTO dept_ics_mt FROM hr_departments WHERE code = 'MT' AND property_id = ics_id LIMIT 1;
-  IF dept_ics_mt IS NULL THEN SELECT id INTO dept_ics_mt FROM departments WHERE code = 'MT' AND property_id = ics_id LIMIT 1; END IF;
-  SELECT id INTO dept_ics_fn FROM hr_departments WHERE code = 'FN' AND property_id = ics_id LIMIT 1;
-  IF dept_ics_fn IS NULL THEN SELECT id INTO dept_ics_fn FROM departments WHERE code = 'FN' AND property_id = ics_id LIMIT 1; END IF;
-  SELECT id INTO dept_ics_hr FROM hr_departments WHERE code = 'HR' AND property_id = ics_id LIMIT 1;
-  IF dept_ics_hr IS NULL THEN SELECT id INTO dept_ics_hr FROM departments WHERE code = 'HR' AND property_id = ics_id LIMIT 1; END IF;
+  SELECT id INTO dept_ovh_fd FROM departments WHERE code = 'FD' AND property_id = ovh_id LIMIT 1;
+  SELECT id INTO dept_ovh_hk FROM departments WHERE code = 'HK' AND property_id = ovh_id LIMIT 1;
+  SELECT id INTO dept_ovh_mt FROM departments WHERE code = 'MT' AND property_id = ovh_id LIMIT 1;
+  SELECT id INTO dept_ovh_fn FROM departments WHERE code = 'FN' AND property_id = ovh_id LIMIT 1;
+  SELECT id INTO dept_ovh_hr FROM departments WHERE code = 'HR' AND property_id = ovh_id LIMIT 1;
+  SELECT id INTO dept_ovh_fb FROM departments WHERE code = 'FB' AND property_id = ovh_id LIMIT 1;
+
+  SELECT id INTO dept_csa_fd FROM departments WHERE code = 'FD' AND property_id = csa_id LIMIT 1;
+  SELECT id INTO dept_csa_hk FROM departments WHERE code = 'HK' AND property_id = csa_id LIMIT 1;
+  SELECT id INTO dept_csa_mt FROM departments WHERE code = 'MT' AND property_id = csa_id LIMIT 1;
+  SELECT id INTO dept_csa_fn FROM departments WHERE code = 'FN' AND property_id = csa_id LIMIT 1;
+  SELECT id INTO dept_csa_hr FROM departments WHERE code = 'HR' AND property_id = csa_id LIMIT 1;
+
+  SELECT id INTO dept_gwr_fd FROM departments WHERE code = 'FD' AND property_id = gwr_id LIMIT 1;
+  SELECT id INTO dept_gwr_hk FROM departments WHERE code = 'HK' AND property_id = gwr_id LIMIT 1;
+  SELECT id INTO dept_gwr_mt FROM departments WHERE code = 'MT' AND property_id = gwr_id LIMIT 1;
+  SELECT id INTO dept_gwr_fn FROM departments WHERE code = 'FN' AND property_id = gwr_id LIMIT 1;
+  SELECT id INTO dept_gwr_hr FROM departments WHERE code = 'HR' AND property_id = gwr_id LIMIT 1;
+
+  SELECT id INTO dept_ics_fd FROM departments WHERE code = 'FD' AND property_id = ics_id LIMIT 1;
+  SELECT id INTO dept_ics_hk FROM departments WHERE code = 'HK' AND property_id = ics_id LIMIT 1;
+  SELECT id INTO dept_ics_mt FROM departments WHERE code = 'MT' AND property_id = ics_id LIMIT 1;
+  SELECT id INTO dept_ics_fn FROM departments WHERE code = 'FN' AND property_id = ics_id LIMIT 1;
+  SELECT id INTO dept_ics_hr FROM departments WHERE code = 'HR' AND property_id = ics_id LIMIT 1;
 
   -- ==========================================================================
   -- 2. CLEAR EXISTING SEED DATA (for tables we'll re-seed)

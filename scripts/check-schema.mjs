@@ -1,27 +1,25 @@
 import { neon } from "@neondatabase/serverless";
 import { readFileSync } from "fs";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 
-const envContent = readFileSync(".env.local", "utf-8");
-let DB_URL = "";
-for (const line of envContent.split("\n")) {
-  const trimmed = line.trim();
-  if (trimmed.startsWith("DATABASE_URL=")) {
-    DB_URL = trimmed.slice("DATABASE_URL=".length);
-    break;
-  }
-}
-
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ENV_PATH = resolve(__dirname, "../.env.local");
+const envContent = readFileSync(ENV_PATH, "utf-8");
+const DB_URL = envContent.split("\n").find(l => l.startsWith("DATABASE_URL=")).slice("DATABASE_URL=".length).trim();
 const sql = neon(DB_URL);
 
-const [laCols, invCols, payStats, monthly] = await Promise.all([
-  sql`SELECT column_name FROM information_schema.columns WHERE table_name='lease_agreements' AND table_schema='public' ORDER BY ordinal_position`,
-  sql`SELECT column_name FROM information_schema.columns WHERE table_name='invoices' AND table_schema='public' ORDER BY ordinal_position`,
-  sql`SELECT COUNT(*)::int AS cnt, COALESCE(SUM(amount::numeric),0) AS total FROM payments WHERE status='completed'`,
-  sql`SELECT TO_CHAR(payment_date,'YYYY-MM') AS m, COUNT(*)::int AS cnt, SUM(amount::numeric) AS rev FROM payments WHERE status='completed' GROUP BY 1 ORDER BY 1`,
-]);
+async function check() {
+  const schemas = await sql.query("SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT IN ('information_schema', 'pg_catalog', 'pg_toast') ORDER BY schema_name");
+  const pubTables = await sql.query("SELECT COUNT(*)::int AS cnt FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'");
+  const visTables = await sql.query("SELECT COUNT(*)::int AS cnt FROM information_schema.tables WHERE table_schema='viswa' AND table_type='BASE TABLE'");
+  const pubUsers = await sql.query("SELECT COUNT(*)::int AS cnt FROM public.users").catch(() => [{cnt:0}]);
+  const visUsers = await sql.query("SELECT COUNT(*)::int AS cnt FROM viswa.users").catch(() => [{cnt:0}]);
 
-console.log("lease_agreements columns:", laCols.map(r => r.column_name).join(", "));
-console.log("invoices columns:", invCols.map(r => r.column_name).join(", "));
-console.log("payments:", payStats[0]);
-console.log("monthly revenue data:");
-monthly.forEach(r => console.log(`  ${r.m}: ${r.cnt} payments, ₹${Number(r.rev).toLocaleString()}`));
+  console.log("Schemas:", schemas.map(s => s.schema_name).join(", "));
+  console.log("Public tables:", pubTables[0].cnt);
+  console.log("Viswa tables:", visTables[0].cnt);
+  console.log("Public users:", pubUsers[0].cnt);
+  console.log("Viswa users:", visUsers[0].cnt);
+}
+check().catch(e => console.error(e));

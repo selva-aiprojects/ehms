@@ -156,6 +156,12 @@ function LoginContent() {
     return v && v.length > 0 ? v : ALL_VERTICAL_KEYS;
   }
 
+  function getTenantWorkspaces(t: TenantInfo): { type: VerticalKey; name: string; is_primary: boolean }[] {
+    const config = t.config || {};
+    const ws = config.workspaces as { type: VerticalKey; name: string; is_primary: boolean }[] | undefined;
+    return ws && ws.length > 0 ? ws : [];
+  }
+
   async function handlePlatformLogin(e: React.FormEvent) {
     e.preventDefault();
     setPlLoading(true);
@@ -264,15 +270,14 @@ function LoginContent() {
                           {t.code}
                         </span>
                         <div className="flex flex-wrap gap-1">
-                          {verts.map((v) => {
-                            const meta = VERTICAL_META[v];
-                            if (!meta) return null;
-                            const Icon = meta.icon;
+                          {(getTenantWorkspaces(t).length > 0 ? getTenantWorkspaces(t) : verts.map(v => ({ type: v, name: VERTICAL_META[v]?.label || v, is_primary: false }))).map((ws) => {
+                            const meta = VERTICAL_META[ws.type as VerticalKey];
+                            const Icon = meta?.icon || Building2;
                             return (
-                              <span key={v}
+                              <span key={ws.type + ws.name}
                                 className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium"
-                                style={{ background: "rgba(43,174,142,0.06)", color: "rgba(43,174,142,0.7)", border: "1px solid rgba(43,174,142,0.1)" }}>
-                                <Icon className="w-2.5 h-2.5" /> {meta.label}
+                                style={{ background: ws.is_primary ? "rgba(43,174,142,0.1)" : "rgba(43,174,142,0.06)", color: ws.is_primary ? "#2BAE8E" : "rgba(43,174,142,0.7)", border: `1px solid ${ws.is_primary ? "rgba(43,174,142,0.2)" : "rgba(43,174,142,0.1)"}` }}>
+                                <Icon className="w-2.5 h-2.5" /> {ws.name}
                               </span>
                             );
                           })}
@@ -498,23 +503,22 @@ function LoginContent() {
             <ArrowLeft className="w-3 h-3 opacity-60" />
           </button>
 
-          {/* Subscribed verticals badges */}
+          {/* Workspace badges */}
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {tenantVerticals.map((v) => {
-              const meta = VERTICAL_META[v];
-              if (!meta) return null;
-              const Icon = meta.icon;
+            {(getTenantWorkspaces(tenant).length > 0 ? getTenantWorkspaces(tenant) : tenantVerticals.map(v => ({ type: v, name: VERTICAL_META[v]?.label || v, is_primary: false }))).map((ws) => {
+              const meta = VERTICAL_META[ws.type as VerticalKey];
+              const Icon = meta?.icon || Building2;
               return (
-                <span key={v}
+                <span key={ws.type + ws.name}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium"
                   style={{
-                    background: "rgba(43,174,142,0.06)",
-                    color: "rgba(43,174,142,0.7)",
-                    border: "1px solid rgba(43,174,142,0.1)",
+                    background: ws.is_primary ? "rgba(43,174,142,0.1)" : "rgba(43,174,142,0.06)",
+                    color: ws.is_primary ? "#2BAE8E" : "rgba(43,174,142,0.7)",
+                    border: `1px solid ${ws.is_primary ? "rgba(43,174,142,0.2)" : "rgba(43,174,142,0.1)"}`,
                   }}
                 >
                   <Icon className="w-2.5 h-2.5" />
-                  {meta.label}
+                  {ws.name}
                 </span>
               );
             })}
@@ -534,10 +538,12 @@ function LoginContent() {
                   style={{ borderColor: "#E2E8F0" }}
                 >
                   <option value="all">All Workspaces</option>
-                  {allowedJourneys.includes("hotels") && <option value="hotels">Hotels & Resorts</option>}
-                  {allowedJourneys.includes("apartments") && <option value="apartments">Serviced Apartments</option>}
-                  {allowedJourneys.includes("rental") && <option value="rental">Apartment Rental (Long-term)</option>}
-                  {allowedJourneys.includes("workplace") && <option value="workplace">Workplace Management</option>}
+                  {(getTenantWorkspaces(tenant).length > 0
+                    ? getTenantWorkspaces(tenant)
+                    : allowedJourneys.map(j => ({ type: j as VerticalKey, name: VERTICAL_META[j as VerticalKey]?.label || j, is_primary: false }))
+                  ).map((ws) => (
+                    <option key={ws.type} value={ws.type}>{ws.name}</option>
+                  ))}
                 </select>
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#2BAE8E" }}>
                   {activeJourney === "all" && <LayoutDashboard className="w-4 h-4" />}

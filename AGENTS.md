@@ -99,7 +99,7 @@ python3 skills/ui-ux-pro-max/scripts/search.py "<page description>" --page-desig
 - `--persist` — save to `design-system/` folder
 - `--page <name>` — specify page name (for override files or --page-design hint)
 
-## 12. Property Configuration & Feature Toggles (25 Jun 2026)
+## 11. Property Configuration & Feature Toggles (25 Jun 2026)
 - **DB migration:** `025_property_config_features.sql` — documents the `properties.config` JSONB schema with 10 feature toggles
 - **Config Schema:** stored in existing `properties.config` JSONB column:
   ```json
@@ -129,7 +129,16 @@ python3 skills/ui-ux-pro-max/scripts/search.py "<page description>" --page-desig
 - **Navigation:** Settings icon on property cards navigates to the property detail page
 - **Note:** The `GET /api/properties` endpoint was rewritten to use `sql.query()` instead of nested tagged template literals to avoid a driver compatibility issue with empty `sql\`\`` fragments.
 
-## 11. Login Workflow: Platform Superadmin vs Regular Tenant (SHARD)
+## 12. Tenant Workspace Names (26 Jun 2026)
+- Tenant creation form (`/tenants`) now supports multiple named workspaces with type, name, and primary flag.
+- Workspace names are stored in `tenants.config.workspaces` as `[{ type, name, is_primary }]`.
+- Legacy tenants without `config.workspaces` fall back to generic vertical labels.
+- New form fields: `workspaces[]`, `primary_contact_name`, `payment_mode`, `subscription_charges_type`, `price`.
+- API `POST /api/admin/tenants` accepts `workspaces` array and stores in config JSONB.
+- Login page tenant cards and workspace dropdown show workspace names when available.
+- Workspace primary flag (radio button) designates the default workspace for the tenant.
+
+## 13. Login Workflow: Platform Superadmin vs Regular Tenant (SHARD)
 
 ### Flow Diagram
 

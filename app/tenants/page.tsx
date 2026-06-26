@@ -7,7 +7,7 @@ import {
   Building2, Database, Shield, Server,
   Plus, Globe, ChevronRight, X, Loader2, CheckCircle,
   AlertCircle, Sparkles, ArrowLeft, Hotel, Home, Briefcase, Ban,
-  UserCog, Lock, Eye, EyeOff
+  UserCog, Lock, Eye, EyeOff, Trash2, CreditCard, DollarSign, User
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -43,7 +43,14 @@ export default function TenantsPage() {
   const [showProvision, setShowProvision] = useState(false);
   const [provisioning, setProvisioning] = useState(false);
   const [provisionResult, setProvisionResult] = useState<{ ok: boolean; msg: string } | null>(null);
-  const [form, setForm] = useState({ name: "", code: "", schema: "", verticals: ALL_VERTICAL_KEYS });
+  const [form, setForm] = useState({
+    name: "", code: "", schema: "",
+    workspaces: [{ type: "" as VerticalKey | "", name: "", is_primary: true }],
+    primary_contact_name: "",
+    payment_mode: "monthly",
+    subscription_charges_type: "Monthly",
+    price: 0,
+  });
   const [scrolled, setScrolled] = useState(false);
 
   // Platform admin auth
@@ -90,12 +97,35 @@ export default function TenantsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  function toggleVertical(v: VerticalKey) {
+  function updateWorkspace(index: number, field: string, value: string | boolean) {
+    setForm((prev) => {
+      const ws = [...prev.workspaces];
+      ws[index] = { ...ws[index], [field]: value };
+      return { ...prev, workspaces: ws };
+    });
+  }
+
+  function addWorkspace() {
     setForm((prev) => ({
       ...prev,
-      verticals: prev.verticals.includes(v)
-        ? prev.verticals.filter((x) => x !== v)
-        : [...prev.verticals, v],
+      workspaces: [...prev.workspaces, { type: "" as VerticalKey | "", name: "", is_primary: false }],
+    }));
+  }
+
+  function removeWorkspace(index: number) {
+    setForm((prev) => {
+      const ws = prev.workspaces.filter((_, i) => i !== index);
+      if (ws.length > 0 && !ws.some((w) => w.is_primary)) {
+        ws[0].is_primary = true;
+      }
+      return { ...prev, workspaces: ws };
+    });
+  }
+
+  function setPrimary(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      workspaces: prev.workspaces.map((w, i) => ({ ...w, is_primary: i === index })),
     }));
   }
 
@@ -137,11 +167,20 @@ export default function TenantsPage() {
     setProvisioning(true);
     setProvisionResult(null);
     try {
-      const res = await fetch("/api/admin/tenants", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+    const res = await fetch("/api/admin/tenants", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.name,
+        code: form.code,
+        schema: form.schema,
+        workspaces: form.workspaces.map((w) => ({ type: w.type, name: w.name, is_primary: w.is_primary })),
+        primary_contact_name: form.primary_contact_name || undefined,
+        payment_mode: form.payment_mode,
+        subscription_charges_type: form.subscription_charges_type,
+        price: form.price > 0 ? form.price : undefined,
+      }),
+    });
       const data = await res.json();
       if (res.ok) {
         setProvisionResult({ ok: true, msg: `"${form.name}" provisioned successfully! Redirecting...` });
@@ -445,7 +484,7 @@ export default function TenantsPage() {
               </div>
             </div>
 
-            <form onSubmit={handleProvision} className="space-y-4">
+            <form onSubmit={handleProvision} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
               <input type="text" value={form.name} required onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Organization Name" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
                 style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
@@ -460,28 +499,96 @@ export default function TenantsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: "rgba(245,247,250,0.7)" }}>
-                  Subscribed Platform Features
+                <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
+                  <User className="w-3.5 h-3.5 inline mr-1" /> Primary Contact Name
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {ALL_VERTICAL_KEYS.map((v) => {
-                    const meta = VERTICAL_META[v];
-                    const Icon = meta.icon;
-                    const selected = form.verticals.includes(v);
-                    return (
-                      <button key={v} type="button" onClick={() => toggleVertical(v)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all text-left"
-                        style={{
-                          background: selected ? "rgba(43,174,142,0.12)" : "rgba(255,255,255,0.03)",
-                          border: `1px solid ${selected ? "rgba(43,174,142,0.3)" : "rgba(255,255,255,0.06)"}`,
-                          color: selected ? "#2BAE8E" : "rgba(245,247,250,0.6)",
-                        }}>
-                        <Icon className="w-3.5 h-3.5 shrink-0" />
-                        {meta.label}
-                        {selected && <CheckCircle className="w-3 h-3 ml-auto" />}
+                <input type="text" value={form.primary_contact_name} onChange={(e) => setForm({ ...form, primary_contact_name: e.target.value })}
+                  placeholder="e.g. John Doe" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+                  style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium" style={{ color: "rgba(245,247,250,0.7)" }}>
+                    Workspaces
+                  </label>
+                  <button type="button" onClick={addWorkspace}
+                    className="text-xs font-semibold flex items-center gap-1 px-2 py-1 rounded transition-colors"
+                    style={{ color: "#2BAE8E" }}>
+                    <Plus className="w-3 h-3" /> Add Workspace
+                  </button>
+                </div>
+                {form.workspaces.map((ws, idx) => (
+                  <div key={idx} className="flex items-start gap-2 mb-2 p-2 rounded-lg"
+                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div className="flex-1 space-y-2">
+                      <select value={ws.type} required
+                        onChange={(e) => updateWorkspace(idx, "type", e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg border text-xs outline-none transition-colors"
+                        style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}>
+                        <option value="" disabled>Select type</option>
+                        {ALL_VERTICAL_KEYS.map((vk) => (
+                          <option key={vk} value={vk}>{VERTICAL_META[vk].label}</option>
+                        ))}
+                      </select>
+                      <input type="text" value={ws.name} required
+                        onChange={(e) => updateWorkspace(idx, "name", e.target.value)}
+                        placeholder="Workspace name" className="w-full px-3 py-1.5 rounded-lg border text-xs outline-none transition-colors"
+                        style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+                    </div>
+                    <div className="flex flex-col items-center gap-1 pt-1">
+                      <button type="button" onClick={() => setPrimary(idx)}
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${ws.is_primary ? "border-[#2BAE8E]" : "border-gray-500"}`}>
+                        {ws.is_primary && <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#2BAE8E" }} />}
                       </button>
-                    );
-                  })}
+                      <span className="text-[9px] font-medium" style={{ color: "rgba(245,247,250,0.4)" }}>Primary</span>
+                      {form.workspaces.length > 1 && (
+                        <button type="button" onClick={() => removeWorkspace(idx)}
+                          className="p-1 rounded transition-colors hover:bg-red-500/10"
+                          style={{ color: "#E53E3E" }}>
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
+                    <CreditCard className="w-3 h-3 inline mr-1" /> Payment
+                  </label>
+                  <select value={form.payment_mode} onChange={(e) => setForm({ ...form, payment_mode: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border text-xs outline-none transition-colors"
+                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="one-time">One-Time</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
+                    <DollarSign className="w-3 h-3 inline mr-1" /> Charges
+                  </label>
+                  <select value={form.subscription_charges_type} onChange={(e) => setForm({ ...form, subscription_charges_type: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border text-xs outline-none transition-colors"
+                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}>
+                    <option value="Free">Free</option>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Quarterly">Quarterly</option>
+                    <option value="Yearly">Yearly</option>
+                    <option value="Per-User">Per-User</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
+                    Price (₹)
+                  </label>
+                  <input type="number" min="0" value={form.price} onChange={(e) => setForm({ ...form, price: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 rounded-lg border text-xs outline-none transition-colors"
+                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
                 </div>
               </div>
 
@@ -493,7 +600,7 @@ export default function TenantsPage() {
                 </div>
               )}
 
-              <button type="submit" disabled={provisioning || form.verticals.length === 0}
+              <button type="submit" disabled={provisioning || form.workspaces.length === 0 || form.workspaces.some((w) => !w.type || !w.name)}
                 className="w-full py-2.5 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-60 cursor-pointer"
                 style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" }}>
                 {provisioning ? <><Loader2 className="w-4 h-4 animate-spin" /> Provisioning...</> : <><Globe className="w-4 h-4" /> Create Tenant Shard</>}

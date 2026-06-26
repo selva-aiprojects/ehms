@@ -23,12 +23,11 @@ export async function POST(req: NextRequest) {
     const token = req.cookies.get("ehms_token")?.value;
     const payload = token ? verifyToken(token) : null;
 
-    // Only platform superadmins can provision tenants
     if (!payload?.is_platform_admin) {
       return NextResponse.json({ error: "Only platform superadmins can provision tenants" }, { status: 403 });
     }
 
-    const { name, code, schema, verticals } = await req.json();
+    const { name, code, schema, workspaces, primary_contact_name, payment_mode, subscription_charges_type, price } = await req.json();
 
     if (!name || !code || !schema) {
       return NextResponse.json({ error: "name, code, and schema are required" }, { status: 400 });
@@ -42,16 +41,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid tenant code. Use uppercase, 2-11 chars." }, { status: 400 });
     }
 
-    const selectedVerticals = Array.isArray(verticals) && verticals.length > 0
-      ? verticals
-      : ["hotels", "apartments", "rental", "workplace"];
+    const validWorkspaces = Array.isArray(workspaces) && workspaces.length > 0
+      ? workspaces.filter((w: { type: string; name: string }) =>
+          w.type && w.name && ["hotels", "apartments", "rental", "workplace"].includes(w.type)
+        )
+      : [];
 
-    const valid = selectedVerticals.every((v: string) =>
-      ["hotels", "apartments", "rental", "workplace"].includes(v)
-    );
-    if (!valid) {
-      return NextResponse.json({ error: "Invalid vertical. Allowed: hotels, apartments, rental, workplace" }, { status: 400 });
+    if (validWorkspaces.length === 0) {
+      return NextResponse.json({ error: "At least one workspace with type and name is required" }, { status: 400 });
     }
+
+    const hasPrimary = validWorkspaces.some((w: { is_primary: boolean }) => w.is_primary);
+    if (!hasPrimary) {
+      validWorkspaces[0].is_primary = true;
+    }
+
+    const selectedVerticals = [...new Set(validWorkspaces.map((w: { type: string }) => w.type))];
 
     const publicDb = getPublicDb();
 
@@ -68,9 +73,24 @@ export async function POST(req: NextRequest) {
 
     const tenantId = ((result as Record<string, unknown>[])[0] as { tenant_id: string }).tenant_id;
 
+    const config: Record<string, unknown> = {
+      verticals: selectedVerticals,
+      suspended: false,
+      workspaces: validWorkspaces.map((w: { type: string; name: string; is_primary?: boolean }) => ({
+        type: w.type,
+        name: w.name,
+        is_primary: w.is_primary || false,
+      })),
+    };
+
+    if (primary_contact_name) config.primary_contact_name = primary_contact_name;
+    if (payment_mode) config.payment_mode = payment_mode;
+    if (subscription_charges_type) config.subscription_charges = subscription_charges_type;
+    if (price != null) config.price = price;
+
     await publicDb`
       UPDATE public.tenants
-      SET config = ${JSON.stringify({ verticals: selectedVerticals, suspended: false })}::jsonb
+      SET config = ${JSON.stringify(config)}::jsonb
       WHERE id = ${tenantId}
     `;
 
@@ -80,6 +100,7 @@ export async function POST(req: NextRequest) {
       code,
       schema,
       verticals: selectedVerticals,
+      workspaces: config.workspaces,
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Provisioning failed";

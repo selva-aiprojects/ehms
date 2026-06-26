@@ -78,6 +78,12 @@ export default function AdminTenantsPage() {
     return (c.verticals as string[]) || ["hotels", "apartments", "rental", "workplace"];
   }
 
+  function getWorkspaces(t: TenantRecord): { type: string; name: string; is_primary: boolean }[] {
+    const c = t.config || {};
+    const ws = c.workspaces as { type: string; name: string; is_primary: boolean }[] | undefined;
+    return ws && ws.length > 0 ? ws : [];
+  }
+
   function isSuspended(t: TenantRecord): boolean {
     return (t.config || {}).suspended === true;
   }
@@ -169,15 +175,14 @@ export default function AdminTenantsPage() {
                         {t.domain && <span className="text-xs" style={{ color: "#94A3B8" }}>{t.domain}</span>}
                       </div>
                       <div className="flex flex-wrap gap-1.5 mt-2">
-                        {verticals.map((v) => {
-                          const meta = VERTICAL_LABELS[v];
-                          if (!meta) return null;
-                          const Icon = meta.icon;
+                        {(getWorkspaces(t).length > 0 ? getWorkspaces(t) : verticals.map(v => ({ type: v, name: VERTICAL_LABELS[v]?.label || v, is_primary: false }))).map((ws) => {
+                          const meta = VERTICAL_LABELS[ws.type];
+                          const Icon = meta?.icon || Building2;
                           return (
-                            <span key={v} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium"
-                              style={{ background: "rgba(43,174,142,0.06)", color: "rgba(43,174,142,0.7)", border: "1px solid rgba(43,174,142,0.1)" }}
+                            <span key={ws.type + ws.name} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium"
+                              style={{ background: ws.is_primary ? "rgba(43,174,142,0.1)" : "rgba(43,174,142,0.06)", color: ws.is_primary ? "#2BAE8E" : "rgba(43,174,142,0.7)", border: `1px solid ${ws.is_primary ? "rgba(43,174,142,0.2)" : "rgba(43,174,142,0.1)"}` }}
                             >
-                              <Icon className="w-3 h-3" /> {meta.label}
+                              <Icon className="w-3 h-3" /> {ws.name}
                             </span>
                           );
                         })}

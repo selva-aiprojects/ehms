@@ -78,7 +78,14 @@ VALUES (
         "display_name": "Viswa Group of Estates",
         "vertical_types": ["hotel", "service_apartment", "rental_apartment", "workplace"],
         "timezone": "Asia/Kolkata",
-        "currency": "INR"
+        "currency": "INR",
+        "verticals": ["hotels", "apartments", "rental", "workplace"],
+        "workspaces": [
+            {"type": "hotels", "name": "Vishwa Hotels & Resorts", "is_primary": true},
+            {"type": "apartments", "name": "Vishwa Service Apartments", "is_primary": false},
+            {"type": "rental", "name": "Vishwa Rental Properties", "is_primary": false},
+            {"type": "workplace", "name": "Vishwa Workplace Solutions", "is_primary": false}
+        ]
     }'::jsonb
 )
 ON CONFLICT (code) DO NOTHING;
