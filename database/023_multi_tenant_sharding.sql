@@ -105,6 +105,7 @@ DECLARE
     v_tbl       TEXT;
     v_seq       TEXT;
     v_typ       TEXT;
+    v_vals      TEXT;
 BEGIN
     -- Check tenant doesn't exist
     IF EXISTS (SELECT 1 FROM public.tenants WHERE code = p_tenant_code) THEN
@@ -117,14 +118,18 @@ BEGIN
     -- Create schema
     EXECUTE format('CREATE SCHEMA %I', p_schema_name);
 
-    -- Copy ENUM types from template
+    -- Copy ENUM types from template via dynamic query
     FOR v_typ IN
         SELECT t.typname::text
         FROM pg_type t
         JOIN pg_namespace n ON n.oid = t.typnamespace
         WHERE n.nspname = 'viswa' AND t.typtype = 'e'
     LOOP
-        EXECUTE format('CREATE TYPE %I.%I AS ENUM (SELECT unnest(enum_range(NULL::%I.%I))::text)', p_schema_name, v_typ, 'viswa', v_typ);
+        EXECUTE format(
+            'SELECT string_agg(quote_literal(v), '','') FROM (SELECT unnest(enum_range(NULL::%I.%I))::text AS v) sub',
+            'viswa', v_typ
+        ) INTO v_vals;
+        EXECUTE format('CREATE TYPE %I.%I AS ENUM (%s)', p_schema_name, v_typ, v_vals);
     END LOOP;
 
     -- Copy all tables with indexes, defaults, constraints

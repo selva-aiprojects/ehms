@@ -217,6 +217,15 @@ export default function AdminTenantsPage() {
   );
 }
 
+function getWorkspaces(tenant: TenantRecord): { type: string; name: string; is_primary: boolean }[] {
+  const ws = (tenant.config || {}).workspaces as { type: string; name: string; is_primary?: boolean }[] | undefined;
+  if (ws && Array.isArray(ws) && ws.length > 0) {
+    return ws.map((w) => ({ type: w.type, name: w.name, is_primary: w.is_primary || false }));
+  }
+  const verts = ((tenant.config || {}).verticals as string[]) || ["hotels"];
+  return verts.map((v, i) => ({ type: v, name: tenant.name || v, is_primary: i === 0 }));
+}
+
 function EditTenantModal({
   tenant, saving, onSave, onClose,
 }: {

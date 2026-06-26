@@ -224,7 +224,31 @@ async function run() {
     console.log(`  Platform admins: ${adminCount[0].cnt}`);
   }
 
-  // ── Step 7: Verify ──
+  // ── Step 7: Run property config features migration ──
+  const configPath = join(DATABASE_DIR, "025_property_config_features.sql");
+  if (existsSync(configPath)) {
+    console.log("▶ 025_property_config_features.sql");
+    const configContent = readFileSync(configPath, "utf-8");
+    const configStatements = splitStatements(configContent);
+    for (const stmt of configStatements) {
+      try { await sql.query(`SET search_path TO public`); await sql.query(`${stmt};`); }
+      catch (err) { /* 025 is documentation + optional data update; skip if table missing */ }
+    }
+  }
+
+  // ── Step 8: Run ticketing system migration ──
+  const ticketPath = join(DATABASE_DIR, "026_ticketing_system.sql");
+  if (existsSync(ticketPath)) {
+    console.log("▶ 026_ticketing_system.sql (public schema)");
+    const ticketContent = readFileSync(ticketPath, "utf-8");
+    const ticketStatements = splitStatements(ticketContent);
+    for (const stmt of ticketStatements) {
+      try { await sql.query(`SET search_path TO public`); await sql.query(`${stmt};`); }
+      catch (err) { console.error(`  ✗ Error: ${err.message}`); process.exit(1); }
+    }
+  }
+
+  // ── Step 9: Verify ──
   console.log("\n✅ Migration complete. Verifying tables...");
   const tables = await sql.query(
     `SELECT table_name FROM information_schema.tables WHERE table_schema = '${TENANT_SCHEMA}' ORDER BY table_name`
