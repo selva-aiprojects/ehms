@@ -802,6 +802,23 @@ export function useInventoryStats(propertyId?: string) {
   return { invStats: data?.data, isLoading, isError: !!error, mutate };
 }
 
+// ── Ticketing / Support Tickets ──
+export function useAdminTickets(filters?: { status?: string; priority?: string; tenant_code?: string; category?: string; search?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.priority) params.set("priority", filters.priority);
+  if (filters?.tenant_code) params.set("tenant_code", filters.tenant_code);
+  if (filters?.category) params.set("category", filters.category);
+  if (filters?.search) params.set("search", filters.search);
+  const { data, error, isLoading, mutate } = useSWR(`/api/admin/tickets?${params}`, fetcher, { refreshInterval: 15000 });
+  return { tickets: data?.tickets, isLoading, isError: !!error, mutate };
+}
+
+export function useAdminTicket(id?: string) {
+  const { data, error, isLoading, mutate } = useSWR(id ? `/api/admin/tickets/${id}` : null, fetcher);
+  return { ticket: data?.ticket, isLoading, isError: !!error, mutate };
+}
+
 export function usePropertyFeatures(propertyId?: string) {
   const { property, isLoading } = useProperty(propertyId);
   const features = property?.config?.features || {};

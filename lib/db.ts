@@ -35,7 +35,7 @@ function makeWrappedSql(schema: string): WrappedSql {
     ]).then((results: unknown[]) => results[1]);
   }) as WrappedSql["query"];
 
-  wrapped.unsafe = ((rawSQL: string) => sql.unsafe(rawSQL)) as WrappedSql["unsafe"];
+  wrapped.unsafe = ((rawSQL: string, params?: unknown[]) => sql.unsafe(rawSQL, params)) as WrappedSql["unsafe"];
 
   wrapped.transaction = ((queriesOrFn: unknown, opts?: unknown) => {
     return sql.transaction(queriesOrFn as never, opts as never);

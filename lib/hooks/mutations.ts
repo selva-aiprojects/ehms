@@ -466,3 +466,34 @@ export function useUpdateReconciliation() {
     isMutating: mutation.isMutating, error: mutation.error,
   };
 }
+
+// ── Admin Ticket Mutations ──
+export function useCreateAdminTicket() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/tickets", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/admin/tickets")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateAdminTicket() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/tickets", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/admin/tickets")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/admin/tickets/${id}`, _method: "PATCH" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreateAdminTicketMessage() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/tickets", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/admin/tickets")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/admin/tickets/${id}/messages`, _method: "POST" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}

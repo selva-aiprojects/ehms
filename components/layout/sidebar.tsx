@@ -84,6 +84,8 @@ const ALL_NAV_ITEMS = [
   { label: "Master Data",      icon: Database,      href: "/dashboard/admin/masters", roles: ["super_admin","executive","property_manager"] },
   { label: "Sessions",         icon: Clock,         href: "/dashboard/admin/sessions", roles: ["super_admin","executive"] },
   { label: "Compliance",       icon: Shield,        href: "/dashboard/admin/compliance", roles: ["super_admin","executive"] },
+  { label: "Support Tickets",  icon: Ticket,         href: "/dashboard/admin/tickets", roles: ["super_admin","executive","platform_super_admin"] },
+  { label: "My Tickets",       icon: Ticket,         href: "/dashboard/tickets", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor","housekeeping_staff","maintenance_staff","maintenance_supervisor","hr_manager","hr_executive","finance_manager","finance_executive","security_staff","vendor_user","workplace_facility_manager"] },
   { label: "Leases",           icon: FileText,      href: "/dashboard/rental/leases", roles: ["super_admin","executive","property_manager"] },
   { label: "Rent Invoices",    icon: Receipt,       href: "/dashboard/rental/invoices", roles: ["super_admin","executive","property_manager","finance_manager"] },
   { label: "Deposits",         icon: DollarSign,    href: "/dashboard/rental/deposits", roles: ["super_admin","executive","property_manager","finance_manager"] },
@@ -99,7 +101,7 @@ const NAV_GROUPS = [
   { label: "Maintenance",            icon: Wrench,       items: ["Maintenance","Tickets","Parts","Assets"] },
   { label: "Finance & Accounts",     icon: CreditCard,   items: ["Finance","Chart of Accts","Journal","Ledger","Receivables","Payables","Budget","Tax","Fixed Assets","Reports","Fin Settings","Reconciliation"] },
   { label: "Human Resources",        icon: Users,        items: ["HRMS","Employees","Timesheets","Leave","Payroll","Compliance","Masters","Policies","Appraisal","Compensation","Shifts","HR Settings"] },
-  { label: "Administration",         icon: Shield,       items: ["Admin","Tenants","Workspaces","Roles","Audit Trail","Backup","Users","Settings","Master Data","Sessions","Compliance"] },
+  { label: "Administration",         icon: Shield,       items: ["Admin","Tenants","Workspaces","Roles","Audit Trail","Backup","Users","Settings","Master Data","Sessions","Compliance","Support Tickets","My Tickets"] },
   { label: "Procurement",           icon: ClipboardList, items: ["Procurement","Vendors","Vendor Orders","Vendor Services","Purchase Orders","Goods Receipt"] },
   { label: "Inventory",             icon: Package,       items: ["Inventory","Inv Items","Inv Transactions","Warehouses","Inv Categories"] },
 ];

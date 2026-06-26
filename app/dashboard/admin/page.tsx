@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, Shield, Users, Activity, AlertCircle, Loader2, RefreshCw, CheckCircle, Eye, EyeOff, UserPlus, Clock, FileText, Key, Globe, Lock, Bell, Sliders, ToggleLeft, Server, Database, Download, Upload, Code, Mail, Smartphone, CreditCard } from "lucide-react";
+import { Settings, Shield, Users, Activity, AlertCircle, Loader2, RefreshCw, CheckCircle, Eye, EyeOff, UserPlus, Clock, FileText, Key, Globe, Lock, Bell, Sliders, ToggleLeft, Server, Database, Download, Upload, Code, Mail, Smartphone, CreditCard, Ticket, AlertTriangle } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import Table from "@/components/ui/table";
-import { useAdminUsers, useAuditLogs, useComplianceRecords, useProperties } from "@/lib/hooks";
+import { useAdminUsers, useAuditLogs, useComplianceRecords, useProperties, useAdminTickets } from "@/lib/hooks";
+import Link from "next/link";
 
 const SYSTEM_USERS = [
   { name: "Rajesh Mehta", email: "rajesh@samp.com", role: "Property Manager", property: "Oceanview Hotel", status: "active" },
@@ -50,6 +51,13 @@ export default function AdminPage() {
   const { logs, isLoading: loadingLogs, mutate: mutateLogs } = useAuditLogs(50);
   const { records, isLoading: loadingRecords, mutate: mutateRecords } = useComplianceRecords();
   const { properties = [] } = useProperties();
+  const { tickets: allTickets, isLoading: loadingTickets, mutate: mutateTickets } = useAdminTickets();
+  const ticketStats = allTickets ? (allTickets as any[]).reduce((acc: Record<string, number>, t: any) => {
+    acc.total = (acc.total || 0) + 1;
+    acc[t.status] = (acc[t.status] || 0) + 1;
+    if (t.priority === "high" || t.priority === "critical") acc.high_critical = (acc.high_critical || 0) + 1;
+    return acc;
+  }, {}) : null;
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -116,7 +124,7 @@ export default function AdminPage() {
 
   function handleRefresh() {
     setIsLoading(true);
-    mutateUsers(); mutateLogs(); mutateRecords();
+    mutateUsers(); mutateLogs(); mutateRecords(); mutateTickets();
     setActionFeedback({ type: "success", message: "Dashboard refreshed" });
     setTimeout(() => setIsLoading(false), 800);
   }
@@ -250,6 +258,65 @@ export default function AdminPage() {
                 </div>
               )}
             </Card>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <Link href="/dashboard/admin/tickets?status=open"
+              className="rounded-xl p-4 transition-all hover:shadow-md"
+              style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>Open Tickets</span>
+                <Ticket className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+              </div>
+              <p className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>
+                {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.open || 0}
+              </p>
+              <p className="text-xs mt-1" style={{ color: "#64748B" }}>
+                {ticketStats?.in_progress || 0} in progress
+              </p>
+            </Link>
+            <Link href="/dashboard/admin/tickets?status=awaiting_tenant"
+              className="rounded-xl p-4 transition-all hover:shadow-md"
+              style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>Awaiting Tenant</span>
+                <Clock className="w-4 h-4" style={{ color: "#F5A623" }} />
+              </div>
+              <p className="text-2xl font-bold" style={{ color: "#F5A623" }}>
+                {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.awaiting_tenant || 0}
+              </p>
+              <p className="text-xs mt-1" style={{ color: "#64748B" }}>Waiting for response</p>
+            </Link>
+            <Link href="/dashboard/admin/tickets?priority=critical"
+              className="rounded-xl p-4 transition-all hover:shadow-md"
+              style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>High / Critical</span>
+                <AlertTriangle className="w-4 h-4" style={{ color: "#E53E3E" }} />
+              </div>
+              <p className="text-2xl font-bold" style={{ color: "#E53E3E" }}>
+                {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.high_critical || 0}
+              </p>
+              <p className="text-xs mt-1" style={{ color: "#64748B" }}>Needs immediate attention</p>
+            </Link>
+            <Link href="/dashboard/admin/tickets"
+              className="rounded-xl p-4 transition-all hover:shadow-md"
+              style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>Resolved</span>
+                <CheckCircle className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+              </div>
+              <p className="text-2xl font-bold" style={{ color: "#2BAE8E" }}>
+                {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.resolved || 0}
+              </p>
+              <p className="text-xs mt-1" style={{ color: "#64748B" }}>
+                {ticketStats?.closed || 0} closed
+              </p>
+            </Link>
           </div>
 
           <Card>

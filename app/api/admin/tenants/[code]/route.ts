@@ -17,7 +17,7 @@ export async function PATCH(
 
     const { code } = await params;
     const body = await req.json();
-    const { verticals, suspended, name, contact_email, contact_phone, domain } = body;
+    const { verticals, suspended, name, contact_email, contact_phone, domain, workspaces } = body;
 
     const db = getPublicDb();
 
@@ -41,6 +41,30 @@ export async function PATCH(
 
     if (suspended !== undefined) {
       newConfig.suspended = Boolean(suspended);
+    }
+
+    if (workspaces !== undefined) {
+      if (!Array.isArray(workspaces) || workspaces.length === 0) {
+        return NextResponse.json({ error: "At least one workspace is required" }, { status: 400 });
+      }
+      const valid = workspaces.every(
+        (w: { type?: string; name?: string }) =>
+          w.type && w.name && ["hotels", "apartments", "rental", "workplace"].includes(w.type)
+      );
+      if (!valid) {
+        return NextResponse.json({ error: "Each workspace must have a valid type and name" }, { status: 400 });
+      }
+      const hasPrimary = workspaces.some((w: { is_primary?: boolean }) => w.is_primary);
+      if (!hasPrimary) {
+        workspaces[0].is_primary = true;
+      }
+      newConfig.workspaces = workspaces.map((w: { type: string; name: string; is_primary?: boolean }) => ({
+        type: w.type,
+        name: w.name,
+        is_primary: w.is_primary || false,
+      }));
+      // Auto-derive verticals from workspace types
+      newConfig.verticals = [...new Set(workspaces.map((w: { type: string }) => w.type))];
     }
 
     const result = await db`

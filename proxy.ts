@@ -20,7 +20,13 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (payload && (pathname === "/" || pathname === "/login" || pathname === "/tenants")) {
+  if (payload && pathname === "/tenants") {
+    // Platform admins may provision shards at /tenants; shard users go to dashboard
+    if (!isPlatformAdmin) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    // Let platform admin through to /tenants
+  } else if (payload && (pathname === "/" || pathname === "/login")) {
     // Platform admin goes to tenant management; shard user goes to dashboard
     const redirect = isPlatformAdmin ? "/dashboard/admin/tenants" : "/dashboard";
     return NextResponse.redirect(new URL(redirect, request.url));

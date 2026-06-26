@@ -227,13 +227,41 @@ function EditTenantModal({
 }) {
   const verticals = ((tenant.config || {}).verticals as string[]) || ["hotels", "apartments", "rental", "workplace"];
   const suspended = (tenant.config || {}).suspended === true;
+  const existingWorkspaces = getWorkspaces(tenant);
 
   const [selected, setSelected] = useState<string[]>(verticals);
   const [isSuspended, setIsSuspended] = useState(suspended);
+  const [workspaces, setWorkspaces] = useState(existingWorkspaces);
 
   function toggle(v: string) {
     setSelected((prev) =>
       prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]
+    );
+  }
+
+  function updateWorkspace(index: number, field: string, value: string | boolean) {
+    setWorkspaces((prev) =>
+      prev.map((w, i) => (i === index ? { ...w, [field]: value } : w))
+    );
+  }
+
+  function addWorkspace() {
+    setWorkspaces((prev) => [...prev, { type: "hotels", name: "", is_primary: false }]);
+  }
+
+  function removeWorkspace(index: number) {
+    setWorkspaces((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      if (next.length > 0 && !next.some((w) => w.is_primary)) {
+        next[0].is_primary = true;
+      }
+      return next;
+    });
+  }
+
+  function setPrimary(index: number) {
+    setWorkspaces((prev) =>
+      prev.map((w, i) => ({ ...w, is_primary: i === index }))
     );
   }
 
@@ -248,7 +276,7 @@ function EditTenantModal({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
     >
-      <div className="relative w-full max-w-md rounded-2xl p-6 bg-white shadow-xl animate-slide-up">
+      <div className="relative w-full max-w-lg rounded-2xl p-6 bg-white shadow-xl animate-slide-up max-h-[90vh] overflow-y-auto">
         <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100"
           style={{ color: "#64748B" }}
         >
@@ -295,6 +323,58 @@ function EditTenantModal({
           </div>
 
           <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: "#1A2E44" }}>
+              Workspace Names
+            </label>
+            <div className="space-y-2">
+              {workspaces.map((ws, i) => (
+                <div key={i} className="flex items-center gap-2 p-2 rounded-lg"
+                  style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}
+                >
+                  <div className="flex-1 grid grid-cols-2 gap-2">
+                    <select value={ws.type} onChange={(e) => updateWorkspace(i, "type", e.target.value)}
+                      className="text-xs rounded-lg px-2 py-1.5 border"
+                      style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+                    >
+                      {verticalOptions.map((v) => (
+                        <option key={v.key} value={v.key}>{v.label}</option>
+                      ))}
+                    </select>
+                    <input type="text" value={ws.name} onChange={(e) => updateWorkspace(i, "name", e.target.value)}
+                      placeholder="Workspace name" maxLength={100}
+                      className="text-xs rounded-lg px-2 py-1.5 border"
+                      style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+                    />
+                  </div>
+                  <label className="flex items-center gap-1 cursor-pointer shrink-0"
+                    title="Set as primary workspace"
+                  >
+                    <input type="radio" name="ws-primary" checked={ws.is_primary}
+                      onChange={() => setPrimary(i)}
+                      style={{ accentColor: "#2BAE8E" }}
+                    />
+                    <span className="text-[10px]" style={{ color: "#94A3B8" }}>Primary</span>
+                  </label>
+                  {workspaces.length > 1 && (
+                    <button onClick={() => removeWorkspace(i)}
+                      className="p-1 rounded hover:bg-red-50"
+                      style={{ color: "#E53E3E" }}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button onClick={addWorkspace}
+                className="w-full py-1.5 rounded-lg text-xs font-medium transition-colors"
+                style={{ border: "1px dashed #CBD5E1", color: "#64748B" }}
+              >
+                + Add Workspace
+              </button>
+            </div>
+          </div>
+
+          <div>
             <label className="flex items-center gap-3 p-3 rounded-lg cursor-pointer"
               style={{ background: isSuspended ? "rgba(229,62,62,0.05)" : "#F5F7FA", border: `1px solid ${isSuspended ? "rgba(229,62,62,0.15)" : "#E2E8F0"}` }}
             >
@@ -319,7 +399,7 @@ function EditTenantModal({
             >
               Cancel
             </button>
-            <button onClick={() => onSave({ verticals: selected, suspended: isSuspended })} disabled={saving || selected.length === 0}
+            <button onClick={() => onSave({ verticals: selected, suspended: isSuspended, workspaces })} disabled={saving || selected.length === 0}
               className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-60 cursor-pointer"
               style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" }}
             >
