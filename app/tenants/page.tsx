@@ -49,7 +49,7 @@ export default function TenantsPage() {
     primary_contact_name: "",
     contact_email: "",
     payment_mode: "monthly",
-    subscription_charges_type: "Monthly",
+    subscription_charges_type: "Free",
     price: 0,
   });
   const [scrolled, setScrolled] = useState(false);
@@ -570,7 +570,7 @@ export default function TenantsPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
-                    <CreditCard className="w-3 h-3 inline mr-1" /> Payment
+                    <CreditCard className="w-3 h-3 inline mr-1" /> Payment Mode
                   </label>
                   <select value={form.payment_mode} onChange={(e) => setForm({ ...form, payment_mode: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border text-xs outline-none transition-colors"
@@ -583,15 +583,15 @@ export default function TenantsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
-                    <DollarSign className="w-3 h-3 inline mr-1" /> Charges
+                    <DollarSign className="w-3 h-3 inline mr-1" /> Charge Model
                   </label>
                   <select value={form.subscription_charges_type} onChange={(e) => setForm({ ...form, subscription_charges_type: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border text-xs outline-none transition-colors"
                     style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}>
                     <option value="Free">Free</option>
-                    <option value="Monthly">Monthly</option>
-                    <option value="Quarterly">Quarterly</option>
-                    <option value="Yearly">Yearly</option>
+                    <option value="Monthly">Per-Month</option>
+                    <option value="Quarterly">Per-Quarter</option>
+                    <option value="Yearly">Per-Year</option>
                     <option value="Per-User">Per-User</option>
                   </select>
                 </div>

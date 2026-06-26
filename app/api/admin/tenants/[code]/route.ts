@@ -10,7 +10,6 @@ export async function PATCH(
     const token = req.cookies.get("ehms_token")?.value;
     const payload = token ? verifyToken(token) : null;
 
-    // Only platform superadmins can manage tenants
     if (!payload?.is_platform_admin) {
       return NextResponse.json({ error: "Only platform superadmins can manage tenants" }, { status: 403 });
     }
@@ -21,10 +20,11 @@ export async function PATCH(
 
     const db = getPublicDb();
 
-    const existing = await db`
-      SELECT id, config FROM public.tenants WHERE code = ${code} LIMIT 1
-    `;
-    const tenantRow = (existing as Record<string, unknown>[])[0];
+    const existing = (await db.query(
+      "SELECT id, config FROM public.tenants WHERE code = $1 LIMIT 1",
+      [code]
+    )) as Record<string, unknown>[];
+    const tenantRow = existing[0];
     if (!tenantRow) {
       return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
     }
@@ -63,24 +63,41 @@ export async function PATCH(
         name: w.name,
         is_primary: w.is_primary || false,
       }));
-      // Auto-derive verticals from workspace types
       newConfig.verticals = [...new Set(workspaces.map((w: { type: string }) => w.type))];
     }
 
-    const result = await db`
-      UPDATE public.tenants
-      SET
-        name = CASE WHEN ${name !== undefined} THEN ${name ?? null} ELSE name END,
-        contact_email = CASE WHEN ${contact_email !== undefined} THEN ${contact_email ?? null} ELSE contact_email END,
-        contact_phone = CASE WHEN ${contact_phone !== undefined} THEN ${contact_phone ?? null} ELSE contact_phone END,
-        domain = CASE WHEN ${domain !== undefined} THEN ${domain ?? null} ELSE domain END,
-        config = ${JSON.stringify(newConfig)}::jsonb,
-        updated_at = now()
-      WHERE code = ${code}
-      RETURNING id, name, code, schema_name, config, domain, contact_email, contact_phone, is_active, created_at, updated_at
-    `;
+    const setClauses: string[] = [];
+    const queryParams: unknown[] = [];
+    let paramIndex = 1;
 
-    const updated = (result as Record<string, unknown>[])[0];
+    if (name !== undefined) {
+      setClauses.push(`name = $${paramIndex++}`);
+      queryParams.push(name ?? null);
+    }
+    if (contact_email !== undefined) {
+      setClauses.push(`contact_email = $${paramIndex++}`);
+      queryParams.push(contact_email ?? null);
+    }
+    if (contact_phone !== undefined) {
+      setClauses.push(`contact_phone = $${paramIndex++}`);
+      queryParams.push(contact_phone ?? null);
+    }
+    if (domain !== undefined) {
+      setClauses.push(`domain = $${paramIndex++}`);
+      queryParams.push(domain ?? null);
+    }
+
+    setClauses.push(`config = $${paramIndex++}::jsonb`);
+    queryParams.push(JSON.stringify(newConfig));
+
+    setClauses.push("updated_at = now()");
+
+    queryParams.push(code);
+    const sql = `UPDATE public.tenants SET ${setClauses.join(", ")} WHERE code = $${paramIndex} RETURNING id, name, code, schema_name, config, domain, contact_email, contact_phone, is_active, created_at, updated_at`;
+
+    const result = (await db.query(sql, queryParams)) as Record<string, unknown>[];
+    const updated = result[0];
+
     return NextResponse.json({ tenant: updated });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Update failed";
