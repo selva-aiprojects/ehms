@@ -223,7 +223,7 @@ function getWorkspaces(tenant: TenantRecord): { type: string; name: string; is_p
     return ws.map((w) => ({ type: w.type, name: w.name, is_primary: w.is_primary || false }));
   }
   const verts = ((tenant.config || {}).verticals as string[]) || ["hotels"];
-  return verts.map((v, i) => ({ type: v, name: tenant.name || v, is_primary: i === 0 }));
+  return verts.map((v, i) => ({ type: v, name: VERTICAL_LABELS[v]?.label || v, is_primary: i === 0 }));
 }
 
 function EditTenantModal({
