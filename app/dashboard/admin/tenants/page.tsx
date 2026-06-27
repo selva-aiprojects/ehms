@@ -339,7 +339,7 @@ function EditTenantModal({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
     >
-      <div className="relative w-full max-w-3xl rounded-2xl p-6 bg-white shadow-xl animate-slide-up max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-4xl rounded-2xl p-6 bg-white shadow-xl animate-slide-up max-h-[90vh] overflow-y-auto">
         <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100"
           style={{ color: "#64748B" }}
         >
@@ -370,10 +370,10 @@ function EditTenantModal({
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
               <label className="block text-sm font-medium mb-2" style={{ color: "#1A2E44" }}>
-                Subscribed Platform Features
+                Subscribed Features
               </label>
               <div className="grid grid-cols-1 gap-2">
                 {verticalOptions.map((v) => {
@@ -381,7 +381,7 @@ function EditTenantModal({
                   const Icon = v.icon;
                   return (
                     <button key={v.key} type="button" onClick={() => toggle(v.key)}
-                      className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-left"
+                      className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left"
                       style={{
                         background: sel ? "rgba(43,174,142,0.08)" : "#F5F7FA",
                         border: `1px solid ${sel ? "rgba(43,174,142,0.25)" : "#E2E8F0"}`,
@@ -397,26 +397,26 @@ function EditTenantModal({
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
+            <div className="md:col-span-2">
+              <div className="flex items-center justify-between mb-3">
                 <label className="text-sm font-medium" style={{ color: "#1A2E44" }}>
                   Workspace Names
                 </label>
                 <button onClick={addWorkspace}
-                  className="text-xs font-semibold flex items-center gap-1 px-2 py-1 rounded transition-colors"
+                  className="text-sm font-semibold flex items-center gap-1 px-3 py-1.5 rounded transition-colors"
                   style={{ color: "#2BAE8E" }}
                 >
-                  + Add
+                  + Add Workspace
                 </button>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {workspaces.map((ws, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 rounded-lg"
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg"
                     style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}
                   >
-                    <div className="flex-1 space-y-1.5">
+                    <div className="flex-1 space-y-2">
                       <select value={ws.type} onChange={(e) => updateWorkspace(i, "type", e.target.value)}
-                        className="w-full text-xs rounded-lg px-2 py-1.5 border"
+                        className="w-full text-sm rounded-lg px-3 py-2 border"
                         style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
                       >
                         {verticalOptions.map((v) => (
@@ -424,26 +424,28 @@ function EditTenantModal({
                         ))}
                       </select>
                       <input type="text" value={ws.name} onChange={(e) => updateWorkspace(i, "name", e.target.value)}
-                        placeholder="Workspace name" maxLength={100}
-                        className="w-full text-xs rounded-lg px-2 py-1.5 border"
+                        placeholder="Enter workspace name (e.g. Grand Hyatt)"
+                        maxLength={100}
+                        className="w-full text-sm rounded-lg px-3 py-2 border"
                         style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
                       />
                     </div>
-                    <div className="flex flex-col items-center gap-1 shrink-0">
-                      <label className="flex items-center gap-1 cursor-pointer"
+                    <div className="flex flex-col items-center gap-2 shrink-0">
+                      <label className="flex items-center gap-1.5 cursor-pointer text-xs"
                         title="Set as primary workspace"
                       >
                         <input type="radio" name="ws-primary" checked={ws.is_primary}
                           onChange={() => setPrimary(i)}
                           style={{ accentColor: "#2BAE8E" }}
                         />
+                        Primary
                       </label>
                       {workspaces.length > 1 && (
                         <button onClick={() => confirmRemoveWorkspace(i)}
-                          className="p-0.5 rounded hover:bg-red-50"
+                          className="p-1 rounded hover:bg-red-50 text-xs"
                           style={{ color: "#E53E3E" }}
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-4 h-4" />
                         </button>
                       )}
                     </div>
