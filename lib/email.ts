@@ -1,6 +1,19 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "");
+let resend: Resend | null = null;
+
+function getResend(): Resend | null {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn("RESEND_API_KEY not set — emails will not be sent");
+      return null;
+    }
+    resend = new Resend(apiKey);
+  }
+  return resend;
+}
+
 const fromAddress = process.env.RESEND_FROM || "eHMS <onboarding@cognivectra.com>";
 
 function baseEmailHtml(
@@ -53,8 +66,10 @@ export async function sendTicketCreatedEmail(
     ticket.tenant_code
   );
 
+  const r = getResend();
+  if (!r) return;
   try {
-    await resend.emails.send({
+    await r.emails.send({
       from: fromAddress,
       to,
       subject: `[${ticket.tenant_code}] New Support Ticket: ${ticket.subject}`,
@@ -81,8 +96,10 @@ export async function sendTicketReplyEmail(
     ticket.tenant_code
   );
 
+  const r = getResend();
+  if (!r) return;
   try {
-    await resend.emails.send({
+    await r.emails.send({
       from: fromAddress,
       to,
       subject: `Re: [${ticket.tenant_code}] ${ticket.subject}`,
@@ -155,8 +172,10 @@ export async function sendWelcomeEmail(
 </body>
 </html>`;
 
+  const r = getResend();
+  if (!r) return;
   try {
-    await resend.emails.send({
+    await r.emails.send({
       from: fromAddress,
       to,
       subject: `Welcome to eHMS — ${tenantName} Workspace Is Ready`,
@@ -184,8 +203,10 @@ export async function sendTicketStatusEmail(
     ticket.tenant_code
   );
 
+  const r = getResend();
+  if (!r) return;
   try {
-    await resend.emails.send({
+    await r.emails.send({
       from: fromAddress,
       to,
       subject: `[${ticket.tenant_code}] Status Updated: ${ticket.subject}`,
