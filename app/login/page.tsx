@@ -73,7 +73,9 @@ function LoginContent() {
   const [plLoading, setPlLoading] = useState(false);
   const [plError, setPlError] = useState<string | null>(null);
 
-  const tenantCode = searchParams.get("tenant");
+  // Use local state for tenant selection (avoids router.push timing issues)
+  const [pickedTenantCode, setPickedTenantCode] = useState<string | null>(null);
+  const tenantCode = searchParams.get("tenant") || pickedTenantCode;
 
   // Fetch all tenants on mount
   useEffect(() => {
@@ -173,7 +175,14 @@ function LoginContent() {
     localStorage.removeItem("ehms_demo_session");
     localStorage.removeItem("ehms_tenant_verticals");
     localStorage.removeItem("ehms_tenant_name");
-    router.push(`/login?tenant=${code}`);
+    setPickedTenantCode(code);
+    window.history.replaceState(null, "", `/login?tenant=${code}`);
+  }
+
+  function clearTenant() {
+    setPickedTenantCode(null);
+    setTenant(null);
+    window.history.replaceState(null, "", "/login");
   }
 
   function getTenantVerticals(t: TenantInfo): VerticalKey[] {
@@ -441,7 +450,7 @@ function LoginContent() {
             No organization with code &quot;{tenantCode}&quot; exists.
           </p>
           <button
-            onClick={() => router.push("/login")}
+            onClick={clearTenant}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 cursor-pointer"
             style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
           >
@@ -468,7 +477,7 @@ function LoginContent() {
             Contact your platform administrator for assistance.
           </p>
           <button
-            onClick={() => router.push("/login")}
+            onClick={clearTenant}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105 cursor-pointer"
             style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" }}
           >
@@ -515,7 +524,7 @@ function LoginContent() {
 
           {/* Tenant badge — click to switch shard */}
           <button
-            onClick={() => router.push("/login")}
+            onClick={clearTenant}
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium mb-4 transition-colors hover:opacity-80 cursor-pointer"
             style={{
               background: "rgba(43,174,142,0.08)",
