@@ -81,14 +81,7 @@ export default function AdminTenantsPage() {
   function getWorkspaces(t: TenantRecord): { type: string; name: string; is_primary: boolean }[] {
     const c = t.config || {};
     const ws = c.workspaces as { type: string; name: string; is_primary: boolean }[] | undefined;
-    if (!ws || ws.length === 0) return [];
-    return ws.map((w) => {
-      const meta = VERTICAL_LABELS[w.type];
-      return {
-        ...w,
-        name: (w.name && w.name !== w.type) ? w.name : (meta?.label || w.type),
-      };
-    });
+    return ws && ws.length > 0 ? ws : [];
   }
 
   function isSuspended(t: TenantRecord): boolean {
