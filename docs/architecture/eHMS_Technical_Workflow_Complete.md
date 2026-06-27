@@ -5,7 +5,7 @@
 > **Verticals:** Hotels & Resorts | Service Apartments | Apartment Leasing & Rental | Workplace & Managed Offices  
 > **Tech Stack:** Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 · NeonDB (PostgreSQL 16) · SWR  
 > **Auth:** JWT (httpOnly cookie) · bcryptjs · RBAC  
-> **Last Updated:** 25 June 2026
+> **Last Updated:** 27 June 2026
 
 ---
 
@@ -68,6 +68,16 @@
 | **Database Hosting** | NeonDB (AWS us-east-1) |
 | **CI/CD** | Vercel Git Integration |
 | **Version Control** | Git (GitHub) |
+
+### 1.5 Email & Notifications
+
+| Category | Technology | Purpose | Implementation Detail |
+|---|---|---|---|
+| **Transactional Email** | Resend (Node SDK) | Welcome emails, ticket notifications | `lib/email.ts` — lazily initialized via `getResend()` to avoid build-time crash |
+| **Env Required** | `RESEND_API_KEY` | Resend API key | Must be set in Vercel project env. If absent, emails skip gracefully |
+| **Env Required** | `RESEND_FROM` | Sender address | e.g. `eHMS <onboarding@cognivectra.com>` |
+
+> **Lazy-init pattern:** `new Resend(apiKey)` is NOT called at module evaluation time. The `getResend()` singleton delays construction until the first email function is invoked at runtime. If the API key is missing, `getResend()` returns `null` and all 4 `send*` functions (`sendWelcomeEmail`, `sendTicketCreatedEmail`, etc.) return early without throwing.
 
 ---
 
@@ -2561,5 +2571,5 @@ TEST ASSERTIONS:
 
 ---
 
-*Document generated from eHMS codebase analysis — 25 June 2026*  
+*Document generated from eHMS codebase analysis — 27 June 2026*  
 *Source: `d:\Training\working\HMS` — 23 SQL migrations, 100+ API routes, 40+ pages, 80+ hooks*

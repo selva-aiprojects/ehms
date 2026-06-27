@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# eHMS — Enterprise Hospitality Management System
+
+A **subscription-based** multi-tenant hospitality and facilities management platform serving Hotels, Serviced Apartments, Apartment Management (Rental), and Workplace Services verticals.
+
+| | |
+|---|---|
+| **Stack** | Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · NeonDB (PostgreSQL) |
+| **Architecture** | Schema-per-Tenant Multi-Tenancy |
+| **Live** | https://ehms-app.vercel.app |
+| **Git** | https://github.com/selva-aiprojects/ehms |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables (`.env.local`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+DATABASE_URL=postgresql://...
+JWT_SECRET=...
+RESEND_API_KEY=re_...           # Transactional emails
+RESEND_FROM=eHMS <...>          # Sender address
+```
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+vercel env add DATABASE_URL
+vercel env add JWT_SECRET
+vercel env add RESEND_API_KEY
+vercel env add RESEND_FROM
+vercel --prod
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> Email sending uses lazy initialization — if `RESEND_API_KEY` is not set, emails are skipped gracefully without crashing the build.
+
+## Demo Users
+
+Password for all: `Demo@1234`
+
+| Role | Email |
+|---|---|
+| Super Admin | superadmin@ehms.demo |
+| Property Manager | admin@ehms.demo |
+| Executive | executive@ehms.demo |
+| Front Desk | frontdesk@ehms.demo |
+| Housekeeping | housekeeping@ehms.demo |
+| Maintenance | maintenance@ehms.demo |
+| HR Manager | hr@ehms.demo |
+| Finance Manager | finance@ehms.demo |

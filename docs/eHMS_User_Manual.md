@@ -188,6 +188,15 @@ When a tenant is suspended:
 - Existing JWTs are not invalidated (but the suspension is checked at login time only)
 - To restore: platform admin unsuspends via Edit Tenant modal
 
+## 4.4 Email Notifications (Resend Integration)
+
+The platform sends transactional emails (welcome emails on tenant provisioning, ticket notifications) via **Resend**.
+
+**Key implementation details (`lib/email.ts`):**
+- **Lazy initialization** — The `Resend` constructor is NOT called at module evaluation time. Instead, `getResend()` creates the client on first use only when `RESEND_API_KEY` is present.
+- **Graceful degradation** — If `RESEND_API_KEY` is not set, all email functions silently skip with a console warning instead of throwing.
+- **Required Vercel env vars:** `RESEND_API_KEY` and `RESEND_FROM`.
+
 ---
 
 # 5. Authentication & Roles
@@ -726,7 +735,15 @@ The JWT token expires after 7 days. Log in again.
 
 This usually relates to WebSocket/`_next/webpack-hmr` issues in development. The `proxy.ts` matcher excludes `_next` paths. If you see this in production, clear browser cache and reload.
 
+## 21.7 Vercel Build Failure: "Missing API key. Pass it to the constructor `new Resend(...)`"
+
+**Cause:** The Resend client was previously instantiated at module level in `lib/email.ts`. During `next build`, if `RESEND_API_KEY` is not set in the build environment, `new Resend("")` throws.
+
+**Fix (applied 27 June 2026):** Resend now uses lazy initialization via `getResend()`. The constructor is only called at runtime when an email function is actually invoked, and only if the API key is present. If the key is missing, emails are skipped without crashing.
+
+**Remedy:** Ensure `RESEND_API_KEY` and `RESEND_FROM` are added to Vercel project environment variables.
+
 ---
 
 *eHMS — Enterprise Hospitality Management System*
-*Document version 1.0 — June 2026*
+*Document version 1.1 — June 2026*

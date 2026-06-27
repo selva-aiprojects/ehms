@@ -220,7 +220,13 @@ python3 skills/ui-ux-pro-max/scripts/search.py "<page description>" --page-desig
 - **`proxy.ts` auth redirects:** Authenticated users on `/`, `/login`, or `/tenants` are redirected away. Platform admins go to `/dashboard/admin/tenants`, shard users go to `/dashboard`.
 - **Schema isolation:** Each tenant's data lives in its own PostgreSQL schema (e.g., `viswa`). `lib/db.ts` uses `search_path = {schema}, public` to scope queries.
 
-## 14. Design System & UI/UX Pro Max
+## 14. Email & Resend Integration
+- Transactional emails (welcome, ticket notifications) use `lib/email.ts`.
+- Resend client uses **lazy initialization** via `getResend()` — the `Resend` constructor is NOT called at module level.
+- If `RESEND_API_KEY` is missing, all email functions silently skip instead of throwing.
+- Required Vercel env vars: `RESEND_API_KEY`, `RESEND_FROM`.
+
+## 15. Design System & UI/UX Pro Max
 - Design system persisted at `design-system/ehms/MASTER.md` (generated via `ui-ux-pro-max` skill).
 - **Colors:** Primary `#1E3A8A`, Secondary `#3B82F6`, CTA/Accent `#CA8A04`, Background `#F8FAFC`, Text `#1E40AF`.
 - **Typography:** Playfair Display SC (headings), Karla (body).

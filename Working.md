@@ -2,7 +2,7 @@
 
 > **Enterprise Hospitality Management System**
 > Full progress log from project start to current state.
-> Last updated: 25 June 2026
+> Last updated: 27 June 2026
 
 ---
 
@@ -293,6 +293,10 @@ DATABASE_URL=postgresql://neondb_owner:<password>@ep-<slug>-pooler.c-9.us-east-1
 
 # JWT Secret — generate with: openssl rand -hex 32
 JWT_SECRET=ehms-dev-jwt-secret-do-not-use-in-production-change-this
+
+# Resend (transactional emails) — lazy-initialized; skip gracefully if missing
+RESEND_API_KEY=re_...
+RESEND_FROM=eHMS Workspace Onboarding Team <onboarding@cognivectra.com>
 ```
 
 ### Architecture (current)
@@ -609,6 +613,8 @@ Unlike Supabase Auth, all users live in the `public.users` table with bcrypt/pgc
 ```bash
 vercel env add DATABASE_URL
 vercel env add JWT_SECRET
+vercel env add RESEND_API_KEY
+vercel env add RESEND_FROM
 vercel --prod
 ```
 
@@ -673,6 +679,7 @@ vercel --prod
 | HMR WebSocket connection handshake failure (`_next/webpack-hmr` ERR_INVALID_HTTP_RESPONSE) | Excluded all Next.js internal paths `_next/` from the middleware matcher in `proxy.ts` to prevent request interception during WebSocket upgrade handshake. |
 | Submodule `frontend` out of sync with root repo changes | Ran `git pull` in `frontend` submodule to ensure both instances run identical updated files. |
 | `\u20B9` (₹) Unicode escape displays literally as text in JSX | Wrapped in `{'\u20B9'}` expression syntax so React renders the symbol instead of the raw escape sequence |
+| Vercel build crash: `Missing API key. Pass it to the constructor new Resend("")` | Changed `lib/email.ts` to lazy-initialize Resend via `getResend()`. Constructor is no longer called at module evaluation time. Emails skip gracefully when env var absent. |
 
 ---
 
@@ -706,7 +713,7 @@ vercel --prod
 
 ### What May Need Attention
 1. Run `020_admin_module.sql` via `npm run migrate` to create new admin tables (sessions, login attempts, backup jobs, audit events, admin notifications)
-2. Set `DATABASE_URL` + `JWT_SECRET` in Vercel env vars for production
+2. Set `DATABASE_URL` + `JWT_SECRET` + `RESEND_API_KEY` + `RESEND_FROM` in Vercel env vars for production
 3. Change `JWT_SECRET` to a strong random value for production
 4. Consider bcrypt migration script for existing pgcrypto users if adding non-demo users
 
@@ -1631,4 +1638,33 @@ Default config for all properties after migration:
 
 ---
 
-*Working.md — eHMS Project • Created 18 June 2026 • Updated 25 June 2026*
+## Step 27 — Vercel Build Fix: Resend Lazy Initialization
+
+Built on 27 June 2026. Fixed a Vercel deployment crash caused by module-level `new Resend()` evaluation during build.
+
+### Problem
+`lib/email.ts` instantiated Resend at module level:
+```ts
+const resend = new Resend(process.env.RESEND_API_KEY || "");
+```
+During `next build`, the module is evaluated. If `RESEND_API_KEY` is not set in the build environment (or empty), `new Resend("")` throws `Error: Missing API key` — crashing the build.
+
+### Fix
+Replaced eager singleton with lazy initialization via `getResend()`:
+- The `Resend` constructor is only called when an email function is first invoked at runtime
+- If `RESEND_API_KEY` is absent, `getResend()` returns `null` and all 4 `send*` functions skip silently
+- Build no longer depends on runtime env vars being present
+
+### Files Changed
+- `lib/email.ts` — added `getResend()` function; each send function now calls it and guards against null
+
+### Vercel Env Required
+For actual emails in production, add to Vercel:
+```
+RESEND_API_KEY
+RESEND_FROM
+```
+
+---
+
+*Working.md — eHMS Project • Created 18 June 2026 • Updated 27 June 2026*
