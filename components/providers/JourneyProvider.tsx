@@ -61,6 +61,8 @@ export function JourneyProvider({ children }: { children: React.ReactNode }) {
     setActiveJourney(journey);
     localStorage.setItem("ehms_active_journey", journey);
 
+    if (pathname.startsWith("/login")) return;
+
     if (pathname !== "/") {
       if (journey !== "all") {
         router.push(`/dashboard/${journey}`);
