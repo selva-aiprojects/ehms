@@ -8,13 +8,29 @@ export async function GET(req: NextRequest) {
     const propertyId = searchParams.get("property_id");
     const status = searchParams.get("status");
 
-    const rows = await sql`
+    const queryParams: unknown[] = [];
+    let paramIdx = 1;
+    let clauses = "";
+
+    if (propertyId) {
+      clauses += ` AND property_id = $${paramIdx}`;
+      queryParams.push(propertyId);
+      paramIdx++;
+    }
+    if (status) {
+      clauses += ` AND status = $${paramIdx}`;
+      queryParams.push(status);
+      paramIdx++;
+    }
+
+    const queryText = `
       SELECT * FROM compliance_records
       WHERE 1=1
-        ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
-        ${status ? sql`AND status = ${status}` : sql``}
+        ${clauses}
       ORDER BY created_at DESC
     `;
+
+    const rows = await sql.query(queryText, queryParams);
 
     return NextResponse.json({ data: rows });
   } catch (error: any) {

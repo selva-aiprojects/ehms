@@ -10,15 +10,38 @@ export async function GET(req: NextRequest) {
     const severity = searchParams.get("severity");
     const days = parseInt(searchParams.get("days") || "7");
 
-    const rows = await sql`
+    const queryParams: unknown[] = [];
+    let paramIdx = 1;
+    let clauses = "";
+
+    if (eventType) {
+      clauses += ` AND event_type = $${paramIdx}`;
+      queryParams.push(eventType);
+      paramIdx++;
+    }
+    if (severity) {
+      clauses += ` AND severity = $${paramIdx}`;
+      queryParams.push(severity);
+      paramIdx++;
+    }
+
+    queryParams.push(`${days} days`);
+    const intervalIdx = paramIdx;
+    paramIdx++;
+
+    queryParams.push(limit);
+    const limitIdx = paramIdx;
+
+    const queryText = `
       SELECT *
       FROM system_audit_events
-      WHERE created_at >= now() - (${days} || ' days')::interval
-        ${eventType ? sql`AND event_type = ${eventType}` : sql``}
-        ${severity ? sql`AND severity = ${severity}` : sql``}
+      WHERE created_at >= now() - $${intervalIdx}::interval
+        ${clauses}
       ORDER BY created_at DESC
-      LIMIT ${limit}
+      LIMIT $${limitIdx}
     `;
+
+    const rows = await sql.query(queryText, queryParams);
 
     return NextResponse.json({ data: rows });
   } catch (error: any) {

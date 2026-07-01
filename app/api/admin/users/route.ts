@@ -30,7 +30,36 @@ export async function GET(req: NextRequest) {
       finalPropertyId = propertyId;
     }
 
-    const rows = await sql`
+    const queryParams: unknown[] = [];
+    let paramIdx = 1;
+    let whereClauses = "";
+
+    if (status === "active") {
+      whereClauses += " AND u.is_active = true";
+    } else if (status === "inactive") {
+      whereClauses += " AND u.is_active = false";
+    }
+
+    if (search) {
+      whereClauses += ` AND (u.first_name ILIKE $${paramIdx} OR u.last_name ILIKE $${paramIdx + 1} OR u.email ILIKE $${paramIdx + 2})`;
+      queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      paramIdx += 3;
+    }
+
+    if (finalPropertyId) {
+      whereClauses += ` AND ur.property_id = $${paramIdx}`;
+      queryParams.push(finalPropertyId);
+      paramIdx += 1;
+    }
+
+    let havingClauses = "";
+    if (role) {
+      havingClauses += ` HAVING bool_or(r.name = $${paramIdx})`;
+      queryParams.push(role);
+      paramIdx += 1;
+    }
+
+    const queryText = `
       SELECT
         u.id, u.email, u.first_name, u.last_name, u.phone, u.is_active, u.created_at, u.last_login_at,
         COALESCE(
@@ -45,15 +74,13 @@ export async function GET(req: NextRequest) {
       FROM users u
       LEFT JOIN user_roles ur ON ur.user_id = u.id
       LEFT JOIN roles r ON r.id = ur.role_id
-      WHERE 1=1
-        ${status === "active" ? sql`AND u.is_active = true` : status === "inactive" ? sql`AND u.is_active = false` : sql``}
-        ${search ? sql`AND (u.first_name ILIKE ${"%" + search + "%"} OR u.last_name ILIKE ${"%" + search + "%"} OR u.email ILIKE ${"%" + search + "%"})` : sql``}
-        ${finalPropertyId ? sql`AND ur.property_id = ${finalPropertyId}` : sql``}
+      WHERE 1=1 ${whereClauses}
       GROUP BY u.id
-      HAVING 1=1
-        ${role ? sql`AND bool_or(r.name = ${role})` : sql``}
+      ${havingClauses}
       ORDER BY u.created_at DESC
     `;
+
+    const rows = await sql.query(queryText, queryParams);
 
     return NextResponse.json({ data: rows, requester_property_id: requesterPropertyId });
   } catch (error) {
