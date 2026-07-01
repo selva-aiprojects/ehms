@@ -48,7 +48,8 @@ ON CONFLICT (name) DO NOTHING;
 
 -- ── Demo users (pgcrypto crypt hashed passwords) ──────────────
 INSERT INTO users (email, phone, password_hash, first_name, last_name, is_active) VALUES
-  ('superadmin@ehms.demo',   '+91-9000000000', crypt('Demo@1234', gen_salt('bf')), 'Joan',  'Smith',    true),
+  ('raghu.superadmin@ehms.demo',  '+91-9000000000', crypt('Demo@1234', gen_salt('bf')), 'Raghu',  'Superadmin', true),
+  ('vishwa.superadmin@ehms.demo', '+91-9000000008', crypt('Demo@1234', gen_salt('bf')), 'Vishwa', 'Superadmin', true),
   ('admin@ehms.demo',        '+91-9000000001', crypt('Demo@1234', gen_salt('bf')), 'Aryan', 'Kapoor',   true),
   ('frontdesk@ehms.demo',    '+91-9000000002', crypt('Demo@1234', gen_salt('bf')), 'Ravi',  'Kumar',    true),
   ('housekeeping@ehms.demo', '+91-9000000003', crypt('Demo@1234', gen_salt('bf')), 'Meena', 'Pillai',   true),
@@ -63,7 +64,8 @@ INSERT INTO user_roles (user_id, role_id, property_id)
 SELECT u.id, r.id, NULL
 FROM users u, roles r
 WHERE (u.email, r.name) IN (
-  ('superadmin@ehms.demo',   'super_admin'),
+  ('raghu.superadmin@ehms.demo',   'super_admin'),
+  ('vishwa.superadmin@ehms.demo',  'super_admin'),
   ('admin@ehms.demo',        'property_manager'),
   ('frontdesk@ehms.demo',    'front_desk'),
   ('housekeeping@ehms.demo', 'housekeeping_staff'),
@@ -77,7 +79,7 @@ ON CONFLICT (user_id, role_id, property_id) DO NOTHING;
 -- Super admin also gets executive role
 INSERT INTO user_roles (user_id, role_id, property_id)
 SELECT u.id, r.id, NULL FROM users u, roles r
-WHERE u.email = 'superadmin@ehms.demo' AND r.name = 'executive'
+WHERE u.email IN ('raghu.superadmin@ehms.demo', 'vishwa.superadmin@ehms.demo') AND r.name = 'executive'
 ON CONFLICT (user_id, role_id, property_id) DO NOTHING;
 
 -- ── Guests (30 profiles) ──────────────────────────────────────

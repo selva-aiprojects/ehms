@@ -59,6 +59,8 @@ export const ROLE_LABELS: Record<string, string> = {
 
 export const DEMO_ROLE_MAP: Record<string, string> = {
   "superadmin@ehms.demo": "super_admin",
+  "raghu.superadmin@ehms.demo": "super_admin",
+  "vishwa.superadmin@ehms.demo": "super_admin",
   "admin@ehms.demo": "property_manager",
   "frontdesk@ehms.demo": "front_desk",
   "housekeeping@ehms.demo": "housekeeping_staff",

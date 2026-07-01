@@ -683,7 +683,8 @@ function LoginContent() {
                   defaultValue=""
                 >
                   <option value="">— Select a demo role to pre-fill fields —</option>
-                  <option value="superadmin@ehms.demo">Super Admin</option>
+                  <option value="raghu.superadmin@ehms.demo">Raghu (Super Admin)</option>
+                  <option value="vishwa.superadmin@ehms.demo">Vishwa (Super Admin)</option>
                   <option value="executive@ehms.demo">Executive</option>
                   <option value="admin@ehms.demo">Property Manager</option>
                   <option value="frontdesk@ehms.demo">Front Desk</option>
