@@ -16,6 +16,7 @@ export interface UserProfile {
   tenant_schema?: string;
   tenant_name?: string;
   tenant_verticals?: string[];
+  assigned_property_ids?: string[];
 }
 
 interface AuthState {

@@ -123,59 +123,67 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Users", "Tenants", "Settings", "Branding", "Master Data", "Sessions", "Compliance",
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
-    "Memberships", "Visitors", "Reconciliation"
+    "Memberships", "Visitors", "Reconciliation",
+    "My Tickets"
   ],
   hotels: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
-    "F&B / Pantry", "Requests", "Feedbacks", "Housekeeping", "HK Tasks", "Linen",
-    "Inspections", "HK Staff", "Maintenance", "Tickets", "Parts", "Assets",
+    "F&B / Pantry", "Requests", "Feedbacks", "Hotels",
+    "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
+    "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
-    "Tax", "Fixed Assets", "Reports", "Fin Settings",
+    "Tax", "Fixed Assets", "Reports", "Fin Settings", "Reconciliation",
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
-    "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
-    "Workspaces", "Roles", "Audit Trail", "Backup",
+    "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings",
+    "Admin", "Workspaces", "Roles", "Audit Trail", "Backup",
     "Users", "Tenants", "Settings", "Branding", "Master Data", "Sessions", "Compliance",
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
-    "Memberships", "Visitors", "Reconciliation"
+    "My Tickets"
   ],
   apartments: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
-    "F&B / Pantry", "Requests", "Feedbacks", "Housekeeping", "HK Tasks", "Linen",
-    "Inspections", "HK Staff", "Maintenance", "Tickets", "Parts", "Assets",
+    "F&B / Pantry", "Requests", "Feedbacks", "Apartments",
+    "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
+    "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
-    "Tax", "Fixed Assets", "Reports", "Fin Settings",
+    "Tax", "Fixed Assets", "Reports", "Fin Settings", "Reconciliation",
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
-    "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
-    "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Tenants", "Settings", "Branding", "Master Data",     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
-    "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories"
+    "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings",
+    "Admin", "Workspaces", "Roles", "Audit Trail", "Backup",
+    "Users", "Tenants", "Settings", "Branding", "Master Data",
+    "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
+    "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
+    "My Tickets"
   ],
   rental: [
     "Dashboard", "Rental", "Leases", "Rent Invoices", "Deposits",
     "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
-    "Tax", "Fixed Assets", "Reports", "Fin Settings",
+    "Tax", "Fixed Assets", "Reports", "Fin Settings", "Reconciliation",
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
-    "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
-    "Workspaces", "Roles", "Audit Trail", "Backup",
-    "Users", "Settings", "Branding", "Master Data", "Sessions", "Compliance",
-    "Procurement", "Vendors", "Purchase Orders", "Goods Receipt", "Inventory", "Inv Items", "Inv Transactions",
-    "Memberships", "Visitors", "Reconciliation"
+    "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings",
+    "Admin", "Workspaces", "Roles", "Audit Trail", "Backup",
+    "Users", "Settings", "Branding", "Master Data",
+    "Procurement", "Vendors", "Purchase Orders", "Goods Receipt",
+    "Inventory", "Inv Items", "Inv Transactions",
+    "My Tickets"
   ],
   workplace: [
-    "Dashboard", "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
+    "Dashboard", "Workplace",
+    "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
-    "Tax", "Fixed Assets", "Reports", "Fin Settings",
+    "Tax", "Fixed Assets", "Reports", "Fin Settings", "Reconciliation",
     "HRMS", "Employees", "Timesheets", "Leave", "Payroll", "Compliance",
-    "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings", "Admin",
-    "Workspaces", "Roles", "Audit Trail", "Backup",
+    "Masters", "Policies", "Appraisal", "Compensation", "Shifts", "HR Settings",
+    "Admin", "Workspaces", "Roles", "Audit Trail", "Backup",
     "Users", "Tenants", "Settings", "Branding", "Master Data", "Sessions", "Compliance",
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
-    "Memberships", "Visitors", "Reconciliation"
+    "Memberships", "Visitors",
+    "My Tickets"
   ]
 };
 

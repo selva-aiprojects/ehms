@@ -34,5 +34,18 @@ export async function GET(req: NextRequest) {
   user.tenant_name = payload.tenant_name;
   user.tenant_verticals = payload.tenant_verticals;
 
+  try {
+    const { getDb } = await import("@/lib/db");
+    const db = getDb(payload.tenant_schema);
+    const assignments = (await db.query(
+      "SELECT property_id FROM user_roles WHERE user_id = $1",
+      [payload.user_id]
+    )) as Record<string, unknown>[];
+    user.assigned_property_ids = assignments.map((r) => r.property_id).filter(Boolean);
+  } catch (err) {
+    console.error("Failed to fetch user property assignments:", err);
+    user.assigned_property_ids = [];
+  }
+
   return NextResponse.json({ user });
 }
