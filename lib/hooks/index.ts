@@ -22,8 +22,9 @@ export function useStats(propertyId?: string) {
   };
 }
 
-export function useHotelStats() {
-  const { data, error, isLoading, mutate } = useSWR("/api/dashboard/hotels", fetcher, { refreshInterval: 30000 });
+export function useHotelStats(propertyId?: string) {
+  const url = propertyId ? `/api/dashboard/hotels?property_id=${propertyId}` : "/api/dashboard/hotels";
+  const { data, error, isLoading, mutate } = useSWR(url, fetcher, { refreshInterval: 30000 });
   return {
     stats: data?.data,
     isLoading,
@@ -488,8 +489,9 @@ export function useMaintenanceApprovals(ticketId?: string) {
   return { approvals: data?.data, isLoading, isError: !!error, mutate };
 }
 
-export function useMaintenanceStats() {
-  const { data, error, isLoading, mutate } = useSWR("/api/maintenance/stats", fetcher, { refreshInterval: 30000 });
+export function useMaintenanceStats(propertyId?: string) {
+  const url = propertyId ? `/api/maintenance/stats?property_id=${propertyId}` : "/api/maintenance/stats";
+  const { data, error, isLoading, mutate } = useSWR(url, fetcher, { refreshInterval: 30000 });
   return { maintStats: data, isLoading, isError: !!error, mutate };
 }
 

@@ -11,12 +11,16 @@ interface JourneyContextType {
   activeJourney: VerticalJourney;
   setJourney: (journey: VerticalJourney) => void;
   allowedJourneys: VerticalJourney[];
+  selectedPropertyId: string;
+  setSelectedPropertyId: (id: string) => void;
 }
 
 const JourneyContext = createContext<JourneyContextType>({
   activeJourney: "all",
   setJourney: () => {},
   allowedJourneys: ALL_JOURNEYS,
+  selectedPropertyId: "",
+  setSelectedPropertyId: () => {},
 });
 
 export const useJourney = () => useContext(JourneyContext);
@@ -38,6 +42,7 @@ function getAllowedJourneys(): VerticalJourney[] {
 export function JourneyProvider({ children }: { children: React.ReactNode }) {
   const [activeJourney, setActiveJourney] = useState<VerticalJourney>("all");
   const [allowedJourneys, setAllowedJourneys] = useState<VerticalJourney[]>(ALL_JOURNEYS);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -45,6 +50,8 @@ export function JourneyProvider({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem("ehms_active_journey") as VerticalJourney;
     if (saved) setActiveJourney(saved);
     setAllowedJourneys(getAllowedJourneys());
+    const savedProp = localStorage.getItem("ehms_active_property_id") || "";
+    setSelectedPropertyId(savedProp);
   }, []);
 
   const syncAllowed = useCallback(() => {
@@ -60,6 +67,10 @@ export function JourneyProvider({ children }: { children: React.ReactNode }) {
     if (journey !== "all" && !allowedJourneys.includes(journey)) return;
     setActiveJourney(journey);
     localStorage.setItem("ehms_active_journey", journey);
+    
+    // Clear active property when switching vertical contexts to prevent context bleed
+    setSelectedPropertyId("");
+    localStorage.removeItem("ehms_active_property_id");
 
     if (pathname.startsWith("/login")) return;
 
@@ -70,6 +81,11 @@ export function JourneyProvider({ children }: { children: React.ReactNode }) {
         router.push(`/dashboard`);
       }
     }
+  };
+
+  const changeProperty = (id: string) => {
+    setSelectedPropertyId(id);
+    localStorage.setItem("ehms_active_property_id", id);
   };
 
   useEffect(() => {
@@ -89,7 +105,7 @@ export function JourneyProvider({ children }: { children: React.ReactNode }) {
   }, [pathname, allowedJourneys, router]);
 
   return (
-    <JourneyContext.Provider value={{ activeJourney, setJourney, allowedJourneys }}>
+    <JourneyContext.Provider value={{ activeJourney, setJourney, allowedJourneys, selectedPropertyId, setSelectedPropertyId: changeProperty }}>
       {children}
     </JourneyContext.Provider>
   );

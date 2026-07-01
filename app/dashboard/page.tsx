@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useStats, useProperties } from "@/lib/hooks";
+import { useStats } from "@/lib/hooks";
+import { useJourney } from "@/components/providers/JourneyProvider";
 import { TrendingUp, Users, DollarSign, Building2 } from "lucide-react";
 
 /* ─── Skeleton loader ─── */
@@ -70,25 +71,8 @@ const card = "bg-white rounded-2xl p-5" as const;
 const cardStyle = { border: "1px solid #E2E8F0", boxShadow: "0 1px 4px rgba(26,60,94,0.06)" };
 
 export default function DashboardPage() {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
-  const [isGlobalAdmin, setIsGlobalAdmin] = useState(false);
-
+  const { selectedPropertyId } = useJourney();
   const { stats, isLoading } = useStats(selectedPropertyId);
-  const { properties = [] } = useProperties();
-
-  useEffect(() => {
-    try {
-      const session = localStorage.getItem("ehms_demo_session");
-      if (session) {
-        const user = JSON.parse(session);
-        if (user.role_name === "super_admin" || user.role_name === "executive") {
-          setIsGlobalAdmin(true);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
 
   const kpiCards = [
     {
@@ -127,22 +111,6 @@ export default function DashboardPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Dashboard</h1>
-        {isGlobalAdmin && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold" style={{ color: "#64748B" }}>Workspace Context:</span>
-            <select
-              value={selectedPropertyId}
-              onChange={(e) => setSelectedPropertyId(e.target.value)}
-              className="px-3 py-1.5 text-xs font-medium rounded-lg border outline-none bg-white cursor-pointer"
-              style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
-            >
-              <option value="">All Workspaces</option>
-              {properties.map((p: any) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
       </div>
 
       {/* KPI Cards */}

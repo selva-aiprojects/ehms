@@ -8,6 +8,7 @@ import Button from "@/components/ui/button";
 import Table from "@/components/ui/table";
 import { useLeases, useProperties, useGuests } from "@/lib/hooks";
 import { useCreateLease } from "@/lib/hooks/mutations";
+import { useJourney } from "@/components/providers/JourneyProvider";
 
 const MOCK_LEASES = [
   { id: "L-001", tenant_name: "Amit Sharma", unit_label: "3BHK-05", property_name: "Greenwood Residency", start_date: "01 Jan 2026", end_date: "31 Dec 2026", monthly_rent: 28000, status: "active" },
@@ -74,9 +75,10 @@ function SkeletonStat() {
 }
 
 export default function RentalPage() {
+  const { selectedPropertyId } = useJourney();
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
-  const { leases, isLoading, isError, mutate } = useLeases({ status: statusFilter });
+  const { leases, isLoading, isError, mutate } = useLeases({ status: statusFilter, property_id: selectedPropertyId || undefined });
 
   // Live queries for modal dropdowns
   const { properties } = useProperties("rental_apartment");

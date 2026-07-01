@@ -5,10 +5,12 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ROLE_LABELS } from "@/lib/role-access";
 import { useJourney } from "@/components/providers/JourneyProvider";
+import { useProperties } from "@/lib/hooks";
 
 export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user, signOut } = useAuth();
-  const { activeJourney } = useJourney();
+  const { activeJourney, selectedPropertyId, setSelectedPropertyId } = useJourney();
+  const { properties = [] } = useProperties();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -33,6 +35,17 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
 
   const roleLabel = user ? (ROLE_LABELS[user.role_name] || user.role_name) : "";
 
+  const isGlobalAdmin = user && (user.role_name === "super_admin" || user.role_name === "executive");
+
+  const filteredProperties = properties.filter((p: any) => {
+    if (activeJourney === "all") return true;
+    if (activeJourney === "hotels") return p.vertical_type === "hotel";
+    if (activeJourney === "apartments") return p.vertical_type === "service_apartment";
+    if (activeJourney === "rental") return p.vertical_type === "rental_apartment";
+    if (activeJourney === "workplace") return p.vertical_type === "workplace";
+    return true;
+  });
+
   return (
     <header
       className="h-16 flex items-center justify-between px-6 shrink-0 gap-4"
@@ -47,13 +60,31 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         <Menu className="w-5 h-5" />
       </button>
 
-      <div className="flex items-center gap-3 ml-auto shrink-0">
+      <div className="flex items-center gap-3 ml-auto shrink-0 flex-wrap">
         {user && (
-          <span className="text-sm hidden md:inline" style={{ color: "#64748B" }}>
+          <span className="text-sm hidden md:inline animate-fade-in" style={{ color: "#64748B" }}>
             Welcome, <span className="font-semibold" style={{ color: "#1A2E44" }}>{user.first_name || user.email.split('@')[0]}</span>!
           </span>
         )}
         <div className="h-4 w-px bg-slate-200 hidden md:block" />
+        
+        {isGlobalAdmin && (
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1">
+            <span className="text-[10px] uppercase font-bold tracking-wider opacity-60" style={{ color: "#64748B" }}>Active Property:</span>
+            <select
+              value={selectedPropertyId}
+              onChange={(e) => setSelectedPropertyId(e.target.value)}
+              className="px-2 py-1 text-xs font-semibold rounded bg-white outline-none cursor-pointer border border-slate-200 hover:border-slate-300 transition-colors"
+              style={{ color: "#1A3C5E" }}
+            >
+              <option value="">All Workspaces</option>
+              {filteredProperties.map((p: any) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div 
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0"
           style={{ 
@@ -62,11 +93,11 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
             color: "#1A2E44"
           }}
         >
-          <span className="text-[10px] uppercase font-bold tracking-wider opacity-60">Workspace:</span>
+          <span className="text-[10px] uppercase font-bold tracking-wider opacity-60">Vertical:</span>
           {activeJourney === "all" && (
             <>
               <LayoutDashboard className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
-              <span className="font-semibold">All Workspaces</span>
+              <span className="font-semibold">All</span>
             </>
           )}
           {activeJourney === "hotels" && (

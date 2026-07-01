@@ -6,6 +6,7 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import { useHotelStats } from "@/lib/hooks";
+import { useJourney } from "@/components/providers/JourneyProvider";
 
 const MOCK_PROPERTIES = [
   { id: "p1", name: "Oceanview Grand Hotel", vertical_type: "hotel", total_units: 120, occupancy_pct: 84, address: "12 Marina Beach Rd, Chennai", phone: "+91-44-1001-0001", email: "oceanview@ehms.demo", star_rating: 5, manager: "Rajesh Mehta" },
@@ -24,9 +25,10 @@ function SkeletonCard() {
 }
 
 export default function HotelsPage() {
+  const { selectedPropertyId } = useJourney();
   const [search, setSearch] = useState("");
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
-  const { stats, isLoading, isError, mutate } = useHotelStats();
+  const { stats, isLoading, isError, mutate } = useHotelStats(selectedPropertyId);
 
   const displayProperties = (stats?.properties && stats.properties.length > 0) ? stats.properties : MOCK_PROPERTIES;
   const isLoadingDisplay = isLoading && !stats;

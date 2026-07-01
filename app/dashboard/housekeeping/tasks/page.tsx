@@ -11,6 +11,7 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Table from "@/components/ui/table";
 import { useHousekeeping, useHKChecklists, useEmployees, useHKStats, useProperties } from "@/lib/hooks";
+import { useJourney } from "@/components/providers/JourneyProvider";
 
 const PRIORITY_BADGE: Record<string, "gray" | "amber" | "red" | "teal"> = {
   low: "gray", medium: "amber", high: "red", critical: "teal",
@@ -21,6 +22,7 @@ function SkeletonRow() {
 }
 
 export default function HKTasksPage() {
+  const { selectedPropertyId } = useJourney();
   const [statusFilter, setStatusFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [propertyFilter, setPropertyFilter] = useState("");
@@ -30,6 +32,10 @@ export default function HKTasksPage() {
   const [formData, setFormData] = useState<Record<string, any>>({ task_type: "", unit_id: "", assigned_to: "", priority: "medium", notes: "" });
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  useEffect(() => {
+    setPropertyFilter(selectedPropertyId);
+  }, [selectedPropertyId]);
 
   const { tasks, isLoading, isError, mutate } = useHousekeeping({ status: statusFilter || undefined, property_id: propertyFilter || undefined });
   const { hkStats } = useHKStats();

@@ -3,8 +3,10 @@ import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const propertyId = searchParams.get("property_id") || undefined;
     const sql = getDb();
 
     // 1. Fetch properties
@@ -20,6 +22,7 @@ export async function GET() {
         SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE b.property_id = p.id
       )
       WHERE p.vertical_type = 'hotel' AND p.is_active = true
+      ${propertyId ? sql`AND p.id = ${propertyId}` : sql``}
       GROUP BY p.id
       ORDER BY p.name
     `;
@@ -58,6 +61,7 @@ export async function GET() {
       FROM bookings b
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'hotel'
+      ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
       GROUP BY b.source
     `;
     const totalChannelCount = (channelPerf as any[]).reduce((sum, item) => sum + parseInt(item.count), 0);
@@ -75,6 +79,7 @@ export async function GET() {
       FROM bookings b
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'hotel'
+      ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
       GROUP BY EXTRACT(QUARTER FROM check_in)
     `;
     const maxSeason = Math.max(...(seasonal as any[]).map(s => parseInt(s.count)), 1);
@@ -111,6 +116,7 @@ export async function GET() {
       WHERE p.vertical_type = 'hotel'
         AND b.check_in >= CURRENT_DATE
         AND (b.adults >= 3 OR b.corporate_id IS NOT NULL)
+        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
       ORDER BY b.check_in ASC
       LIMIT 5
     `;
@@ -128,6 +134,7 @@ export async function GET() {
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'hotel'
         AND b.check_in::date = CURRENT_DATE
+        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
       ORDER BY b.created_at DESC
       LIMIT 10
     `;
@@ -146,6 +153,7 @@ export async function GET() {
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'hotel'
         AND b.check_out::date = CURRENT_DATE
+        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
       ORDER BY b.created_at DESC
       LIMIT 10
     `;
@@ -166,6 +174,7 @@ export async function GET() {
       JOIN units u ON h.unit_id = u.id
       JOIN floors f ON u.floor_id = f.id
       WHERE p.vertical_type = 'hotel'
+      ${propertyId ? sql`AND h.property_id = ${propertyId}` : sql``}
       GROUP BY f.id, f.name
       LIMIT 5
     `;

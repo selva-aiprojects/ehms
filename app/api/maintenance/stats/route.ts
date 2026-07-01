@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const propertyId = searchParams.get("property_id") || undefined;
     const sql = getDb();
 
-    const openTicketsRows = await sql`SELECT COUNT(*)::int AS count FROM maintenance_tickets WHERE status = 'open'`;
-    const inProgressRows = await sql`SELECT COUNT(*)::int AS count FROM maintenance_tickets WHERE status = 'in_progress'`;
-    const resolvedTodayRows = await sql`SELECT COUNT(*)::int AS count FROM maintenance_tickets WHERE status = 'resolved' AND resolved_at::date = CURRENT_DATE`;
+    const openTicketsRows = await sql`SELECT COUNT(*)::int AS count FROM maintenance_tickets WHERE status = 'open' ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}`;
+    const inProgressRows = await sql`SELECT COUNT(*)::int AS count FROM maintenance_tickets WHERE status = 'in_progress' ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}`;
+    const resolvedTodayRows = await sql`SELECT COUNT(*)::int AS count FROM maintenance_tickets WHERE status = 'resolved' AND resolved_at::date = CURRENT_DATE ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}`;
     const avgHoursRows = await sql`
       SELECT COALESCE(ROUND(AVG(EXTRACT(EPOCH FROM (resolved_at - created_at)) / 3600), 2), 0)::numeric AS hours
       FROM maintenance_tickets
       WHERE status = 'resolved' AND resolved_at IS NOT NULL
+      ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
     `;
 
     const ticketsByCategory = await sql`
       SELECT category, COUNT(*)::int AS count
       FROM maintenance_tickets
+      WHERE 1=1
+      ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
       GROUP BY category
       ORDER BY count DESC
     `;
@@ -24,6 +29,8 @@ export async function GET(_req: NextRequest) {
     const ticketsByPriority = await sql`
       SELECT priority, COUNT(*)::int AS count
       FROM maintenance_tickets
+      WHERE 1=1
+      ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
       GROUP BY priority
       ORDER BY count DESC
     `;
@@ -33,6 +40,7 @@ export async function GET(_req: NextRequest) {
       FROM preventive_schedules
       WHERE is_active = true
         AND next_due BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
+        ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
       ORDER BY next_due ASC
     `;
 
@@ -40,6 +48,7 @@ export async function GET(_req: NextRequest) {
       SELECT id, contract_name, vendor_id, end_date
       FROM amc_contracts
       WHERE end_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+        ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
       ORDER BY end_date ASC
     `;
 
@@ -47,6 +56,7 @@ export async function GET(_req: NextRequest) {
       SELECT id, part_name, quantity_in_stock, reorder_level
       FROM parts_inventory
       WHERE quantity_in_stock <= reorder_level
+        ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
       ORDER BY quantity_in_stock ASC
     `;
 

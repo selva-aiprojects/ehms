@@ -11,6 +11,7 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Table from "@/components/ui/table";
 import { useMaintenance, useMaintenanceStats, useMaintenanceTicketParts, useMaintenanceTimeEntries, useMaintenanceApprovals, useVendors } from "@/lib/hooks";
+import { useJourney } from "@/components/providers/JourneyProvider";
 
 function SkeletonRow() {
   return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
@@ -31,6 +32,7 @@ const PRIORITIES = ["low", "medium", "high", "critical"];
 const CATEGORIES = ["HVAC", "Plumbing", "Electrical", "Elevator", "Pool", "Other"];
 
 export default function TicketsPage() {
+  const { selectedPropertyId } = useJourney();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
@@ -45,8 +47,9 @@ export default function TicketsPage() {
   const { tickets, isLoading, isError, mutate } = useMaintenance({
     status: statusFilter || undefined,
     priority: priorityFilter || undefined,
+    property_id: selectedPropertyId || undefined,
   });
-  const { maintStats, isLoading: statsLoading } = useMaintenanceStats();
+  const { maintStats, isLoading: statsLoading } = useMaintenanceStats(selectedPropertyId);
   const { vendors, isLoading: vendorsLoading } = useVendors();
   const displayTickets = (tickets || []) as any[];
 
