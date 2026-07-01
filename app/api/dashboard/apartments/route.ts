@@ -145,7 +145,7 @@ export async function GET(req: Request) {
         AND (${param}::uuid IS NULL OR m.property_id = ${param}::uuid)
       ORDER BY 
         CASE m.priority 
-          WHEN 'urgent' THEN 1 
+          WHEN 'critical' THEN 1 
           WHEN 'high' THEN 2 
           WHEN 'medium' THEN 3 
           ELSE 4 
