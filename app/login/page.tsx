@@ -77,24 +77,6 @@ function LoginContent() {
   const [pickedTenantCode, setPickedTenantCode] = useState<string | null>(null);
   const tenantCode = searchParams.get("tenant") || pickedTenantCode;
 
-  // Auto-set activeJourney to primary workspace (never default to "all" for tenant users)
-  const [initialWorkspaceSet, setInitialWorkspaceSet] = useState(false);
-
-  useEffect(() => {
-    if (tenant && !initialWorkspaceSet) {
-      const workspaces = getTenantWorkspaces(tenant);
-      if (workspaces.length > 0) {
-        const primary = workspaces.find(w => w.is_primary && !w.suspended);
-        const first = workspaces.find(w => !w.suspended);
-        const target = primary || first;
-        if (target && activeJourney === "all") {
-          setJourney(target.type as VerticalJourney);
-        }
-      }
-      setInitialWorkspaceSet(true);
-    }
-  }, [tenant, activeJourney, setJourney, initialWorkspaceSet]);
-
   // Fetch all tenants on mount
   useEffect(() => {
     fetch("/api/admin/tenants")
@@ -626,6 +608,7 @@ function LoginContent() {
                   className="w-full pl-10 pr-10 py-2.5 rounded-lg border text-sm outline-none bg-white appearance-none transition-colors"
                   style={{ borderColor: "#E2E8F0" }}
                 >
+                  <option value="all">All Workspaces</option>
                   {(getTenantWorkspaces(tenant).length > 0
                     ? getTenantWorkspaces(tenant)
                     : allowedJourneys.map(j => ({ type: j as VerticalKey, name: VERTICAL_META[j as VerticalKey]?.label || j, is_primary: false, suspended: false }))
