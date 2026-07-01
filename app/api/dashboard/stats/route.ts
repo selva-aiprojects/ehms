@@ -23,8 +23,20 @@ export async function GET(req: Request) {
           (SELECT COALESCE(SUM(amount),0)::numeric FROM payments WHERE status = 'completed' AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_revenue,
           (SELECT COALESCE(SUM(balance_due),0)::numeric FROM vendor_bills WHERE status IN ('pending', 'approved', 'overdue') AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_payables,
           (SELECT COALESCE(ROUND(AVG(rating), 1), 0.0)::numeric FROM guest_feedbacks WHERE (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS avg_rating,
-          (SELECT COUNT(*)::int FROM units WHERE (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_units,
-          (SELECT COUNT(*)::int FROM units WHERE status = 'occupied' AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS occupied_units
+          (
+            SELECT COUNT(*)::int 
+            FROM units 
+            WHERE (${param}::uuid IS NULL OR floor_id IN (
+              SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE b.property_id = ${param}::uuid
+            ))
+          ) AS total_units,
+          (
+            SELECT COUNT(*)::int 
+            FROM units 
+            WHERE status = 'occupied' AND (${param}::uuid IS NULL OR floor_id IN (
+              SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE b.property_id = ${param}::uuid
+            ))
+          ) AS occupied_units
       `,
       sql`
         SELECT
