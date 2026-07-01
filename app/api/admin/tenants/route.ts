@@ -146,6 +146,36 @@ export async function POST(req: NextRequest) {
       WHERE id = ${tenantId}
     `;
 
+    // Sync initial property names with configured workspaces
+    try {
+      const typeMap: Record<string, string> = {
+        "hotels": "hotel",
+        "apartments": "service_apartment",
+        "rental": "rental_apartment",
+        "workplace": "workplace"
+      };
+
+      const activeVerticals = validWorkspaces.map(w => typeMap[w.type]).filter(Boolean);
+      for (const ws of validWorkspaces) {
+        const dbType = typeMap[ws.type];
+        if (!dbType) continue;
+
+        await tenantDb.query(
+          "UPDATE properties SET name = $1, is_active = true WHERE vertical_type = $2",
+          [ws.name, dbType]
+        );
+      }
+
+      if (activeVerticals.length > 0) {
+        await tenantDb.query(
+          "UPDATE properties SET is_active = false WHERE vertical_type NOT IN (SELECT unnest($1::text[]))",
+          [activeVerticals]
+        );
+      }
+    } catch (syncErr) {
+      console.error("Failed to sync workspace names during tenant creation:", syncErr);
+    }
+
     return NextResponse.json({
       tenant_id: tenantId,
       name,

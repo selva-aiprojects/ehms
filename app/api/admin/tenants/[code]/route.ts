@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPublicDb } from "@/lib/db";
+import { getDb, getPublicDb } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 
 export async function PATCH(
@@ -21,7 +21,7 @@ export async function PATCH(
     const db = getPublicDb();
 
     const existing = (await db.query(
-      "SELECT id, config FROM public.tenants WHERE code = $1 LIMIT 1",
+      "SELECT id, config, schema_name FROM public.tenants WHERE code = $1 LIMIT 1",
       [code]
     )) as Record<string, unknown>[];
     const tenantRow = existing[0];
@@ -29,6 +29,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
     }
 
+    const schemaName = tenantRow.schema_name as string;
     const currentConfig = (tenantRow.config as Record<string, unknown>) || {};
     const newConfig = { ...currentConfig };
 
@@ -98,6 +99,39 @@ export async function PATCH(
 
     const result = (await db.query(sql, queryParams)) as Record<string, unknown>[];
     const updated = result[0];
+
+    // Synchronize workspace names with properties table in tenant shard
+    if (workspaces !== undefined && schemaName) {
+      try {
+        const tenantDb = getDb(schemaName);
+        const typeMap: Record<string, string> = {
+          "hotels": "hotel",
+          "apartments": "service_apartment",
+          "rental": "rental_apartment",
+          "workplace": "workplace"
+        };
+
+        const activeVerticals = workspaces.map(w => typeMap[w.type]).filter(Boolean);
+        for (const ws of workspaces) {
+          const dbType = typeMap[ws.type];
+          if (!dbType) continue;
+
+          await tenantDb.query(
+            "UPDATE properties SET name = $1, is_active = true WHERE vertical_type = $2",
+            [ws.name, dbType]
+          );
+        }
+
+        if (activeVerticals.length > 0) {
+          await tenantDb.query(
+            "UPDATE properties SET is_active = false WHERE vertical_type NOT IN (SELECT unnest($1::text[]))",
+            [activeVerticals]
+          );
+        }
+      } catch (syncErr) {
+        console.error("Failed to sync workspace names during tenant update:", syncErr);
+      }
+    }
 
     return NextResponse.json({ tenant: updated });
   } catch (error: unknown) {
