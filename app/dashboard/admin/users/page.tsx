@@ -32,7 +32,7 @@ export default function AdminUsersPage() {
     property_id: "",
   });
 
-  const { users, isLoading: loadingUsers, mutate: mutateUsers } = useAdminUsers({
+  const { users, requesterPropertyId, isLoading: loadingUsers, mutate: mutateUsers } = useAdminUsers({
     search: searchQuery || undefined,
     role: roleFilter || undefined,
     status: statusFilter || undefined,
@@ -54,6 +54,18 @@ export default function AdminUsersPage() {
       return () => clearTimeout(t);
     }
   }, [actionFeedback]);
+
+  useEffect(() => {
+    if (requesterPropertyId) {
+      setWorkspaceFilter(requesterPropertyId);
+    }
+  }, [requesterPropertyId]);
+
+  useEffect(() => {
+    if (showAddModal && requesterPropertyId) {
+      setNewUser((prev) => ({ ...prev, property_id: requesterPropertyId }));
+    }
+  }, [showAddModal, requesterPropertyId]);
 
   const displayUsers = (users || []) as any[];
   const activeUsers = displayUsers.filter((u: any) => u.is_active !== false).length;
@@ -383,7 +395,8 @@ export default function AdminUsersPage() {
                     <option value="inactive">Inactive</option>
                   </select>
                   <select value={workspaceFilter} onChange={(e) => setWorkspaceFilter(e.target.value)}
-                    className="px-2 py-1.5 text-xs rounded-lg border outline-none bg-white"
+                    disabled={!!requesterPropertyId}
+                    className="px-2 py-1.5 text-xs rounded-lg border outline-none bg-white disabled:bg-slate-50 disabled:text-slate-400"
                     style={{ borderColor: "#E2E8F0", color: workspaceFilter ? "#1A2E44" : "#94A3B8" }}>
                     <option value="">All Workspaces</option>
                     {properties.map((p: any) => (
@@ -550,7 +563,7 @@ export default function AdminUsersPage() {
                   <select value={newUser.role_name}
                     onChange={(e) => setNewUser({ ...newUser, role_name: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
-                    {(roles || []).map((r: any) => (
+                    {(roles || []).filter((r: any) => !requesterPropertyId || r.name !== "super_admin").map((r: any) => (
                       <option key={r.id} value={r.name}>
                         {r.name.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
                       </option>
@@ -561,7 +574,8 @@ export default function AdminUsersPage() {
                   <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Workspace Scope</label>
                   <select value={newUser.property_id}
                     onChange={(e) => setNewUser({ ...newUser, property_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    disabled={!!requesterPropertyId}
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white disabled:bg-slate-50 disabled:text-slate-400" style={{ borderColor: "#E2E8F0" }}>
                     <option value="">Global (All Workspaces)</option>
                     {properties.map((p: any) => (
                       <option key={p.id} value={p.id}>{p.name}</option>
@@ -614,7 +628,7 @@ export default function AdminUsersPage() {
                   <select value={editUser.role_name}
                     onChange={(e) => setEditUser({ ...editUser, role_name: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
-                    {(roles || []).map((r: any) => (
+                    {(roles || []).filter((r: any) => !requesterPropertyId || r.name !== "super_admin").map((r: any) => (
                       <option key={r.id} value={r.name}>
                         {r.name.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
                       </option>
@@ -625,7 +639,8 @@ export default function AdminUsersPage() {
                   <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Workspace Scope</label>
                   <select value={editUser.property_id}
                     onChange={(e) => setEditUser({ ...editUser, property_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    disabled={!!requesterPropertyId}
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white disabled:bg-slate-50 disabled:text-slate-400" style={{ borderColor: "#E2E8F0" }}>
                     <option value="">Global (All Workspaces)</option>
                     {properties.map((p: any) => (
                       <option key={p.id} value={p.id}>{p.name}</option>

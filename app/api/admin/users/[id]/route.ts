@@ -4,13 +4,40 @@ import { getDb } from "@/lib/db";
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const requesterRole = req.headers.get("x-user-role");
-    if (requesterRole !== "super_admin") {
-      return NextResponse.json({ error: "Access denied. Only Super Admins can update users." }, { status: 403 });
+    const allowedRoles = ["super_admin", "property_manager", "housekeeping_supervisor", "maintenance_supervisor"];
+    if (!allowedRoles.includes(requesterRole || "")) {
+      return NextResponse.json({ error: "Access denied. Only authorized administrators can update users." }, { status: 403 });
     }
 
     const { id } = await params;
     const body = await req.json();
     const sql = getDb();
+
+    const requesterId = req.headers.get("x-user-id");
+    const requesterRoles = await sql`
+      SELECT property_id 
+      FROM user_roles 
+      WHERE user_id = ${requesterId}
+    `;
+    const requesterPropertyId = requesterRoles[0]?.property_id || null;
+
+    if (requesterPropertyId) {
+      const targetRoles = await sql`
+        SELECT property_id 
+        FROM user_roles 
+        WHERE user_id = ${id}
+      `;
+      const targetPropertyId = targetRoles[0]?.property_id || null;
+      if (targetPropertyId !== requesterPropertyId) {
+        return NextResponse.json({ error: "Access denied. You can only manage users in your assigned workspace." }, { status: 403 });
+      }
+      if (body.property_id && body.property_id !== requesterPropertyId) {
+        return NextResponse.json({ error: "Access denied. You cannot move users to another workspace." }, { status: 403 });
+      }
+      if (body.role_name === "super_admin") {
+        return NextResponse.json({ error: "Access denied. You cannot assign the super_admin role." }, { status: 403 });
+      }
+    }
 
     const updates: string[] = [];
     const values: any[] = [];
@@ -58,12 +85,33 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const requesterRole = req.headers.get("x-user-role");
-    if (requesterRole !== "super_admin") {
-      return NextResponse.json({ error: "Access denied. Only Super Admins can deactivate users." }, { status: 403 });
+    const allowedRoles = ["super_admin", "property_manager", "housekeeping_supervisor", "maintenance_supervisor"];
+    if (!allowedRoles.includes(requesterRole || "")) {
+      return NextResponse.json({ error: "Access denied. Only authorized administrators can deactivate users." }, { status: 403 });
     }
 
     const { id } = await params;
     const sql = getDb();
+
+    const requesterId = req.headers.get("x-user-id");
+    const requesterRoles = await sql`
+      SELECT property_id 
+      FROM user_roles 
+      WHERE user_id = ${requesterId}
+    `;
+    const requesterPropertyId = requesterRoles[0]?.property_id || null;
+
+    if (requesterPropertyId) {
+      const targetRoles = await sql`
+        SELECT property_id 
+        FROM user_roles 
+        WHERE user_id = ${id}
+      `;
+      const targetPropertyId = targetRoles[0]?.property_id || null;
+      if (targetPropertyId !== requesterPropertyId) {
+        return NextResponse.json({ error: "Access denied. You can only deactivate users in your assigned workspace." }, { status: 403 });
+      }
+    }
 
     const result = await sql`
       UPDATE users SET is_active = false, updated_at = now() WHERE id = ${id} RETURNING id, email, first_name, last_name

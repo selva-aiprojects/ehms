@@ -187,7 +187,7 @@ export function useAdminUsers(filters?: { role?: string; status?: string; search
   if (filters?.search) params.set("search", filters.search);
   if (filters?.property_id) params.set("property_id", filters.property_id);
   const { data, error, isLoading, mutate } = useSWR(`/api/admin/users?${params}`, fetcher);
-  return { users: data?.data, isLoading, isError: !!error, mutate };
+  return { users: data?.data, requesterPropertyId: data?.requester_property_id, isLoading, isError: !!error, mutate };
 }
 
 export function useAuditLogs(limit = 50, entityType?: string) {

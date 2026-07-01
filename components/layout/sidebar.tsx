@@ -66,7 +66,7 @@ const ALL_NAV_ITEMS = [
   { label: "Roles",         icon: Shield,          href: "/dashboard/admin/roles", roles: ["super_admin","executive"] },
   { label: "Audit Trail",   icon: FileText,        href: "/dashboard/admin/audit", roles: ["super_admin","executive"] },
   { label: "Backup",        icon: Database,        href: "/dashboard/admin/backup", roles: ["super_admin","executive"] },
-  { label: "Users",         icon: Users,           href: "/dashboard/admin/users", roles: ["super_admin","executive"] },
+  { label: "Users",         icon: Users,           href: "/dashboard/admin/users", roles: ["super_admin","executive","property_manager","housekeeping_supervisor","maintenance_supervisor"] },
   { label: "Procurement",      icon: ClipboardList, href: "/dashboard/procurement", roles: ["super_admin","executive","property_manager","maintenance_supervisor","finance_manager"] },
   { label: "Vendors",          icon: Briefcase,   href: "/dashboard/vendors", roles: ["super_admin","executive","property_manager","maintenance_supervisor","maintenance_staff","finance_manager"] },
   { label: "Purchase Orders",  icon: FileText,    href: "/dashboard/procurement/purchase-orders", roles: ["super_admin","executive","property_manager","maintenance_supervisor","finance_manager"] },

@@ -3,12 +3,32 @@ import { getDb } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
+    const requesterRole = req.headers.get("x-user-role");
+    const allowedRoles = ["super_admin", "executive", "property_manager", "housekeeping_supervisor", "maintenance_supervisor"];
+    if (!allowedRoles.includes(requesterRole || "")) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    const requesterId = req.headers.get("x-user-id");
     const sql = getDb();
+    
+    const requesterRoles = await sql`
+      SELECT property_id 
+      FROM user_roles 
+      WHERE user_id = ${requesterId}
+    `;
+    const requesterPropertyId = requesterRoles[0]?.property_id || null;
+
     const { searchParams } = new URL(req.url);
     const role = searchParams.get("role");
     const status = searchParams.get("status");
     const search = searchParams.get("search");
     const propertyId = searchParams.get("property_id");
+
+    let finalPropertyId = requesterPropertyId;
+    if (!finalPropertyId) {
+      finalPropertyId = propertyId;
+    }
 
     const rows = await sql`
       SELECT
@@ -28,14 +48,14 @@ export async function GET(req: NextRequest) {
       WHERE 1=1
         ${status === "active" ? sql`AND u.is_active = true` : status === "inactive" ? sql`AND u.is_active = false` : sql``}
         ${search ? sql`AND (u.first_name ILIKE ${"%" + search + "%"} OR u.last_name ILIKE ${"%" + search + "%"} OR u.email ILIKE ${"%" + search + "%"})` : sql``}
-        ${propertyId ? sql`AND ur.property_id = ${propertyId}` : sql``}
+        ${finalPropertyId ? sql`AND ur.property_id = ${finalPropertyId}` : sql``}
       GROUP BY u.id
       HAVING 1=1
         ${role ? sql`AND bool_or(r.name = ${role})` : sql``}
       ORDER BY u.created_at DESC
     `;
 
-    return NextResponse.json({ data: rows });
+    return NextResponse.json({ data: rows, requester_property_id: requesterPropertyId });
   } catch (error) {
     console.error("[admin/users GET]", error);
     return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
@@ -45,8 +65,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const requesterRole = req.headers.get("x-user-role");
-    if (requesterRole !== "super_admin") {
-      return NextResponse.json({ error: "Access denied. Only Super Admins can manage users." }, { status: 403 });
+    const allowedRoles = ["super_admin", "property_manager", "housekeeping_supervisor", "maintenance_supervisor"];
+    if (!allowedRoles.includes(requesterRole || "")) {
+      return NextResponse.json({ error: "Access denied. Only authorized administrators can manage users." }, { status: 403 });
     }
 
     const { first_name, last_name, email, password, role_name, property_id } = await req.json();
@@ -66,6 +87,23 @@ export async function POST(req: NextRequest) {
     }
 
     const sql = getDb();
+    const requesterId = req.headers.get("x-user-id");
+    
+    const requesterRoles = await sql`
+      SELECT property_id 
+      FROM user_roles 
+      WHERE user_id = ${requesterId}
+    `;
+    const requesterPropertyId = requesterRoles[0]?.property_id || null;
+
+    if (requesterPropertyId) {
+      if (property_id !== requesterPropertyId) {
+        return NextResponse.json({ error: "Access denied. Scoped administrators can only create users within their workspace." }, { status: 403 });
+      }
+      if (role_name === "super_admin") {
+        return NextResponse.json({ error: "Access denied. Scoped administrators cannot assign the super_admin role." }, { status: 403 });
+      }
+    }
 
     const existingUsers = (await sql`
       SELECT id FROM users WHERE email = ${trimmedEmail}
