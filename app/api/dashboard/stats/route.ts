@@ -8,20 +8,23 @@ export async function GET(req: Request) {
     const propertyId = searchParams.get("property_id") || undefined;
     const sql = getDb();
 
+    const param = propertyId || null;
     const [globalStatsRows, monthlyRows] = await Promise.all([
       sql`
         SELECT
-          (SELECT COUNT(*)::int FROM bookings WHERE 1=1 ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS total_bookings,
-          (SELECT COUNT(*)::int FROM bookings WHERE status = 'checked_in' ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS checked_in,
-          ${propertyId
-            ? sql`(SELECT COUNT(DISTINCT guest_id)::int FROM bookings WHERE property_id = ${propertyId})`
-            : sql`(SELECT COUNT(*)::int FROM guest_profiles)`
-          } AS total_guests,
-          (SELECT COALESCE(SUM(amount),0)::numeric FROM payments WHERE status = 'completed' ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS total_revenue,
-          (SELECT COALESCE(SUM(balance_due),0)::numeric FROM vendor_bills WHERE status IN ('pending', 'approved', 'overdue') ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS total_payables,
-          (SELECT COALESCE(ROUND(AVG(rating), 1), 0.0)::numeric FROM guest_feedbacks WHERE 1=1 ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS avg_rating,
-          (SELECT COUNT(*)::int FROM units WHERE 1=1 ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS total_units,
-          (SELECT COUNT(*)::int FROM units WHERE status = 'occupied' ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS occupied_units
+          (SELECT COUNT(*)::int FROM bookings WHERE (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_bookings,
+          (SELECT COUNT(*)::int FROM bookings WHERE status = 'checked_in' AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS checked_in,
+          (
+            CASE 
+              WHEN ${param}::uuid IS NOT NULL THEN (SELECT COUNT(DISTINCT guest_id)::int FROM bookings WHERE property_id = ${param}::uuid)
+              ELSE (SELECT COUNT(*)::int FROM guest_profiles)
+            END
+          ) AS total_guests,
+          (SELECT COALESCE(SUM(amount),0)::numeric FROM payments WHERE status = 'completed' AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_revenue,
+          (SELECT COALESCE(SUM(balance_due),0)::numeric FROM vendor_bills WHERE status IN ('pending', 'approved', 'overdue') AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_payables,
+          (SELECT COALESCE(ROUND(AVG(rating), 1), 0.0)::numeric FROM guest_feedbacks WHERE (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS avg_rating,
+          (SELECT COUNT(*)::int FROM units WHERE (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_units,
+          (SELECT COUNT(*)::int FROM units WHERE status = 'occupied' AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS occupied_units
       `,
       sql`
         SELECT
@@ -30,7 +33,7 @@ export async function GET(req: Request) {
         FROM payments
         WHERE status = 'completed'
           AND payment_date >= NOW() - INTERVAL '11 months'
-          ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
+          AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
         GROUP BY 1
         ORDER BY 1
       `,

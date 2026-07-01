@@ -8,6 +8,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id") || undefined;
     const sql = getDb();
+    const param = propertyId || null;
 
     // 1. Fetch properties
     const properties = await sql`
@@ -22,7 +23,7 @@ export async function GET(req: Request) {
         SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE b.property_id = p.id
       )
       WHERE p.vertical_type = 'service_apartment' AND p.is_active = true
-      ${propertyId ? sql`AND p.id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR p.id = ${param}::uuid)
       GROUP BY p.id
       ORDER BY p.name
     `;
@@ -72,7 +73,7 @@ export async function GET(req: Request) {
       WHERE p.vertical_type = 'service_apartment'
         AND b.status IN ('checked_in', 'pending')
         AND EXTRACT(DAY FROM (b.check_out - b.check_in)) >= 14
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       ORDER BY b.check_in DESC
       LIMIT 10
     `;
@@ -87,7 +88,7 @@ export async function GET(req: Request) {
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'service_apartment'
         AND b.status IN ('checked_in', 'pending')
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       GROUP BY g.nationality
       ORDER BY count DESC
     `;
@@ -108,7 +109,7 @@ export async function GET(req: Request) {
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'service_apartment'
         AND b.status IN ('checked_in', 'pending')
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       GROUP BY CASE WHEN b.corporate_id IS NOT NULL THEN 'corporate' ELSE 'leisure' END
     `;
 
@@ -141,7 +142,7 @@ export async function GET(req: Request) {
       LEFT JOIN units u ON m.unit_id = u.id
       WHERE p.vertical_type = 'service_apartment'
         AND m.status != 'closed'
-        ${propertyId ? sql`AND m.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR m.property_id = ${param}::uuid)
       ORDER BY 
         CASE m.priority 
           WHEN 'urgent' THEN 1 
@@ -170,7 +171,7 @@ export async function GET(req: Request) {
         AND b.status IN ('checked_in', 'pending')
         AND b.check_out >= CURRENT_DATE
         AND b.check_out <= CURRENT_DATE + INTERVAL '7 days'
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       ORDER BY b.check_out ASC
       LIMIT 10
     `;
@@ -192,7 +193,7 @@ export async function GET(req: Request) {
         AND b.status = 'pending'
         AND b.check_in >= CURRENT_DATE
         AND b.check_in <= CURRENT_DATE + INTERVAL '7 days'
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       ORDER BY b.check_in ASC
       LIMIT 10
     `;
@@ -211,7 +212,7 @@ export async function GET(req: Request) {
       WHERE p.vertical_type = 'service_apartment'
         AND h.task_type = 'guest_request'
         AND h.status != 'closed'
-        ${propertyId ? sql`AND h.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR h.property_id = ${param}::uuid)
       ORDER BY h.created_at DESC
       LIMIT 5
     `;

@@ -9,6 +9,8 @@ export async function GET(req: Request) {
     const propertyId = searchParams.get("property_id") || undefined;
     const sql = getDb();
 
+    const param = propertyId || null;
+
     // 1. Fetch properties
     const properties = await sql`
       SELECT 
@@ -22,7 +24,7 @@ export async function GET(req: Request) {
         SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE b.property_id = p.id
       )
       WHERE p.vertical_type = 'hotel' AND p.is_active = true
-      ${propertyId ? sql`AND p.id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR p.id = ${param}::uuid)
       GROUP BY p.id
       ORDER BY p.name
     `;
@@ -61,7 +63,7 @@ export async function GET(req: Request) {
       FROM bookings b
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'hotel'
-      ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       GROUP BY b.source
     `;
     const totalChannelCount = (channelPerf as any[]).reduce((sum, item) => sum + parseInt(item.count), 0);
@@ -79,7 +81,7 @@ export async function GET(req: Request) {
       FROM bookings b
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'hotel'
-      ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       GROUP BY EXTRACT(QUARTER FROM check_in)
     `;
     const maxSeason = Math.max(...(seasonal as any[]).map(s => parseInt(s.count)), 1);
@@ -116,7 +118,7 @@ export async function GET(req: Request) {
       WHERE p.vertical_type = 'hotel'
         AND b.check_in >= CURRENT_DATE
         AND (b.adults >= 3 OR b.corporate_id IS NOT NULL)
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       ORDER BY b.check_in ASC
       LIMIT 5
     `;
@@ -134,7 +136,7 @@ export async function GET(req: Request) {
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'hotel'
         AND b.check_in::date = CURRENT_DATE
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       ORDER BY b.created_at DESC
       LIMIT 10
     `;
@@ -153,7 +155,7 @@ export async function GET(req: Request) {
       JOIN properties p ON b.property_id = p.id
       WHERE p.vertical_type = 'hotel'
         AND b.check_out::date = CURRENT_DATE
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR b.property_id = ${param}::uuid)
       ORDER BY b.created_at DESC
       LIMIT 10
     `;
@@ -174,7 +176,7 @@ export async function GET(req: Request) {
       JOIN units u ON h.unit_id = u.id
       JOIN floors f ON u.floor_id = f.id
       WHERE p.vertical_type = 'hotel'
-      ${propertyId ? sql`AND h.property_id = ${propertyId}` : sql``}
+        AND (${param}::uuid IS NULL OR h.property_id = ${param}::uuid)
       GROUP BY f.id, f.name
       LIMIT 5
     `;
