@@ -2,14 +2,17 @@ import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-export function useStats() {
-  const { data, error, isLoading, mutate } = useSWR("/api/dashboard/stats", fetcher, { refreshInterval: 30000 });
+export function useStats(propertyId?: string) {
+  const url = propertyId ? `/api/dashboard/stats?property_id=${propertyId}` : "/api/dashboard/stats";
+  const { data, error, isLoading, mutate } = useSWR(url, fetcher, { refreshInterval: 30000 });
   return {
     stats: data as {
       totalBookings: number;
       checkedIn: number;
       totalGuests: number;
       totalRevenue: number;
+      totalPayables: number;
+      avgRating: number;
       occupancyRate: number;
       chartData: { month: string; revenue: number }[];
     } | undefined,

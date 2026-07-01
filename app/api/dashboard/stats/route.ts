@@ -2,19 +2,26 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const propertyId = searchParams.get("property_id") || undefined;
     const sql = getDb();
 
     const [globalStatsRows, monthlyRows] = await Promise.all([
       sql`
         SELECT
-          (SELECT COUNT(*)::int FROM bookings) AS total_bookings,
-          (SELECT COUNT(*)::int FROM bookings WHERE status = 'checked_in') AS checked_in,
-          (SELECT COUNT(*)::int FROM guest_profiles) AS total_guests,
-          (SELECT COALESCE(SUM(amount),0)::numeric FROM payments WHERE status = 'completed') AS total_revenue,
-          (SELECT COUNT(*)::int FROM units) AS total_units,
-          (SELECT COUNT(*)::int FROM units WHERE status = 'occupied') AS occupied_units
+          (SELECT COUNT(*)::int FROM bookings WHERE 1=1 ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS total_bookings,
+          (SELECT COUNT(*)::int FROM bookings WHERE status = 'checked_in' ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS checked_in,
+          ${propertyId
+            ? sql`(SELECT COUNT(DISTINCT guest_id)::int FROM bookings WHERE property_id = ${propertyId})`
+            : sql`(SELECT COUNT(*)::int FROM guest_profiles)`
+          } AS total_guests,
+          (SELECT COALESCE(SUM(amount),0)::numeric FROM payments WHERE status = 'completed' ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS total_revenue,
+          (SELECT COALESCE(SUM(balance_due),0)::numeric FROM vendor_bills WHERE status IN ('pending', 'approved', 'overdue') ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS total_payables,
+          (SELECT COALESCE(ROUND(AVG(rating), 1), 0.0)::numeric FROM guest_feedbacks WHERE 1=1 ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS avg_rating,
+          (SELECT COUNT(*)::int FROM units WHERE 1=1 ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS total_units,
+          (SELECT COUNT(*)::int FROM units WHERE status = 'occupied' ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}) AS occupied_units
       `,
       sql`
         SELECT
@@ -23,6 +30,7 @@ export async function GET() {
         FROM payments
         WHERE status = 'completed'
           AND payment_date >= NOW() - INTERVAL '11 months'
+          ${propertyId ? sql`AND property_id = ${propertyId}` : sql``}
         GROUP BY 1
         ORDER BY 1
       `,
@@ -33,6 +41,8 @@ export async function GET() {
     const checked_in = globalStats.checked_in || 0;
     const totalGuests = globalStats.total_guests || 0;
     const totalRevenue = Number(globalStats.total_revenue || 0);
+    const totalPayables = Number(globalStats.total_payables || 0);
+    const avgRating = Number(globalStats.avg_rating || 0);
 
     const totalUnits = globalStats.total_units || 0;
     const occupiedUnits = globalStats.occupied_units || 0;
@@ -60,6 +70,8 @@ export async function GET() {
       checkedIn: checked_in,
       totalGuests,
       totalRevenue,
+      totalPayables,
+      avgRating,
       occupancyRate,
       chartData,
     });

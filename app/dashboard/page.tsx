@@ -1,6 +1,7 @@
 "use client";
 
-import { useStats } from "@/lib/hooks";
+import { useState, useEffect } from "react";
+import { useStats, useProperties } from "@/lib/hooks";
 import { TrendingUp, Users, DollarSign, Building2 } from "lucide-react";
 
 /* ─── Skeleton loader ─── */
@@ -69,32 +70,83 @@ const card = "bg-white rounded-2xl p-5" as const;
 const cardStyle = { border: "1px solid #E2E8F0", boxShadow: "0 1px 4px rgba(26,60,94,0.06)" };
 
 export default function DashboardPage() {
-  const { stats, isLoading } = useStats();
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
+  const [isGlobalAdmin, setIsGlobalAdmin] = useState(false);
+
+  const { stats, isLoading } = useStats(selectedPropertyId);
+  const { properties = [] } = useProperties();
+
+  useEffect(() => {
+    try {
+      const session = localStorage.getItem("ehms_demo_session");
+      if (session) {
+        const user = JSON.parse(session);
+        if (user.role_name === "super_admin" || user.role_name === "executive") {
+          setIsGlobalAdmin(true);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   const kpiCards = [
     {
       label: "Total Revenue",
       value: stats ? `₹${(stats.totalRevenue / 1000).toFixed(1)}k` : "—",
       icon: <DollarSign className="w-5 h-5" style={{ color: "#2BAE8E" }} />,
+      bg: "rgba(43,174,142,0.12)",
+    },
+    {
+      label: "Accounts Payable",
+      value: stats ? `₹${(stats.totalPayables / 1000).toFixed(1)}k` : "—",
+      icon: <DollarSign className="w-5 h-5" style={{ color: "#E53E3E" }} />,
+      bg: "rgba(229,62,62,0.12)",
+    },
+    {
+      label: "Overall Rating",
+      value: stats ? `${stats.avgRating} / 5` : "—",
+      icon: <TrendingUp className="w-5 h-5" style={{ color: "#F5A623" }} />,
+      bg: "rgba(245,166,35,0.12)",
     },
     {
       label: "Active Reservations",
       value: stats ? String(stats.checkedIn) : "—",
-      icon: <Building2 className="w-5 h-5" style={{ color: "#2BAE8E" }} />,
+      icon: <Building2 className="w-5 h-5" style={{ color: "#1A3C5E" }} />,
+      bg: "rgba(26,60,94,0.12)",
     },
     {
       label: "Total Guests",
       value: stats ? String(stats.totalGuests) : "—",
-      icon: <Users className="w-5 h-5" style={{ color: "#2BAE8E" }} />,
+      icon: <Users className="w-5 h-5" style={{ color: "#1A3C5E" }} />,
+      bg: "rgba(26,60,94,0.12)",
     },
   ];
 
   return (
     <div className="space-y-5">
-      <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Dashboard</h1>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Dashboard</h1>
+        {isGlobalAdmin && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold" style={{ color: "#64748B" }}>Workspace Context:</span>
+            <select
+              value={selectedPropertyId}
+              onChange={(e) => setSelectedPropertyId(e.target.value)}
+              className="px-3 py-1.5 text-xs font-medium rounded-lg border outline-none bg-white cursor-pointer"
+              style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+            >
+              <option value="">All Workspaces</option>
+              {properties.map((p: any) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {kpiCards.map(card2 => (
           <div key={card2.label} className={card} style={cardStyle}>
             <div className="flex items-center justify-between">
@@ -102,10 +154,10 @@ export default function DashboardPage() {
                 <p className="text-xs font-medium mb-1" style={{ color: "#64748B" }}>{card2.label}</p>
                 {isLoading
                   ? <Skeleton className="h-7 w-24 mt-1" />
-                  : <p className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>{card2.value}</p>
+                  : <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{card2.value}</p>
                 }
               </div>
-              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(43,174,142,0.12)" }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: card2.bg }}>
                 {card2.icon}
               </div>
             </div>
