@@ -62,9 +62,16 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
 
       <div className="flex items-center gap-3 ml-auto shrink-0 flex-wrap">
         {user && (
-          <span className="text-sm hidden md:inline animate-fade-in" style={{ color: "#64748B" }}>
-            Welcome, <span className="font-semibold" style={{ color: "#1A2E44" }}>{user.first_name || user.email.split('@')[0]}</span>!
-          </span>
+          <div className="flex flex-col items-end hidden md:flex animate-fade-in text-right leading-none">
+            <span className="text-sm font-semibold" style={{ color: "#1A2E44" }}>
+              Welcome, {user.first_name || user.email.split('@')[0]}!
+            </span>
+            {user.tenant_name && (
+              <span className="text-[10px] text-slate-500 font-medium mt-0.5">
+                {user.tenant_name}
+              </span>
+            )}
+          </div>
         )}
         <div className="h-4 w-px bg-slate-200 hidden md:block" />
         
@@ -168,9 +175,14 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
             >
               {initials}
             </div>
-            <div className="text-sm hidden sm:block">
-              <div className="font-semibold leading-tight" style={{ color: "#1A2E44" }}>{displayName}</div>
-              <div className="text-xs leading-tight" style={{ color: "#64748B" }}>{roleLabel}</div>
+            <div className="text-sm hidden sm:block text-right">
+              <div className="font-semibold leading-none" style={{ color: "#1A2E44" }}>{displayName}</div>
+              <div className="text-[10px] leading-tight opacity-75 mt-0.5" style={{ color: "#64748B" }}>{roleLabel}</div>
+              {user?.tenant_name && (
+                <div className="text-[9px] font-semibold leading-none mt-0.5" style={{ color: "#2BAE8E" }}>
+                  {user.tenant_name}
+                </div>
+              )}
             </div>
             <ChevronDown className="w-4 h-4 hidden sm:block" style={{ color: "#64748B" }} />
           </div>
