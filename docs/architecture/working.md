@@ -1,0 +1,188 @@
+# eHMS Role Hierarchy & Access Model
+
+## Overview
+
+```
+Platform Superadmin (eHMS Provider)
+        │
+        ▼
+Tenant Superadmin (Subscription Owner)
+        │
+        ▼
+Property Admin (Workspace Manager)
+        │
+        ├── Departments (Site Features)
+        ├── Employees (HR)
+        ├── Vendors
+        ├── Finance
+        └── Inventory
+```
+
+---
+
+## 1. Platform Superadmin — eHMS Provider
+
+**Role:** `platform_super_admin`
+
+The eHMS platform operator. Operates outside any tenant shard. Manages the entire multi-tenant infrastructure.
+
+### Responsibilities
+- **Tenant Lifecycle:** Create new tenant shards (`/tenants` page), suspend/activate tenants
+- **Subscription Management:** Manage tenant subscription plans, charges, payment tracking
+- **Support Tickets:** Receive and respond to support tickets from tenants
+- **Payments & Reminders:** Track subscription payments, send payment reminders
+- **Broadcasting:** Send platform-wide announcements, feature updates, advertisements
+- **Monitoring:** Audit all tenant activity, usage metrics
+
+### Access Scope
+- Restricted to `/dashboard/admin/tenants` and sub-paths
+- No tenant-specific data access
+- No property/hotel/workspace operations
+- Bypasses journey filtering in sidebar — sees only tenant management nav items
+
+### Auth Flow
+- Login via **Platform Admin Sign In** modal on `/login`
+- Authenticates against `public.platform_admins` table
+- JWT contains `is_platform_admin: true`, no tenant context
+
+---
+
+## 2. Tenant Superadmin — Subscription Owner
+
+**Role:** `super_admin`
+
+The owning organization's top-level administrator. Full, unrestricted access to every feature, property, and module within the tenant shard.
+
+### Responsibilities
+- **Global Oversight:** Full access across all verticals (hotels, apartments, rental, workplace)
+- **User Management:** Create/manage all users, assign roles, configure permissions
+- **Property Setup:** Create properties, buildings, units across all verticals
+- **Finance & Accounts:** Full GL, billing, vendor bills, budget, tax filings
+- **HR & Payroll:** Full HRMS, employee records, payroll, compliance
+- **Operations:** Front desk, housekeeping, maintenance — all modules
+- **Audit:** View audit trail, sessions, backup management
+- **Branding & Settings:** Configure tenant branding, system settings
+
+### Access Scope
+- No restrictions — all routes, all verticals, all properties
+- `ROLE_ACCESS.super_admin` grants access to all route prefixes
+- Sidebar shows all nav items (via `all` journey or bypass)
+- Can operate in any journey context
+
+### Auth Flow
+- Login via tenant shard selection → email/password
+- JWT contains full tenant context (`tenant_code`, `tenant_schema`, `tenant_verticals`)
+
+---
+
+## 3. Property Admin — Workspace Manager
+
+**Role:** `property_manager`
+
+Operational administrator scoped to specific workspaces/properties. Has administrative access across multiple operational domains but only within assigned workspaces.
+
+### Responsibilities
+- **Workspace Setup:** Configure properties, buildings, units within assigned workspaces
+- **Department Oversight:** Manage site features, departments, and operational workflows
+- **Employees:** View and manage staff within assigned workspace (via `user_roles.property_id` scoping)
+- **Vendors:** Manage vendor relationships, services, purchase orders
+- **Inventory:** Track items, transactions, warehouses
+- **Compliance:** Workspace-level compliance and reporting
+- **Settings:** Workspace-level configuration and branding
+
+### Access Scope (by domain)
+| Domain | Access |
+|---|---|
+| Dashboard | ✅ |
+| Hotels/Apts/Rental/Workplace | ✅ (scoped to assignment) |
+| Front Desk | ❌ |
+| Housekeeping | ❌ |
+| Maintenance | ❌ |
+| Finance | ❌ |
+| HRMS | ❌ |
+| Admin (Users, Settings) | ✅ (scoped by `property_id`) |
+| Procurement / Vendors | ✅ |
+| Inventory | ✅ |
+
+### Scoping Mechanism
+- `user_roles.property_id` determines which workspace(s) the admin manages
+- `NULL` property_id = global scope within tenant (legacy)
+- Non-null `property_id` strictly scopes all CRUD operations
+- Cannot create/edit users outside assigned workspace
+- Cannot assign `super_admin` role
+
+### Auth Flow
+- Login via tenant shard selection → picks specific workspace from dropdown
+- Sidebar scoped to selected workspace journey
+- Redirected to `/dashboard/{vertical}` after login
+
+---
+
+## 4. Department Roles (Operational)
+
+Workspace-level operational staff. Each role is scoped to specific functional domains.
+
+### Department Hierarchy
+```
+Property Admin
+    │
+    ├── Front Desk Agent (front_desk)
+    │     └── Check-in/out, reservations, guest management
+    │
+    ├── Housekeeping (housekeeping_staff / housekeeping_supervisor)
+    │     └── Tasks, linen, inspections, staff allocation
+    │
+    ├── Maintenance (maintenance_staff / maintenance_supervisor)
+    │     └── Tickets, parts, assets, preventive maintenance
+    │
+    ├── HR (hr_manager / hr_executive)
+    │     └── Employees, timesheets, leave, payroll, compliance
+    │
+    ├── Finance (finance_manager / finance_executive)
+    │     └── GL, invoices, receivables, payables, budget, tax
+    │
+    ├── Vendors (vendor_user)
+    │     └── Vendor portal, service requests
+    │
+    ├── Security (security_staff)
+    │     └── Visitor management, access control
+    │
+    └── Workplace (workplace_facility_manager)
+          └── Memberships, visitors, desk allocation
+```
+
+### Scoping Rules
+- Department staff operate strictly within their assigned property/workspace
+- No cross-property data access
+- No access to User Management console (except supervisors with `✅(s)`)
+- Data queries filter by `property_id` automatically
+
+---
+
+## 5. Vertical-Based Navigation Filtering
+
+```
+JOURNEY_ALLOWED_ITEMS:
+  all:         [all nav items — for super_admin / executive]
+  hotels:      [hotel + ops + finance + hr + admin]
+  apartments:  [apt + ops + finance + hr + admin]
+  rental:      [rental + hk + maint + finance + hr + admin]
+  workplace:   [workplace + hk + maint + finance + hr + admin]
+```
+
+- **Platform Superadmin:** Bypasses journey filter entirely; sees only role-allowed items
+- **Tenant Superadmin:** Uses `all` journey to see everything, or a specific vertical journey
+- **Property Admin:** Must select a specific workspace at login; sidebar scoped to that journey
+- **Department Staff:** Role-based filtering restricts to their functional domain
+
+---
+
+## 6. Sidebar Filtering Logic
+
+The sidebar applies a 3-layer filter (in order):
+
+1. **Role Gate** — `item.roles.includes(user.role_name)` — eliminates items the role cannot access
+2. **RBAC Gate** — `hasAccess(role, item.href)` — validates against `ROLE_ACCESS` route map
+3. **Journey Gate** — `JOURNEY_ALLOWED_ITEMS[activeJourney].includes(item.label)` — scopes to vertical
+
+*Note: Platform Superadmin bypasses the Journey Gate (step 3).*

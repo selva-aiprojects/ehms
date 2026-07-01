@@ -233,3 +233,28 @@ python3 skills/ui-ux-pro-max/scripts/search.py "<page description>" --page-desig
 - **Welcome email** in `lib/email.ts` uses the above design system tokens.
 - Run `python3 scripts/search.py "<query>" --page-design -p "eHMS"` from `skills/ui-ux-pro-max/` for per-page guidance.
 
+## 16. Role Hierarchy & Access Model
+See `docs/architecture/working.md` for the complete role hierarchy:
+
+```
+Platform Superadmin (eHMS Provider)  →  platform_super_admin
+        │                                    Manages shards, subscriptions, billing
+        ▼
+Tenant Superadmin (Subscription Owner)  →  super_admin
+        │                                    Full access to all tenant features
+        ▼
+Property Admin (Workspace Manager)  →  property_manager
+        │                                    Scoped to assigned workspace(s)
+        ├── Departments (site features)
+        ├── Employees (HR)
+        ├── Vendors
+        ├── Finance
+        └── Inventory
+```
+
+Key rules:
+- **Platform Superadmin** logs in via Platform Admin Modal (no tenant selection). Restricted to `/dashboard/admin/tenants`. Sidebar bypasses journey filter.
+- **Tenant Superadmin** (`super_admin`) has unrestricted access across all verticals. Default login dropdown shows "All Workspaces".
+- **Property Admin** (`property_manager`) must select a specific workspace at login. Sidebar is scoped to that journey only. CRUD operations filtered by `user_roles.property_id`.
+- **Department roles** (front_desk, housekeeping_*, maintenance_*, hr_*, finance_*, etc.) are strictly scoped to their functional domain and assigned property.
+
