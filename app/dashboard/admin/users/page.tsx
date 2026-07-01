@@ -550,17 +550,11 @@ export default function AdminUsersPage() {
                   <select value={newUser.role_name}
                     onChange={(e) => setNewUser({ ...newUser, role_name: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
-                    <option value="super_admin">Super Admin</option>
-                    <option value="executive">Executive</option>
-                    <option value="property_manager">Property Manager</option>
-                    <option value="front_desk">Front Desk</option>
-                    <option value="housekeeping_supervisor">HK Supervisor</option>
-                    <option value="housekeeping_staff">HK Staff</option>
-                    <option value="maintenance_supervisor">Maintenance Supervisor</option>
-                    <option value="maintenance_staff">Maintenance Staff</option>
-                    <option value="hr_manager">HR Manager</option>
-                    <option value="finance_manager">Finance Manager</option>
-                    <option value="workplace_facility_manager">Workplace Facility Manager</option>
+                    {(roles || []).map((r: any) => (
+                      <option key={r.id} value={r.name}>
+                        {r.name.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -620,17 +614,11 @@ export default function AdminUsersPage() {
                   <select value={editUser.role_name}
                     onChange={(e) => setEditUser({ ...editUser, role_name: e.target.value })}
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
-                    <option value="super_admin">Super Admin</option>
-                    <option value="executive">Executive</option>
-                    <option value="property_manager">Property Manager</option>
-                    <option value="front_desk">Front Desk</option>
-                    <option value="housekeeping_supervisor">HK Supervisor</option>
-                    <option value="housekeeping_staff">HK Staff</option>
-                    <option value="maintenance_supervisor">Maintenance Supervisor</option>
-                    <option value="maintenance_staff">Maintenance Staff</option>
-                    <option value="hr_manager">HR Manager</option>
-                    <option value="finance_manager">Finance Manager</option>
-                    <option value="workplace_facility_manager">Workplace Facility Manager</option>
+                    {(roles || []).map((r: any) => (
+                      <option key={r.id} value={r.name}>
+                        {r.name.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
