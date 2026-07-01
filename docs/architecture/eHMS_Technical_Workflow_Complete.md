@@ -529,10 +529,10 @@ interface PlatformAdminJwtPayload {
 | executive | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | property_manager | ✅ | — | ✅ | ✅ | ✅ | ✅ | — | — | — | — | ✅ | ✅ | ✅ |
 | front_desk | ✅ | ✅ | — | — | — | — | — | — | — | — | — | — | — |
-| housekeeping_supervisor | ✅ | — | — | — | — | — | ✅ | — | — | — | — | — | — |
+| housekeeping_supervisor | ✅ | — | — | — | — | — | ✅ | — | — | — | ✅(s) | — | — |
 | housekeeping_staff | ✅ | — | — | — | — | — | ✅ | — | — | — | — | — | — |
 | maintenance_staff | ✅ | — | — | — | — | — | — | ✅ | — | — | — | — | — |
-| maintenance_supervisor | ✅ | — | — | — | — | — | — | ✅ | — | — | — | — | ✅ |
+| maintenance_supervisor | ✅ | — | — | — | — | — | — | ✅ | — | — | ✅(s) | — | ✅ |
 | hr_manager | ✅ | — | — | — | — | — | — | — | — | ✅ | — | — | — |
 | hr_executive | ✅ | — | — | — | — | — | — | — | — | ✅ | — | — | — |
 | finance_manager | ✅ | — | — | — | — | — | — | — | ✅ | — | — | ✅ | ✅ |
@@ -540,6 +540,8 @@ interface PlatformAdminJwtPayload {
 | security_staff | ✅ | — | — | — | — | ✅ | — | — | — | — | — | — | — |
 | workplace_facility_mgr | ✅ | — | — | — | — | ✅ | — | — | — | — | — | — | — |
 | vendor_user | ✅ | — | — | — | — | — | — | — | — | — | — | — | — |
+
+*Note: ✅(s) indicates access is strictly scoped to the user's assigned property/workspace.*
 
 ### 4.3 Vertical-Based Navigation Filtering
 
@@ -553,6 +555,29 @@ JOURNEY_ALLOWED_ITEMS:
   rental:   [rental + hk + maint + finance + hr + admin]
   workplace: [workplace + hk + maint + finance + hr + admin]
 ```
+
+### 4.4 User Management & Workspace Scoping (3-Level Permission Model)
+
+To guarantee operational isolation and security across organizational layers, user management is partitioned into three distinct levels:
+
+#### Level 1: Platform Level (Global Tenant Lifecycle)
+- **Role**: Platform Superadmin (authenticated via `public.platform_admins` table).
+- **Console**: Access is restricted strictly to `/dashboard/admin/tenants`.
+- **Capability**: Provisions new database shards, manages tenant subscriptions, and suspends vertical workspace contexts (soft delete) at the database schema config layer. Bypasses tenant shard contexts entirely.
+
+#### Level 2: Tenant Workspace Level (Workspace Administration)
+- **Roles**: Tenant Superadmin (`super_admin`), Property Admin (`property_manager`), Supervisors (`housekeeping_supervisor`, `maintenance_supervisor`), and Investors/Executives (`executive`).
+- **Console**: Accesses `/dashboard/admin/users` to manage system employees.
+- **Scoping & Guards**:
+  - Global Administrators (`super_admin`, `executive`) can view and manage users globally across all properties.
+  - Workspace Scoped Administrators (`property_manager`, `housekeeping_supervisor`, `maintenance_supervisor` who have a non-null `property_id` in `user_roles`) are strictly locked:
+    - **GET**: Can only see users matching their assigned `property_id`.
+    - **POST**: Can only create users inside their assigned workspace. Blocked from assigning the `super_admin` role.
+    - **PUT/DELETE**: Can only edit or deactivate users belonging to their assigned workspace. Blocked from moving users to other properties or assigning the `super_admin` role.
+
+#### Level 3: Workspace Employee Level (Operational Staff)
+- **Roles**: Front Desk Agent (`front_desk`), Housekeeping Staff (`housekeeping_staff`), Maintenance Staff (`maintenance_staff`), HR (`hr_manager`), Finance (`finance_manager`), etc.
+- **Access**: Strictly blocked from accessing the User Management console or its endpoints. Operates entirely within the specific workspaces and tasks they are assigned to.
 
 ---
 

@@ -282,6 +282,32 @@ Events:
 
 **Screens:** Login → Global Dashboard → Property Overview → Drill-down Analytics → User Management → Audit Logs
 
+### 3.2.1 User Management & Workspace Scoping Flow (3-Level Permissions)
+
+The screen flow and scoping restrictions for the User Management wizard are structured as follows:
+
+```
+                            ┌──────────────────────────────────┐
+                            │      USER MANAGEMENT SCREEN      │
+                            │      (/dashboard/admin/users)    │
+                            └────────────────┬─────────────────┘
+                                             │
+                      ┌──────────────────────┴──────────────────────┐
+                      ▼                                             ▼
+         [Global Admin (L1 / L2)]                       [Workspace Scoped Admin (L2)]
+    (Super Admin / Executive / Investor)               (Property Admin / Supervisor)
+                      │                                             │
+         ┌────────────┴────────────┐                  ┌─────────────┴─────────────┐
+         ▼                         ▼                  ▼                           ▼
+  ┌──────────────┐          ┌──────────────┐   ┌───────────────┐           ┌───────────────┐
+  │ View Users   │          │ Create/Edit  │   │ View Scoped   │           │ Create/Edit   │
+  │ (All/Filter  │          │ (Any role/   │   │ Users (Locked │           │ Scoped Users  │
+  │  workspaces) │          │  workspace)  │   │  to workspace)│           │ (Lock scope,  │
+  └──────────────┘          └──────────────┘   └───────────────┘           │  no Superadmin│
+                                                                           │  role assign) │
+                                                                           └───────────────┘
+```
+
 ---
 
 ### 3.3 Hotel / Service Apartment — Guest Mobile App Flow
