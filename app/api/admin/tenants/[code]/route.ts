@@ -58,10 +58,11 @@ export async function PATCH(
       if (!hasPrimary) {
         workspaces[0].is_primary = true;
       }
-      newConfig.workspaces = workspaces.map((w: { type: string; name: string; is_primary?: boolean }) => ({
+      newConfig.workspaces = workspaces.map((w: { type: string; name: string; is_primary?: boolean; suspended?: boolean }) => ({
         type: w.type,
         name: w.name,
         is_primary: w.is_primary || false,
+        suspended: w.suspended || false,
       }));
       newConfig.verticals = [...new Set(workspaces.map((w: { type: string }) => w.type))];
     }

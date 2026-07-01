@@ -217,13 +217,13 @@ export default function AdminTenantsPage() {
   );
 }
 
-function getWorkspaces(tenant: TenantRecord): { type: string; name: string; is_primary: boolean }[] {
-  const ws = (tenant.config || {}).workspaces as { type: string; name: string; is_primary?: boolean }[] | undefined;
+function getWorkspaces(tenant: TenantRecord): { type: string; name: string; is_primary: boolean; suspended: boolean }[] {
+  const ws = (tenant.config || {}).workspaces as { type: string; name: string; is_primary?: boolean; suspended?: boolean }[] | undefined;
   if (ws && Array.isArray(ws) && ws.length > 0) {
-    return ws.map((w) => ({ type: w.type, name: w.name, is_primary: w.is_primary || false }));
+    return ws.map((w) => ({ type: w.type, name: w.name, is_primary: w.is_primary || false, suspended: w.suspended || false }));
   }
   const verts = ((tenant.config || {}).verticals as string[]) || ["hotels"];
-  return verts.map((v, i) => ({ type: v, name: VERTICAL_LABELS[v]?.label || v, is_primary: i === 0 }));
+  return verts.map((v, i) => ({ type: v, name: VERTICAL_LABELS[v]?.label || v, is_primary: i === 0, suspended: false }));
 }
 
 function EditTenantModal({
@@ -264,7 +264,7 @@ function EditTenantModal({
   }
 
   function addWorkspace() {
-    setWorkspaces((prev) => [...prev, { type: "hotels", name: "", is_primary: false }]);
+    setWorkspaces((prev) => [...prev, { type: "hotels", name: "", is_primary: false, suspended: false }]);
   }
 
   async function confirmRemoveWorkspace(index: number) {
@@ -430,9 +430,10 @@ function EditTenantModal({
                         style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
                       />
                     </div>
-                    <div className="flex flex-col items-center gap-2 shrink-0">
-                      <label className="flex items-center gap-1.5 cursor-pointer text-xs"
+                    <div className="flex flex-col items-center gap-1.5 shrink-0">
+                      <label className="flex items-center gap-1.5 cursor-pointer text-xs font-medium"
                         title="Set as primary workspace"
+                        style={{ color: "#64748B" }}
                       >
                         <input type="radio" name="ws-primary" checked={ws.is_primary}
                           onChange={() => setPrimary(i)}
@@ -440,9 +441,19 @@ function EditTenantModal({
                         />
                         Primary
                       </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer text-xs font-medium"
+                        title="Suspend this workspace"
+                        style={{ color: ws.suspended ? "#E53E3E" : "#64748B" }}
+                      >
+                        <input type="checkbox" checked={ws.suspended}
+                          onChange={(e) => updateWorkspace(i, "suspended", e.target.checked)}
+                          style={{ accentColor: "#E53E3E" }}
+                        />
+                        Suspend
+                      </label>
                       {workspaces.length > 1 && (
                         <button onClick={() => confirmRemoveWorkspace(i)}
-                          className="p-1 rounded hover:bg-red-50 text-xs"
+                          className="p-1 rounded hover:bg-red-50 text-xs mt-0.5"
                           style={{ color: "#E53E3E" }}
                         >
                           <X className="w-4 h-4" />

@@ -191,9 +191,9 @@ function LoginContent() {
     return v && v.length > 0 ? v : ALL_VERTICAL_KEYS;
   }
 
-  function getTenantWorkspaces(t: TenantInfo): { type: VerticalKey; name: string; is_primary: boolean }[] {
+  function getTenantWorkspaces(t: TenantInfo): { type: VerticalKey; name: string; is_primary: boolean; suspended?: boolean }[] {
     const config = t.config || {};
-    const ws = config.workspaces as { type: VerticalKey; name: string; is_primary: boolean }[] | undefined;
+    const ws = config.workspaces as { type: VerticalKey; name: string; is_primary: boolean; suspended?: boolean }[] | undefined;
     return ws && ws.length > 0 ? ws : [];
   }
 
@@ -305,14 +305,34 @@ function LoginContent() {
                           {t.code}
                         </span>
                         <div className="flex flex-wrap gap-1">
-                          {(getTenantWorkspaces(t).length > 0 ? getTenantWorkspaces(t) : verts.map(v => ({ type: v, name: VERTICAL_META[v]?.label || v, is_primary: false }))).map((ws) => {
+                          {(getTenantWorkspaces(t).length > 0 ? getTenantWorkspaces(t) : verts.map(v => ({ type: v, name: VERTICAL_META[v]?.label || v, is_primary: false, suspended: false }))).map((ws) => {
                             const meta = VERTICAL_META[ws.type as VerticalKey];
                             const Icon = meta?.icon || Building2;
+                            const wsSuspended = ws.suspended === true;
                             return (
                               <span key={ws.type + ws.name}
                                 className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium"
-                                style={{ background: ws.is_primary ? "rgba(43,174,142,0.1)" : "rgba(43,174,142,0.06)", color: ws.is_primary ? "#2BAE8E" : "rgba(43,174,142,0.7)", border: `1px solid ${ws.is_primary ? "rgba(43,174,142,0.2)" : "rgba(43,174,142,0.1)"}` }}>
-                                <Icon className="w-2.5 h-2.5" /> {ws.name}
+                                style={{
+                                  background: wsSuspended
+                                    ? "rgba(229,62,62,0.08)"
+                                    : ws.is_primary
+                                    ? "rgba(43,174,142,0.1)"
+                                    : "rgba(43,174,142,0.06)",
+                                  color: wsSuspended
+                                    ? "#E53E3E"
+                                    : ws.is_primary
+                                    ? "#2BAE8E"
+                                    : "rgba(43,174,142,0.7)",
+                                  border: `1px solid ${
+                                    wsSuspended
+                                      ? "rgba(229,62,62,0.2)"
+                                      : ws.is_primary
+                                      ? "rgba(43,174,142,0.2)"
+                                      : "rgba(43,174,142,0.1)"
+                                  }`,
+                                  textDecoration: wsSuspended ? "line-through" : "none"
+                                }}>
+                                <Icon className="w-2.5 h-2.5" /> {ws.name} {wsSuspended && " (Suspended)"}
                               </span>
                             );
                           })}
@@ -540,20 +560,36 @@ function LoginContent() {
 
           {/* Workspace badges */}
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {(getTenantWorkspaces(tenant).length > 0 ? getTenantWorkspaces(tenant) : tenantVerticals.map(v => ({ type: v, name: VERTICAL_META[v]?.label || v, is_primary: false }))).map((ws) => {
+            {(getTenantWorkspaces(tenant).length > 0 ? getTenantWorkspaces(tenant) : tenantVerticals.map(v => ({ type: v, name: VERTICAL_META[v]?.label || v, is_primary: false, suspended: false }))).map((ws) => {
               const meta = VERTICAL_META[ws.type as VerticalKey];
               const Icon = meta?.icon || Building2;
+              const wsSuspended = ws.suspended === true;
               return (
                 <span key={ws.type + ws.name}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium"
                   style={{
-                    background: ws.is_primary ? "rgba(43,174,142,0.1)" : "rgba(43,174,142,0.06)",
-                    color: ws.is_primary ? "#2BAE8E" : "rgba(43,174,142,0.7)",
-                    border: `1px solid ${ws.is_primary ? "rgba(43,174,142,0.2)" : "rgba(43,174,142,0.1)"}`,
+                    background: wsSuspended
+                      ? "rgba(229,62,62,0.08)"
+                      : ws.is_primary
+                      ? "rgba(43,174,142,0.1)"
+                      : "rgba(43,174,142,0.06)",
+                    color: wsSuspended
+                      ? "#E53E3E"
+                      : ws.is_primary
+                      ? "#2BAE8E"
+                      : "rgba(43,174,142,0.7)",
+                    border: `1px solid ${
+                      wsSuspended
+                        ? "rgba(229,62,62,0.2)"
+                        : ws.is_primary
+                        ? "rgba(43,174,142,0.2)"
+                        : "rgba(43,174,142,0.1)"
+                    }`,
+                    textDecoration: wsSuspended ? "line-through" : "none"
                   }}
                 >
                   <Icon className="w-2.5 h-2.5" />
-                  {ws.name}
+                  {ws.name} {wsSuspended && " (Suspended)"}
                 </span>
               );
             })}
@@ -575,9 +611,11 @@ function LoginContent() {
                   <option value="all">All Workspaces</option>
                   {(getTenantWorkspaces(tenant).length > 0
                     ? getTenantWorkspaces(tenant)
-                    : allowedJourneys.map(j => ({ type: j as VerticalKey, name: VERTICAL_META[j as VerticalKey]?.label || j, is_primary: false }))
+                    : allowedJourneys.map(j => ({ type: j as VerticalKey, name: VERTICAL_META[j as VerticalKey]?.label || j, is_primary: false, suspended: false }))
                   ).map((ws) => (
-                    <option key={ws.type} value={ws.type}>{ws.name}</option>
+                    <option key={ws.type} value={ws.type} disabled={ws.suspended}>
+                      {ws.name} {ws.suspended ? " (Suspended)" : ""}
+                    </option>
                   ))}
                 </select>
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#2BAE8E" }}>

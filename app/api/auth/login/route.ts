@@ -45,8 +45,22 @@ export async function POST(req: NextRequest) {
     const targetSchema = tenant.schema_name as string;
     const tenantName = tenant.name as string;
 
-    let tenantVerticals: Vertical[] = (config.verticals as Vertical[]) || [];
+    const workspaces = (config.workspaces as { type: string; suspended?: boolean }[]) || [];
+    let tenantVerticals: Vertical[] = [];
+    if (workspaces.length > 0) {
+      tenantVerticals = workspaces
+        .filter(w => !w.suspended)
+        .map(w => w.type as Vertical);
+    } else {
+      tenantVerticals = (config.verticals as Vertical[]) || [];
+    }
+
     if (tenantVerticals.length === 0) {
+      if (workspaces.length > 0) {
+        return NextResponse.json({
+          error: "All workspaces for this tenant have been suspended. Contact your platform administrator.",
+        }, { status: 403 });
+      }
       tenantVerticals = ["hotels", "apartments", "rental", "workplace"];
     }
 

@@ -73,11 +73,20 @@ export function JourneyProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    if (pathname === "/dashboard/hotels") setActiveJourney("hotels");
-    else if (pathname === "/dashboard/apartments") setActiveJourney("apartments");
-    else if (pathname === "/dashboard/rental") setActiveJourney("rental");
-    else if (pathname === "/dashboard/workplace") setActiveJourney("workplace");
-  }, [pathname]);
+    let target: VerticalJourney | null = null;
+    if (pathname.startsWith("/dashboard/hotels")) target = "hotels";
+    else if (pathname.startsWith("/dashboard/apartments")) target = "apartments";
+    else if (pathname.startsWith("/dashboard/rental")) target = "rental";
+    else if (pathname.startsWith("/dashboard/workplace")) target = "workplace";
+
+    if (target) {
+      if (allowedJourneys.includes(target)) {
+        setActiveJourney(target);
+      } else {
+        router.push("/dashboard");
+      }
+    }
+  }, [pathname, allowedJourneys, router]);
 
   return (
     <JourneyContext.Provider value={{ activeJourney, setJourney, allowedJourneys }}>
