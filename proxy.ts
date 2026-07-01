@@ -50,7 +50,30 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
-  const response = NextResponse.next({ request });
+  const requestHeaders = new Headers(request.headers);
+  if (payload) {
+    requestHeaders.set("x-user-id", payload.user_id);
+    requestHeaders.set("x-user-email", payload.email);
+    requestHeaders.set("x-user-role", payload.role_name);
+    requestHeaders.set("x-is-platform-admin", String(isPlatformAdmin));
+    if (isPlatformAdmin) {
+      requestHeaders.set("x-tenant-code", "");
+      requestHeaders.set("x-tenant-schema", "");
+      requestHeaders.set("x-tenant-name", "");
+    } else {
+      requestHeaders.set("x-tenant-code", payload.tenant_code || "");
+      requestHeaders.set("x-tenant-schema", payload.tenant_schema || "");
+      requestHeaders.set("x-tenant-name", payload.tenant_name || "");
+      requestHeaders.set("x-tenant-verticals", (payload.tenant_verticals || []).join(","));
+    }
+  }
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+
   if (payload) {
     response.headers.set("x-user-id", payload.user_id);
     response.headers.set("x-user-email", payload.email);

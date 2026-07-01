@@ -7,6 +7,7 @@ import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import { useApartmentStats } from "@/lib/hooks";
 import { useGlobalSettings } from "@/components/providers/SettingsProvider";
+import { useJourney } from "@/components/providers/JourneyProvider";
 
 function SkeletonCard() {
   return (
@@ -20,9 +21,10 @@ function SkeletonCard() {
 }
 
 export default function ApartmentsPage() {
+  const { selectedPropertyId } = useJourney();
   const [search, setSearch] = useState("");
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
-  const { stats, isLoading, isError, mutate } = useApartmentStats();
+  const { stats, isLoading, isError, mutate } = useApartmentStats(selectedPropertyId);
   const { settings } = useGlobalSettings();
 
   useEffect(() => {

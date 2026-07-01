@@ -7,6 +7,7 @@ import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import Table from "@/components/ui/table";
 import { useMemberships, useVisitors, useWorkplaceBookings } from "@/lib/hooks";
+import { useJourney } from "@/components/providers/JourneyProvider";
 
 const MOCK_MEMBERSHIPS = [
   { corporate: "Acme Corp", plan: "Hot Desk Pool", seats: 10, used: 8, status: "active", renews: "01 Jul 2026" },
@@ -45,13 +46,14 @@ function SkeletonStat() {
 }
 
 export default function WorkplacePage() {
+  const { selectedPropertyId } = useJourney();
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [selectedDesk, setSelectedDesk] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { memberships, isLoading: loadingMemberships, mutate: mutateMemberships } = useMemberships();
-  const { visitors, isLoading: loadingVisitors, mutate: mutateVisitors } = useVisitors();
-  const { bookings, isLoading: loadingBookings, mutate: mutateBookings } = useWorkplaceBookings();
+  const { memberships, isLoading: loadingMemberships, mutate: mutateMemberships } = useMemberships({ property_id: selectedPropertyId || undefined });
+  const { visitors, isLoading: loadingVisitors, mutate: mutateVisitors } = useVisitors(selectedPropertyId);
+  const { bookings, isLoading: loadingBookings, mutate: mutateBookings } = useWorkplaceBookings({ property_id: selectedPropertyId || undefined });
 
   const displayMemberships = (memberships && (memberships as any[]).length > 0) ? (memberships as any[]) : MOCK_MEMBERSHIPS;
   const displayVisitors = (visitors && (visitors as any[]).length > 0) ? (visitors as any[]) : VISITOR_DATA;

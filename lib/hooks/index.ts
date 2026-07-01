@@ -33,8 +33,9 @@ export function useHotelStats(propertyId?: string) {
   };
 }
 
-export function useApartmentStats() {
-  const { data, error, isLoading, mutate } = useSWR("/api/dashboard/apartments", fetcher, { refreshInterval: 30000 });
+export function useApartmentStats(propertyId?: string) {
+  const url = propertyId ? `/api/dashboard/apartments?property_id=${propertyId}` : "/api/dashboard/apartments";
+  const { data, error, isLoading, mutate } = useSWR(url, fetcher, { refreshInterval: 30000 });
   return {
     stats: data?.data,
     isLoading,
@@ -218,11 +219,12 @@ export function useMemberships(filters?: { status?: string; property_id?: string
   return { memberships: data?.data, isLoading, isError: !!error, mutate };
 }
 
-export function useWorkplaceBookings(filters?: { status?: string; booking_type?: string; date?: string }) {
+export function useWorkplaceBookings(filters?: { status?: string; booking_type?: string; date?: string; property_id?: string }) {
   const params = new URLSearchParams();
   if (filters?.status) params.set("status", filters.status);
   if (filters?.booking_type) params.set("booking_type", filters.booking_type);
   if (filters?.date) params.set("date", filters.date);
+  if (filters?.property_id) params.set("property_id", filters.property_id);
   const { data, error, isLoading, mutate } = useSWR(`/api/workplace/bookings?${params}`, fetcher);
   return { bookings: data?.data, isLoading, isError: !!error, mutate };
 }
