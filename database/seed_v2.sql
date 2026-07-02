@@ -296,36 +296,70 @@ FROM (VALUES
 ) AS t(ticket_number, ticket_type, title, description, priority, status, category)
 ON CONFLICT DO NOTHING;
 
+-- ── Buildings, Floors & Units for Greenwood Residency (GWR) ──
+WITH prop AS (SELECT id FROM properties WHERE code='GWR')
+INSERT INTO buildings (property_id, name, code, floors)
+SELECT prop.id, 'Residency Block 1', 'R1', 5 FROM prop
+ON CONFLICT DO NOTHING;
+
+WITH bld AS (SELECT b.id FROM buildings b JOIN properties p ON b.property_id=p.id WHERE p.code='GWR' AND b.code='R1')
+INSERT INTO floors (building_id, name, floor_number)
+SELECT bld.id, 'Floor '||gs, gs FROM bld, generate_series(1,5) gs
+ON CONFLICT DO NOTHING;
+
+INSERT INTO units (floor_id, unit_type, unit_label, layout_type, sq_ft, max_occupancy, base_rate, status)
+SELECT
+  f.id,
+  'apartment'::unit_type,
+  'GWR-' || (f.floor_number * 100 + gs)::text,
+  'suite',
+  1200,
+  4,
+  35000,
+  'occupied'::room_status
+FROM floors f, generate_series(1, 4) gs
+WHERE f.floor_number <= 5
+AND EXISTS (SELECT 1 FROM buildings b JOIN properties p ON b.property_id=p.id WHERE b.id=f.building_id AND p.code='GWR')
+ON CONFLICT DO NOTHING;
+
 -- ── Lease Agreements (for Rental vertical) ────────────────────
 WITH rental_prop AS (SELECT id FROM properties WHERE code='GWR'),
-     rental_units AS (SELECT id, unit_label FROM units LIMIT 0), -- placeholder if rental has no units yet
-     guest_sample AS (SELECT id FROM guest_profiles LIMIT 5)
+     rental_units AS (
+       SELECT u.id, ROW_NUMBER() OVER(ORDER BY u.unit_label) as rn
+       FROM units u
+       JOIN floors f ON u.floor_id=f.id
+       JOIN buildings b ON f.building_id=b.id
+       JOIN properties p ON b.property_id=p.id
+       WHERE p.code='GWR'
+     ),
+     guest_sample AS (
+       SELECT id, ROW_NUMBER() OVER(ORDER BY created_at) as rn FROM guest_profiles LIMIT 5
+     )
 INSERT INTO lease_agreements (property_id, unit_id, tenant_id, agreement_ref, status, start_date, end_date, rent_amount, security_deposit, notice_period_days)
 SELECT
   (SELECT id FROM rental_prop),
-  NULL,
+  (SELECT id FROM rental_units WHERE rn = g.rn LIMIT 1),
   g.id,
-  'LS-' || LPAD(ROW_NUMBER() OVER()::text, 4, '0'),
-  (ARRAY['active','active','active','expired','expired'])[(ROW_NUMBER() OVER() % 5)::int + 1]::lease_status,
-  NOW() - ((ROW_NUMBER() OVER() * 2) || ' months')::interval,
-  NOW() + ((12 - ROW_NUMBER() OVER()) || ' months')::interval,
-  (25000 + (ROW_NUMBER() OVER() * 3000))::numeric,
-  (50000 + (ROW_NUMBER() OVER() * 5000))::numeric,
+  'LS-' || LPAD(g.rn::text, 4, '0'),
+  (ARRAY['active','active','active','terminated','terminated'])[g.rn]::lease_status,
+  NOW() - ((g.rn * 2) || ' months')::interval,
+  NOW() + ((12 - g.rn) || ' months')::interval,
+  (25000 + (g.rn * 3000))::numeric,
+  (50000 + (g.rn * 5000))::numeric,
   30
 FROM guest_sample g
 ON CONFLICT DO NOTHING;
 
 -- ── Invoices (finance data) ───────────────────────────────────
-INSERT INTO invoices (property_id, booking_id, invoice_number, status, subtotal, tax_total, grand_total, balance_due, paid_total, currency, due_date)
+INSERT INTO invoices (property_id, booking_id, invoice_number, status, subtotal, tax_total, grand_total, paid_total, currency, due_date)
 SELECT
   b.property_id,
   b.id,
   'INV-' || LPAD(ROW_NUMBER() OVER()::text, 5, '0'),
-  CASE WHEN b.paid_amount >= b.total_amount THEN 'paid' ELSE 'pending' END::invoice_status,
+  CASE WHEN b.paid_amount >= b.total_amount THEN 'paid' ELSE 'sent' END::invoice_status,
   b.total_amount * 0.82,
   b.total_amount * 0.18,
   b.total_amount,
-  GREATEST(b.total_amount - b.paid_amount, 0),
   b.paid_amount,
   'INR',
   b.check_out::date + 3

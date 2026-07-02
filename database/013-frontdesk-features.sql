@@ -1,7 +1,7 @@
 -- 013-frontdesk-features.sql
 
 -- 1. Parking Allocations
-CREATE TABLE parking_allocations (
+CREATE TABLE IF NOT EXISTS parking_allocations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     booking_id UUID REFERENCES bookings(id) ON DELETE CASCADE,
     vehicle_number VARCHAR(50),
@@ -12,7 +12,7 @@ CREATE TABLE parking_allocations (
 );
 
 -- 2. Guest Requests & Complaints
-CREATE TABLE guest_requests (
+CREATE TABLE IF NOT EXISTS guest_requests (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     booking_id UUID REFERENCES bookings(id) ON DELETE CASCADE,
@@ -25,7 +25,7 @@ CREATE TABLE guest_requests (
 );
 
 -- 3. Promotions & Offers
-CREATE TABLE promotions_offers (
+CREATE TABLE IF NOT EXISTS promotions_offers (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     offer_code VARCHAR(50) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE promotions_offers (
 );
 
 -- 4. Check-in Checklists
-CREATE TABLE checkin_checklists (
+CREATE TABLE IF NOT EXISTS checkin_checklists (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     booking_id UUID REFERENCES bookings(id) ON DELETE CASCADE UNIQUE,
     checklist_items JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -48,7 +48,7 @@ CREATE TABLE checkin_checklists (
 );
 
 -- 5. Guest Feedback
-CREATE TABLE guest_feedback (
+CREATE TABLE IF NOT EXISTS guest_feedback (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     booking_id UUID REFERENCES bookings(id) ON DELETE CASCADE,

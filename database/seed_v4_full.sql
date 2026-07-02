@@ -32,6 +32,8 @@ DECLARE
   wh_main UUID; wh_hk UUID; wh_eng UUID;
   -- Fiscal / Accounts
   fy_2425 UUID; fy_2526 UUID; fy_2627 UUID;
+  -- Units
+  unit_ovh_1 UUID; unit_ovh_2 UUID; unit_csa_1 UUID; unit_gwr_1 UUID; unit_gwr_2 UUID;
 
   -- Counters
   rnd real;
@@ -133,9 +135,17 @@ BEGIN
   SELECT id INTO dept_ics_fn FROM departments WHERE code = 'FN' AND property_id = ics_id LIMIT 1;
   SELECT id INTO dept_ics_hr FROM departments WHERE code = 'HR' AND property_id = ics_id LIMIT 1;
 
+  SELECT u.id INTO unit_ovh_1 FROM units u JOIN floors f ON f.id = u.floor_id JOIN buildings b ON b.id = f.building_id WHERE b.property_id = ovh_id LIMIT 1 OFFSET 0;
+  SELECT u.id INTO unit_ovh_2 FROM units u JOIN floors f ON f.id = u.floor_id JOIN buildings b ON b.id = f.building_id WHERE b.property_id = ovh_id LIMIT 1 OFFSET 1;
+  SELECT u.id INTO unit_csa_1 FROM units u JOIN floors f ON f.id = u.floor_id JOIN buildings b ON b.id = f.building_id WHERE b.property_id = csa_id LIMIT 1 OFFSET 0;
+  SELECT u.id INTO unit_gwr_1 FROM units u JOIN floors f ON f.id = u.floor_id JOIN buildings b ON b.id = f.building_id WHERE b.property_id = gwr_id LIMIT 1 OFFSET 0;
+  SELECT u.id INTO unit_gwr_2 FROM units u JOIN floors f ON f.id = u.floor_id JOIN buildings b ON b.id = f.building_id WHERE b.property_id = gwr_id LIMIT 1 OFFSET 1;
+
   -- ==========================================================================
   -- 2. CLEAR EXISTING SEED DATA (for tables we'll re-seed)
   -- ==========================================================================
+  DELETE FROM journal_lines;
+  DELETE FROM journal_entries;
   DELETE FROM inventory_transactions;
   DELETE FROM inventory_items;
   DELETE FROM inventory_categories;
@@ -149,11 +159,10 @@ BEGIN
   DELETE FROM tax_filings;
   DELETE FROM cost_centers;
   DELETE FROM fiscal_years;
-  DELETE FROM journal_lines;
-  DELETE FROM journal_entries;
   DELETE FROM maintenance_approvals;
   DELETE FROM maintenance_time_entries;
   DELETE FROM maintenance_ticket_parts;
+  DELETE FROM maintenance_tickets;
   DELETE FROM preventive_schedules;
   DELETE FROM amc_contracts;
   DELETE FROM housekeeping_inspections;
@@ -172,7 +181,10 @@ BEGIN
   DELETE FROM purchase_orders;
   DELETE FROM depreciation_schedule;
   DELETE FROM fixed_assets;
-  DELETE FROM audit_events;
+  DELETE FROM system_audit_events;
+  DELETE FROM timesheets;
+  DELETE FROM leave_requests;
+  DELETE FROM compliance_records;
   -- Keep existing bookings, invoices, payments, leases etc.
   RAISE NOTICE 'Cleared seed tables.';
 
@@ -334,13 +346,13 @@ BEGIN
   -- Monthly budget entries for OVH
   FOR day_offset IN 0..11 LOOP
     INSERT INTO budget_entries (budget_head_id, fiscal_year_id, period_month, budget_amount) VALUES
-      ((SELECT id FROM budget_heads WHERE code = 'BH-RR' AND property_id = ovh_id), fy_2627, 4 + day_offset, 3000000 + random() * 500000);
+      ((SELECT id FROM budget_heads WHERE code = 'BH-RR' AND property_id = ovh_id), fy_2627, ((3 + day_offset) % 12) + 1, 3000000 + random() * 500000);
     INSERT INTO budget_entries (budget_head_id, fiscal_year_id, period_month, budget_amount) VALUES
-      ((SELECT id FROM budget_heads WHERE code = 'BH-SAL' AND property_id = ovh_id), fy_2627, 4 + day_offset, 1200000 + random() * 100000);
+      ((SELECT id FROM budget_heads WHERE code = 'BH-SAL' AND property_id = ovh_id), fy_2627, ((3 + day_offset) % 12) + 1, 1200000 + random() * 100000);
     INSERT INTO budget_entries (budget_head_id, fiscal_year_id, period_month, budget_amount) VALUES
-      ((SELECT id FROM budget_heads WHERE code = 'BH-HK' AND property_id = ovh_id), fy_2627, 4 + day_offset, 200000 + random() * 50000);
+      ((SELECT id FROM budget_heads WHERE code = 'BH-HK' AND property_id = ovh_id), fy_2627, ((3 + day_offset) % 12) + 1, 200000 + random() * 50000);
     INSERT INTO budget_entries (budget_head_id, fiscal_year_id, period_month, budget_amount) VALUES
-      ((SELECT id FROM budget_heads WHERE code = 'BH-MT' AND property_id = ovh_id), fy_2627, 4 + day_offset, 150000 + random() * 40000);
+      ((SELECT id FROM budget_heads WHERE code = 'BH-MT' AND property_id = ovh_id), fy_2627, ((3 + day_offset) % 12) + 1, 150000 + random() * 40000);
   END LOOP;
   RAISE NOTICE 'Seeded budget heads and entries for OVH.';
 
@@ -413,12 +425,12 @@ BEGIN
     ('Linens & Textiles', 'Bed sheets, towels, bathmats, curtains', ovh_id, true),
     ('Guest Amenities', 'Soap, shampoo, lotion, slippers', ovh_id, true),
     ('Maintenance Parts', 'Electrical, plumbing, hardware', ovh_id, true),
-    ('F&B Supplies', 'Coffee, tea, sugar, condiments', ovh_id, true)
-  RETURNING id INTO inv_cat_cleaning;
-  SELECT id INTO inv_cat_linen FROM inventory_categories WHERE name = 'Linens & Textiles' AND property_id = ovh_id;
-  SELECT id INTO inv_cat_amenities FROM inventory_categories WHERE name = 'Guest Amenities' AND property_id = ovh_id;
-  SELECT id INTO inv_cat_maint FROM inventory_categories WHERE name = 'Maintenance Parts' AND property_id = ovh_id;
-  SELECT id INTO inv_cat_fnb FROM inventory_categories WHERE name = 'F&B Supplies' AND property_id = ovh_id;
+    ('F&B Supplies', 'Coffee, tea, sugar, condiments', ovh_id, true);
+  SELECT id INTO inv_cat_cleaning FROM inventory_categories WHERE name = 'Cleaning Supplies' AND property_id = ovh_id LIMIT 1;
+  SELECT id INTO inv_cat_linen FROM inventory_categories WHERE name = 'Linens & Textiles' AND property_id = ovh_id LIMIT 1;
+  SELECT id INTO inv_cat_amenities FROM inventory_categories WHERE name = 'Guest Amenities' AND property_id = ovh_id LIMIT 1;
+  SELECT id INTO inv_cat_maint FROM inventory_categories WHERE name = 'Maintenance Parts' AND property_id = ovh_id LIMIT 1;
+  SELECT id INTO inv_cat_fnb FROM inventory_categories WHERE name = 'F&B Supplies' AND property_id = ovh_id LIMIT 1;
 
   -- CSA categories
   INSERT INTO inventory_categories (name, description, property_id, is_active) VALUES
@@ -433,8 +445,8 @@ BEGIN
   INSERT INTO warehouses (name, code, location, manager_name, phone, property_id, is_active) VALUES
     ('Housekeeping Pantry', 'WH-HK', 'Floor 2 - Housekeeping Office', 'Meena Pillai', '9988776656', ovh_id, true)
   RETURNING id INTO wh_hk;
-  INSERT INTO warehouses (name, code, location, manager_name, property_id, is_active) VALUES
-    ('Engineering Store', 'WH-ENG', 'Basement - Maintenance Workshop', ovh_id, true)
+  INSERT INTO warehouses (name, code, location, manager_name, phone, property_id, is_active) VALUES
+    ('Engineering Store', 'WH-ENG', 'Basement - Maintenance Workshop', 'Arjun Sharma', '9988776657', ovh_id, true)
   RETURNING id INTO wh_eng;
 
   -- Inventory items
@@ -508,7 +520,7 @@ BEGIN
   -- OVH Tickets
   -- OVH Tickets
   INSERT INTO maintenance_tickets (property_id, unit_id, ticket_number, ticket_type, title, description, category, priority, status, reported_by, assigned_to, created_at) VALUES
-    (ovh_id, (SELECT id FROM units WHERE unit_label = '101' AND property_id = ovh_id LIMIT 1), 'MT-OVH-001', 'corrective', 'AC not cooling - Room 101', 'Guest reported AC not cooling below 25°C despite thermostat at 18°C', 'HVAC', 'critical', 'open', uid_frontdesk, uid_maint, CURRENT_DATE - 2)
+    (ovh_id, unit_ovh_1, 'MT-OVH-001', 'corrective', 'AC not cooling - Room 101', 'Guest reported AC not cooling below 25°C despite thermostat at 18°C', 'HVAC', 'critical', 'open', uid_frontdesk, uid_maint, CURRENT_DATE - 2)
   RETURNING id INTO ticket_id;
   INSERT INTO maintenance_time_entries (ticket_id, technician_id, start_time, end_time, notes) VALUES
     (ticket_id, uid_maint, (CURRENT_DATE - 2)::timestamp + time '14:00:00', (CURRENT_DATE - 2)::timestamp + time '15:30:00', 'Initial diagnosis - gas refill needed');
@@ -518,7 +530,7 @@ BEGIN
     (ticket_id, 'assigned', uid_maint, 'Assigned to Arjun Sharma');
 
   INSERT INTO maintenance_tickets (property_id, unit_id, ticket_number, ticket_type, title, description, category, priority, status, reported_by, assigned_to, created_at) VALUES
-    (ovh_id, (SELECT id FROM units WHERE unit_label = '205' AND property_id = ovh_id LIMIT 1), 'MT-OVH-002', 'corrective', 'Leaking tap - Room 205', 'Bathroom tap dripping continuously, guest complaint', 'plumbing', 'high', 'in_progress', uid_frontdesk, uid_maint, CURRENT_DATE - 1)
+    (ovh_id, unit_ovh_2, 'MT-OVH-002', 'corrective', 'Leaking tap - Room 205', 'Bathroom tap dripping continuously, guest complaint', 'plumbing', 'high', 'in_progress', uid_frontdesk, uid_maint, CURRENT_DATE - 1)
   RETURNING id INTO ticket_id;
   INSERT INTO maintenance_time_entries (ticket_id, technician_id, start_time, end_time, notes) VALUES
     (ticket_id, uid_maint, (CURRENT_DATE - 1)::timestamp + time '10:00:00', (CURRENT_DATE - 1)::timestamp + time '10:45:00', 'Replaced tap washer - testing');
@@ -553,7 +565,7 @@ BEGIN
 
   -- CSA Tickets
   INSERT INTO maintenance_tickets (property_id, unit_id, ticket_number, ticket_type, title, description, category, priority, status, reported_by, assigned_to, created_at) VALUES
-    (csa_id, (SELECT id FROM units WHERE unit_label = '101' AND property_id = csa_id LIMIT 1), 'MT-CSA-001', 'corrective', 'Kitchen sink clogged - Suite 101', 'Kitchen sink draining slow, needs plunging', 'plumbing', 'medium', 'open', uid_csa_fd, uid_csa_mt, CURRENT_DATE - 1);
+    (csa_id, unit_csa_1, 'MT-CSA-001', 'corrective', 'Kitchen sink clogged - Suite 101', 'Kitchen sink draining slow, needs plunging', 'plumbing', 'medium', 'open', uid_csa_fd, uid_csa_mt, CURRENT_DATE - 1);
   INSERT INTO maintenance_tickets (property_id, ticket_number, ticket_type, title, description, category, priority, status, reported_by, assigned_to, created_at) VALUES
     (csa_id, 'MT-CSA-002', 'corrective', 'AC not working in Suite 205', 'AC unit making noise and not cooling', 'HVAC', 'critical', 'in_progress', uid_csa_fd, uid_csa_mt, CURRENT_DATE - 3);
   INSERT INTO maintenance_tickets (property_id, ticket_number, ticket_type, title, description, category, priority, status, reported_by, created_at) VALUES
@@ -561,9 +573,9 @@ BEGIN
 
   -- GWR Tickets
   INSERT INTO maintenance_tickets (property_id, unit_id, ticket_number, ticket_type, title, description, category, priority, status, reported_by, assigned_to, created_at) VALUES
-    (gwr_id, (SELECT id FROM units WHERE unit_label = '101' AND property_id = gwr_id LIMIT 1), 'MT-GWR-001', 'corrective', 'Geyser not heating - Apt 101', 'Tenant reported no hot water in bathroom', 'plumbing', 'high', 'open', uid_gwr_fd, uid_gwr_mt, CURRENT_DATE);
+    (gwr_id, unit_gwr_1, 'MT-GWR-001', 'corrective', 'Geyser not heating - Apt 101', 'Tenant reported no hot water in bathroom', 'plumbing', 'high', 'open', uid_gwr_fd, uid_gwr_mt, CURRENT_DATE);
   INSERT INTO maintenance_tickets (property_id, unit_id, ticket_number, ticket_type, title, description, category, priority, status, reported_by, assigned_to, created_at) VALUES
-    (gwr_id, (SELECT id FROM units WHERE unit_label = '202' AND property_id = gwr_id LIMIT 1), 'MT-GWR-002', 'corrective', 'Window lock broken - Apt 202', 'Bedroom window handle broken, needs replacement', 'general', 'medium', 'in_progress', uid_gwr_fd, uid_gwr_mt, CURRENT_DATE - 2);
+    (gwr_id, unit_gwr_2, 'MT-GWR-002', 'corrective', 'Window lock broken - Apt 202', 'Bedroom window handle broken, needs replacement', 'general', 'medium', 'in_progress', uid_gwr_fd, uid_gwr_mt, CURRENT_DATE - 2);
 
   -- ICS Tickets
   INSERT INTO maintenance_tickets (property_id, ticket_number, ticket_type, title, description, category, priority, status, reported_by, assigned_to, created_at) VALUES
@@ -577,7 +589,7 @@ BEGIN
   -- ==========================================================================
   -- Checklists (per-task items — link to completed turnaround tasks)
   WITH task AS (
-    SELECT id FROM housekeeping_tasks WHERE task_type = 'turnaround' AND status = 'completed' LIMIT 1
+    SELECT id FROM housekeeping_tasks WHERE task_type = 'turnaround' AND status IN ('resolved', 'closed', 'in_progress', 'open') LIMIT 1
   )
   INSERT INTO housekeeping_checklists (task_id, item, is_checked, checked_at, checked_by)
   SELECT task.id, item, true, CURRENT_TIMESTAMP, uid_hk
@@ -607,23 +619,24 @@ BEGIN
 
   -- Housekeeping inspections
   INSERT INTO housekeeping_inspections (unit_id, inspector_id, checklist_items, score, status, notes, inspected_at, created_at)
-  SELECT (SELECT id FROM units WHERE unit_label = '101' AND property_id = ovh_id LIMIT 1), uid_hk,
+  SELECT unit_ovh_1, uid_hk,
      '[{"item":"Bed making","pass":true},{"item":"Bathroom","pass":true},{"item":"Dusting","pass":true},{"item":"Vacuum","pass":false},{"item":"Amenities","pass":true}]'::jsonb, 80, 'pass', 'Minor vacuum issue - edge not clean', CURRENT_DATE - 1, CURRENT_DATE - 1
   UNION ALL
-  SELECT (SELECT id FROM units WHERE unit_label = '102' AND property_id = ovh_id LIMIT 1), uid_hk,
+  SELECT unit_ovh_2, uid_hk,
      '[{"item":"Bed making","pass":true},{"item":"Bathroom","pass":true},{"item":"Dusting","pass":true},{"item":"Vacuum","pass":true},{"item":"Amenities","pass":true}]'::jsonb, 100, 'pass', 'Excellent', CURRENT_DATE - 1, CURRENT_DATE - 1
   UNION ALL
-  SELECT (SELECT id FROM units WHERE unit_label = '201' AND property_id = ovh_id LIMIT 1), uid_hk,
+  SELECT unit_ovh_1, uid_hk,
      '[{"item":"Bed making","pass":true},{"item":"Bathroom","pass":false},{"item":"Dusting","pass":true},{"item":"Vacuum","pass":true},{"item":"Amenities","pass":false}]'::jsonb, 60, 'fail', 'Bathroom not properly cleaned, missing shampoo', CURRENT_DATE - 1, CURRENT_DATE - 1;
 
   -- HK Tasks for today
   FOR day_offset IN 0..6 LOOP
     INSERT INTO housekeeping_tasks (property_id, unit_id, task_type, priority, status, assigned_to, notes, scheduled_at, created_at)
-    SELECT ovh_id, id, CASE WHEN random() < 0.3 THEN 'deep_clean' WHEN random() < 0.6 THEN 'turnaround' ELSE 'stayover_tidy' END,
-           CASE WHEN random() < 0.2 THEN 'high' WHEN random() < 0.6 THEN 'medium' ELSE 'low' END,
-           CASE WHEN random() < 0.5 THEN 'completed' WHEN random() < 0.8 THEN 'in_progress' ELSE 'pending' END,
+    SELECT ovh_id, u.id, CASE WHEN random() < 0.3 THEN 'deep_clean' WHEN random() < 0.6 THEN 'turnaround' ELSE 'stayover_tidy' END,
+           (CASE WHEN random() < 0.2 THEN 'high' WHEN random() < 0.6 THEN 'medium' ELSE 'low' END)::ticket_priority,
+           (CASE WHEN random() < 0.5 THEN 'resolved' WHEN random() < 0.8 THEN 'in_progress' ELSE 'open' END)::ticket_status,
            uid_hk, 'Routine cleaning', CURRENT_DATE - day_offset, CURRENT_DATE - day_offset
-    FROM units WHERE property_id = ovh_id AND status = 'vacant' AND unit_type = 'room'
+    FROM units u JOIN floors f ON f.id = u.floor_id JOIN buildings b ON b.id = f.building_id
+    WHERE b.property_id = ovh_id AND u.unit_type = 'room'
     ORDER BY random() LIMIT 3;
   END LOOP;
   RAISE NOTICE 'Seeded housekeeping tasks, linen, inspections.';
@@ -641,7 +654,7 @@ BEGIN
   FROM bookings WHERE status = 'checked_in' AND property_id = ovh_id LIMIT 1 OFFSET 1;
 
   INSERT INTO guest_requests (booking_id, request_type, description, status, created_at)
-  SELECT id, 'maintenance', 'TV remote not working', 'open', created_at
+  SELECT id, 'maintenance', 'TV remote not working', 'pending', created_at
   FROM bookings WHERE status = 'checked_in' AND property_id = ovh_id LIMIT 1 OFFSET 2;
 
   INSERT INTO guest_requests (booking_id, request_type, description, status, created_at)
@@ -689,9 +702,9 @@ BEGIN
     (ovh_id, 'Brownie with Ice Cream', 'desserts', 'Chocolate brownie with vanilla', 220, true);
 
   -- F&B Orders
-  INSERT INTO f_and_b_orders (property_id, booking_id, order_type, status, total_amount, created_at)
+  INSERT INTO f_and_b_orders (property_id, booking_id, order_type, status, total_amount, ordered_at)
   SELECT ovh_id, b.id,
-         CASE WHEN random() < 0.5 THEN 'room_service' ELSE 'restaurant' END,
+         CASE WHEN random() < 0.5 THEN 'room_service' ELSE 'restaurant_dine_in' END,
          CASE WHEN random() < 0.6 THEN 'delivered' WHEN random() < 0.8 THEN 'preparing' ELSE 'pending' END,
          350 + floor(random() * 800)::int, b.created_at + interval '1 day'
   FROM bookings b, generate_series(1, 3) gs
@@ -701,22 +714,22 @@ BEGIN
   -- ==========================================================================
   -- 17. AUDIT EVENTS (for audit trail dashboard)
   -- ==========================================================================
-  INSERT INTO audit_events (event_type, severity, title, description, entity_type, entity_id, property_id, created_by, created_at) VALUES
-    ('user_login', 'info', 'User login', 'Admin user logged in successfully', 'user', uid_admin::text, ovh_id, uid_admin, CURRENT_DATE - 1),
-    ('user_login', 'info', 'User login', 'Front desk user logged in', 'user', uid_frontdesk::text, ovh_id, uid_frontdesk, CURRENT_DATE - 1),
-    ('booking_created', 'info', 'New booking created', 'Walk-in booking for Room 301', 'booking', 'BKG-DEMO', ovh_id, uid_frontdesk, CURRENT_DATE - 1),
-    ('booking_checked_in', 'info', 'Guest check-in', 'Guest checked into Room 201', 'booking', 'BKG-DEMO', ovh_id, uid_frontdesk, CURRENT_DATE - 1),
-    ('maintenance_ticket', 'warning', 'Critical ticket raised', 'AC not cooling - Room 101 marked as critical', 'ticket', 'MT-DEMO', ovh_id, uid_frontdesk, CURRENT_DATE - 2),
-    ('payment_processed', 'info', 'Payment received', 'Advance payment of ₹8,400 received for booking', 'payment', 'PAY-DEMO', ovh_id, uid_frontdesk, CURRENT_DATE - 2),
-    ('housekeeping', 'info', 'Task completed', 'Room 205 turnaround completed', 'task', 'HK-DEMO', ovh_id, uid_hk, CURRENT_DATE - 1),
-    ('user_created', 'warning', 'New user created', 'New staff account created for housekeeping department', 'user', 'USR-DEMO', ovh_id, uid_admin, CURRENT_DATE - 3),
-    ('backup', 'info', 'Auto-backup completed', 'Daily database backup completed successfully - 2.4 GB', 'system', 'BAK-DEMO', NULL, uid_super_admin, CURRENT_DATE - 1),
-    ('system', 'critical', 'Low inventory alert', 'LED Bulb stock below reorder level (12 remaining)', 'inventory', 'INV-DEMO', ovh_id, uid_admin, CURRENT_DATE),
-    ('vendor_bill', 'info', 'Vendor bill approved', 'Laundry service bill approved for ₹53,100', 'bill', 'BILL-DEMO', ovh_id, uid_finance, CURRENT_DATE - 14),
-    ('security', 'warning', 'Failed login attempt', '3 failed login attempts for finance@ehms.demo from IP 203.x.x.x', 'user', uid_finance::text, NULL, CURRENT_DATE - 1),
-    ('user_logout', 'info', 'User logged out', 'Session ended for housekeeping user', 'user', uid_hk::text, ovh_id, uid_hk, CURRENT_DATE - 1),
-    ('compliance', 'warning', 'Compliance expiry', 'Fire safety certificate expiring in 30 days', 'compliance', 'COMP-DEMO', ovh_id, uid_admin, CURRENT_DATE + 20),
-    ('maintenance_ticket', 'info', 'Ticket resolved', 'TV issue in Room 308 resolved - replaced set-top box', 'ticket', 'MT-DEMO2', ovh_id, uid_maint, CURRENT_DATE - 4);
+  INSERT INTO system_audit_events (event_type, severity, title, description, source, affected_user, metadata, created_at) VALUES
+    ('user_login', 'info', 'User login', 'Admin user logged in successfully', 'auth', uid_admin, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 1),
+    ('user_login', 'info', 'User login', 'Front desk user logged in', 'auth', uid_frontdesk, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 1),
+    ('booking_created', 'info', 'New booking created', 'Walk-in booking for Room 301', 'bookings', uid_frontdesk, jsonb_build_object('property_id', ovh_id, 'booking_id', 'BKG-DEMO'), CURRENT_DATE - 1),
+    ('booking_checked_in', 'info', 'Guest check-in', 'Guest checked into Room 201', 'frontdesk', uid_frontdesk, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 1),
+    ('maintenance_ticket', 'warning', 'Critical ticket raised', 'AC not cooling - Room 101 marked as critical', 'maintenance', uid_frontdesk, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 2),
+    ('payment_processed', 'info', 'Payment received', 'Advance payment of ₹8,400 received for booking', 'finance', uid_frontdesk, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 2),
+    ('housekeeping', 'info', 'Task completed', 'Room 205 turnaround completed', 'housekeeping', uid_hk, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 1),
+    ('user_created', 'warning', 'New user created', 'New staff account created for housekeeping department', 'admin', uid_admin, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 3),
+    ('backup', 'info', 'Auto-backup completed', 'Daily database backup completed successfully - 2.4 GB', 'system', uid_super_admin, '{}'::jsonb, CURRENT_DATE - 1),
+    ('system', 'critical', 'Low inventory alert', 'LED Bulb stock below reorder level (12 remaining)', 'inventory', uid_admin, jsonb_build_object('property_id', ovh_id), CURRENT_DATE),
+    ('vendor_bill', 'info', 'Vendor bill approved', 'Laundry service bill approved for ₹53,100', 'finance', uid_finance, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 14),
+    ('security', 'warning', 'Failed login attempt', '3 failed login attempts for finance@ehms.demo from IP 203.x.x.x', 'auth', uid_finance, '{}'::jsonb, CURRENT_DATE - 1),
+    ('user_logout', 'info', 'User logged out', 'Session ended for housekeeping user', 'auth', uid_hk, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 1),
+    ('compliance', 'warning', 'Compliance expiry', 'Fire safety certificate expiring in 30 days', 'admin', uid_admin, jsonb_build_object('property_id', ovh_id), CURRENT_DATE + 20),
+    ('maintenance_ticket', 'info', 'Ticket resolved', 'TV issue in Room 308 resolved - replaced set-top box', 'maintenance', uid_maint, jsonb_build_object('property_id', ovh_id), CURRENT_DATE - 4);
   RAISE NOTICE 'Seeded audit events.';
 
   -- ==========================================================================
@@ -767,17 +780,14 @@ BEGIN
   -- 20. TODAY'S ADDITIONAL BOOKINGS (to ensure current dashboards show data)
   -- ==========================================================================
   -- Create 2 today-checked-in bookings + 1 today-checking-out
-  INSERT INTO bookings (property_id, unit_id, guest_id, booking_source, status, check_in, check_out, adults, total_amount, paid_amount)
-  SELECT ovh_id, u.id, gid4, 'direct', 'checked_in', CURRENT_DATE, CURRENT_DATE + 2, 2, 8400, 8400
-  FROM units u WHERE u.property_id = ovh_id AND u.status = 'vacant' AND u.unit_type = 'room' LIMIT 1;
+  INSERT INTO bookings (property_id, unit_id, guest_id, booking_model, source, status, check_in, check_out, adults, total_amount, paid_amount)
+  VALUES (ovh_id, unit_ovh_1, gid4, 'nightly', 'direct', 'checked_in', CURRENT_DATE, CURRENT_DATE + 2, 2, 8400, 8400);
 
-  INSERT INTO bookings (property_id, unit_id, guest_id, booking_source, status, check_in, check_out, adults, total_amount, paid_amount)
-  SELECT ovh_id, u.id, gid5, 'expedia', 'checked_in', CURRENT_DATE - 3, CURRENT_DATE, 1, 5400, 5400
-  FROM units u WHERE u.property_id = ovh_id AND u.status = 'occupied' AND u.unit_type = 'room' LIMIT 1;
+  INSERT INTO bookings (property_id, unit_id, guest_id, booking_model, source, status, check_in, check_out, adults, total_amount, paid_amount)
+  VALUES (ovh_id, unit_ovh_2, gid5, 'nightly', 'expedia', 'checked_in', CURRENT_DATE - 3, CURRENT_DATE, 1, 5400, 5400);
 
-  INSERT INTO bookings (property_id, unit_id, guest_id, booking_source, status, check_in, check_out, adults, total_amount, paid_amount)
-  SELECT ovh_id, u.id, gid6, 'booking.com', 'confirmed', CURRENT_DATE + 1, CURRENT_DATE + 4, 2, 12600, 0
-  FROM units u WHERE u.property_id = ovh_id AND u.status = 'vacant' AND u.unit_type = 'room' LIMIT 1;
+  INSERT INTO bookings (property_id, unit_id, guest_id, booking_model, source, status, check_in, check_out, adults, total_amount, paid_amount)
+  VALUES (ovh_id, unit_ovh_1, gid6, 'nightly', 'booking.com', 'confirmed', CURRENT_DATE + 1, CURRENT_DATE + 4, 2, 12600, 0);
 
   -- ==========================================================================
   -- 21. HR — Leave Requests + Timesheets (all properties)
@@ -786,53 +796,53 @@ BEGIN
   INSERT INTO leave_requests (employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approved_by, approved_at, created_at)
   SELECT e.id, lt.id, CURRENT_DATE + 10, CURRENT_DATE + 12, 3, 'Family function', 'approved', uid_hr, CURRENT_DATE - 3, CURRENT_DATE - 5
   FROM employees e, leave_types lt
-  WHERE e.email = 'frontdesk@ehms.demo' AND lt.name = 'Casual' LIMIT 1;
+  WHERE e.user_id = uid_frontdesk AND lt.name = 'Casual' LIMIT 1;
 
   INSERT INTO leave_requests (employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approved_by, approved_at, created_at)
   SELECT e.id, lt.id, CURRENT_DATE + 5, CURRENT_DATE + 5, 1, 'Doctor appointment', 'approved', uid_hr, CURRENT_DATE - 2, CURRENT_DATE - 3
   FROM employees e, leave_types lt
-  WHERE e.email = 'housekeeping@ehms.demo' AND lt.name = 'Sick' LIMIT 1;
+  WHERE e.user_id = uid_hk AND lt.name = 'Sick' LIMIT 1;
 
   INSERT INTO leave_requests (employee_id, leave_type_id, start_date, end_date, total_days, reason, status, created_at)
   SELECT e.id, lt.id, CURRENT_DATE + 20, CURRENT_DATE + 24, 5, 'Annual vacation - planning trip to Goa', 'pending', CURRENT_DATE
   FROM employees e, leave_types lt
-  WHERE e.email = 'maintenance@ehms.demo' AND lt.name = 'Annual' LIMIT 1;
+  WHERE e.user_id = uid_maint AND lt.name = 'Annual' LIMIT 1;
 
   INSERT INTO leave_requests (employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approved_by, approved_at, created_at)
   SELECT e.id, lt.id, CURRENT_DATE - 10, CURRENT_DATE - 10, 1, 'Comp-off for weekend work', 'approved', uid_hr, CURRENT_DATE - 11, CURRENT_DATE - 12
   FROM employees e, leave_types lt
-  WHERE e.first_name = 'Aryan' AND lt.name = 'Comp-off' LIMIT 1;
+  WHERE e.user_id = uid_frontdesk AND lt.name = 'Comp-off' LIMIT 1;
 
   -- Leave requests - CSA
   INSERT INTO leave_requests (employee_id, leave_type_id, start_date, end_date, total_days, reason, status, approved_by, approved_at, created_at)
   SELECT e.id, lt.id, CURRENT_DATE + 15, CURRENT_DATE + 16, 2, 'Personal work', 'approved', uid_csa_hr, CURRENT_DATE - 1, CURRENT_DATE - 2
   FROM employees e, leave_types lt
-  WHERE e.email = 'frontdesk.csa@ehms.demo' AND lt.name = 'Personal' LIMIT 1;
+  WHERE e.user_id = uid_csa_fd AND lt.name = 'Personal' LIMIT 1;
 
   -- Leave requests - GWR
   INSERT INTO leave_requests (employee_id, leave_type_id, start_date, end_date, total_days, reason, status, created_at)
   SELECT e.id, lt.id, CURRENT_DATE + 7, CURRENT_DATE + 7, 1, 'Not feeling well', 'pending', CURRENT_DATE
   FROM employees e, leave_types lt
-  WHERE e.email = 'housekeeping.gwr@ehms.demo' AND lt.name = 'Sick' LIMIT 1;
+  WHERE e.user_id = uid_gwr_hk AND lt.name = 'Sick' LIMIT 1;
 
   -- Timesheets (last 7 days, all property employees)
   FOR day_offset IN 0..6 LOOP
     -- OVH frontdesk
     INSERT INTO timesheets (employee_id, date, clock_in, clock_out, total_hours, status, created_at)
     SELECT e.id, CURRENT_DATE - day_offset, (CURRENT_DATE - day_offset)::timestamp + time '08:00:00', (CURRENT_DATE - day_offset)::timestamp + time '17:00:00', 9, 'approved', CURRENT_DATE - day_offset
-    FROM employees e WHERE e.email = 'frontdesk@ehms.demo' LIMIT 1;
+    FROM employees e WHERE e.user_id = uid_frontdesk LIMIT 1;
     -- OVH housekeeping
     INSERT INTO timesheets (employee_id, date, clock_in, clock_out, total_hours, status, created_at)
     SELECT e.id, CURRENT_DATE - day_offset, (CURRENT_DATE - day_offset)::timestamp + time '07:00:00', (CURRENT_DATE - day_offset)::timestamp + time '16:00:00', 9, 'approved', CURRENT_DATE - day_offset
-    FROM employees e WHERE e.email = 'housekeeping@ehms.demo' LIMIT 1;
+    FROM employees e WHERE e.user_id = uid_hk LIMIT 1;
     -- OVH maintenance
     INSERT INTO timesheets (employee_id, date, clock_in, clock_out, total_hours, status, created_at)
     SELECT e.id, CURRENT_DATE - day_offset, (CURRENT_DATE - day_offset)::timestamp + time '09:00:00', (CURRENT_DATE - day_offset)::timestamp + time '18:00:00', 9, 'approved', CURRENT_DATE - day_offset
-    FROM employees e WHERE e.email = 'maintenance@ehms.demo' LIMIT 1;
+    FROM employees e WHERE e.user_id = uid_maint LIMIT 1;
     -- CSA frontdesk
     INSERT INTO timesheets (employee_id, date, clock_in, clock_out, total_hours, status, created_at)
     SELECT e.id, CURRENT_DATE - day_offset, (CURRENT_DATE - day_offset)::timestamp + time '08:30:00', (CURRENT_DATE - day_offset)::timestamp + time '17:30:00', 9, 'approved', CURRENT_DATE - day_offset
-    FROM employees e WHERE e.email = 'frontdesk.csa@ehms.demo' LIMIT 1;
+    FROM employees e WHERE e.user_id = uid_csa_fd LIMIT 1;
   END LOOP;
   RAISE NOTICE 'Seeded HR data (leave requests + timesheets).';
 
@@ -870,8 +880,7 @@ BEGIN
   -- ==========================================================================
   UPDATE employees SET
     bank_account = 'HDFC' || LPAD(floor(random() * 10000000000)::text, 11, '0'),
-    bank_name = 'HDFC Bank',
-    ifsc_code = 'HDFC000' || LPAD(floor(random() * 1000)::text, 4, '0'),
+    bank_ifsc = 'HDFC000' || LPAD(floor(random() * 1000)::text, 4, '0'),
     pan_number = chr(65 + floor(random() * 26)::int) || chr(65 + floor(random() * 26)::int) || 'PPS' || LPAD(floor(random() * 9999)::text, 4, '0') || chr(65 + floor(random() * 26)::int),
     uan_number = LPAD(floor(random() * 999999999999)::text, 12, '0'),
     esi_number = LPAD(floor(random() * 9999999999)::text, 10, '0')

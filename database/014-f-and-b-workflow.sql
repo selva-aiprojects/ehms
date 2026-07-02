@@ -1,7 +1,7 @@
 -- 014-f-and-b-workflow.sql
 
 -- 1. Meal Plans / Inclusions
-CREATE TABLE meal_plans (
+CREATE TABLE IF NOT EXISTS meal_plans (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     code VARCHAR(20) NOT NULL UNIQUE, -- e.g. 'EP', 'CP', 'MAP', 'AP'
@@ -13,7 +13,7 @@ CREATE TABLE meal_plans (
 );
 
 -- 2. F&B Menu
-CREATE TABLE f_and_b_menu (
+CREATE TABLE IF NOT EXISTS f_and_b_menu (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     category VARCHAR(50) NOT NULL, -- e.g. 'breakfast', 'beverages', 'main_course'
@@ -25,7 +25,7 @@ CREATE TABLE f_and_b_menu (
 );
 
 -- 3. F&B Orders
-CREATE TABLE f_and_b_orders (
+CREATE TABLE IF NOT EXISTS f_and_b_orders (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
     booking_id UUID REFERENCES bookings(id) ON DELETE CASCADE,
@@ -40,7 +40,7 @@ CREATE TABLE f_and_b_orders (
 );
 
 -- 4. F&B Order Items
-CREATE TABLE f_and_b_order_items (
+CREATE TABLE IF NOT EXISTS f_and_b_order_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     order_id UUID REFERENCES f_and_b_orders(id) ON DELETE CASCADE,
     menu_item_id UUID REFERENCES f_and_b_menu(id),

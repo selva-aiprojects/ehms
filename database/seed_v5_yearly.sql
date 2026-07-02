@@ -504,7 +504,7 @@ BEGIN
         SELECT id FROM budget_heads WHERE property_id = ovh_id
       LOOP
         INSERT INTO budget_entries (budget_head_id, fiscal_year_id, period_month, budget_amount)
-        VALUES (rec.id, fy_2627_ovh, 4 + m,
+        VALUES (rec.id, fy_2627_ovh, ((3 + m) % 12) + 1,
           CASE WHEN (SELECT code FROM budget_heads WHERE id = rec.id) = 'BH-RR' THEN 3000000 + random() * 500000
                WHEN (SELECT code FROM budget_heads WHERE id = rec.id) = 'BH-SAL' THEN 1200000 + random() * 100000
                WHEN (SELECT code FROM budget_heads WHERE id = rec.id) = 'BH-HK' THEN 200000 + random() * 50000

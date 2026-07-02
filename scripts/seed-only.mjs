@@ -178,6 +178,7 @@ async function main() {
   await runSeedFile(join(DATABASE_DIR, "seed_v3.sql"), "seed_v3.sql (Comprehensive All-Vertical Staff & Revenue data)");
   await runSeedFile(join(DATABASE_DIR, "seed_v4_full.sql"), "seed_v4_full.sql (Admin module & additional static data)");
   await runSeedFile(join(DATABASE_DIR, "seed_v5_yearly.sql"), "seed_v5_yearly.sql (1-2 years demo data)");
+  await runSeedFile(join(DATABASE_DIR, "seed_v6_platform_and_workflows.sql"), "seed_v6_platform_and_workflows.sql (Platform Broadcasts & Workflow data)");
 
   // Final verification
   console.log("\n\uD83D\uDCC8 Final counts:");

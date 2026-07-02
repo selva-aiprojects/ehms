@@ -1,4 +1,4 @@
-CREATE TABLE guest_requests (
+CREATE TABLE IF NOT EXISTS guest_requests (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     booking_id      UUID REFERENCES bookings(id),
@@ -11,7 +11,7 @@ CREATE TABLE guest_requests (
     updated_at      TIMESTAMPTZ DEFAULT now()
 );
 
-CREATE TABLE guest_feedbacks (
+CREATE TABLE IF NOT EXISTS guest_feedbacks (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID NOT NULL REFERENCES properties(id),
     booking_id      UUID REFERENCES bookings(id),

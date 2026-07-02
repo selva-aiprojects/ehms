@@ -1,6 +1,6 @@
 -- Migration 015: Food & Beverage Module
 -- F&B Menu Items
-CREATE TABLE f_and_b_menu (
+CREATE TABLE IF NOT EXISTS f_and_b_menu (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID REFERENCES properties(id) ON DELETE CASCADE,
     category        VARCHAR(100) NOT NULL,       -- Breakfast, Appetizers, Main Course, Desserts, Beverages, Room Service Specials
@@ -16,7 +16,7 @@ CREATE TABLE f_and_b_menu (
 );
 
 -- F&B Orders
-CREATE TABLE f_and_b_orders (
+CREATE TABLE IF NOT EXISTS f_and_b_orders (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id     UUID REFERENCES properties(id),
     booking_id      UUID REFERENCES bookings(id),
@@ -30,7 +30,7 @@ CREATE TABLE f_and_b_orders (
 );
 
 -- F&B Order Line Items
-CREATE TABLE f_and_b_order_items (
+CREATE TABLE IF NOT EXISTS f_and_b_order_items (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_id        UUID NOT NULL REFERENCES f_and_b_orders(id) ON DELETE CASCADE,
     menu_item_id    UUID REFERENCES f_and_b_menu(id),
@@ -41,9 +41,16 @@ CREATE TABLE f_and_b_order_items (
     special_request TEXT
 );
 
-CREATE INDEX idx_fnb_menu_category ON f_and_b_menu(category);
-CREATE INDEX idx_fnb_orders_booking ON f_and_b_orders(booking_id);
-CREATE INDEX idx_fnb_orders_status ON f_and_b_orders(status);
+CREATE INDEX IF NOT EXISTS idx_fnb_menu_category ON f_and_b_menu(category);
+CREATE INDEX IF NOT EXISTS idx_fnb_orders_booking ON f_and_b_orders(booking_id);
+CREATE INDEX IF NOT EXISTS idx_fnb_orders_status ON f_and_b_orders(status);
+
+ALTER TABLE f_and_b_menu ADD COLUMN IF NOT EXISTS is_veg BOOLEAN DEFAULT true;
+ALTER TABLE f_and_b_menu ADD COLUMN IF NOT EXISTS prep_time_mins INT DEFAULT 15;
+ALTER TABLE f_and_b_menu ADD COLUMN IF NOT EXISTS photo_url TEXT;
+ALTER TABLE f_and_b_orders ADD COLUMN IF NOT EXISTS is_complimentary BOOLEAN DEFAULT false;
+ALTER TABLE f_and_b_orders ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE f_and_b_order_items ADD COLUMN IF NOT EXISTS special_request TEXT;
 
 -- Seed sample menu items (common hotel items, no property filter needed for demo)
 INSERT INTO f_and_b_menu (category, item_name, description, price, is_veg, prep_time_mins) VALUES
