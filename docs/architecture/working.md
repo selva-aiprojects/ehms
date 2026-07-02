@@ -35,10 +35,10 @@ The eHMS platform operator. Operates outside any tenant shard. Manages the entir
 - **Monitoring:** Audit all tenant activity, usage metrics
 
 ### Access Scope
-- Restricted to `/dashboard/admin/tenants` and sub-paths
+- Restricted to `/dashboard/admin/tenants`, `/dashboard/admin/tickets`, and `/dashboard/admin/broadcasts`
 - No tenant-specific data access
 - No property/hotel/workspace operations
-- Bypasses journey filtering in sidebar — sees only tenant management nav items
+- Bypasses journey filtering in sidebar — sees only platform administration nav items
 
 ### Auth Flow
 - Login via **Platform Admin Sign In** modal on `/login`
@@ -95,11 +95,11 @@ Operational administrator scoped to specific workspaces/properties. Has administ
 |---|---|
 | Dashboard | ✅ |
 | Hotels/Apts/Rental/Workplace | ✅ (scoped to assignment) |
-| Front Desk | ❌ |
-| Housekeeping | ❌ |
-| Maintenance | ❌ |
-| Finance | ❌ |
-| HRMS | ❌ |
+| Front Desk | ✅ (scoped to assigned workspace) |
+| Housekeeping | ✅ (scoped to assigned workspace) |
+| Maintenance | ✅ (scoped to assigned workspace) |
+| Finance | ✅ (scoped to assigned workspace) |
+| HRMS | ✅ (scoped to assigned workspace) |
 | Admin (Users, Settings) | ✅ (scoped by `property_id`) |
 | Procurement / Vendors | ✅ |
 | Inventory | ✅ |

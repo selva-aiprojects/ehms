@@ -248,6 +248,18 @@ async function run() {
     }
   }
 
+  // ── Step 8.5: Run platform broadcasts migration ──
+  const broadcastPath = join(DATABASE_DIR, "027_platform_broadcasts.sql");
+  if (existsSync(broadcastPath)) {
+    console.log("▶ 027_platform_broadcasts.sql (public schema)");
+    const broadcastContent = readFileSync(broadcastPath, "utf-8");
+    const broadcastStatements = splitStatements(broadcastContent);
+    for (const stmt of broadcastStatements) {
+      try { await sql.query(`SET search_path TO public`); await sql.query(`${stmt};`); }
+      catch (err) { console.error(`  ✗ Error: ${err.message}`); process.exit(1); }
+    }
+  }
+
   // ── Step 9: Verify ──
   console.log("\n✅ Migration complete. Verifying tables...");
   const tables = await sql.query(

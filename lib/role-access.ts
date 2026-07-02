@@ -1,6 +1,7 @@
 export const ROLE_ACCESS: Record<string, string[]> = {
   platform_super_admin: [
     "/dashboard", "/dashboard/admin", "/dashboard/admin/tenants",
+    "/dashboard/admin/tickets", "/dashboard/admin/broadcasts",
   ],
   super_admin: [
     "/dashboard", "/dashboard/admin", "/dashboard/front-desk",
@@ -20,7 +21,8 @@ export const ROLE_ACCESS: Record<string, string[]> = {
     "/dashboard", "/dashboard/hotels", "/dashboard/apartments",
     "/dashboard/rental", "/dashboard/workplace", "/dashboard/admin",
     "/dashboard/procurement", "/dashboard/inventory", "/dashboard/vendors",
-    "/dashboard/settings",
+    "/dashboard/settings", "/dashboard/front-desk", "/dashboard/housekeeping",
+    "/dashboard/maintenance", "/dashboard/finance", "/dashboard/hr",
   ],
   finance_manager: ["/dashboard", "/dashboard/finance", "/dashboard/procurement", "/dashboard/rental", "/dashboard/inventory", "/dashboard/vendors"],
   front_desk: ["/dashboard", "/dashboard/front-desk"],
