@@ -186,3 +186,31 @@ The sidebar applies a 3-layer filter (in order):
 3. **Journey Gate** — `JOURNEY_ALLOWED_ITEMS[activeJourney].includes(item.label)` — scopes to vertical
 
 *Note: Platform Superadmin bypasses the Journey Gate (step 3).*
+
+---
+
+## 7. Multi-Tenant Seeding Pipeline & Platform Operations
+
+eHMS utilizes a deterministic 7-stage seeding engine (`npm run seed` via `scripts/seed-only.mjs`) to populate comprehensive end-to-end operational data across all 4 business verticals and platform management layers:
+
+```
+[seed.sql]
+  └── Base demo users, system roles, user_roles mapping across tenants
+[seed_v2.sql]
+  └── Ocean View Hotel (OVH) rich metrics: units, bookings, payments, guests
+[seed_csa.sql]
+  └── City Center Serviced Apartments (CSA): long/short stay units, corporate leases
+[seed_v3.sql]
+  └── Comprehensive staff, attendance, payroll, vendor bills across all 4 workspaces
+[seed_v4_full.sql]
+  └── Admin module (audit trail, backups), Accounts GL, tax filings, F&B orders, ticketing
+[seed_v5_yearly.sql]
+  └── 1-2 years historical/future bookings, seasonal rate plans, annual housekeeping tasks
+[seed_v6_platform_and_workflows.sql]
+  └── Platform Provider broadcasts, system announcements, support ticketing workflows
+```
+
+### Seeding Guarantees & Idempotency
+- **Strict Clean-Up Ordering:** Child tables (`journal_lines`, `depreciation_schedule`, `timesheets`) are cleared before parent entities (`chart_of_accounts`, `fixed_assets`, `employees`) to guarantee zero foreign key violations during re-seeding.
+- **Variable Lookups:** Seeding scripts dynamically resolve IDs (`unit_ovh_1`, `uid_admin`, `inv_cat_cleaning`) via explicit joins rather than hardcoded array offsets.
+- **Verification Metrics:** The seed engine validates final counts across all core tables upon completion (over 4,000 bookings, 14,000+ payments, 2,700+ housekeeping tasks, and full platform support/broadcast data).
