@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useStats, useAdminOverview } from "@/lib/hooks";
 import { useJourney } from "@/components/providers/JourneyProvider";
 import { useAuth } from "@/lib/auth-context";
@@ -71,10 +72,10 @@ function DonutChart({ pct, color, size = 120 }: { pct: number; color: string; si
   );
 }
 
-/* ─── Mini stat card ─── */
-function StatCard({ label, value, icon, color }: { label: string; value: string | number; icon: React.ReactNode; color: string }) {
-  return (
-    <div className="bg-white rounded-xl p-4 flex items-center gap-3" style={{ border: "1px solid #E2E8F0" }}>
+/* ─── Mini stat card (clickable) ─── */
+function StatCard({ label, value, icon, color, href }: { label: string; value: string | number; icon: React.ReactNode; color: string; href?: string }) {
+  const inner = (
+    <div className="flex items-center gap-3">
       <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}15` }}>
         {icon}
       </div>
@@ -82,6 +83,18 @@ function StatCard({ label, value, icon, color }: { label: string; value: string 
         <p className="text-xs font-medium" style={{ color: "#64748B" }}>{label}</p>
         <p className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{value}</p>
       </div>
+    </div>
+  );
+  if (href) {
+    return (
+      <Link href={href} className="bg-white rounded-xl p-4 block transition-all hover:shadow-md hover:-translate-y-0.5" style={{ border: "1px solid #E2E8F0" }}>
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <div className="bg-white rounded-xl p-4 flex items-center gap-3" style={{ border: "1px solid #E2E8F0" }}>
+      {inner}
     </div>
   );
 }
@@ -282,10 +295,10 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <StatCard label="Today Revenue" value={overview?.revenue ? `₹${(overview.revenue.today / 1000).toFixed(1)}k` : "—"} icon={<IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} />} color="#2BAE8E" />
-                    <StatCard label="This Week" value={overview?.revenue ? `₹${(overview.revenue.week / 1000).toFixed(1)}k` : "—"} icon={<TrendingUp className="w-4 h-4" style={{ color: "#1A3C5E" }} />} color="#1A3C5E" />
-                    <StatCard label="This Month" value={overview?.revenue ? `₹${(overview.revenue.month / 1000).toFixed(1)}k` : "—"} icon={<TrendingUp className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" />
-                    <StatCard label="Revenue Projection" value={overview?.revenue ? `₹${(overview.revenue.year / 1000).toFixed(1)}k` : "—"} icon={<DollarSign className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" />
+                    <StatCard label="Today Revenue" value={overview?.revenue ? `₹${(overview.revenue.today / 1000).toFixed(1)}k` : "—"} icon={<IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} />} color="#2BAE8E" href="/dashboard/finance" />
+                    <StatCard label="This Week" value={overview?.revenue ? `₹${(overview.revenue.week / 1000).toFixed(1)}k` : "—"} icon={<TrendingUp className="w-4 h-4" style={{ color: "#1A3C5E" }} />} color="#1A3C5E" href="/dashboard/finance" />
+                    <StatCard label="This Month" value={overview?.revenue ? `₹${(overview.revenue.month / 1000).toFixed(1)}k` : "—"} icon={<TrendingUp className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" href="/dashboard/finance/reports" />
+                    <StatCard label="Revenue Projection" value={overview?.revenue ? `₹${(overview.revenue.year / 1000).toFixed(1)}k` : "—"} icon={<DollarSign className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" href="/dashboard/finance/reports" />
                   </div>
                 </div>
               )
@@ -297,7 +310,7 @@ export default function DashboardPage() {
             <SectionHeader label="Employees" icon={<UserCheck className="w-4 h-4" style={{ color: "#1A3C5E" }} />} />
             {expandedSections.has("employees") && (
               overviewLoading ? <Skeleton className="h-16" /> : (
-                <div className="flex items-center gap-4">
+                <Link href="/dashboard/hr/employees" className="flex items-center gap-4 transition-all hover:opacity-80">
                   <div className="w-16 h-16 rounded-xl flex items-center justify-center" style={{ background: "rgba(26,60,94,0.08)" }}>
                     <Users className="w-7 h-7" style={{ color: "#1A3C5E" }} />
                   </div>
@@ -305,7 +318,7 @@ export default function DashboardPage() {
                     <p className="text-3xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.employeesAvailable ?? 0}</p>
                     <p className="text-xs" style={{ color: "#64748B" }}>Employees available today</p>
                   </div>
-                </div>
+                </Link>
               )
             )}
           </div>
@@ -316,12 +329,21 @@ export default function DashboardPage() {
             {expandedSections.has("issues") && (
               overviewLoading ? <Skeleton className="h-24" /> : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {overview?.issues?.map((issue) => (
-                    <div key={issue.category} className="rounded-xl p-3 text-center" style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
-                      <p className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>{issue.count}</p>
-                      <p className="text-xs mt-1" style={{ color: "#64748B" }}>{issue.category}</p>
-                    </div>
-                  ))}
+                  {overview?.issues?.map((issue) => {
+                    const hrefs: Record<string, string> = {
+                      Vendor: "/dashboard/finance/payables",
+                      Housekeeping: "/dashboard/housekeeping",
+                      Maintenance: "/dashboard/maintenance/tickets",
+                      Other: "/dashboard/front-desk/requests",
+                    };
+                    const href = hrefs[issue.category] || "#";
+                    return (
+                      <Link key={issue.category} href={href} className="rounded-xl p-3 text-center block transition-all hover:shadow-md hover:-translate-y-0.5" style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
+                        <p className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>{issue.count}</p>
+                        <p className="text-xs mt-1" style={{ color: "#64748B" }}>{issue.category}</p>
+                      </Link>
+                    );
+                  })}
                 </div>
               )
             )}
@@ -340,18 +362,18 @@ export default function DashboardPage() {
                     const dirty = rooms.find(r => r.status === "dirty" || r.status === "occupied")?.count || 0;
                     return (
                       <>
-                        <div className="rounded-xl p-4" style={{ background: "rgba(43,174,142,0.10)", border: "1px solid rgba(43,174,142,0.20)" }}>
+                        <Link href="/dashboard/front-desk" className="rounded-xl p-4 block transition-all hover:shadow-md hover:-translate-y-0.5" style={{ background: "rgba(43,174,142,0.10)", border: "1px solid rgba(43,174,142,0.20)" }}>
                           <p className="text-2xl font-bold" style={{ color: "#2BAE8E" }}>{ready}</p>
                           <p className="text-xs mt-1 font-medium" style={{ color: "#2BAE8E" }}>Readily Available</p>
-                        </div>
-                        <div className="rounded-xl p-4" style={{ background: "rgba(245,166,35,0.10)", border: "1px solid rgba(245,166,35,0.20)" }}>
+                        </Link>
+                        <Link href="/dashboard/housekeeping" className="rounded-xl p-4 block transition-all hover:shadow-md hover:-translate-y-0.5" style={{ background: "rgba(245,166,35,0.10)", border: "1px solid rgba(245,166,35,0.20)" }}>
                           <p className="text-2xl font-bold" style={{ color: "#F5A623" }}>{cleaning}</p>
                           <p className="text-xs mt-1 font-medium" style={{ color: "#F5A623" }}>Cleaning In Progress</p>
-                        </div>
-                        <div className="rounded-xl p-4" style={{ background: "rgba(229,62,62,0.10)", border: "1px solid rgba(229,62,62,0.20)" }}>
+                        </Link>
+                        <Link href="/dashboard/front-desk" className="rounded-xl p-4 block transition-all hover:shadow-md hover:-translate-y-0.5" style={{ background: "rgba(229,62,62,0.10)", border: "1px solid rgba(229,62,62,0.20)" }}>
                           <p className="text-2xl font-bold" style={{ color: "#E53E3E" }}>{dirty}</p>
                           <p className="text-xs mt-1 font-medium" style={{ color: "#E53E3E" }}>Occupied / Dirty</p>
-                        </div>
+                        </Link>
                       </>
                     );
                   })()}
@@ -365,7 +387,7 @@ export default function DashboardPage() {
             <SectionHeader label="Complaints / Feedbacks" icon={<MessageSquare className="w-4 h-4" style={{ color: "#F5A623" }} />} />
             {expandedSections.has("feedback") && (
               overviewLoading ? <Skeleton className="h-32" /> : (
-                <div className="space-y-4">
+                <Link href="/dashboard/front-desk/feedbacks" className="block space-y-4 transition-all hover:opacity-80">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="text-center">
                       <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.today ?? 0}</p>
@@ -401,7 +423,7 @@ export default function DashboardPage() {
                       Total: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.overall ?? 0}</strong>
                     </span>
                   </div>
-                </div>
+                </Link>
               )
             )}
           </div>
@@ -412,7 +434,7 @@ export default function DashboardPage() {
             {expandedSections.has("financial") && (
               overviewLoading ? <Skeleton className="h-48" /> : (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <Link href="/dashboard/finance/payables" className="grid grid-cols-2 sm:grid-cols-4 gap-3 transition-all hover:opacity-80">
                     <div className="rounded-xl p-3" style={{ background: "rgba(43,174,142,0.08)" }}>
                       <p className="text-lg font-bold" style={{ color: "#2BAE8E" }}>₹{(overview?.financial?.todaySpending ?? 0).toLocaleString()}</p>
                       <p className="text-xs" style={{ color: "#64748B" }}>Spending Today</p>
@@ -429,8 +451,8 @@ export default function DashboardPage() {
                       <p className="text-lg font-bold" style={{ color: "#E53E3E" }}>₹{(overview?.financial?.yearSpending ?? 0).toLocaleString()}</p>
                       <p className="text-xs" style={{ color: "#64748B" }}>Spending This Year</p>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2" style={{ borderTop: "1px solid #E2E8F0" }}>
+                  </Link>
+                  <Link href="/dashboard/finance" className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 transition-all hover:opacity-80" style={{ borderTop: "1px solid #E2E8F0" }}>
                     <div className="text-center">
                       <p className="text-xl font-bold" style={{ color: "#2BAE8E" }}>₹{(overview?.financial?.availableMoney ?? 0).toLocaleString()}</p>
                       <p className="text-xs" style={{ color: "#64748B" }}>Available Money</p>
@@ -443,7 +465,7 @@ export default function DashboardPage() {
                       <p className="text-xl font-bold" style={{ color: "#2BAE8E" }}>₹{(overview?.financial?.expectedReceivables ?? 0).toLocaleString()}</p>
                       <p className="text-xs" style={{ color: "#64748B" }}>Expected Receivables</p>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               )
             )}
