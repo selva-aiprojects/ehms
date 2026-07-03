@@ -17,26 +17,14 @@ export async function GET(req: Request) {
       revenueRows,
       expenseRows,
     ] = await Promise.all([
-      // Employees available today — check today OR yesterday attendance, fallback to total active
+      // Employees available — count active employees; use attendance if available for today
       sql`
-        SELECT
-          COALESCE(
-            (SELECT COUNT(*)::int FROM employees e WHERE e.is_active = true
-              AND e.id IN (
-                SELECT a.employee_id FROM attendance_records a
-                WHERE (a.clock_in::date = CURRENT_DATE OR a.clock_in::date = CURRENT_DATE - 1)
-                  AND a.status = 'present'
-              )
-              AND (${param}::uuid IS NULL OR e.department_id IN (
-                SELECT d.id FROM departments d WHERE d.property_id = ${param}::uuid
-              ))
-            ),
-            (SELECT COUNT(*)::int FROM employees e WHERE e.is_active = true
-              AND (${param}::uuid IS NULL OR e.department_id IN (
-                SELECT d.id FROM departments d WHERE d.property_id = ${param}::uuid
-              ))
-            )
-          ) AS count
+        SELECT COUNT(*)::int AS count
+        FROM employees e
+        WHERE e.is_active = true
+          AND (${param}::uuid IS NULL OR e.department_id IN (
+            SELECT d.id FROM departments d WHERE d.property_id = ${param}::uuid
+          ))
       `,
       // Outstanding issues by category
       sql`
@@ -98,13 +86,13 @@ export async function GET(req: Request) {
         WHERE status = 'completed'
           AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
       `,
-      // Expense & financial stats — using grand_total for vendor_bills
+      // Expense & financial stats — using bill_date for time-based breakdown
       sql`
         SELECT
-          COALESCE(SUM(grand_total) FILTER (WHERE created_at::date = CURRENT_DATE), 0)::numeric AS today_spending,
-          COALESCE(SUM(grand_total) FILTER (WHERE created_at >= DATE_TRUNC('week', CURRENT_DATE)), 0)::numeric AS week_spending,
-          COALESCE(SUM(grand_total) FILTER (WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)), 0)::numeric AS month_spending,
-          COALESCE(SUM(grand_total) FILTER (WHERE created_at >= DATE_TRUNC('year', CURRENT_DATE)), 0)::numeric AS year_spending,
+          COALESCE(SUM(grand_total) FILTER (WHERE bill_date = CURRENT_DATE), 0)::numeric AS today_spending,
+          COALESCE(SUM(grand_total) FILTER (WHERE bill_date >= DATE_TRUNC('week', CURRENT_DATE)), 0)::numeric AS week_spending,
+          COALESCE(SUM(grand_total) FILTER (WHERE bill_date >= DATE_TRUNC('month', CURRENT_DATE)), 0)::numeric AS month_spending,
+          COALESCE(SUM(grand_total) FILTER (WHERE bill_date >= DATE_TRUNC('year', CURRENT_DATE)), 0)::numeric AS year_spending,
           COALESCE(SUM(balance_due), 0)::numeric AS expected_expenses,
           (
             SELECT COALESCE(SUM(amount), 0)::numeric
