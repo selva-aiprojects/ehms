@@ -197,7 +197,7 @@ function getLocalDemoUser(): UserProfile | null {
 export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: boolean; onMobileClose?: () => void }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(NAV_GROUPS.map((g) => g.label)));
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const { user: authUser } = useAuth();
   const [fallbackUser, setFallbackUser] = useState<UserProfile | null>(null);
   const { settings } = useGlobalSettings();
@@ -207,6 +207,15 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
     const demo = getLocalDemoUser();
     if (demo) setFallbackUser(demo);
   }, []);
+
+  useEffect(() => {
+    const u = authUser || fallbackUser;
+    if (u && (u.role_name === "super_admin" || u.role_name === "property_manager" || u.role_name === "platform_super_admin")) {
+      setExpandedGroups(new Set(NAV_GROUPS.map((g) => g.label)));
+    } else {
+      setExpandedGroups(new Set());
+    }
+  }, [authUser, fallbackUser]);
 
   const user = authUser || fallbackUser;
   const role = user?.role_name || "unknown";

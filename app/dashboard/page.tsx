@@ -1,9 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useStats } from "@/lib/hooks";
+import { useState } from "react";
+import { useStats, useAdminOverview } from "@/lib/hooks";
 import { useJourney } from "@/components/providers/JourneyProvider";
-import { TrendingUp, Users, DollarSign, Building2 } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import {
+  TrendingUp, Users, DollarSign, Building2, UserCheck, Wrench, Sparkles,
+  MessageSquare, Bed, Clock, AlertTriangle, IndianRupee, Ban, ChevronDown, ChevronRight,
+} from "lucide-react";
 
 /* ─── Skeleton loader ─── */
 function Skeleton({ className = "" }: { className?: string }) {
@@ -67,12 +71,58 @@ function DonutChart({ pct, color, size = 120 }: { pct: number; color: string; si
   );
 }
 
+/* ─── Mini stat card ─── */
+function StatCard({ label, value, icon, color }: { label: string; value: string | number; icon: React.ReactNode; color: string }) {
+  return (
+    <div className="bg-white rounded-xl p-4 flex items-center gap-3" style={{ border: "1px solid #E2E8F0" }}>
+      <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${color}15` }}>
+        {icon}
+      </div>
+      <div>
+        <p className="text-xs font-medium" style={{ color: "#64748B" }}>{label}</p>
+        <p className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{value}</p>
+      </div>
+    </div>
+  );
+}
+
 const card = "bg-white rounded-2xl p-5" as const;
 const cardStyle = { border: "1px solid #E2E8F0", boxShadow: "0 1px 4px rgba(26,60,94,0.06)" };
 
 export default function DashboardPage() {
   const { selectedPropertyId } = useJourney();
+  const { user } = useAuth();
   const { stats, isLoading } = useStats(selectedPropertyId);
+  const { overview, isLoading: overviewLoading } = useAdminOverview(selectedPropertyId);
+  const role = user?.role_name || "";
+
+  const isAdmin = role === "super_admin" || role === "property_manager";
+
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["dashboards", "employees", "issues", "rooms", "feedback", "financial"]));
+
+  function toggleSection(label: string) {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label); else next.add(label);
+      return next;
+    });
+  }
+
+  function SectionHeader({ label, icon, defaultOpen = true }: { label: string; icon: React.ReactNode; defaultOpen?: boolean }) {
+    const open = expandedSections.has(label);
+    return (
+      <button
+        onClick={() => toggleSection(label)}
+        className="flex items-center gap-2 w-full text-left mb-3"
+      >
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,60,94,0.08)" }}>
+          {icon}
+        </div>
+        <h2 className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>{label}</h2>
+        {open ? <ChevronDown className="w-4 h-4 ml-auto" style={{ color: "#64748B" }} /> : <ChevronRight className="w-4 h-4 ml-auto" style={{ color: "#64748B" }} />}
+      </button>
+    );
+  }
 
   const kpiCards = [
     {
@@ -133,7 +183,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Line Chart */}
+      {/* Revenue Trend Chart */}
       <div className={card} style={cardStyle}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>Revenue Trend (Last 12 Months)</h2>
@@ -146,7 +196,6 @@ export default function DashboardPage() {
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Reservations donut */}
         <div className={card} style={cardStyle}>
           <h3 className="text-sm font-semibold mb-4" style={{ color: "#1A3C5E" }}>Reservations</h3>
           <div className="flex flex-col items-center gap-4">
@@ -171,7 +220,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Guests donut */}
         <div className={card} style={cardStyle}>
           <h3 className="text-sm font-semibold mb-4" style={{ color: "#1A3C5E" }}>Guests</h3>
           <div className="flex flex-col items-center gap-4">
@@ -196,7 +244,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick actions */}
         <div className={card} style={cardStyle}>
           <h3 className="text-sm font-semibold mb-4" style={{ color: "#1A3C5E" }}>Quick Actions</h3>
           <div className="space-y-2">
@@ -215,6 +262,194 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* ─── ADMIN WIDGETS (Superadmin / Property Manager only) ─── */}
+      {isAdmin && (
+        <div className="space-y-5 mt-6">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-1 h-6 rounded-full" style={{ background: "#2BAE8E" }} />
+            <h2 className="text-base font-bold" style={{ color: "#1A3C5E" }}>Admin Overview</h2>
+          </div>
+
+          {/* a) Dashboards: Monthly, Weekly + Comparison */}
+          <div className={card} style={cardStyle}>
+            <SectionHeader label="Dashboards" icon={<TrendingUp className="w-4 h-4" style={{ color: "#2BAE8E" }} />} />
+            {expandedSections.has("dashboards") && (
+              overviewLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20" />)}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <StatCard label="Today Revenue" value={overview?.revenue ? `₹${(overview.revenue.today / 1000).toFixed(1)}k` : "—"} icon={<IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} />} color="#2BAE8E" />
+                    <StatCard label="This Week" value={overview?.revenue ? `₹${(overview.revenue.week / 1000).toFixed(1)}k` : "—"} icon={<TrendingUp className="w-4 h-4" style={{ color: "#1A3C5E" }} />} color="#1A3C5E" />
+                    <StatCard label="This Month" value={overview?.revenue ? `₹${(overview.revenue.month / 1000).toFixed(1)}k` : "—"} icon={<TrendingUp className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" />
+                    <StatCard label="Revenue Projection" value={overview?.revenue ? `₹${(overview.revenue.year / 1000).toFixed(1)}k` : "—"} icon={<DollarSign className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" />
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+
+          {/* b) Employees Available Today */}
+          <div className={card} style={cardStyle}>
+            <SectionHeader label="Employees" icon={<UserCheck className="w-4 h-4" style={{ color: "#1A3C5E" }} />} />
+            {expandedSections.has("employees") && (
+              overviewLoading ? <Skeleton className="h-16" /> : (
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-xl flex items-center justify-center" style={{ background: "rgba(26,60,94,0.08)" }}>
+                    <Users className="w-7 h-7" style={{ color: "#1A3C5E" }} />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.employeesAvailable ?? 0}</p>
+                    <p className="text-xs" style={{ color: "#64748B" }}>Employees available today</p>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+
+          {/* c) Outstanding Issues */}
+          <div className={card} style={cardStyle}>
+            <SectionHeader label="Outstanding Issues" icon={<AlertTriangle className="w-4 h-4" style={{ color: "#E53E3E" }} />} />
+            {expandedSections.has("issues") && (
+              overviewLoading ? <Skeleton className="h-24" /> : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {overview?.issues?.map((issue) => (
+                    <div key={issue.category} className="rounded-xl p-3 text-center" style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
+                      <p className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>{issue.count}</p>
+                      <p className="text-xs mt-1" style={{ color: "#64748B" }}>{issue.category}</p>
+                    </div>
+                  ))}
+                </div>
+              )
+            )}
+          </div>
+
+          {/* d) Rooms Available */}
+          <div className={card} style={cardStyle}>
+            <SectionHeader label="Rooms" icon={<Bed className="w-4 h-4" style={{ color: "#2BAE8E" }} />} />
+            {expandedSections.has("rooms") && (
+              overviewLoading ? <Skeleton className="h-24" /> : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {(() => {
+                    const rooms = overview?.rooms || [];
+                    const ready = rooms.find(r => r.status === "ready")?.count || 0;
+                    const cleaning = rooms.find(r => r.status === "cleaning")?.count || 0;
+                    const dirty = rooms.find(r => r.status === "dirty" || r.status === "occupied")?.count || 0;
+                    return (
+                      <>
+                        <div className="rounded-xl p-4" style={{ background: "rgba(43,174,142,0.10)", border: "1px solid rgba(43,174,142,0.20)" }}>
+                          <p className="text-2xl font-bold" style={{ color: "#2BAE8E" }}>{ready}</p>
+                          <p className="text-xs mt-1 font-medium" style={{ color: "#2BAE8E" }}>Readily Available</p>
+                        </div>
+                        <div className="rounded-xl p-4" style={{ background: "rgba(245,166,35,0.10)", border: "1px solid rgba(245,166,35,0.20)" }}>
+                          <p className="text-2xl font-bold" style={{ color: "#F5A623" }}>{cleaning}</p>
+                          <p className="text-xs mt-1 font-medium" style={{ color: "#F5A623" }}>Cleaning In Progress</p>
+                        </div>
+                        <div className="rounded-xl p-4" style={{ background: "rgba(229,62,62,0.10)", border: "1px solid rgba(229,62,62,0.20)" }}>
+                          <p className="text-2xl font-bold" style={{ color: "#E53E3E" }}>{dirty}</p>
+                          <p className="text-xs mt-1 font-medium" style={{ color: "#E53E3E" }}>Occupied / Dirty</p>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )
+            )}
+          </div>
+
+          {/* e) Complaints / Feedbacks */}
+          <div className={card} style={cardStyle}>
+            <SectionHeader label="Complaints / Feedbacks" icon={<MessageSquare className="w-4 h-4" style={{ color: "#F5A623" }} />} />
+            {expandedSections.has("feedback") && (
+              overviewLoading ? <Skeleton className="h-32" /> : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="text-center">
+                      <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.today ?? 0}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Today</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.thisWeek ?? 0}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>This Week</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.thisMonth ?? 0}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>This Month</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.thisYear ?? 0}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>This Year</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs" style={{ color: "#64748B" }}>
+                    <span className="flex items-center gap-1">
+                      <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#2BAE8E" }} />
+                      Avg Rating: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.avgRating ?? 0}</strong>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#F5A623" }} />
+                      Month Avg: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.monthAvgRating ?? 0}</strong>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#1A3C5E" }} />
+                      Year Avg: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.yearAvgRating ?? 0}</strong>
+                    </span>
+                    <span className="ml-auto font-medium">
+                      Total: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.overall ?? 0}</strong>
+                    </span>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+
+          {/* f) Financial Status */}
+          <div className={card} style={cardStyle}>
+            <SectionHeader label="Financial Status" icon={<IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} />} />
+            {expandedSections.has("financial") && (
+              overviewLoading ? <Skeleton className="h-48" /> : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="rounded-xl p-3" style={{ background: "rgba(43,174,142,0.08)" }}>
+                      <p className="text-lg font-bold" style={{ color: "#2BAE8E" }}>₹{(overview?.financial?.todaySpending ?? 0).toLocaleString()}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Spending Today</p>
+                    </div>
+                    <div className="rounded-xl p-3" style={{ background: "rgba(245,166,35,0.08)" }}>
+                      <p className="text-lg font-bold" style={{ color: "#F5A623" }}>₹{(overview?.financial?.weekSpending ?? 0).toLocaleString()}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Spending This Week</p>
+                    </div>
+                    <div className="rounded-xl p-3" style={{ background: "rgba(26,60,94,0.08)" }}>
+                      <p className="text-lg font-bold" style={{ color: "#1A3C5E" }}>₹{(overview?.financial?.monthSpending ?? 0).toLocaleString()}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Spending This Month</p>
+                    </div>
+                    <div className="rounded-xl p-3" style={{ background: "rgba(229,62,62,0.08)" }}>
+                      <p className="text-lg font-bold" style={{ color: "#E53E3E" }}>₹{(overview?.financial?.yearSpending ?? 0).toLocaleString()}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Spending This Year</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2" style={{ borderTop: "1px solid #E2E8F0" }}>
+                    <div className="text-center">
+                      <p className="text-xl font-bold" style={{ color: "#2BAE8E" }}>₹{(overview?.financial?.availableMoney ?? 0).toLocaleString()}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Available Money</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-bold" style={{ color: "#E53E3E" }}>₹{(overview?.financial?.expectedExpenses ?? 0).toLocaleString()}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Expected Expenses</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xl font-bold" style={{ color: "#2BAE8E" }}>₹{(overview?.financial?.expectedReceivables ?? 0).toLocaleString()}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Expected Receivables</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

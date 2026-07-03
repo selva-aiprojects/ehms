@@ -843,3 +843,32 @@ export function useReconciliations(filters?: { status?: string; property_id?: st
   const { data, error, isLoading, mutate } = useSWR(`/api/finance/reconciliation?${params}`, fetcher);
   return { reconciliations: data?.data, isLoading, isError: !!error, mutate };
 }
+
+export function useAdminOverview(propertyId?: string) {
+  const url = propertyId ? `/api/dashboard/admin-overview?property_id=${propertyId}` : "/api/dashboard/admin-overview";
+  const { data, error, isLoading, mutate } = useSWR(url, fetcher, { refreshInterval: 30000 });
+  return {
+    overview: data as {
+      employeesAvailable: number;
+      issues: { category: string; count: number }[];
+      rooms: { status: string; count: number }[];
+      feedbacks: {
+        today: number; thisWeek: number; thisMonth: number;
+        thisYear: number; overall: number;
+        avgRating: number; monthAvgRating: number; yearAvgRating: number;
+      } | null;
+      revenue: {
+        today: number; week: number; month: number;
+        year: number; total: number;
+      } | null;
+      financial: {
+        todaySpending: number; weekSpending: number; monthSpending: number;
+        yearSpending: number; expectedExpenses: number;
+        expectedReceivables: number; availableMoney: number;
+      } | null;
+    } | undefined,
+    isLoading,
+    isError: !!error,
+    mutate,
+  };
+}
