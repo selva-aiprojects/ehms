@@ -1,827 +1,582 @@
-# eHMS — User Manual
+# 👋 Welcome to eHMS — Your Team's New Superpower
 
-> **Enterprise Hospitality Management System**  
-> Platform v1.0 — June 2026
-
----
-
-## Table of Contents
-
-1. [System Overview](#1-system-overview)
-2. [Getting Started — Login Flow](#2-getting-started--login-flow)
-3. [Role-Based Journeys](#3-role-based-journeys)
-   - [3.1 Platform Superadmin](#31-platform-superadmin)
-   - [3.2 Tenant Superadmin](#32-tenant-superadmin)
-   - [3.3 Property Manager](#33-property-manager)
-   - [3.4 Executive](#34-executive)
-   - [3.5 Front Desk](#35-front-desk)
-   - [3.6 Housekeeping Staff](#36-housekeeping-staff)
-   - [3.7 Maintenance Staff](#37-maintenance-staff)
-   - [3.8 HR Manager](#38-hr-manager)
-   - [3.9 Finance Manager](#39-finance-manager)
-4. [Sidebar Navigation](#4-sidebar-navigation)
-5. [Dashboard Overview](#5-dashboard-overview)
-6. [Module Workflows](#6-module-workflows)
-   - [6.1 Front Desk & Command Center](#61-front-desk--command-center)
-   - [6.2 Housekeeping](#62-housekeeping)
-   - [6.3 Maintenance](#63-maintenance)
-   - [6.4 Human Resources (HRMS)](#64-human-resources-hrms)
-   - [6.5 Finance & Accounts](#65-finance--accounts)
-   - [6.6 Procurement & Vendors](#66-procurement--vendors)
-   - [6.7 Inventory](#67-inventory)
-   - [6.8 Administration](#68-administration)
-7. [Cross-Cutting Features](#7-cross-cutting-features)
-8. [Demo Credentials](#8-demo-credentials)
+> *From Raghu & the eHMS Team*  
+> *June 2026*
 
 ---
 
-## 1. System Overview
+## Hi there!
 
-eHMS is a subscription-based Hospitality and Facilities Management platform serving four verticals:
+If you're reading this, you're part of the **Viswa Group of Estates** family — and we're so excited to have you on board. eHMS is here to make your daily work smoother, your team more connected, and your guests happier. Think of it as your all-in-one command centre for running hotels, apartments, rentals, and workspaces.
 
-| Vertical | Description | Examples |
+This guide is written for *you* — not for IT, not for developers — for the people who actually use eHMS every day. We'll start with a bird's-eye view, then zoom into exactly what matters for **your role**.
+
+---
+
+## 📖 Quick Contents
+
+- [A Note from Raghu (Your Super Admin)](#-a-note-from-raghu-your-super-admin)
+- [Your Dashboard — The First Thing You See](#-your-dashboard--the-first-thing-you-see)
+- [The Sidebar — Your Navigation Map](#-the-sidebar--your-navigation-map)
+- [Pick Your Journey Based on What You Do](#-pick-your-journey-based-on-what-you-do)
+- [Role-by-Role: Your World in eHMS](#-role-by-role-your-world-in-ehms)
+  - [Raghu — Super Admin (You See Everything)](#raghu--super-admin)
+  - [Suresh — Property Admin (You Run the Show)](#suresh--property-admin)
+  - [Priya — Front Desk (You Greet the World)](#priya--front-desk)
+  - [Ravi — Housekeeping (You Make Things Sparkle)](#ravi--housekeeping)
+  - [Arjun — Maintenance (You Fix Everything)](#arjun--maintenance)
+  - [Anita — Finance (You Keep Us Honest)](#anita--finance)
+  - [Meena — HR (You Take Care of Our People)](#meena--hr)
+  - [Vikram — Executive (You Have Full Access)](#vikram--executive)
+- [Quick Reference Cheat Sheet](#-quick-reference-cheat-sheet)
+
+---
+
+## 💌 A Note from Raghu (Your Super Admin)
+
+> *"I set up eHMS so every single person in our organisation — from front desk to finance — has exactly what they need, and nothing they don't. No clutter, no confusion, just the right tools for your job. If something feels off, tell me. This system is here to serve you."*
+>
+> — **Raghu**, Super Admin, Viswa Group of Estates
+
+Raghu has full access to everything. He can see all properties, all bookings, all finances — the whole picture. His job is to make sure the system runs smoothly for *you*. When you see something that doesn't look right, Raghu's your person.
+
+---
+
+## 🖥️ Your Dashboard — The First Thing You See
+
+Once you log in, the first screen you land on is your **Dashboard**.
+
+### What Everyone Sees
+
+Across the top, you'll find five key numbers at a glance:
+
+| Metric | What it means |
+|---|---|
+| **Total Revenue** | How much money has come in (in thousands) |
+| **Accounts Payable** | What we owe to vendors |
+| **Overall Rating** | Average guest satisfaction score (out of 5) |
+| **Active Reservations** | Guests currently checked in |
+| **Total Guests** | All registered guests |
+
+Below that, you'll see:
+- **Revenue Trend** — A line chart showing how we've performed month by month
+- **Reservations Donut** — What percentage of our rooms are filled
+- **Guests Donut** — How many guests are checked in right now
+- **Quick Actions** — One-click shortcuts to the most-used pages
+
+### If You're a Manager (Super Admin or Property Admin Only)
+
+You'll see an extra section called **Admin Overview** with six expandable panels:
+
+1. **Dashboards** — Today's revenue, this week, this month, and yearly projection (*click any number to see the details*)
+2. **Employees** — How many team members are available today
+3. **Outstanding Issues** — Pending vendor bills, housekeeping tasks, maintenance tickets, and guest requests
+4. **Rooms** — How many are ready, being cleaned, or occupied
+5. **Complaints & Feedbacks** — Guest reviews with average ratings
+6. **Financial Status** — Spending today/this week/this month/this year, plus available money and expected expenses
+
+> **Pro tip:** Click *any* number in these panels to see a mini table with the actual records behind it. It's like peeling back the curtain to see the details!
+
+---
+
+## 🧭 The Sidebar — Your Navigation Map
+
+The sidebar on the left is your command centre. It's organised into **groups** so you can find things fast:
+
+| Group | What's inside |
+|---|---|
+| **Front Desk & Guests** | Check-ins, billing, guest profiles, requests, feedbacks |
+| **Properties & Verticals** | Hotels, Apartments, Rental, Workplace |
+| **Housekeeping** | Tasks, linen, inspections, staff |
+| **Maintenance** | Tickets, parts, assets |
+| **Finance & Accounts** | Payments, invoices, reports, budgets |
+| **Human Resources** | Employees, timesheets, leave, payroll |
+| **Administration** | Users, roles, settings, audit |
+| **Procurement** | Purchase orders, vendors |
+| **Inventory** | Items, warehouses, transactions |
+
+### Tips
+
+- **See only what you need.** Your role decides which groups appear. You won't see clutter from departments that aren't yours.
+- **Collapse/Expand groups.** Click a group name to open or close it. At the top of the sidebar, there's a handy **"+ Expand all" / "− Collapse all"** button.
+- **Minimise the sidebar.** Click the green button (the little circle with arrow) on the right edge to go icon-only mode — more screen space for your work.
+- **On your phone?** Tap the hamburger menu (☰) to open the sidebar. A bottom bar gives you quick access to your most-used sections.
+
+---
+
+## 🎯 Pick Your Journey Based on What You Do
+
+At login, you'll be asked to pick a **Business Vertical**. This is simply: *what kind of work are you doing right now?*
+
+| Choice | When to pick it |
+|---|---|
+| **All Workspaces** | You manage multiple properties across different verticals |
+| **Hotels & Resorts** | You work with hotel/guest room operations |
+| **Serviced Apartments** | You manage short-stay apartments |
+| **Apartment Rental** | You handle long-term leases and deposits |
+| **Workplace** | You run coworking spaces or office facilities |
+
+**Don't worry** — you can switch later from within the system, and the sidebar will adjust to show only what's relevant for that journey.
+
+---
+
+## 👤 Role-by-Role: Your World in eHMS
+
+---
+
+### Raghu — Super Admin
+
+> *You see everything. You own everything. You're the captain of the ship.*
+
+**Your login:** `raghu.superadmin@ehms.demo`  
+**Password:** `Demo@1234`  
+**Pick at login:** Choose "All Workspaces" (you need the full picture)
+
+#### Your World
+
+You have **unrestricted access** to every corner of eHMS. Every module, every report, every setting — it's all yours. You're the one who makes sure everything runs right for everyone else.
+
+#### What you can do
+
+```
+✅ Everything. Seriously.
+```
+
+In detail:
+- **Front Desk** — See all room matrices, check guests in/out, manage billing, view feedback
+- **Housekeeping** — Oversee all tasks, inspections, linen, and staff assignments
+- **Maintenance** — Review all tickets, assets, parts inventory
+- **Finance** — Full access: accounts, journal, ledger, payables, receivables, budget, tax, fixed assets, all reports
+- **HR** — Manage employees, payroll, timesheets, leave, compliance, appraisals
+- **Admin** — Create/Edit properties, manage users and roles, configure feature toggles, audit trail, backups
+- **Procurement & Inventory** — Full purchase order and stock management
+- **Properties & Verticals** — All verticals, all properties
+
+#### Your Dashboard
+
+The **Admin Overview** section is your command centre. Click any number to drill down into details:
+- See which employee hasn't clocked in yet
+- Find out which rooms are stuck in "cleaning" status
+- Check which vendor bills are overdue
+- Spot a dip in this week's revenue compared to last month
+
+#### A few things only YOU can do
+
+- **Manage Roles & Permissions** → `/dashboard/admin/roles`
+- **View Audit Trail** → `/dashboard/admin/audit`
+- **Run Backups** → `/dashboard/admin/backup`
+- **Configure Feature Toggles** per property → Property detail page (click the settings icon on any property card)
+- **Access System Settings & Branding** → `/dashboard/admin/settings` and `/dashboard/settings/branding`
+
+> **Raghu's tip:** "I use the **Admin Overview** on my dashboard every morning. It tells me in 30 seconds if anything needs my attention — unpaid bills, stuck tasks, unhappy guests. The whole day's priorities are right there."
+
+---
+
+### Suresh — Property Admin
+
+> *You run a specific property (or several). You're the on-ground commander.*
+
+**Your login:** `admin@ehms.demo`  
+**Password:** `Demo@1234`  
+**Pick at login:** Choose the specific vertical you're managing today (e.g., "Hotels & Resorts")
+
+#### Your World
+
+You manage one or more properties end-to-end. Your access is as broad as Raghu's, but your focus is narrower — you care about *your* properties, not the whole universe. When you set a `selectedPropertyId`, all operations scope down to that property.
+
+#### What you can do
+
+Same modules as Super Admin, but with a practical focus:
+- **Front Desk** — Your daily check-ins, guest management, room matrix
+- **Housekeeping** — Task assignment and tracking for your property
+- **Maintenance** — Tickets, parts, and assets for your buildings
+- **Finance** — View financials scoped to your property
+- **HR** — Manage your team members
+- **Admin** — Edit your property settings and feature toggles, manage users
+
+#### What you *cannot* do
+
+```
+❌ Cannot manage Roles & Permissions
+❌ Cannot access Audit Trail
+❌ Cannot run Backups
+❌ Cannot manage Tenants
+```
+
+#### Your Dashboard
+
+Same as Raghu's — you see the full **Admin Overview** with drill-down. Use it to keep a pulse on your property:
+
+> **Suresh's morning routine:** "I open the dashboard, expand **Rooms** — how many are ready for today's check-ins? Then **Outstanding Issues** — are there any maintenance tickets that need chasing? Then **Financial Status** — did we spend within budget yesterday? Five minutes and I know my day."
+
+#### Quick links Suresh uses most
+
+| What | Where |
+|---|---|
+| Room matrix | `/dashboard/front-desk` |
+| Housekeeping tasks | `/dashboard/housekeeping` |
+| Maintenance tickets | `/dashboard/maintenance/tickets` |
+| My team | `/dashboard/hr/employees` |
+| Vendor bills | `/dashboard/finance/payables` |
+| Property settings | `/dashboard/admin/properties/[id]` |
+
+---
+
+### Priya — Front Desk
+
+> *You're the face of the organisation. Guests love you because you make everything seamless.*
+
+**Your login:** `frontdesk@ehms.demo`  
+**Password:** `Demo@1234`  
+**Pick at login:** "Hotels & Resorts" (or whichever vertical has rooms)
+
+#### Your World
+
+Your entire eHMS experience is about **guests and rooms**. You don't need to worry about finance reports or HR timesheets — your sidebar only shows what matters for front desk operations.
+
+#### Your Sidebar Groups
+
+```
+Front Desk & Guests  →  (expanded by default)
+  • Dashboard
+  • Command Center    ←  This is your main room matrix
+  • Guest Profiles    ←  Manage guest information
+  • Check-Ins         ←  Pending arrivals
+  • Billing & Folio   ←  Guest charges and payments
+  • F&B / Pantry      ←  Food and beverage orders
+  • Requests          ←  Guest service requests
+  • Feedbacks         ←  Guest reviews and ratings
+```
+
+#### Your Daily Workflow
+
+**1. Morning — Check arrivals**
+- Open **Command Center** to see the room matrix
+- Green rooms = vacant & ready. Red rooms = maintenance. Amber = dirty.
+- Check who's arriving today under **Check-Ins**
+
+**2. Throughout the day — Check-in guests**
+- Click a vacant room → **Check-in** button
+- Search for existing guest or create a new profile
+- Pick the rate plan and booking source
+- Guest is checked in — room turns Navy (Occupied)
+
+**3. Handle requests**
+- Guest needs extra towels? Click **Log Request** on their room
+- It automatically goes to housekeeping
+
+**4. Check-out & billing**
+- Guest leaving? Click **Check-out** on their room
+- The **Folio** shows all charges. Settle payment, and the room becomes Dirty (ready for housekeeping)
+
+**5. End of day — Feedback**
+- Check **Feedbacks** tab for any reviews left today
+
+> **Priya's tip:** "I keep the **Command Center** open all day on a big screen. I can see the entire property's room status at a glance — who's checking in, who's checking out, which rooms need attention. It's my control tower."
+
+---
+
+### Ravi — Housekeeping
+
+> *You make every room sparkle. Guests may not see you, but they feel your work.*
+
+**Your login:** `housekeeping@ehms.demo`  
+**Password:** `Demo@1234`  
+**Pick at login:** "Hotels & Resorts" (or your assigned vertical)
+
+#### Your World
+
+Your eHMS is all about **tasks and rooms**. You see what needs to be cleaned, what's urgent, and what's done.
+
+#### Your Sidebar Groups
+
+```
+Housekeeping → (expanded by default)
+  • Dashboard
+  • Housekeeping     ←  Your task board
+  • HK Tasks         ←  Alternative list view
+```
+
+*(If you're a supervisor, you also see: Linen, Inspections, HK Staff)*
+
+#### Your Daily Workflow
+
+**1. Start your shift — Open the Task Board**
+- You see cards for each cleaning task
+- Each card shows: room number, task type, who it's assigned to, priority level
+- **Priority colours:**
+  - 🔴 Critical — Needs immediate attention
+  - 🟠 High — Should be done soon
+  - 🔵 Medium — Normal priority
+  - ⚪ Low — When you have time
+
+**2. Pick a task**
+- Click a task card to see the full checklist
+- Tick off items as you complete them (make bed, restock minibar, vacuum, etc.)
+- Update the status: `Open → Assigned → In Progress → Completed`
+
+**3. When you're done**
+- Mark as **Completed** — the room status updates automatically, and front desk knows it's ready
+
+> **Ravi's tip:** "I filter by **'Assigned to me'** first thing in the morning. That way I know exactly which rooms I need to hit and in what order. No confusion, no wasted time."
+
+---
+
+### Arjun — Maintenance
+
+> *You're the fixer. When something breaks, you're the hero.*
+
+**Your login:** `maintenance@ehms.demo`  
+**Password:** `Demo@1234`  
+**Pick at login:** "Hotels & Resorts"
+
+#### Your World
+
+Your eHMS revolves around **tickets and repairs**. You see what's broken, what's being fixed, and what needs parts.
+
+#### Your Sidebar Groups
+
+```
+Maintenance → (expanded by default)
+  • Dashboard
+  • Maintenance      ←  Your ticket board
+  • Tickets          ←  Full list view
+  • Vendors          ←  External service providers
+```
+
+*(If you're a supervisor, you also see: Parts, Assets, Procurement, Inventory)*
+
+#### Your Daily Workflow
+
+**1. Check your ticket board**
+- Tickets are sorted by priority: Critical → High → Medium → Low
+- Types: Plumbing 🔧, Electrical ⚡, HVAC ❄️, Carpentry 🪵, and more
+- Each card shows: location, issue description, who reported it
+
+**2. Pick a ticket**
+- Click to see details
+- **Assign** it to yourself (or a team member)
+- Update status: `Open → Assigned → In Progress → Resolved → Closed`
+
+**3. Need parts?**
+- Link parts from inventory to the ticket
+- Or create a purchase request if we're out of stock
+
+**4. Done?**
+- Mark **Resolved** — the reporter gets notified
+- The room comes out of maintenance status
+
+> **Arjun's tip:** "I keep an eye on the **Critical** priority tickets first thing. If an AC goes down in summer or a pipe bursts, that's my #1 priority until it's fixed."
+
+---
+
+### Anita — Finance
+
+> *You keep the money flowing. Invoices, payments, reports — you own the numbers.*
+
+**Your login:** `finance@ehms.demo`  
+**Password:** `Demo@1234`  
+**Pick at login:** "All Workspaces" (you need cross-property financial data)
+
+#### Your World
+
+Your eHMS is your accounting toolkit — journal entries, ledgers, receivables, payables, budgets, tax filings, fixed assets, and the three big reports (Trial Balance, P&L, Balance Sheet).
+
+#### Your Sidebar Groups
+
+```
+Finance & Accounts → (expanded by default)
+  • Finance            ←  Overview dashboard
+  • Chart of Accounts  ←  Your account hierarchy
+  • Journal            ←  Daily entries
+  • Ledger             ←  Account-wise transactions
+  • Receivables        ←  Money coming in
+  • Payables           ←  Money going out
+  • Budget             ←  Plan vs actual
+  • Tax                ←  Filing management
+  • Fixed Assets       ←  Asset register
+  • Reports            ←  Financial statements
+  • Fin Settings       ←  Fiscal years, cost centers
+  • Reconciliation     ←  Bank matching
+
+You also see: Rental (Rent Invoices, Deposits), Procurement (Purchase Orders, GRN), Vendors, Inventory
+```
+
+#### Your Daily Workflow
+
+**1. Start at the Finance Dashboard**
+- MTD Revenue at a glance
+- Recent invoices with their status (Paid ✅, Sent 📨, Overdue 🔴, Pending 🟠, Draft ⚪)
+- Bank reconciliation status — which accounts are matched
+
+**2. Journal entries**
+- Record daily transactions: `Debit → Expense, Credit → Bank`
+- Always balanced — the system won't let you post an unbalanced entry
+
+**3. Payables — paying vendors**
+- Open **Payables** → see all vendor bills
+- Click a bill → **Pay** → record the payment
+- The balance updates automatically
+
+**4. Receivables — collecting from guests**
+- Open **Receivables** → see outstanding invoices
+- Follow up on overdue ones
+- Mark as collected when payment arrives
+
+**5. End of month — Reports**
+- Run **Trial Balance** to check everything is in order
+- Generate **Profit & Loss** to see how the business performed
+- Review **Balance Sheet** for the financial position
+
+> **Anita's tip:** "I run the **Trial Balance** every Friday before I leave. It catches any out-of-balance entries while they're still fresh. Saves me hours at month-end."
+
+#### Understanding Invoice Statuses
+
+| Status | Meaning | Action needed |
 |---|---|---|
-| **Hotels** | Traditional hotel & resort operations | Oceanview Hotel, Grand Palace |
-| **Serviced Apartments** | Short-term managed apartments | Cityscape Apts |
-| **Apartment Rental** | Long-term rental management | Greenwood Apartments |
-| **Workplace Services** | Coworking & office space management | Innovate Coworking |
-
-### Architecture at a Glance
-
-```
-                     ┌─────────────────┐
-                     │   /login        │
-                     │ Tenant Selection │
-                     └────────┬────────┘
-                              │
-         ┌────────────────────┴────────────────┐
-         │                                     │
-   [Platform Superadmin]                  [Tenant User]
-         │                                     │
-         ▼                                     ▼
-  /dashboard/admin/tenants          /dashboard/{vertical}
-  (Provision & manage shards)       (Day-to-day operations)
-```
-
-### Key Concepts
-
-- **Tenant Shard** — Each customer organization gets an isolated PostgreSQL schema. Data never crosses tenants.
-- **Property (Workspace)** — A physical location within a tenant (e.g., "Oceanview Hotel", "Greenwood"). Most operations are property-scoped.
-- **Vertical / Journey** — The active business line the user is working in. Persisted across sessions.
-- **Feature Toggles** — Ten properties per property enable/disable modules (Restaurant, Gym, Laundry, etc.).
+| ✅ **Paid** | Settled in full | None |
+| 📨 **Sent** | Invoice delivered, awaiting payment | Follow up if overdue |
+| 🔴 **Overdue** | Past due date | Chase payment |
+| 🟠 **Pending** | Not yet due | Wait |
+| ⚪ **Draft** | Not yet sent | Review and send |
 
 ---
 
-## 2. Getting Started — Login Flow
+### Meena — HR
 
-### Step 1: Landing Page
+> *You take care of our people. From hiring to payroll, you make sure everyone's taken care of.*
 
-Open `http://localhost:3000`. You see the eHMS landing page with hero, product showcases, and two CTAs:
-- **Sign In** — takes you to `/login`
-- **Get Started** — same destination
+**Your login:** `hr@ehms.demo`  
+**Password:** `Demo@1234`  
+**Pick at login:** "All Workspaces" (covers all properties)
 
-### Step 2: Tenant Selection Grid
+#### Your World
 
-At `/login` you see a grid of organization cards:
+Your eHMS is your people toolkit — employee records, timesheets, leave, payroll, compliance, appraisals, and more.
+
+#### Your Sidebar Groups
 
 ```
-┌─────────────────────────────────────┐
-│  ┌──────────┐  ┌──────────┐         │
-│  │ VISWA    │  │ ANOTHER  │         │
-│  │ Group of │  │ Corp     │         │
-│  │ Estates  │  │          │         │
-│  │ Hotels ✦ │  │ Apts ✦   │         │
-│  │ Rental ✦ │  │          │         │
-│  └──────────┘  └──────────┘         │
-│  ─────────────────────────────────  │
-│  ┌──────────────────────────────┐   │
-│  │ 🔒 Platform Admin Sign In   │   │
-│  └──────────────────────────────┘   │
-└─────────────────────────────────────┘
+Human Resources → (expanded by default)
+  • HRMS             ←  HR overview dashboard
+  • Employees        ←  People directory
+  • Timesheets       ←  Time tracking
+  • Leave            ←  Requests & balances
+  • Payroll          ←  Salary processing
+  • Compliance       ←  PF/ESI/PT/TDS
+  • Masters          ←  Departments, designations
+  • Policies         ←  Company policy docs
+  • Appraisal        ←  Performance reviews
+  • Compensation     ←  Promotions, increments
+  • Shifts           ←  Shift schedules
+  • HR Settings      ←  Attendance & overtime policies
 ```
 
-**Actions:**
-- Click a tenant card → go to that tenant's login form
-- Click "Platform Admin Sign In" → opens modal for platform-level login
+#### Your Daily Workflow
 
-### Step 3a: Tenant Login Form
+**1. HR Dashboard**
+- See who's in today (attendance %)
+- Check shift-wise staffing
+- Review compliance status (PF ✅, ESI, PT, TDS)
+- Recruitment pipeline — how many candidates at each stage
+- Upcoming training sessions
 
-After selecting a tenant (e.g., VISWA):
+**2. Employee management**
+- **Add new employee** → Fill in details, assign department, set salary
+- **Edit** existing records → Update contact, role, or compensation
+- **View** employee history → Timesheets, leave balance, past appraisals
 
-1. **Tenant badge** at top — click to switch tenant
-2. **Workspace badges** — shows subscribed verticals
-3. **Business Vertical dropdown** — choose your workspace context (`All Workspaces`, `Hotels`, `Apartments`, `Rental`, `Workplace`)
-4. **Email / Password fields**
-5. **Demo Autofill dropdown** — quick-fill credentials for any demo role
-6. Click **Sign In**
+**3. Leave management**
+- View pending leave requests
+- Approve or decline
+- Check each employee's leave balance
 
-### Step 3b: Platform Superadmin Login
+**4. Payroll**
+- Process monthly payroll
+- System calculates deductions (PF, ESI, TDS, PT)
+- Generate payslips
 
-Click "Platform Admin Sign In" → modal appears:
-- Enter platform admin email + password
-- No tenant selection required
-- After login → redirected to `/dashboard/admin/tenants`
+**5. Compliance tracking**
+- PF filing status
+- ESI contribution status
+- Professional Tax
+- TDS deductions
 
-### After Login
+**6. Appraisals & reviews**
+- Create appraisal cycles
+- Set goals for employees
+- Conduct reviews
+- Process promotions and increments
 
-- The JWT is stored in an httpOnly cookie (`ehms_token`)
-- Redirected to `/dashboard` (or `/dashboard/{vertical}` if a specific vertical was chosen)
-- The sidebar renders based on your role and journey
-
----
-
-## 3. Role-Based Journeys
-
-### 3.1 Platform Superadmin
-
-**Credentials:** Platform-specific (not part of demo tenant)
-
-**Scope:** Tenant provisioning & platform-level management only.
-
-**Login Path:**
-1. `/login` → click **Platform Admin Sign In** button (gold border, lock icon)
-2. Enter email + password in modal
-3. No tenant selection required
-
-**Dashboard:** `/dashboard/admin/tenants` — tenant list with provision/suspend/reset-password actions
-
-**Sidebar (always visible):**
-- Dashboard
-- Tenants
-- Support Tickets
-- Broadcasts
-
-**What you CAN do:**
-- View all tenants across all schemas
-- Provision new tenant shards → fills `provision_tenant_schema()` PG function
-- Suspend / unsuspend tenants
-- Reset tenant admin passwords
-- Manage platform-level support tickets
-- Send platform broadcasts (visible to all tenants)
-
-**What you CANNOT do:**
-- Access any tenant's operational data (no Front Desk, Finance, HR, etc.)
-- View tenant-specific bookings, guests, or financials
-
-### 3.2 Tenant Superadmin
-
-**Demo:** `superadmin@ehms.demo` / `Demo@1234`  
-**Role:** `super_admin`
-
-**Login Path:**
-1. Select tenant (e.g., VISWA)
-2. Choose "All Workspaces" or a specific vertical
-3. Enter email + password
-
-**Dashboard — Full Admin View:**
-All 6 admin widget sections expanded with drill-down:
-- Dashboards (revenue KPIs)
-- Employees
-- Outstanding Issues (Vendor/HK/Maint/Other)
-- Rooms (Ready/Cleaning/Occupied)
-- Complaints & Feedbacks
-- Financial Status
-
-**Sidebar — All 9 groups, ALL EXPANDED by default:**
-| Group | Items |
-|---|---|
-| Front Desk & Guests | 8 items |
-| Properties & Verticals | 9 items |
-| Housekeeping | 5 items |
-| Maintenance | 4 items |
-| Finance & Accounts | 12 items |
-| Human Resources | 12 items |
-| Administration | 14 items |
-| Procurement | 6 items |
-| Inventory | 5 items |
-
-**What you CAN do:**
-- Everything. Full CRUD across all modules
-- Create/edit/delete properties, users, roles
-- Access all verticals
-- Configure feature toggles per property
-- All financial reports, HR operations, maintenance tickets
-
-### 3.3 Property Manager
-
-**Demo:** `admin@ehms.demo` / `Demo@1234`  
-**Role:** `property_manager`
-
-**Login Path:** Same as superadmin — tenant + vertical selection
-
-**Dashboard — Full Admin View:**
-Same as superadmin — all 6 admin widget sections with drill-down.
-
-**Sidebar — ALL GROUPS EXPANDED by default.**
-Same item set as superadmin.
-
-**What you CAN do:**
-- Same module access as superadmin
-- Operations are scoped to assigned properties (when `selectedPropertyId` is set)
-- Cannot manage Roles & Permissions
-- Cannot access Audit Trail or Backup
-- Cannot manage Tenants
-
-### 3.4 Executive
-
-**Demo:** `executive@ehms.demo` / `Demo@1234`  
-**Role:** `executive`
-
-**Experience:** Identical to superadmin. Full access to all modules.
-
-**Sidebar — ALL GROUPS EXPANDED.**
-
-### 3.5 Front Desk
-
-**Demo:** `frontdesk@ehms.demo` / `Demo@1234`  
-**Role:** `front_desk`
-
-**Dashboard:**
-- General KPIs only (Revenue, Payables, Rating, Reservations, Guests)
-- Revenue Trend chart
-- Reservations & Guests donut charts
-- Quick Actions
-- **NO** Admin Overview widgets
-
-**Sidebar — ALL GROUPS COLLAPSED by default.**
-Only visible groups:
-- **Front Desk & Guests** (Dashboard, Command Center, Guest Profiles, Check-Ins, Billing & Folio, F&B / Pantry, Requests, Feedbacks)
-
-**What you CAN do:**
-- View/manage room matrix with 7 statuses (vacant, occupied, dirty, cleaning, maintenance, reserved, inspection)
-- Check-in / check-out guests
-- Walk-in reservations
-- Manage guest profiles
-- Handle billing & folio
-- F&B / Pantry orders
-- Log guest requests
-- View/manage feedbacks
-- View My Tickets
-
-### 3.6 Housekeeping Staff
-
-**Demo:** `housekeeping@ehms.demo` / `Demo@1234`  
-**Role:** `housekeeping_staff`
-
-**Dashboard:**
-- General KPIs only (no admin widgets)
-
-**Sidebar — ALL COLLAPSED.**
-Only groups:
-- **Housekeeping** (Housekeeping, HK Tasks)
-
-(Supervisors also see: Linen, Inspections, HK Staff, Users)
-
-**What you CAN do:**
-- View housekeeping task board
-- Filter by status (open, assigned, in_progress, resolved, completed, closed)
-- Create new HK tasks
-- Update task status
-- Use checklists per task
-- View My Tickets
-
-### 3.7 Maintenance Staff
-
-**Demo:** `maintenance@ehms.demo` / `Demo@1234`  
-**Role:** `maintenance_staff`
-
-**Dashboard:**
-- General KPIs only
-
-**Sidebar — ALL COLLAPSED.**
-Groups:
-- **Maintenance** (Maintenance, Tickets)
-- **Vendors** (Vendors)
-
-**What you CAN do:**
-- View maintenance ticket board
-- Filter by priority (critical, high, medium, low)
-- Create and update tickets
-- View vendors
-- View My Tickets
-
-(Supervisors also see: Parts, Assets, Procurement, Inventory, Users)
-
-### 3.8 HR Manager
-
-**Demo:** `hr@ehms.demo` / `Demo@1234`  
-**Role:** `hr_manager`
-
-**Dashboard:**
-- General KPIs only
-
-**Sidebar — ALL COLLAPSED.**
-Groups:
-- **Human Resources** (HRMS, Employees, Timesheets, Leave, Payroll, Compliance, Masters, Policies, Appraisal, Compensation, Shifts, HR Settings)
-
-**What you CAN do:**
-- Employee directory with CRUD
-- Timesheet management
-- Leave requests & approvals
-- Payroll processing
-- Statutory compliance (PF, ESI, PT, TDS)
-- HR master data (departments, document types)
-- Policy document management
-- Performance appraisal cycles, goals, reviews
-- Compensation (increments, promotions)
-- Shift scheduling
-- Attendance policies, overtime policies
-- View My Tickets
-
-### 3.9 Finance Manager
-
-**Demo:** `finance@ehms.demo` / `Demo@1234`  
-**Role:** `finance_manager`
-
-**Dashboard:**
-- General KPIs only
-
-**Sidebar — ALL COLLAPSED.**
-Groups:
-- **Finance & Accounts** (Finance, Chart of Accts, Journal, Ledger, Receivables, Payables, Budget, Tax, Fixed Assets, Reports, Fin Settings, Reconciliation)
-- **Rental** (Rent Invoices, Deposits)
-- **Procurement** (Procurement, Purchase Orders, Goods Receipt)
-- **Vendors** (Vendors, Vendor Orders, Vendor Services)
-- **Inventory** (Inventory, Inv Transactions)
-
-**What you CAN do:**
-- Financial dashboard with MTD revenue, invoices, bank reconciliation
-- Chart of Accounts management
-- Journal entries
-- General ledger
-- Accounts receivable & payable
-- Budget management (heads, entries)
-- Tax filings
-- Fixed assets & depreciation
-- Financial reports (Trial Balance, P&L, Balance Sheet)
-- Fiscal years & cost centers
-- Bank reconciliation
-- Procurement & purchase orders
-- Vendor management
-- Inventory transactions
-- View My Tickets
+> **Meena's tip:** "I check the **Compliance** section every week. Missing a PF or TDS deadline is costly — the dashboard makes sure I never miss one."
 
 ---
 
-## 4. Sidebar Navigation
+### Vikram — Executive
 
-### Desktop Sidebar
+> *You have the same power as Raghu but maybe you focus on different things.*
 
-The left sidebar adapts based on your role:
+**Your login:** `executive@ehms.demo`  
+**Password:** `Demo@1234`  
+**Pick at login:** Any vertical — you have access to all
 
-| State | Behavior |
-|---|---|
-| **Expanded (240px)** | Groups with icons. Click a group header to expand/collapse items. |
-| **Collapsed (64px)** | Icon-only mode. Hover to see tooltips via `title` attribute. |
+#### Your World
 
-### Collapse/Expand All
+Everything Raghu can do, you can do too. Full access to all modules, all reports, all settings. Use it wisely!
 
-A toggle at the top of the nav area reads the current state:
-- If all groups are expanded → shows **"− Collapse all"**
-- If any groups are collapsed → shows **"+ Expand all"**
-
-### Group Expansion Defaults
-
-| Role | Default |
-|---|---|
-| `super_admin`, `property_manager`, `executive`, `platform_super_admin` | ALL groups expanded |
-| Everyone else | ALL groups collapsed |
-
-### Journey Filtering
-
-The sidebar also filters by business vertical. For example:
-- In **Rental** journey: Front Desk, Hotels, Apartments are hidden
-- In **Workplace** journey: Front Desk and property-specific items are hidden
-- In **All** journey: everything visible
-
-### Mobile Navigation
-
-On phones (<768px):
-- Hamburger menu opens a full-overlay sidebar (280px)
-- Bottom nav bar has 5 fixed tabs: Home, Front Desk, Housekeep, Maint., Finance
+Your sidebar shows **all 9 groups**, all expanded by default.
 
 ---
 
-## 5. Dashboard Overview
+## 📋 Quick Reference Cheat Sheet
 
-The dashboard at `/dashboard` has two tiers:
+### Room Statuses (at a glance)
 
-### Tier 1: General KPIs (All Roles)
-
-5 metric cards: Total Revenue, Accounts Payable, Overall Rating, Active Reservations, Total Guests
-
-### Charts
-
-- **Revenue Trend** — SVG line chart of last 12 months
-- **Reservations Donut** — occupancy rate
-- **Guests Donut** — checked-in vs registered
-
-### Quick Actions
-
-Links to: Front Desk, Housekeeping Board, Maintenance Tickets, Finance & Billing
-
-### Tier 2: Admin Overview (Superadmin / Property Manager only)
-
-6 collapsible sections, each with **Tally-style drill-down**:
-
-| Section | Metrics | Click to drill into |
+| Status colour | What it means | Next step |
 |---|---|---|
-| **Dashboards** | Today, Week, Month, Year Revenue | Recent payments table |
-| **Employees** | Count available today | Employee records |
-| **Outstanding Issues** | Vendor, HK, Maint, Other counts | Vendor bills, HK tasks, Maint tickets, Guest requests |
-| **Rooms** | Ready, Cleaning, Occupied/Dirty | Room status breakdown |
-| **Complaints** | Today, Week, Month, Year + avg ratings | Recent feedback entries |
-| **Financial** | Spending (T/W/M/Y) + Available, Expenses, Receivables | Recent bills & payments |
+| 🟢 Green | Vacant & ready | Check-in a guest |
+| 🔵 Navy | Occupied | Guest checked in |
+| 🟡 Amber | Dirty | Needs cleaning |
+| 🟢 Light green | Cleaning | Housekeeping is working on it |
+| 🔴 Red | Maintenance | Under repair |
+| ⚪ Gray | Reserved | Booked, not yet arrived |
+| 🔵 Light blue | Inspection | Quality check pending |
+
+### Task & Ticket Statuses
+
+| Step | Housekeeping | Maintenance |
+|---|---|---|
+| 1 | Open | Open |
+| 2 | Assigned | Assigned |
+| 3 | In Progress | In Progress |
+| 4 | Resolved | Resolved |
+| 5 | Completed ✅ | Closed ✅ |
+| 6 | Closed | — |
+
+### Login Cheat Sheet
+
+| Role | Email | Password |
+|---|---|---|
+| **Super Admin** (Raghu) | `raghu.superadmin@ehms.demo` | `Demo@1234` |
+| **Super Admin** (Vishwa) | `vishwa.superadmin@ehms.demo` | `Demo@1234` |
+| **Super Admin** | `superadmin@ehms.demo` | `Demo@1234` |
+| **Executive** (Vikram) | `executive@ehms.demo` | `Demo@1234` |
+| **Property Admin** (Suresh) | `admin@ehms.demo` | `Demo@1234` |
+| **Front Desk** (Priya) | `frontdesk@ehms.demo` | `Demo@1234` |
+| **Housekeeping** (Ravi) | `housekeeping@ehms.demo` | `Demo@1234` |
+| **Maintenance** (Arjun) | `maintenance@ehms.demo` | `Demo@1234` |
+| **HR** (Meena) | `hr@ehms.demo` | `Demo@1234` |
+| **Finance** (Anita) | `finance@ehms.demo` | `Demo@1234` |
 
 ---
 
-## 6. Module Workflows
+## 💡 Still Stuck?
 
-### 6.1 Front Desk & Command Center
-
-**Entry:** Click "Command Center" or "Dashboard" in sidebar
-
-**Room Matrix** — Color-coded grid of all rooms with 7 statuses:
-
-| Status | Color | Meaning |
-|---|---|---|
-| Vacant | Green dot | Ready for check-in |
-| Occupied | Navy dot | Guest checked in |
-| Dirty | Amber dot | Needs cleaning after checkout |
-| Cleaning | Green dot | Housekeeping in progress |
-| Maintenance | Red dot | Under repair |
-| Reserved | Gray dot | Booked, not yet arrived |
-| Inspection | Light green dot | Quality check pending |
-
-**Actions on a room:**
-1. **Check-in** — Opens a modal with guest search/create, rate plan, booking source
-2. **Check-out** — Finalizes stay, triggers folio settlement
-3. **Walk-in** — Direct reservation without prior booking
-4. **Folio** — View/update charges, payments, and balance
-5. **Log Request** — Create guest service request
-
-**Checklist by Role:**
-| Action | Front Desk |
-|---|---|
-| View room matrix | ✅ |
-| Check-in guest | ✅ |
-| Check-out guest | ✅ |
-| Walk-in reservation | ✅ |
-| Manage folio/charges | ✅ |
-| Log guest requests | ✅ |
-| View feedbacks | ✅ |
-| F&B order entry | ✅ |
-| Guest profiles CRUD | ✅ |
-
-### 6.2 Housekeeping
-
-**Entry:** Click "Housekeeping" in sidebar
-
-**Task Board:**
-- Cards grouped by status filter (All, Open, Assigned, In Progress, Resolved, Completed, Closed)
-- Priority badges: Critical (red), High (amber), Medium (blue), Low (gray)
-- Each card shows: room number, task type, assigned staff, priority, due time
-
-**Create Task:**
-1. Click "New Task" button
-2. Select room, task type (Deep Clean, Turndown, Inspection, etc.)
-3. Assign to staff
-4. Set priority and due date
-5. Optionally attach checklist template
-
-**Task Detail (click a task):**
-- See full description
-- Check off checklist items
-- Update status
-- Add notes
-- Mark as complete
-
-**Other HK Pages:**
-- **HK Tasks** — Alternative list view
-- **Linen** — Batch tracking, item inventory, transactions (supervisor+)
-- **Inspections** — Quality inspections with pass/fail (supervisor+)
-- **HK Staff** — Staff assignment & management (supervisor+)
-
-### 6.3 Maintenance
-
-**Entry:** Click "Maintenance" in sidebar
-
-**Ticket Board:**
-- Priority-filtered board (Critical, High, Medium, Low)
-- Type badges: Plumbing, Electrical, HVAC, Carpentry, Painting, Gardening, Housekeeping, Security, IT, Structural, Furniture, Plumbing | Electrical
-- Team status sidebar: Available, Busy, Offline
-
-**Create Ticket:**
-1. Click "New Ticket"
-2. Select property, location (floor/wing)
-3. Choose category and priority
-4. Describe issue
-5. Assign to team member
-6. Optionally link parts inventory
-
-**Ticket Workflow:**
-```
-Open → Assigned → In Progress → Resolved → Closed
-```
-(Re-open from Closed if needed)
-
-**Other Maintenance Pages:**
-- **Tickets** — Full list view with search/filter
-- **Parts** — Inventory of spare parts (supervisor+)
-- **Assets** — Equipment and asset registry (supervisor+)
-- **Preventive Schedules** — Recurring maintenance plans
-- **AMC Contracts** — Annual maintenance contracts with vendors
-
-### 6.4 Human Resources (HRMS)
-
-**Entry:** Click "HRMS" in sidebar
-
-**HR Dashboard** shows:
-- **Employee List** — Table with employee code, name, department, designation, attendance %, status
-- **Shift Data** — Morning/Afternoon/Night shifts with staff counts
-- **Compliance Status** — PF, ESI, PT, TDS status
-- **Recruitment Pipeline** — Funnel from Sourced → Hired
-- **Training Sessions** — Upcoming/planned sessions
-
-**Employee Lifecycle:**
-1. **Create** → Add employee (code, name, dept, designation, salary, documents)
-2. **Track** → Timesheets, leave, attendance
-3. **Review** → Appraisal cycles with goals
-4. **Compensate** → Promotions, increments
-5. **Pay** → Payroll processing
-
-**Key Sub-pages:**
-| Page | Purpose |
-|---|---|
-| Employees | Full directory with create/edit/delete |
-| Timesheets | Daily time logging |
-| Leave | Leave requests, approvals, balance |
-| Payroll | Monthly payroll calculation & processing |
-| Compliance | PF/ESI/PT/TDS filing management |
-| Masters | Departments, designations, document types |
-| Policies | Company policy documents |
-| Appraisal | Performance review cycles & goals |
-| Compensation | Promotions & increments |
-| Shifts | Shift definition & assignment |
-| Settings | Attendance & overtime policies |
-
-### 6.5 Finance & Accounts
-
-**Entry:** Click "Finance" in sidebar
-
-**Finance Dashboard:**
-- **MTD Revenue** — Month-to-date total
-- **Invoice List** — Recent invoices with status (Paid/Sent/Overdue/Pending/Draft)
-- **Bank Reconciliation** — Auto-matched/unmatched/pending statuses
-- **Quick Stats** — Receivables, Payables, Net Position
-
-**Accounts Module (Chart of Accounts):**
-- Hierarchical account tree
-- Account types: Asset, Liability, Equity, Revenue, Expense
-- Create/edit accounts with codes and parent accounts
-
-**Journal Entries:**
-- Double-entry journaling
-- Debit/credit line items
-- Auto-balance check
-- Reference document linking
-
-**Ledger:**
-- General ledger view
-- Filter by account, date range
-- Running balance
-
-**Receivables:**
-- Invoice tracking
-- Overdue detection
-- Collection status
-
-**Payables:**
-- Vendor bills management
-- Bill payments with balance tracking
-- Aging analysis
-
-**Budget:**
-- Budget heads definition
-- Budget entries with approved amounts
-- Utilization tracking
-
-**Tax:**
-- Tax filings management
-- Filing period tracking
-- Payment status
-
-**Fixed Assets:**
-- Asset registry
-- Depreciation calculation (SLM/WDV)
-- Depreciation schedule
-
-**Reports (3 key statements):**
-| Report | What it shows |
-|---|---|
-| Trial Balance | All accounts with debits/credits |
-| Profit & Loss | Revenue − Expenses for a period |
-| Balance Sheet | Assets = Liabilities + Equity |
-
-**Reconciliation:**
-- Bank statement upload
-- Auto-matching logic
-- Manual match/unmatch
-
-### 6.6 Procurement & Vendors
-
-**Entry:** Click "Procurement" in sidebar
-
-**Procurement Dashboard:**
-- Purchase order summary
-- GRN tracking
-
-**Purchase Orders:**
-- Create PO with line items
-- Status tracking (Draft → Sent → Approved → Received → Closed)
-- Link to vendor
-
-**Goods Receipt Notes (GRN):**
-- Record receipt against PO
-- Quantity & quality check
-- Auto-update inventory
-
-**Vendors:**
-- Vendor registry
-- Contact info, tax details, payment terms
-- **Vendor Orders** — Order history
-- **Vendor Services** — Service contracts
-
-### 6.7 Inventory
-
-**Entry:** Click "Inventory" in sidebar
-
-**Inventory Dashboard:**
-- Item counts, low stock alerts
-- Warehouse overview
-
-**Items:**
-- Item master with SKU, description, unit, category
-- Stock levels per warehouse
-
-**Transactions:**
-- Stock in/out/adjustment logging
-- Transaction types: Purchase Receipt, Sales Issue, Transfer, Adjustment, Write-off
-
-**Warehouses:**
-- Multi-warehouse support
-- Location tracking
-
-**Categories:**
-- Item categorization for reporting
-
-### 6.8 Administration
-
-**Entry:** Click "Admin" in sidebar (superadmin/executive/property_manager only)
-
-**Sub-pages:**
-
-| Page | Access | Purpose |
-|---|---|---|
-| Tenants | platform_super_admin only | Provision, suspend, manage tenant shards |
-| Workspaces (Properties) | All admin roles | Property CRUD, per-property config & feature toggles |
-| Roles | super_admin, executive | Role definition & permissions |
-| Users | All admin roles | User management per property/role |
-| Audit Trail | super_admin, executive | System event log |
-| Backup | super_admin, executive | Database backup & restore |
-| Settings | All admin roles | System configuration |
-| Branding | All admin roles | Tenant logo, company name |
-| Master Data | All admin roles | UOM, tax slabs, rate plans, booking sources, etc. |
-| Sessions | super_admin, executive | Active user sessions |
-| Compliance | super_admin, executive | Admin compliance records |
-| Support Tickets | super_admin, executive, platform_super_admin | Cross-tenant support ticket management |
-| Broadcasts | super_admin, executive, platform_super_admin | Platform-wide announcements |
-
-**Property Configuration (Feature Toggles):**
-When creating/editing a property, you can toggle 10 features:
-
-| Feature | Default | Description |
-|---|---|---|
-| Rooms Map | On | Interactive room grid |
-| Rate Card | On | Room rate management |
-| Restaurant | Off | F&B operations |
-| Bar | Off | Bar management |
-| Laundry | On | Laundry service |
-| Maintenance | On | Maintenance module |
-| Gym | Off | Gym access management |
-| Yoga | Off | Yoga studio scheduling |
-| Swimming Pool | Off | Pool management |
-| Spa | Off | Spa services |
-
-Use `isFeatureEnabled("restaurant")` pattern in any module to conditionally show/hide UI.
+- **Something not working?** Tell your Property Admin (Suresh) or Super Admin (Raghu)
+- **Need a new feature?** We'd love to hear! Create a **Support Ticket** from your sidebar
+- **Forgot your password?** Ask your admin to reset it
+- **Just want to explore?** Log in with any demo account — all data is sample data, so click around without worry!
 
 ---
 
-## 7. Cross-Cutting Features
-
-### My Tickets
-
-Available to all roles at `/dashboard/tickets`. Create and track your own support tickets. Ticket status flow: `Open → In Progress → Resolved → Closed`.
-
-### Support Tickets (Admin)
-
-Admin-level ticket management across the tenant. View all tickets, assign, update status, communicate via messages.
-
-### Broadcasts
-
-Platform-wide announcements visible to all users in the tenant (shown via a banner on page load).
-
-### Branding
-
-Tenant admins can upload logo and set company name. Applied across login page, sidebar, and email templates.
-
-### Settings
-
-System-level configuration managed by admins.
-
-### Demo Autofill
-
-On the login page, a dropdown lets you instantly fill credentials for any demo role:
-
-| Role | Email |
-|---|---|
-| Super Admin | superadmin@ehms.demo |
-| Property Admin | admin@ehms.demo |
-| Executive | executive@ehms.demo |
-| Front Desk | frontdesk@ehms.demo |
-| Housekeeping | housekeeping@ehms.demo |
-| Maintenance | maintenance@ehms.demo |
-| HR Manager | hr@ehms.demo |
-| Finance Manager | finance@ehms.demo |
-
-Password for all: **Demo@1234**
-
----
-
-## 8. Demo Credentials
-
-### Platform Superadmin
-
-| Field | Value |
-|---|---|
-| Login path | `/login` → "Platform Admin Sign In" button |
-| Email | (platform-specific, configured in DB) |
-| Redirect | `/dashboard/admin/tenants` |
-
-### Tenant Users (Demo Tenant: VISWA)
-
-All password: **Demo@1234**
-
-| Email | Role | Sidebar Groups Visible |
-|---|---|---|
-| superadmin@ehms.demo | Super Admin | All 9 groups (expanded) |
-| executive@ehms.demo | Executive | All 9 groups (expanded) |
-| admin@ehms.demo | Property Manager | All 9 groups (expanded) |
-| frontdesk@ehms.demo | Front Desk | Front Desk & Guests only |
-| housekeeping@ehms.demo | Housekeeping | Housekeeping only |
-| maintenance@ehms.demo | Maintenance | Maintenance + Vendors |
-| hr@ehms.demo | HR Manager | Human Resources only |
-| finance@ehms.demo | Finance Manager | Finance, Rental, Procurement, Vendors, Inventory |
-
----
-
-## Appendix: Quick Reference
-
-### Room Statuses (Front Desk Matrix)
-
-| Status | Code | Hex Color |
-|---|---|---|
-| Vacant | vacant | #2BAE8E |
-| Occupied | occupied | #1A3C5E |
-| Dirty | dirty | #F5A623 |
-| Cleaning | cleaning | #2BAE8E |
-| Maintenance | maintenance | #E53E3E |
-| Reserved | reserved | #64748B |
-| Inspection | inspection | #4DB88A |
-
-### Ticket/Issue Statuses
-
-| Domain | Valid Statuses |
-|---|---|
-| Housekeeping Tasks | open, assigned, in_progress, resolved, completed, closed |
-| Maintenance Tickets | open, assigned, in_progress, resolved, closed |
-| Guest Requests | pending, in_progress, resolved, cancelled |
-| Support Tickets | open, in_progress, resolved, closed |
-
-### Role Hierarchy
-
-```
-Platform Superadmin  (manages shards, billing)
-        │
-Tenant Superadmin   (full tenant access)
-        │
-Property Manager    (workspace-scoped)
-        │
-        ├── Front Desk
-        ├── Housekeeping (Staff / Supervisor)
-        ├── Maintenance (Staff / Supervisor)
-        ├── HR (Manager / Executive)
-        ├── Finance (Manager / Executive)
-        ├── Security Staff
-        └── Workplace Facility Manager
-```
+*Welcome to eHMS. We're thrilled to have you on the team. Let's make every guest experience extraordinary.* 💚
