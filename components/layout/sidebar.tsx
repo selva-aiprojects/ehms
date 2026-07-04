@@ -301,6 +301,21 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+        {!collapsed && (
+          <div className="flex items-center justify-end mx-3 mb-1">
+            <button
+              onClick={() => {
+                const allExpanded = NAV_GROUPS.every(g => expandedGroups.has(g.label));
+                setExpandedGroups(allExpanded ? new Set() : new Set(NAV_GROUPS.map(g => g.label)));
+              }}
+              className="text-xs px-2 py-1 rounded transition-all hover:opacity-70"
+              style={{ color: "rgba(255,255,255,0.35)" }}
+              title="Toggle all groups"
+            >
+              {NAV_GROUPS.every(g => expandedGroups.has(g.label)) ? "− Collapse all" : "+ Expand all"}
+            </button>
+          </div>
+        )}
         {collapsed ? (
           ALL_NAV_ITEMS.filter((item) => itemIsVisible(item.label)).map((item) => {
             const href = item.label === "Dashboard"
