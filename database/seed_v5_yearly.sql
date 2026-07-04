@@ -873,7 +873,19 @@ BEGIN
     AND b.check_out >= CURRENT_DATE
     AND u.status != 'maintenance'
   );
-  RAISE NOTICE 'Unit statuses synced with active bookings.';
+  UPDATE units SET status = 'cleaning' WHERE id IN (
+    SELECT DISTINCT u.id FROM housekeeping_tasks h JOIN units u ON u.id = h.unit_id
+    WHERE h.status IN ('in_progress', 'open')
+    AND h.scheduled_at::date = CURRENT_DATE
+    AND u.status NOT IN ('maintenance', 'cleaning')
+  );
+  UPDATE units SET status = 'cleaning' WHERE id IN (
+    SELECT u.id FROM units u
+    WHERE u.status = 'dirty'
+    AND u.id IN (SELECT unit_id FROM housekeeping_tasks WHERE status = 'resolved' AND completed_at::date = CURRENT_DATE)
+    LIMIT (SELECT GREATEST(2, COUNT(*)/10) FROM units WHERE status IN ('vacant', 'occupied'))
+  );
+  RAISE NOTICE 'Unit statuses synced with active bookings and cleaning tasks.';
 
   -- ==================================================================
   -- SUMMARY

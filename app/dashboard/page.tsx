@@ -99,6 +99,44 @@ function StatCard({ label, value, icon, color, href }: { label: string; value: s
   );
 }
 
+/* ─── Drill-down detail panel ─── */
+function DrillDownPanel({ items, onClose }: { items: Record<string, unknown>[]; onClose: () => void }) {
+  if (!items?.length) return null;
+  const cols = Object.keys(items[0]);
+  return (
+    <div className="mt-3 rounded-xl overflow-hidden" style={{ border: "1px solid #E2E8F0", background: "#FAFBFC" }}>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr style={{ background: "#F1F5F9" }}>
+              {cols.map(c => (
+                <th key={c} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: "#1A3C5E", textTransform: "capitalize" }}>{c.replace(/_/g, " ")}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item, i) => (
+              <tr key={i} style={{ borderTop: "1px solid #E2E8F0" }}>
+                {cols.map(c => {
+                  let val = item[c];
+                  if (val instanceof Date || (typeof val === "string" && val.includes("T"))) {
+                    try { val = new Date(val as string).toLocaleDateString(); } catch {}
+                  }
+                  if (typeof val === "number") val = val.toLocaleString();
+                  return <td key={c} className="px-3 py-2 whitespace-nowrap" style={{ color: "#475569" }}>{String(val ?? "—")}</td>;
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button onClick={onClose} className="w-full py-2 text-xs font-medium text-center transition-all hover:opacity-70" style={{ color: "#64748B", borderTop: "1px solid #E2E8F0" }}>
+        Close
+      </button>
+    </div>
+  );
+}
+
 const card = "bg-white rounded-2xl p-5" as const;
 const cardStyle = { border: "1px solid #E2E8F0", boxShadow: "0 1px 4px rgba(26,60,94,0.06)" };
 
@@ -112,6 +150,7 @@ export default function DashboardPage() {
   const isAdmin = role === "super_admin" || role === "property_manager";
 
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["dashboards", "employees", "issues", "rooms", "feedback", "financial"]));
+  const [drilling, setDrilling] = useState<{ section: string; items: Record<string, unknown>[] } | null>(null);
 
   function toggleSection(label: string) {
     setExpandedSections(prev => {
@@ -293,13 +332,31 @@ export default function DashboardPage() {
                   {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20" />)}
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <StatCard label="Today Revenue" value={overview?.revenue ? `₹${(overview.revenue.today / 1000).toFixed(1)}k` : "—"} icon={<IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} />} color="#2BAE8E" href="/dashboard/finance" />
-                    <StatCard label="This Week" value={overview?.revenue ? `₹${(overview.revenue.week / 1000).toFixed(1)}k` : "—"} icon={<TrendingUp className="w-4 h-4" style={{ color: "#1A3C5E" }} />} color="#1A3C5E" href="/dashboard/finance" />
-                    <StatCard label="This Month" value={overview?.revenue ? `₹${(overview.revenue.month / 1000).toFixed(1)}k` : "—"} icon={<TrendingUp className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" href="/dashboard/finance/reports" />
-                    <StatCard label="Revenue Projection" value={overview?.revenue ? `₹${(overview.revenue.year / 1000).toFixed(1)}k` : "—"} icon={<DollarSign className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" href="/dashboard/finance/reports" />
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {[
+                    { label: "Today Revenue", key: "today", color: "#2BAE8E" },
+                    { label: "This Week", key: "week", color: "#1A3C5E" },
+                    { label: "This Month", key: "month", color: "#F5A623" },
+                    { label: "Revenue Projection", key: "year", color: "#E53E3E" },
+                  ].map(item => {
+                    const val = (overview?.revenue as any)?.[item.key] ?? 0;
+                    const drillItems = (overview as any)?.revenue?.recent || [];
+                    return (
+                      <div key={item.key} className="rounded-xl p-3 transition-all hover:shadow-sm" style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
+                        <button onClick={() => setDrilling(drilling?.section === item.label ? null : { section: item.label, items: drillItems })} className="w-full text-center">
+                          <div className="flex items-center gap-2 mb-1 justify-center">
+                            {item.key === "today" ? <IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} /> :
+                             item.key === "week" ? <TrendingUp className="w-4 h-4" style={{ color: "#1A3C5E" }} /> :
+                             item.key === "month" ? <TrendingUp className="w-4 h-4" style={{ color: "#F5A623" }} /> :
+                             <DollarSign className="w-4 h-4" style={{ color: "#E53E3E" }} />}
+                            <p className="text-xs font-medium" style={{ color: "#64748B" }}>{item.label}</p>
+                          </div>
+                          <p className="text-xl font-bold" style={{ color: item.color }}>₹{(val / 1000).toFixed(1)}k</p>
+                        </button>
+                        {drilling?.section === item.label && <DrillDownPanel items={drillItems} onClose={() => setDrilling(null)} />}
+                      </div>
+                    );
+                  })}
                 </div>
               )
             )}
@@ -310,15 +367,19 @@ export default function DashboardPage() {
             <SectionHeader label="Employees" icon={<UserCheck className="w-4 h-4" style={{ color: "#1A3C5E" }} />} />
             {expandedSections.has("employees") && (
               overviewLoading ? <Skeleton className="h-16" /> : (
-                <Link href="/dashboard/hr/employees" className="flex items-center gap-4 transition-all hover:opacity-80">
-                  <div className="w-16 h-16 rounded-xl flex items-center justify-center" style={{ background: "rgba(26,60,94,0.08)" }}>
-                    <Users className="w-7 h-7" style={{ color: "#1A3C5E" }} />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.employeesAvailable ?? 0}</p>
-                    <p className="text-xs" style={{ color: "#64748B" }}>Employees available today</p>
-                  </div>
-                </Link>
+                <div>
+                  <button onClick={() => setDrilling(drilling?.section === "employees" ? null : { section: "employees", items: (overview as any)?.drillDown?.employees || [] })} className="flex items-center gap-4 w-full transition-all hover:opacity-80">
+                    <div className="w-16 h-16 rounded-xl flex items-center justify-center" style={{ background: "rgba(26,60,94,0.08)" }}>
+                      <Users className="w-7 h-7" style={{ color: "#1A3C5E" }} />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-3xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.employeesAvailable ?? 0}</p>
+                      <p className="text-xs" style={{ color: "#64748B" }}>Employees available today</p>
+                    </div>
+                  </button>
+                  <Link href="/dashboard/hr/employees" className="text-xs mt-1.5 inline-block hover:underline" style={{ color: "#2BAE8E" }}>View all employees →</Link>
+                  {drilling?.section === "employees" && <DrillDownPanel items={(overview as any)?.drillDown?.employees || []} onClose={() => setDrilling(null)} />}
+                </div>
               )
             )}
           </div>
@@ -330,18 +391,29 @@ export default function DashboardPage() {
               overviewLoading ? <Skeleton className="h-24" /> : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {overview?.issues?.map((issue) => {
+                    const issueDrillMap: Record<string, string> = {
+                      Vendor: "vendorBills",
+                      Housekeeping: "hkTasks",
+                      Maintenance: "maintTickets",
+                      Other: "guestRequests",
+                    };
+                    const drillKey = issueDrillMap[issue.category];
+                    const drillItems = drillKey ? (overview as any)?.drillDown?.[drillKey] || [] : [];
                     const hrefs: Record<string, string> = {
                       Vendor: "/dashboard/finance/payables",
                       Housekeeping: "/dashboard/housekeeping",
                       Maintenance: "/dashboard/maintenance/tickets",
                       Other: "/dashboard/front-desk/requests",
                     };
-                    const href = hrefs[issue.category] || "#";
                     return (
-                      <Link key={issue.category} href={href} className="rounded-xl p-3 text-center block transition-all hover:shadow-md hover:-translate-y-0.5" style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
-                        <p className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>{issue.count}</p>
-                        <p className="text-xs mt-1" style={{ color: "#64748B" }}>{issue.category}</p>
-                      </Link>
+                      <div key={issue.category} className="rounded-xl p-3 text-center transition-all hover:shadow-md" style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
+                        <button onClick={() => setDrilling(drilling?.section === issue.category ? null : { section: issue.category, items: drillItems })} className="w-full text-center">
+                          <p className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>{issue.count}</p>
+                          <p className="text-xs mt-1" style={{ color: "#64748B" }}>{issue.category}</p>
+                        </button>
+                        <Link href={hrefs[issue.category]} className="text-xs mt-1 inline-block hover:underline" style={{ color: "#2BAE8E" }}>View all →</Link>
+                        {drilling?.section === issue.category && <DrillDownPanel items={drillItems} onClose={() => setDrilling(null)} />}
+                      </div>
                     );
                   })}
                 </div>
@@ -360,22 +432,26 @@ export default function DashboardPage() {
                     const ready = rooms.find(r => r.status === "ready")?.count || 0;
                     const cleaning = rooms.find(r => r.status === "cleaning")?.count || 0;
                     const dirty = rooms.find(r => r.status === "dirty" || r.status === "occupied")?.count || 0;
-                    return (
-                      <>
-                        <Link href="/dashboard/front-desk" className="rounded-xl p-4 block transition-all hover:shadow-md hover:-translate-y-0.5" style={{ background: "rgba(43,174,142,0.10)", border: "1px solid rgba(43,174,142,0.20)" }}>
-                          <p className="text-2xl font-bold" style={{ color: "#2BAE8E" }}>{ready}</p>
-                          <p className="text-xs mt-1 font-medium" style={{ color: "#2BAE8E" }}>Readily Available</p>
-                        </Link>
-                        <Link href="/dashboard/housekeeping" className="rounded-xl p-4 block transition-all hover:shadow-md hover:-translate-y-0.5" style={{ background: "rgba(245,166,35,0.10)", border: "1px solid rgba(245,166,35,0.20)" }}>
-                          <p className="text-2xl font-bold" style={{ color: "#F5A623" }}>{cleaning}</p>
-                          <p className="text-xs mt-1 font-medium" style={{ color: "#F5A623" }}>Cleaning In Progress</p>
-                        </Link>
-                        <Link href="/dashboard/front-desk" className="rounded-xl p-4 block transition-all hover:shadow-md hover:-translate-y-0.5" style={{ background: "rgba(229,62,62,0.10)", border: "1px solid rgba(229,62,62,0.20)" }}>
-                          <p className="text-2xl font-bold" style={{ color: "#E53E3E" }}>{dirty}</p>
-                          <p className="text-xs mt-1 font-medium" style={{ color: "#E53E3E" }}>Occupied / Dirty</p>
-                        </Link>
-                      </>
-                    );
+                    const roomTypes = [
+                      { label: "Readily Available", count: ready, color: "#2BAE8E", bg: "rgba(43,174,142,0.10)", border: "rgba(43,174,142,0.20)", filter: "ready" },
+                      { label: "Cleaning In Progress", count: cleaning, color: "#F5A623", bg: "rgba(245,166,35,0.10)", border: "rgba(245,166,35,0.20)", filter: "cleaning" },
+                      { label: "Occupied / Dirty", count: dirty, color: "#E53E3E", bg: "rgba(229,62,62,0.10)", border: "rgba(229,62,62,0.20)", filter: "occupied,dirty" },
+                    ];
+                    const roomDrillItems = (statusFilter: string) => (overview?.rooms || [])
+                      .filter(r => statusFilter.split(",").includes(r.status))
+                      .map(r => ({ status: r.status, count: r.count }));
+                    return roomTypes.map(rt => {
+                      const items = roomDrillItems(rt.filter);
+                      return (
+                        <div key={rt.label} className="rounded-xl p-4 transition-all hover:shadow-md" style={{ background: rt.bg, border: `1px solid ${rt.border}` }}>
+                          <button onClick={() => setDrilling(drilling?.section === rt.label ? null : { section: rt.label, items })} className="w-full text-center">
+                            <p className="text-2xl font-bold" style={{ color: rt.color }}>{rt.count}</p>
+                            <p className="text-xs mt-1 font-medium" style={{ color: rt.color }}>{rt.label}</p>
+                          </button>
+                          {drilling?.section === rt.label && <DrillDownPanel items={items} onClose={() => setDrilling(null)} />}
+                        </div>
+                      );
+                    });
                   })()}
                 </div>
               )
@@ -387,43 +463,47 @@ export default function DashboardPage() {
             <SectionHeader label="Complaints / Feedbacks" icon={<MessageSquare className="w-4 h-4" style={{ color: "#F5A623" }} />} />
             {expandedSections.has("feedback") && (
               overviewLoading ? <Skeleton className="h-32" /> : (
-                <Link href="/dashboard/front-desk/feedbacks" className="block space-y-4 transition-all hover:opacity-80">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="text-center">
-                      <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.today ?? 0}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Today</p>
+                <div className="space-y-3">
+                  <button onClick={() => setDrilling(drilling?.section === "feedbacks" ? null : { section: "feedbacks", items: (overview?.feedbacks as any)?.recent || [] })} className="w-full">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="text-center">
+                        <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.today ?? 0}</p>
+                        <p className="text-xs" style={{ color: "#64748B" }}>Today</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.thisWeek ?? 0}</p>
+                        <p className="text-xs" style={{ color: "#64748B" }}>This Week</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.thisMonth ?? 0}</p>
+                        <p className="text-xs" style={{ color: "#64748B" }}>This Month</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.thisYear ?? 0}</p>
+                        <p className="text-xs" style={{ color: "#64748B" }}>This Year</p>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.thisWeek ?? 0}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>This Week</p>
+                    <div className="flex items-center gap-4 text-xs mt-2" style={{ color: "#64748B" }}>
+                      <span className="flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#2BAE8E" }} />
+                        Avg Rating: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.avgRating ?? 0}</strong>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#F5A623" }} />
+                        Month Avg: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.monthAvgRating ?? 0}</strong>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#1A3C5E" }} />
+                        Year Avg: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.yearAvgRating ?? 0}</strong>
+                      </span>
+                      <span className="ml-auto font-medium">
+                        Total: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.overall ?? 0}</strong>
+                      </span>
                     </div>
-                    <div className="text-center">
-                      <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.thisMonth ?? 0}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>This Month</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.thisYear ?? 0}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>This Year</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-xs" style={{ color: "#64748B" }}>
-                    <span className="flex items-center gap-1">
-                      <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#2BAE8E" }} />
-                      Avg Rating: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.avgRating ?? 0}</strong>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#F5A623" }} />
-                      Month Avg: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.monthAvgRating ?? 0}</strong>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#1A3C5E" }} />
-                      Year Avg: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.yearAvgRating ?? 0}</strong>
-                    </span>
-                    <span className="ml-auto font-medium">
-                      Total: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.overall ?? 0}</strong>
-                    </span>
-                  </div>
-                </Link>
+                  </button>
+                  <Link href="/dashboard/front-desk/feedbacks" className="text-xs hover:underline" style={{ color: "#2BAE8E" }}>View all feedbacks →</Link>
+                  {drilling?.section === "feedbacks" && <DrillDownPanel items={(overview?.feedbacks as any)?.recent || []} onClose={() => setDrilling(null)} />}
+                </div>
               )
             )}
           </div>
@@ -434,38 +514,44 @@ export default function DashboardPage() {
             {expandedSections.has("financial") && (
               overviewLoading ? <Skeleton className="h-48" /> : (
                 <div className="space-y-4">
-                  <Link href="/dashboard/finance/payables" className="grid grid-cols-2 sm:grid-cols-4 gap-3 transition-all hover:opacity-80">
-                    <div className="rounded-xl p-3" style={{ background: "rgba(43,174,142,0.08)" }}>
-                      <p className="text-lg font-bold" style={{ color: "#2BAE8E" }}>₹{(overview?.financial?.todaySpending ?? 0).toLocaleString()}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Spending Today</p>
-                    </div>
-                    <div className="rounded-xl p-3" style={{ background: "rgba(245,166,35,0.08)" }}>
-                      <p className="text-lg font-bold" style={{ color: "#F5A623" }}>₹{(overview?.financial?.weekSpending ?? 0).toLocaleString()}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Spending This Week</p>
-                    </div>
-                    <div className="rounded-xl p-3" style={{ background: "rgba(26,60,94,0.08)" }}>
-                      <p className="text-lg font-bold" style={{ color: "#1A3C5E" }}>₹{(overview?.financial?.monthSpending ?? 0).toLocaleString()}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Spending This Month</p>
-                    </div>
-                    <div className="rounded-xl p-3" style={{ background: "rgba(229,62,62,0.08)" }}>
-                      <p className="text-lg font-bold" style={{ color: "#E53E3E" }}>₹{(overview?.financial?.yearSpending ?? 0).toLocaleString()}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Spending This Year</p>
-                    </div>
-                  </Link>
-                  <Link href="/dashboard/finance" className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 transition-all hover:opacity-80" style={{ borderTop: "1px solid #E2E8F0" }}>
-                    <div className="text-center">
-                      <p className="text-xl font-bold" style={{ color: "#2BAE8E" }}>₹{(overview?.financial?.availableMoney ?? 0).toLocaleString()}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Available Money</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xl font-bold" style={{ color: "#E53E3E" }}>₹{(overview?.financial?.expectedExpenses ?? 0).toLocaleString()}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Expected Expenses</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xl font-bold" style={{ color: "#2BAE8E" }}>₹{(overview?.financial?.expectedReceivables ?? 0).toLocaleString()}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Expected Receivables</p>
-                    </div>
-                  </Link>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { label: "Spending Today", key: "todaySpending", color: "#2BAE8E", bg: "rgba(43,174,142,0.08)" },
+                      { label: "Spending This Week", key: "weekSpending", color: "#F5A623", bg: "rgba(245,166,35,0.08)" },
+                      { label: "Spending This Month", key: "monthSpending", color: "#1A3C5E", bg: "rgba(26,60,94,0.08)" },
+                      { label: "Spending This Year", key: "yearSpending", color: "#E53E3E", bg: "rgba(229,62,62,0.08)" },
+                    ].map(item => {
+                      const drillItems = (overview as any)?.financial?.recentBills || [];
+                      return (
+                        <div key={item.key} className="rounded-xl p-3" style={{ background: item.bg }}>
+                          <button onClick={() => setDrilling(drilling?.section === item.label ? null : { section: item.label, items: drillItems })} className="w-full text-center">
+                            <p className="text-lg font-bold" style={{ color: item.color }}>₹{((overview?.financial as any)?.[item.key] ?? 0).toLocaleString()}</p>
+                            <p className="text-xs" style={{ color: "#64748B" }}>{item.label}</p>
+                          </button>
+                          {drilling?.section === item.label && <DrillDownPanel items={drillItems} onClose={() => setDrilling(null)} />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2" style={{ borderTop: "1px solid #E2E8F0" }}>
+                    {[
+                      { label: "Available Money", key: "availableMoney", color: "#2BAE8E" },
+                      { label: "Expected Expenses", key: "expectedExpenses", color: "#E53E3E" },
+                      { label: "Expected Receivables", key: "expectedReceivables", color: "#2BAE8E" },
+                    ].map(item => {
+                      const drillItems = (overview as any)?.financial?.recentPayments || [];
+                      return (
+                        <div key={item.key} className="text-center">
+                          <button onClick={() => setDrilling(drilling?.section === item.label ? null : { section: item.label, items: drillItems })} className="w-full text-center">
+                            <p className="text-xl font-bold" style={{ color: item.color }}>₹{((overview?.financial as any)?.[item.key] ?? 0).toLocaleString()}</p>
+                            <p className="text-xs" style={{ color: "#64748B" }}>{item.label}</p>
+                          </button>
+                          <Link href="/dashboard/finance" className="text-xs mt-0.5 inline-block hover:underline" style={{ color: "#2BAE8E" }}>Details →</Link>
+                          {drilling?.section === item.label && <DrillDownPanel items={drillItems} onClose={() => setDrilling(null)} />}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )
             )}

@@ -856,16 +856,25 @@ export function useAdminOverview(propertyId?: string) {
         today: number; thisWeek: number; thisMonth: number;
         thisYear: number; overall: number;
         avgRating: number; monthAvgRating: number; yearAvgRating: number;
+        recent: Record<string, unknown>[];
       } | null;
       revenue: {
         today: number; week: number; month: number;
         year: number; total: number;
+        recent: Record<string, unknown>[];
       } | null;
       financial: {
         todaySpending: number; weekSpending: number; monthSpending: number;
         yearSpending: number; expectedExpenses: number;
         expectedReceivables: number; availableMoney: number;
+        recentBills: Record<string, unknown>[];
       } | null;
+      drillDown: {
+        vendorBills: Record<string, unknown>[];
+        hkTasks: Record<string, unknown>[];
+        maintTickets: Record<string, unknown>[];
+        guestRequests: Record<string, unknown>[];
+      };
     } | undefined,
     isLoading,
     isError: !!error,

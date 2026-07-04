@@ -16,8 +16,15 @@ export async function GET(req: Request) {
       feedbackRows,
       revenueRows,
       expenseRows,
+      vendorBillDetailRows,
+      hkTaskDetailRows,
+      maintTicketDetailRows,
+      guestRequestDetailRows,
+      feedbackDetailRows,
+      paymentDetailRows,
+      expenseDetailRows,
     ] = await Promise.all([
-      // Employees available — count active employees; use attendance if available for today
+      // Employees count
       sql`
         SELECT COUNT(*)::int AS count
         FROM employees e
@@ -86,7 +93,7 @@ export async function GET(req: Request) {
         WHERE status = 'completed'
           AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
       `,
-      // Expense & financial stats — using bill_date for time-based breakdown
+      // Expense & financial stats
       sql`
         SELECT
           COALESCE(SUM(grand_total) FILTER (WHERE bill_date = CURRENT_DATE), 0)::numeric AS today_spending,
@@ -103,6 +110,81 @@ export async function GET(req: Request) {
         FROM vendor_bills
         WHERE status IN ('pending', 'approved')
           AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
+      `,
+      // Drill-down: Vendor bills detail (top 5 pending)
+      sql`
+        SELECT vb.bill_number, vb.bill_date, vb.grand_total, vb.status,
+          v.name AS vendor_name
+        FROM vendor_bills vb
+        LEFT JOIN vendors v ON v.id = vb.vendor_id
+        WHERE vb.status IN ('pending', 'overdue')
+          AND (${param}::uuid IS NULL OR vb.property_id = ${param}::uuid)
+        ORDER BY vb.due_date ASC
+        LIMIT 5
+      `,
+      // Drill-down: Housekeeping tasks detail (top 5 open)
+      sql`
+        SELECT h.task_type, h.priority, h.status, h.scheduled_at,
+          u.unit_label
+        FROM housekeeping_tasks h
+        LEFT JOIN units u ON u.id = h.unit_id
+        WHERE h.status IN ('open', 'assigned', 'in_progress')
+          AND (${param}::uuid IS NULL OR h.property_id = ${param}::uuid)
+        ORDER BY h.scheduled_at ASC
+        LIMIT 5
+      `,
+      // Drill-down: Maintenance tickets detail (top 5 open)
+      sql`
+        SELECT mt.ticket_number, mt.title, mt.priority, mt.status, mt.created_at
+        FROM maintenance_tickets mt
+        WHERE mt.status IN ('open', 'assigned', 'in_progress')
+          AND (${param}::uuid IS NULL OR mt.property_id = ${param}::uuid)
+        ORDER BY mt.created_at DESC
+        LIMIT 5
+      `,
+      // Drill-down: Guest requests detail (top 5 pending)
+      sql`
+        SELECT gr.request_type, gr.description, gr.status, gr.created_at,
+          u.unit_label
+        FROM guest_requests gr
+        LEFT JOIN bookings b ON b.id = gr.booking_id
+        LEFT JOIN units u ON u.id = b.unit_id
+        WHERE gr.status IN ('pending', 'in_progress')
+          AND (${param}::uuid IS NULL OR gr.property_id = ${param}::uuid)
+        ORDER BY gr.created_at DESC
+        LIMIT 5
+      `,
+      // Drill-down: Recent feedbacks
+      sql`
+        SELECT gf.rating, gf.department, gf.comments, gf.created_at,
+          gp.first_name, gp.last_name
+        FROM guest_feedbacks gf
+        LEFT JOIN guest_profiles gp ON gp.id = gf.guest_id
+        WHERE ${param}::uuid IS NULL OR gf.property_id = ${param}::uuid
+        ORDER BY gf.created_at DESC
+        LIMIT 5
+      `,
+      // Drill-down: Recent payments
+      sql`
+        SELECT p.amount, p.payment_method, p.payment_date, p.status,
+          pv.name AS property_name
+        FROM payments p
+        LEFT JOIN properties pv ON pv.id = p.property_id
+        WHERE p.status = 'completed'
+          AND (${param}::uuid IS NULL OR p.property_id = ${param}::uuid)
+        ORDER BY p.payment_date DESC
+        LIMIT 5
+      `,
+      // Drill-down: Vendor bills for spending detail
+      sql`
+        SELECT vb.bill_number, vb.bill_date, vb.grand_total, vb.status,
+          v.name AS vendor_name
+        FROM vendor_bills vb
+        LEFT JOIN vendors v ON v.id = vb.vendor_id
+        WHERE vb.status IN ('pending', 'approved')
+          AND (${param}::uuid IS NULL OR vb.property_id = ${param}::uuid)
+        ORDER BY vb.bill_date DESC
+        LIMIT 5
       `,
     ]);
 
@@ -137,6 +219,7 @@ export async function GET(req: Request) {
         avgRating: Number(feedback.avg_rating || 0),
         monthAvgRating: Number(feedback.month_avg || 0),
         yearAvgRating: Number(feedback.year_avg || 0),
+        recent: feedbackDetailRows,
       } : null,
       revenue: revenue ? {
         today: Number(revenue.today_revenue),
@@ -144,6 +227,7 @@ export async function GET(req: Request) {
         month: Number(revenue.month_revenue),
         year: Number(revenue.year_revenue),
         total: Number(revenue.total_revenue),
+        recent: paymentDetailRows,
       } : null,
       financial: expenses ? {
         todaySpending: Number(expenses.today_spending),
@@ -153,7 +237,14 @@ export async function GET(req: Request) {
         expectedExpenses: Number(expenses.expected_expenses),
         expectedReceivables: Number(expenses.expected_receivables),
         availableMoney,
+        recentBills: expenseDetailRows,
       } : null,
+      drillDown: {
+        vendorBills: vendorBillDetailRows,
+        hkTasks: hkTaskDetailRows,
+        maintTickets: maintTicketDetailRows,
+        guestRequests: guestRequestDetailRows,
+      },
     });
   } catch (error) {
     console.error("[admin-overview]", error);
