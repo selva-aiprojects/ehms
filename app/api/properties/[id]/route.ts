@@ -72,16 +72,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     updates.push(`updated_at = now()`);
     values.push(id);
 
-    const result = await (sql as any)(
+    const result = await sql.query(
       `UPDATE properties SET ${updates.join(", ")} WHERE id = $${idx} RETURNING *`,
       values
     );
 
-    if (result.length === 0) {
+    if (!result || (result as unknown as any[]).length === 0) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ data: result[0] });
+    return NextResponse.json({ data: (result as unknown as any[])[0] });
   } catch (error: any) {
     console.error("[properties/:id PUT]", error);
     return NextResponse.json({ error: error?.message || "Failed to update property" }, { status: 500 });

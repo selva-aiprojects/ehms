@@ -10,17 +10,20 @@ export async function GET(req: NextRequest) {
     const taxType = searchParams.get("tax_type");
     const status = searchParams.get("status");
 
-    let query = sql`
+    let query = `
       SELECT tf.*, u.name as filed_by_name
       FROM tax_filings tf
       LEFT JOIN users u ON u.id = tf.filed_by
-      WHERE 1=1`;
-    if (propertyId) query = sql`${query} AND tf.property_id = ${propertyId}`;
-    if (taxType) query = sql`${query} AND tf.tax_type = ${taxType}`;
-    if (status) query = sql`${query} AND tf.status = ${status}`;
-    query = sql`${query} ORDER BY tf.period_end DESC`;
+      WHERE 1=1
+    `;
+    const params: any[] = [];
+    let idx = 1;
+    if (propertyId) { query += ` AND tf.property_id = $${idx++}`; params.push(propertyId); }
+    if (taxType) { query += ` AND tf.tax_type = $${idx++}`; params.push(taxType); }
+    if (status) { query += ` AND tf.status = $${idx++}`; params.push(status); }
+    query += " ORDER BY tf.period_end DESC";
 
-    const rows = await query;
+    const rows = await sql.query(query, params);
     return NextResponse.json({ data: rows });
   } catch (error) {
     console.error("[finance/tax-filings GET]", error);

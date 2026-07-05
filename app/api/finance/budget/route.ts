@@ -10,18 +10,21 @@ export async function GET(req: NextRequest) {
     const fiscalYearId = searchParams.get("fiscal_year_id");
     const headId = searchParams.get("budget_head_id");
 
-    let query = sql`
+    let query = `
       SELECT be.*, bh.code as head_code, bh.name as head_name, fy.name as fiscal_year_name
       FROM budget_entries be
       JOIN budget_heads bh ON bh.id = be.budget_head_id
       JOIN fiscal_years fy ON fy.id = be.fiscal_year_id
-      WHERE 1=1`;
-    if (propertyId) query = sql`${query} AND bh.property_id = ${propertyId}`;
-    if (fiscalYearId) query = sql`${query} AND be.fiscal_year_id = ${fiscalYearId}`;
-    if (headId) query = sql`${query} AND be.budget_head_id = ${headId}`;
-    query = sql`${query} ORDER BY bh.code, be.period_month`;
+      WHERE 1=1
+    `;
+    const params: any[] = [];
+    let idx = 1;
+    if (propertyId) { query += ` AND bh.property_id = $${idx++}`; params.push(propertyId); }
+    if (fiscalYearId) { query += ` AND be.fiscal_year_id = $${idx++}`; params.push(fiscalYearId); }
+    if (headId) { query += ` AND be.budget_head_id = $${idx++}`; params.push(headId); }
+    query += " ORDER BY bh.code, be.period_month";
 
-    const rows = await query;
+    const rows = await sql.query(query, params);
     return NextResponse.json({ data: rows });
   } catch (error) {
     console.error("[finance/budget GET]", error);

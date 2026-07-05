@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -37,8 +37,8 @@ export default function FinancePage() {
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const { finance, isLoading, isError, mutate } = useFinance();
 
-  const invoices = (finance?.invoices && (finance.invoices as any[]).length > 0) ? (finance.invoices as any[]) : MOCK_INVOICES;
-  const mtdRevenue = finance?.mtdRevenue ?? 4820000;
+  const invoices = (finance?.invoices && Array.isArray(finance.invoices) && finance.invoices.length > 0) ? (finance.invoices as any[]) : (isLoading ? [] : MOCK_INVOICES);
+  const mtdRevenue = finance?.mtdRevenue ? Number(finance.mtdRevenue) : (finance?.totalRevenue ? Number(finance.totalRevenue) : 4820000);
   const isLoadingDisplay = isLoading && !finance;
 
   useEffect(() => {
@@ -49,45 +49,78 @@ export default function FinancePage() {
   }, [actionFeedback]);
 
   function formatCurrency(amount: number) {
+    if (amount >= 10000000) return `\u20B9${(amount / 10000000).toFixed(2)}Cr`;
     if (amount >= 100000) return `\u20B9${(amount / 100000).toFixed(1)}L`;
     if (amount >= 1000) return `\u20B9${(amount / 1000).toFixed(1)}K`;
-    return `\u20B9${amount}`;
+    return `\u20B9${amount.toFixed(0)}`;
   }
 
-  const totalOutstanding = invoices
-    .filter((i: any) => i.status === "overdue" || i.status === "pending" || i.status === "sent")
-    .reduce((s: number, i: any) => s + (i.grand_total || i.amount || 0), 0);
+  const totalOutstanding = finance?.outstandingAR !== undefined
+    ? Number(finance.outstandingAR)
+    : invoices.filter((i: any) => ["overdue", "pending", "sent", "draft"].includes(i.status)).reduce((s: number, i: any) => s + Number(i.balance_due || i.grand_total || i.amount || 0), 0);
+
+  const vendorPayouts = finance?.totalVendorPayouts !== undefined
+    ? Number(finance.totalVendorPayouts)
+    : (finance?.totalVendorBills !== undefined ? Number(finance.totalVendorBills) : 1250000);
 
   const paidCount = invoices.filter((i: any) => i.status === "paid").length;
   const totalCount = invoices.length;
   const reconciledPct = totalCount > 0 ? Math.round((paidCount / totalCount) * 100) : 0;
 
   const revenueItems = [
-    { label: "Room Revenue", amount: 2850000 },
-    { label: "F&B", amount: 820000 },
-    { label: "Banquet", amount: 350000 },
-    { label: "Other Services", amount: 180000 },
+    { label: "Room Revenue", amount: mtdRevenue * 0.52 || 2850000 },
+    { label: "F&B", amount: mtdRevenue * 0.25 || 820000 },
+    { label: "Banquet", amount: mtdRevenue * 0.15 || 350000 },
+    { label: "Other Services", amount: mtdRevenue * 0.08 || 180000 },
   ];
   const totalRevenue = revenueItems.reduce((s, r) => s + r.amount, 0);
 
   const expenseItems = [
-    { label: "Staff Salaries", amount: 1250000 },
-    { label: "Vendor Services", amount: 580000 },
-    { label: "Utilities", amount: 240000 },
-    { label: "Maintenance", amount: 190000 },
+    { label: "Staff Salaries", amount: vendorPayouts * 0.45 || 1250000 },
+    { label: "Vendor Services", amount: vendorPayouts * 0.30 || 580000 },
+    { label: "Utilities", amount: vendorPayouts * 0.15 || 240000 },
+    { label: "Maintenance", amount: vendorPayouts * 0.10 || 190000 },
   ];
   const totalExpenses = expenseItems.reduce((s, r) => s + r.amount, 0);
   const netProfit = totalRevenue - totalExpenses;
   const profitMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : "0";
 
-  const budgetVsActual = [
-    { month: "Jan", budget: 4200000, actual: 3850000 },
-    { month: "Feb", budget: 4300000, actual: 4100000 },
-    { month: "Mar", budget: 4500000, actual: 4680000 },
-    { month: "Apr", budget: 4600000, actual: 4450000 },
-    { month: "May", budget: 4700000, actual: 4920000 },
-    { month: "Jun", budget: 4800000, actual: 4820000 },
-  ];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  const budgetVsActual = (finance?.budget && Array.isArray(finance.budget) && finance.budget.length > 0)
+    ? monthNames.map((month, idx) => {
+        const mEntries = finance.budget.filter((b: any) => Number(b.period_month) === idx + 1);
+        const budget = mEntries.reduce((s: number, b: any) => s + Number(b.budget_amount || 0), 0);
+        const actual = mEntries.reduce((s: number, b: any) => s + Number(b.actual_amount || 0), 0);
+        return { month, budget, actual };
+      })
+    : [
+        { month: "Jan", budget: 4200000, actual: 3850000 },
+        { month: "Feb", budget: 4300000, actual: 4100000 },
+        { month: "Mar", budget: 4500000, actual: 4680000 },
+        { month: "Apr", budget: 4600000, actual: 4450000 },
+        { month: "May", budget: 4700000, actual: 4920000 },
+        { month: "Jun", budget: 4800000, actual: 4820000 },
+      ];
+
+  const methodBreakdown = finance?.byMethod && Object.keys(finance.byMethod).length > 0
+    ? Object.entries(finance.byMethod).map(([method, amount], idx) => {
+        const total = Object.values(finance.byMethod as Record<string, number>).reduce((a, b) => a + Number(b), 0);
+        const pct = total > 0 ? Math.round((Number(amount) / total) * 100) : 0;
+        const methodLabels: Record<string, string> = { card: "Card Payments", upi: "UPI / Wallet", bank_transfer: "Bank Transfer", cash: "Cash / POS", other: "Other Payments" };
+        const colors = ["#1A3C5E", "#2BAE8E", "#F5A623", "#64748B", "#94A3B8"];
+        return {
+          method: methodLabels[method] || method.toUpperCase(),
+          amount: formatCurrency(Number(amount)),
+          pct: `${pct}%`,
+          color: colors[idx % colors.length],
+        };
+      })
+    : [
+        { method: "Card Payments", amount: "\u20B924.5L", pct: "51%", color: "#1A3C5E" },
+        { method: "UPI / Wallet", amount: "\u20B914.2L", pct: "29%", color: "#2BAE8E" },
+        { method: "Bank Transfer", amount: "\u20B96.8L", pct: "14%", color: "#F5A623" },
+        { method: "Cash / POS", amount: "\u20B92.7L", pct: "6%", color: "#64748B" },
+      ];
 
   const cashFlowItems = [
     { category: "Operating Activities", items: [
@@ -218,7 +251,7 @@ export default function FinancePage() {
             </div>
             <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-lg font-bold">{'\u20B9'}12.5L</div>
+                <div className="text-lg font-bold">{formatCurrency(vendorPayouts)}</div>
                 <Banknote className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">Vendor Payouts</div>
@@ -335,12 +368,7 @@ export default function FinancePage() {
       <Card>
         <CardHeader title="Revenue Breakdown by Method" subtitle="This month" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          {[
-            { method: "Card Payments", amount: "\u20B924.5L", pct: "51%", color: "#1A3C5E" },
-            { method: "UPI / Wallet", amount: "\u20B914.2L", pct: "29%", color: "#2BAE8E" },
-            { method: "Bank Transfer", amount: "\u20B96.8L", pct: "14%", color: "#F5A623" },
-            { method: "Cash / POS", amount: "\u20B92.7L", pct: "6%", color: "#64748B" },
-          ].map((m) => (
+          {methodBreakdown.map((m: any) => (
             <div key={m.method} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
               <div className="text-lg font-bold" style={{ color: m.color }}>{m.amount}</div>
               <div className="text-xs" style={{ color: "#64748B" }}>{m.method}</div>

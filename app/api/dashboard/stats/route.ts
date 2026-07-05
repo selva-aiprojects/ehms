@@ -20,7 +20,11 @@ export async function GET(req: Request) {
               ELSE (SELECT COUNT(*)::int FROM guest_profiles)
             END
           ) AS total_guests,
-          (SELECT COALESCE(SUM(amount),0)::numeric FROM payments WHERE status = 'completed' AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_revenue,
+          -- Revenue: prefer payments table, fall back to bookings.paid_amount
+          COALESCE(
+            NULLIF((SELECT SUM(amount)::numeric FROM payments WHERE status = 'completed' AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)), 0),
+            (SELECT COALESCE(SUM(paid_amount),0)::numeric FROM bookings WHERE paid_amount > 0 AND status IN ('checked_out','checked_in') AND (${param}::uuid IS NULL OR property_id = ${param}::uuid))
+          ) AS total_revenue,
           (SELECT COALESCE(SUM(balance_due),0)::numeric FROM vendor_bills WHERE status IN ('pending', 'approved', 'overdue') AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_payables,
           (SELECT COALESCE(ROUND(AVG(rating), 1), 0.0)::numeric FROM guest_feedbacks WHERE (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS avg_rating,
           (
@@ -39,15 +43,28 @@ export async function GET(req: Request) {
           ) AS occupied_units
       `,
       sql`
-        SELECT
-          TO_CHAR(payment_date, 'YYYY-MM') AS month,
-          SUM(amount)::numeric             AS revenue
-        FROM payments
-        WHERE status = 'completed'
-          AND payment_date >= NOW() - INTERVAL '11 months'
-          AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
-        GROUP BY 1
-        ORDER BY 1
+        SELECT month, SUM(revenue)::numeric AS revenue FROM (
+          SELECT TO_CHAR(payment_date, 'YYYY-MM') AS month, SUM(amount) AS revenue
+          FROM payments
+          WHERE status = 'completed'
+            AND payment_date >= NOW() - INTERVAL '11 months'
+            AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
+          GROUP BY 1
+          UNION ALL
+          SELECT TO_CHAR(check_in, 'YYYY-MM') AS month, SUM(paid_amount) AS revenue
+          FROM bookings
+          WHERE paid_amount > 0 AND status IN ('checked_out', 'checked_in')
+            AND check_in >= NOW() - INTERVAL '11 months'
+            AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
+            AND NOT EXISTS (
+              SELECT 1 FROM payments p2
+              WHERE p2.status = 'completed'
+                AND TO_CHAR(p2.payment_date, 'YYYY-MM') = TO_CHAR(bookings.check_in, 'YYYY-MM')
+                AND (${param}::uuid IS NULL OR p2.property_id = ${param}::uuid)
+            )
+          GROUP BY 1
+        ) combined
+        GROUP BY month ORDER BY month
       `,
     ]);
 

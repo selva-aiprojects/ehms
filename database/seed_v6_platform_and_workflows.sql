@@ -75,7 +75,7 @@ FROM pa, (VALUES
     'View Invoice'
   )
 ) AS t(title, content, category, priority, target_vertical, target_tenant_code, action_url, action_label)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (title) DO NOTHING;
 
 -- Seed Platform Support Tickets (Tenants calling Service Provider support)
 WITH pa AS (SELECT id FROM public.platform_admins WHERE email = 'provider@ehms.demo' LIMIT 1)

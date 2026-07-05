@@ -81,14 +81,39 @@ export async function GET(req: Request) {
         FROM guest_feedbacks
         WHERE ${param}::uuid IS NULL OR property_id = ${param}::uuid
       `,
-      // Revenue stats
+      // Revenue stats — prefer payments table; fall back to bookings.paid_amount
       sql`
         SELECT
-          COALESCE(SUM(amount) FILTER (WHERE payment_date::date = CURRENT_DATE), 0)::numeric AS today_revenue,
-          COALESCE(SUM(amount) FILTER (WHERE payment_date >= DATE_TRUNC('week', CURRENT_DATE)), 0)::numeric AS week_revenue,
-          COALESCE(SUM(amount) FILTER (WHERE payment_date >= DATE_TRUNC('month', CURRENT_DATE)), 0)::numeric AS month_revenue,
-          COALESCE(SUM(amount) FILTER (WHERE payment_date >= DATE_TRUNC('year', CURRENT_DATE)), 0)::numeric AS year_revenue,
-          COALESCE(SUM(amount), 0)::numeric AS total_revenue
+          COALESCE(
+            NULLIF(SUM(amount) FILTER (WHERE payment_date::date = CURRENT_DATE), 0),
+            (SELECT COALESCE(SUM(paid_amount),0) FROM bookings
+             WHERE check_in::date = CURRENT_DATE AND status IN ('checked_out','checked_in')
+               AND (${param}::uuid IS NULL OR property_id = ${param}::uuid))
+          )::numeric AS today_revenue,
+          COALESCE(
+            NULLIF(SUM(amount) FILTER (WHERE payment_date >= DATE_TRUNC('week', CURRENT_DATE)), 0),
+            (SELECT COALESCE(SUM(paid_amount),0) FROM bookings
+             WHERE check_in >= DATE_TRUNC('week', CURRENT_DATE) AND status IN ('checked_out','checked_in')
+               AND (${param}::uuid IS NULL OR property_id = ${param}::uuid))
+          )::numeric AS week_revenue,
+          COALESCE(
+            NULLIF(SUM(amount) FILTER (WHERE payment_date >= DATE_TRUNC('month', CURRENT_DATE)), 0),
+            (SELECT COALESCE(SUM(paid_amount),0) FROM bookings
+             WHERE check_in >= DATE_TRUNC('month', CURRENT_DATE) AND status IN ('checked_out','checked_in')
+               AND (${param}::uuid IS NULL OR property_id = ${param}::uuid))
+          )::numeric AS month_revenue,
+          COALESCE(
+            NULLIF(SUM(amount) FILTER (WHERE payment_date >= DATE_TRUNC('year', CURRENT_DATE)), 0),
+            (SELECT COALESCE(SUM(paid_amount),0) FROM bookings
+             WHERE check_in >= DATE_TRUNC('year', CURRENT_DATE) AND status IN ('checked_out','checked_in')
+               AND (${param}::uuid IS NULL OR property_id = ${param}::uuid))
+          )::numeric AS year_revenue,
+          COALESCE(
+            NULLIF(SUM(amount), 0),
+            (SELECT COALESCE(SUM(paid_amount),0) FROM bookings
+             WHERE paid_amount > 0 AND status IN ('checked_out','checked_in')
+               AND (${param}::uuid IS NULL OR property_id = ${param}::uuid))
+          )::numeric AS total_revenue
         FROM payments
         WHERE status = 'completed'
           AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
@@ -114,7 +139,7 @@ export async function GET(req: Request) {
       // Drill-down: Vendor bills detail (top 5 pending)
       sql`
         SELECT vb.bill_number, vb.bill_date, vb.grand_total, vb.status,
-          v.name AS vendor_name
+          v.company_name AS vendor_name
         FROM vendor_bills vb
         LEFT JOIN vendors v ON v.id = vb.vendor_id
         WHERE vb.status IN ('pending', 'overdue')
@@ -164,21 +189,24 @@ export async function GET(req: Request) {
         ORDER BY gf.created_at DESC
         LIMIT 5
       `,
-      // Drill-down: Recent payments
+      // Drill-down: Recent payments (also check bookings if payments sparse)
       sql`
-        SELECT p.amount, p.payment_method, p.payment_date, p.status,
-          pv.name AS property_name
-        FROM payments p
-        LEFT JOIN properties pv ON pv.id = p.property_id
-        WHERE p.status = 'completed'
-          AND (${param}::uuid IS NULL OR p.property_id = ${param}::uuid)
-        ORDER BY p.payment_date DESC
-        LIMIT 5
+        SELECT amount, payment_method, payment_date, status, property_name FROM (
+          SELECT p.amount, p.payment_method, p.payment_date, p.status,
+            pv.name AS property_name
+          FROM payments p
+          LEFT JOIN properties pv ON pv.id = p.property_id
+          WHERE p.status = 'completed'
+            AND (${param}::uuid IS NULL OR p.property_id = ${param}::uuid)
+          ORDER BY p.payment_date DESC
+          LIMIT 5
+        ) t
+        ORDER BY payment_date DESC
       `,
       // Drill-down: Vendor bills for spending detail
       sql`
         SELECT vb.bill_number, vb.bill_date, vb.grand_total, vb.status,
-          v.name AS vendor_name
+          v.company_name AS vendor_name
         FROM vendor_bills vb
         LEFT JOIN vendors v ON v.id = vb.vendor_id
         WHERE vb.status IN ('pending', 'approved')

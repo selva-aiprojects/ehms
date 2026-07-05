@@ -42,9 +42,13 @@ export default function ReceivablesPage() {
   const invoices: any[] = (finance?.invoices as any[]) || [];
   const filtered = statusFilter === "all" ? invoices : invoices.filter((i) => i.status === statusFilter);
 
-  const totalOutstanding = invoices.filter((i) => ["overdue", "pending", "sent"].includes(i.status)).reduce((s, i) => s + (i.balance_due ?? i.grand_total ?? 0), 0);
-  const totalOverdue = invoices.filter((i) => i.status === "overdue").reduce((s, i) => s + (i.balance_due ?? i.grand_total ?? 0), 0);
-  const collectedMtd = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + (i.paid_total ?? i.grand_total ?? 0), 0);
+  const totalOutstanding = finance?.outstandingAR !== undefined
+    ? Number(finance.outstandingAR)
+    : invoices.filter((i) => ["overdue", "pending", "sent", "draft"].includes(i.status)).reduce((s, i) => s + Number(i.balance_due ?? i.grand_total ?? 0), 0);
+  const totalOverdue = invoices.filter((i) => i.status === "overdue").reduce((s, i) => s + Number(i.balance_due ?? i.grand_total ?? 0), 0);
+  const collectedMtd = finance?.mtdRevenue !== undefined
+    ? Number(finance.mtdRevenue)
+    : (finance?.totalRevenue !== undefined ? Number(finance.totalRevenue) : invoices.filter((i) => i.status === "paid").reduce((s, i) => s + Number(i.paid_total ?? i.grand_total ?? 0), 0));
 
   useEffect(() => {
     if (actionFeedback) {

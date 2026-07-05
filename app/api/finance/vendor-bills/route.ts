@@ -10,17 +10,20 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
     const vendorId = searchParams.get("vendor_id");
 
-    let query = sql`
+    let query = `
       SELECT vb.*, v.name as vendor_name, v.code as vendor_code
       FROM vendor_bills vb
       LEFT JOIN vendors v ON v.id = vb.vendor_id
-      WHERE 1=1`;
-    if (propertyId) query = sql`${query} AND vb.property_id = ${propertyId}`;
-    if (status) query = sql`${query} AND vb.status = ${status}`;
-    if (vendorId) query = sql`${query} AND vb.vendor_id = ${vendorId}`;
-    query = sql`${query} ORDER BY vb.bill_date DESC LIMIT 100`;
+      WHERE 1=1
+    `;
+    const params: any[] = [];
+    let idx = 1;
+    if (propertyId) { query += ` AND vb.property_id = $${idx++}`; params.push(propertyId); }
+    if (status) { query += ` AND vb.status = $${idx++}`; params.push(status); }
+    if (vendorId) { query += ` AND vb.vendor_id = $${idx++}`; params.push(vendorId); }
+    query += " ORDER BY vb.bill_date DESC LIMIT 100";
 
-    const rows = await query;
+    const rows = await sql.query(query, params);
     return NextResponse.json({ data: rows });
   } catch (error) {
     console.error("[finance/vendor-bills GET]", error);

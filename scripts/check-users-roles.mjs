@@ -1,7 +1,8 @@
 import { neon } from "@neondatabase/serverless";
 import { readFileSync } from "fs";
-import { join, dirname, resolve } from "path";
+import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import bcrypt from "bcryptjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ENV_PATH = resolve(__dirname, "../.env.local");
@@ -11,7 +12,7 @@ let dbUrl = "";
 for (const line of content.split("\n")) {
   const t = line.trim();
   if (t.startsWith("DATABASE_URL=")) {
-    dbUrl = t.slice("DATABASE_URL=".length).replace(/['"]/g, ""); // strip quotes if any
+    dbUrl = t.slice("DATABASE_URL=".length).replace(/['"]/g, "");
   }
 }
 
@@ -22,28 +23,44 @@ if (!dbUrl) {
 
 const sql = neon(dbUrl);
 
-import bcrypt from "bcryptjs";
+const DEMO_EMAILS = [
+  "superadmin@ehms.demo",
+  "admin@ehms.demo",
+  "executive@ehms.demo",
+  "frontdesk@ehms.demo",
+  "housekeeping@ehms.demo",
+  "maintenance@ehms.demo",
+  "hr@ehms.demo",
+  "finance@ehms.demo"
+];
 
-try {
-  console.log("--- Login Query for superadmin@ehms.demo ---");
-  const rows = await sql.query(`
-    SELECT
-      u.id, u.email, u.password_hash, u.first_name, u.last_name, u.avatar_url,
-      r.id AS role_id, r.name AS role_name
-    FROM users u
-    JOIN user_roles ur ON ur.user_id = u.id
-    JOIN roles r ON r.id = ur.role_id
-    WHERE u.email = 'superadmin@ehms.demo' AND u.is_active = true
-    ORDER BY r.name = 'super_admin' DESC
-    LIMIT 1
-  `);
-  console.log(JSON.stringify(rows, null, 2));
+async function checkUsers() {
+  try {
+    console.log("=== Checking Viswa Group of Estates Demo Credentials (viswa schema) ===");
+    
+    for (const email of DEMO_EMAILS) {
+      // Qualify tables with viswa. schema to avoid serverless search_path issues
+      const rows = await sql`
+        SELECT
+          u.id, u.email, u.password_hash, u.first_name, u.last_name, u.is_active,
+          r.name AS role_name
+        FROM viswa.users u
+        LEFT JOIN viswa.user_roles ur ON ur.user_id = u.id
+        LEFT JOIN viswa.roles r ON r.id = ur.role_id
+        WHERE u.email = ${email}
+      `;
 
-  if (rows.length > 0) {
-    const hash = rows[0].password_hash;
-    const isMatched = await bcrypt.compare("Demo@1234", hash);
-    console.log("Password match for 'Demo@1234':", isMatched);
+      if (rows.length === 0) {
+        console.log(`❌ ${email}: NOT FOUND in database`);
+      } else {
+        const user = rows[0];
+        const isMatched = await bcrypt.compare("Demo@1234", user.password_hash);
+        console.log(`✅ ${user.email.padEnd(24)} | Role: ${(user.role_name || "NONE").padEnd(20)} | Active: ${user.is_active} | Pwd (Demo@1234): ${isMatched ? "MATCH" : "FAIL"}`);
+      }
+    }
+  } catch (err) {
+    console.error("Error executing query:", err);
   }
-} catch (err) {
-  console.error("Error executing query:", err);
 }
+
+checkUsers();
