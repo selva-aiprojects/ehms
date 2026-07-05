@@ -155,14 +155,14 @@ function DrillDownPanel({ items, onClose, viewAllHref }: {
 
 /* ─── Today's Activity strip ─── */
 function ActivityPill({
-  label, value, icon, color, bg, href,
+  label, value, icon, color, bg, href, onClick,
 }: {
-  label: string; value: number | string; icon: React.ReactNode; color: string; bg: string; href: string;
+  label: string; value: number | string; icon: React.ReactNode; color: string; bg: string; href: string; onClick?: (e: React.MouseEvent) => void;
 }) {
-  return (
-    <Link href={href}
-      className="flex items-center gap-2.5 px-4 py-3 rounded-2xl transition-all hover:shadow-md hover:-translate-y-0.5 shrink-0"
+  const content = (
+    <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl transition-all hover:shadow-md hover:-translate-y-0.5 shrink-0 cursor-pointer"
       style={{ background: bg, border: `1px solid ${color}30`, minWidth: 150 }}
+      onClick={onClick}
     >
       <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${color}15` }}>
         {icon}
@@ -171,8 +171,10 @@ function ActivityPill({
         <p className="text-xl font-bold leading-none" style={{ color }}>{value}</p>
         <p className="text-xs mt-0.5 font-medium" style={{ color: "#64748B" }}>{label}</p>
       </div>
-    </Link>
+    </div>
   );
+  if (onClick) return content;
+  return <Link href={href}>{content}</Link>;
 }
 
 /* ─── Metric card with trend ─── */
@@ -427,13 +429,18 @@ export default function DashboardPage() {
                   {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-36 shrink-0 rounded-2xl" />)}
                 </div>
               ) : (
-                <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
-                  <ActivityPill label="Occupied Rooms" value={todayCheckins} icon={<Bed className="w-4 h-4" style={{ color: "#2BAE8E" }} />} color="#2BAE8E" bg="#EFFDF9" href="/dashboard/front-desk" />
-                  <ActivityPill label="HK Tasks Open" value={openHKTasks} icon={<ClipboardList className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" bg="#FFFBEB" href="/dashboard/housekeeping" />
-                  <ActivityPill label="Maint. Open" value={openMaint} icon={<Wrench className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" bg="#FFF5F5" href="/dashboard/maintenance" />
-                  <ActivityPill label="Pending Requests" value={pendingReqs} icon={<MessageSquare className="w-4 h-4" style={{ color: "#1A3C5E" }} />} color="#1A3C5E" bg="#EFF4FF" href="/dashboard/front-desk/requests" />
-                  <ActivityPill label="Vendor Bills Due" value={pendingBills} icon={<AlertTriangle className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" bg="#FFF5F5" href="/dashboard/finance/payables" />
-                  <ActivityPill label="Avg Rating" value={`${overview?.feedbacks?.avgRating ?? 0} ★`} icon={<Star className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" bg="#FFFBEB" href="/dashboard/front-desk/feedbacks" />
+                <div className="space-y-3">
+                  <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
+                    <ActivityPill label="Occupied Rooms" value={todayCheckins} icon={<Bed className="w-4 h-4" style={{ color: "#2BAE8E" }} />} color="#2BAE8E" bg="#EFFDF9" href="/dashboard/front-desk" onClick={() => drill("Occupied Rooms", ((overview as any)?.drillDown?.rooms || []).filter((r: any) => r.status === "occupied" || r.status === "dirty"), "/dashboard/front-desk")} />
+                    <ActivityPill label="HK Tasks Open" value={openHKTasks} icon={<ClipboardList className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" bg="#FFFBEB" href="/dashboard/housekeeping" onClick={() => drill("HK Tasks Open", (overview as any)?.drillDown?.hkTasks || [], "/dashboard/housekeeping")} />
+                    <ActivityPill label="Maint. Open" value={openMaint} icon={<Wrench className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" bg="#FFF5F5" href="/dashboard/maintenance" onClick={() => drill("Maint. Open", (overview as any)?.drillDown?.maintTickets || [], "/dashboard/maintenance")} />
+                    <ActivityPill label="Pending Requests" value={pendingReqs} icon={<MessageSquare className="w-4 h-4" style={{ color: "#1A3C5E" }} />} color="#1A3C5E" bg="#EFF4FF" href="/dashboard/front-desk/requests" onClick={() => drill("Pending Requests", (overview as any)?.drillDown?.guestRequests || [], "/dashboard/front-desk/requests")} />
+                    <ActivityPill label="Vendor Bills Due" value={pendingBills} icon={<AlertTriangle className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" bg="#FFF5F5" href="/dashboard/finance/payables" onClick={() => drill("Vendor Bills Due", (overview as any)?.drillDown?.vendorBills || [], "/dashboard/finance/payables")} />
+                    <ActivityPill label="Avg Rating" value={`${overview?.feedbacks?.avgRating ?? 0} ★`} icon={<Star className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" bg="#FFFBEB" href="/dashboard/front-desk/feedbacks" onClick={() => drill("Avg Rating", (overview?.feedbacks as any)?.recent || [], "/dashboard/front-desk/feedbacks")} />
+                  </div>
+                  {drilling && ["Occupied Rooms", "HK Tasks Open", "Maint. Open", "Pending Requests", "Vendor Bills Due", "Avg Rating"].includes(drilling.section) && (
+                    <DrillDownPanel items={drilling.items} onClose={() => setDrilling(null)} viewAllHref={drilling.href} />
+                  )}
                 </div>
               )
             )}
@@ -450,13 +457,13 @@ export default function DashboardPage() {
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { label: "Today Revenue", key: "today", color: "#2BAE8E", bg: "rgba(43,174,142,0.08)", icon: <IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} /> },
-                    { label: "This Week", key: "week", color: "#1A3C5E", bg: "rgba(26,60,94,0.06)", icon: <TrendingUp className="w-4 h-4" style={{ color: "#1A3C5E" }} /> },
-                    { label: "This Month", key: "month", color: "#F5A623", bg: "rgba(245,166,35,0.08)", icon: <TrendingUp className="w-4 h-4" style={{ color: "#F5A623" }} /> },
-                    { label: "This Year", key: "year", color: "#E53E3E", bg: "rgba(229,62,62,0.08)", icon: <DollarSign className="w-4 h-4" style={{ color: "#E53E3E" }} /> },
+                    { label: "Today Revenue", key: "today", recentKey: "recentToday", color: "#2BAE8E", bg: "rgba(43,174,142,0.08)", icon: <IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} /> },
+                    { label: "This Week", key: "week", recentKey: "recentWeek", color: "#1A3C5E", bg: "rgba(26,60,94,0.06)", icon: <TrendingUp className="w-4 h-4" style={{ color: "#1A3C5E" }} /> },
+                    { label: "This Month", key: "month", recentKey: "recentMonth", color: "#F5A623", bg: "rgba(245,166,35,0.08)", icon: <TrendingUp className="w-4 h-4" style={{ color: "#F5A623" }} /> },
+                    { label: "This Year", key: "year", recentKey: "recentYear", color: "#E53E3E", bg: "rgba(229,62,62,0.08)", icon: <DollarSign className="w-4 h-4" style={{ color: "#E53E3E" }} /> },
                   ].map(item => {
                     const val = (overview?.revenue as any)?.[item.key] ?? 0;
-                    const drillItems = (overview as any)?.revenue?.recent || [];
+                    const drillItems = (overview as any)?.revenue?.[item.recentKey] || (overview as any)?.revenue?.recent || [];
                     const isActive = drilling?.section === item.label;
                     return (
                       <div key={item.key} className="rounded-xl transition-all hover:shadow-sm"
@@ -564,7 +571,8 @@ export default function DashboardPage() {
                       { label: "Occupied / Dirty", count: dirty, color: "#E53E3E", bg: "rgba(229,62,62,0.10)", border: "rgba(229,62,62,0.20)", filter: "occupied,dirty" },
                     ];
                     return roomTypes.map(rt => {
-                      const items = (overview?.rooms || []).filter(r => rt.filter.split(",").includes(r.status)).map(r => ({ status: r.status, count: r.count }));
+                      const filterStatuses = rt.filter.split(",");
+                      const items = ((overview as any)?.drillDown?.rooms || []).filter((r: any) => filterStatuses.includes(r.status) || (rt.filter.includes("ready") && r.status === "vacant"));
                       const isActive = drilling?.section === rt.label;
                       return (
                         <div key={rt.label} className="rounded-xl transition-all hover:shadow-md"
@@ -599,35 +607,32 @@ export default function DashboardPage() {
                         { label: "Today", val: overview?.feedbacks?.today ?? 0 },
                         { label: "This Week", val: overview?.feedbacks?.thisWeek ?? 0 },
                         { label: "This Month", val: overview?.feedbacks?.thisMonth ?? 0 },
-                        { label: "This Year", val: overview?.feedbacks?.thisYear ?? 0 },
-                      ].map(({ label, val }) => (
-                        <div key={label} className="rounded-xl p-3 text-center" style={{ background: "rgba(245,166,35,0.06)", border: "1px solid rgba(245,166,35,0.15)" }}>
-                          <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{val}</p>
-                          <p className="text-xs" style={{ color: "#64748B" }}>{label}</p>
+                        { label: "Overall", val: overview?.feedbacks?.overall ?? 0 },
+                      ].map(item => (
+                        <div key={item.label} className="p-3 rounded-xl text-center transition-all hover:shadow-sm"
+                          style={{ background: "#FFFBEB", border: "1px solid rgba(245,166,35,0.2)" }}>
+                          <p className="text-2xl font-bold" style={{ color: "#F5A623" }}>{item.val}</p>
+                          <p className="text-xs" style={{ color: "#64748B" }}>{item.label}</p>
                         </div>
                       ))}
                     </div>
-                    <div className="flex items-center gap-4 text-xs mt-2 p-2 rounded-xl" style={{ background: "#F8FAFC" }}>
-                      <span className="flex items-center gap-1">
-                        <Star className="w-3 h-3" style={{ color: "#F5A623" }} />
-                        Avg: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.avgRating ?? 0}</strong>
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#F5A623" }} />
-                        Month: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.monthAvgRating ?? 0}</strong>
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="inline-block w-2 h-2 rounded-full" style={{ background: "#1A3C5E" }} />
-                        Year: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.yearAvgRating ?? 0}</strong>
-                      </span>
-                      <span className="ml-auto font-medium">
-                        Total: <strong style={{ color: "#1A3C5E" }}>{overview?.feedbacks?.overall ?? 0}</strong>
-                      </span>
-                      <span className="opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: "#2BAE8E" }}>▼ see recent</span>
-                    </div>
                   </button>
-                  <Link href="/dashboard/front-desk/feedbacks" className="text-xs hover:underline" style={{ color: "#2BAE8E" }}>View all feedbacks →</Link>
-                  {drilling?.section === "feedbacks" && <DrillDownPanel items={(overview?.feedbacks as any)?.recent || []} onClose={() => setDrilling(null)} viewAllHref="/dashboard/front-desk/feedbacks" />}
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>Average Rating:</span>
+                      <span className="text-lg font-bold px-3 py-0.5 rounded-full"
+                        style={{ background: "#EFFDF9", color: "#2BAE8E", border: "1px solid rgba(43,174,142,0.3)" }}>
+                        {overview?.feedbacks?.avgRating ?? 0} / 5.0 ★
+                      </span>
+                    </div>
+                    <button onClick={() => drill("feedbacks", (overview?.feedbacks as any)?.recent || [], "/dashboard/front-desk/feedbacks")}
+                      className="text-xs font-semibold hover:underline" style={{ color: "#2BAE8E" }}>
+                      View reviews →
+                    </button>
+                  </div>
+                  {drilling?.section === "feedbacks" && (
+                    <DrillDownPanel items={(overview?.feedbacks as any)?.recent || []} onClose={() => setDrilling(null)} viewAllHref="/dashboard/front-desk/feedbacks" />
+                  )}
                 </div>
               )
             )}
@@ -641,13 +646,13 @@ export default function DashboardPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
-                      { label: "Spending Today", key: "todaySpending", color: "#2BAE8E", bg: "rgba(43,174,142,0.08)" },
-                      { label: "This Week", key: "weekSpending", color: "#F5A623", bg: "rgba(245,166,35,0.08)" },
-                      { label: "This Month", key: "monthSpending", color: "#1A3C5E", bg: "rgba(26,60,94,0.08)" },
-                      { label: "This Year", key: "yearSpending", color: "#E53E3E", bg: "rgba(229,62,62,0.08)" },
+                      { label: "Spending Today", key: "todaySpending", recentKey: "recentToday", color: "#2BAE8E", bg: "rgba(43,174,142,0.08)" },
+                      { label: "This Week", key: "weekSpending", recentKey: "recentWeek", color: "#F5A623", bg: "rgba(245,166,35,0.08)" },
+                      { label: "This Month", key: "monthSpending", recentKey: "recentMonth", color: "#1A3C5E", bg: "rgba(26,60,94,0.08)" },
+                      { label: "This Year", key: "yearSpending", recentKey: "recentYear", color: "#E53E3E", bg: "rgba(229,62,62,0.08)" },
                     ].map(item => {
                       const val = (overview?.financial as any)?.[item.key] ?? 0;
-                      const drillItems = (overview as any)?.financial?.recentBills || [];
+                      const drillItems = (overview?.financial as any)?.[item.recentKey] || (overview as any)?.financial?.recentBills || [];
                       const isActive = drilling?.section === item.label;
                       return (
                         <div key={item.key} className="rounded-xl" style={{ background: item.bg }}>
@@ -671,7 +676,7 @@ export default function DashboardPage() {
                       { label: "Expected Receivables", key: "expectedReceivables", color: "#2BAE8E" },
                     ].map(item => {
                       const val = (overview?.financial as any)?.[item.key] ?? 0;
-                      const drillItems = (overview as any)?.financial?.recentPayments || [];
+                      const drillItems = item.key === "expectedExpenses" ? ((overview as any)?.drillDown?.vendorBills || []) : ((overview as any)?.revenue?.recent || []);
                       const isActive = drilling?.section === item.label;
                       return (
                         <div key={item.key} className="text-center">
