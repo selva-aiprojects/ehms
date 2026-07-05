@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
         FROM users u
         JOIN user_roles ur ON ur.user_id = u.id
         JOIN roles r ON r.id = ur.role_id
-        WHERE u.email = ${email.toLowerCase()} AND u.is_active = true
+        WHERE LOWER(u.email) = ${email.toLowerCase()} AND u.is_active = true
         ORDER BY
           CASE r.name
             WHEN 'super_admin' THEN 0
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
         FROM users u
         JOIN user_roles ur ON ur.user_id = u.id
         JOIN roles r ON r.id = ur.role_id
-        WHERE u.email = ${email.toLowerCase()} AND u.is_active = true
+        WHERE LOWER(u.email) = ${email.toLowerCase()} AND u.is_active = true
         ORDER BY
           CASE r.name
             WHEN 'super_admin' THEN 0

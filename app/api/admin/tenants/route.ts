@@ -84,9 +84,13 @@ export async function POST(req: NextRequest) {
     const passwordHash = await hashPassword(tempPassword);
 
     const adminFirstName = primary_contact_name || "Administrator";
-    const adminEmail = contact_email;
+    const adminEmail = contact_email.toLowerCase();
 
     const tenantDb = getDb(schema);
+
+    // Copy master roles from viswa template schema in case not done by DB function
+    await tenantDb.query(`INSERT INTO ${schema}.roles SELECT * FROM viswa.roles ON CONFLICT DO NOTHING`);
+
     await tenantDb`
       INSERT INTO users (email, first_name, password_hash, is_active)
       VALUES (${adminEmail}, ${adminFirstName}, ${passwordHash}, true)

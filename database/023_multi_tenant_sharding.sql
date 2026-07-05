@@ -143,6 +143,9 @@ BEGIN
         EXECUTE format('CREATE SEQUENCE IF NOT EXISTS %I.%I_%I_seq', p_schema_name, v_tbl, 'id');
     END LOOP;
 
+    -- Copy master roles from template schema
+    EXECUTE format('INSERT INTO %I.roles SELECT * FROM viswa.roles ON CONFLICT DO NOTHING;', p_schema_name);
+
     -- Register tenant
     INSERT INTO public.tenants (name, code, schema_name, config)
     VALUES (p_tenant_name, p_tenant_code, p_schema_name, '{"vertical_types": ["hotel", "service_apartment", "rental_apartment", "workplace"]}'::jsonb)
