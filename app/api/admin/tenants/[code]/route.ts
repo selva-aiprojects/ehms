@@ -117,14 +117,14 @@ export async function PATCH(
           if (!dbType) continue;
 
           await tenantDb.query(
-            "UPDATE properties SET name = $1, is_active = true WHERE vertical_type = $2",
+            "UPDATE properties SET name = $1, is_active = true WHERE vertical_type::text = $2",
             [ws.name, dbType]
           );
         }
 
         if (activeVerticals.length > 0) {
           await tenantDb.query(
-            "UPDATE properties SET is_active = false WHERE vertical_type NOT IN (SELECT unnest($1::text[]))",
+            "UPDATE properties SET is_active = false WHERE vertical_type::text NOT IN (SELECT unnest($1::text[]))",
             [activeVerticals]
           );
         }
