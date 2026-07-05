@@ -85,7 +85,7 @@ export default function PlatformBroadcastBanner() {
         } else if (b.category === "advertisement") {
           bgClass = "bg-gradient-to-r from-emerald-900 via-teal-900 to-emerald-950 text-white border-emerald-700/50";
           icon = <Sparkles className="w-5 h-5 text-emerald-300 shrink-0" />;
-          badge = "eHMS Offer & Upgrade";
+          badge = "CybeHMS Offer & Upgrade";
         }
 
         return (

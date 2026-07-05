@@ -221,7 +221,7 @@ export default function TenantsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center gap-3">
-              <Image src="/eHMS_logo.png" alt="eHMS" width={100} height={40} className="object-contain brightness-110" priority />
+              <Image src="/CybeHMS_logo.png" alt="CybeHMS" width={100} height={40} className="object-contain brightness-110" priority />
             </Link>
             <div className="flex items-center gap-3">
               {platformAuthed && (
@@ -382,7 +382,7 @@ export default function TenantsPage() {
                 <p className="mt-2 text-xs" style={{ color: "rgba(245,247,250,0.35)" }}>
                   {platformAuthed
                     ? "Creates an isolated PostgreSQL schema with selected platform features."
-                    : "Authenticate as eHMS platform superadmin to create and manage tenant shards."}
+                    : "Authenticate as CybeHMS platform superadmin to create and manage tenant shards."}
                 </p>
               </>
             )}
@@ -410,7 +410,7 @@ export default function TenantsPage() {
               <div>
                 <h3 className="text-lg font-bold">Platform Admin</h3>
                 <p className="text-xs" style={{ color: "rgba(245,247,250,0.5)" }}>
-                  Sign in to manage eHMS tenant shards
+                  Sign in to manage CybeHMS tenant shards
                 </p>
               </div>
             </div>
@@ -424,7 +424,7 @@ export default function TenantsPage() {
                   onChange={(e) => setPlEmail(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
                   style={{ borderColor: "rgba(212,168,83,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}
-                  placeholder="admin@ehms.co" />
+                  placeholder="admin@cybelinx.com" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
@@ -626,7 +626,7 @@ export default function TenantsPage() {
       <footer className="relative z-10 border-t py-6"
         style={{ borderColor: "rgba(43,174,142,0.08)", color: "rgba(245,247,250,0.3)" }}>
         <div className="max-w-5xl mx-auto px-4 text-center text-xs">
-          &copy; {new Date().getFullYear()} eHMS &mdash; Enterprise Hospitality Management System
+          &copy; {new Date().getFullYear()} CybeHMS &mdash; Cybelinx Hospitality Management System
         </div>
       </footer>
     </div>

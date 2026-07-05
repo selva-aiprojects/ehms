@@ -221,7 +221,7 @@ export default function BrandingSettingsPage() {
                     onChange={(e) => update("logo_url", e.target.value)}
                     className="flex-1 px-3 py-2 rounded-lg text-sm outline-none transition-colors"
                     style={{ background: "#F5F7FA", border: "1px solid #E2E8F0", color: "#1A2E44" }}
-                    placeholder="/eHMS_logo.png"
+                    placeholder="/CybeHMS_logo.png"
                   />
                   {form.logo_url && (
                     <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 flex items-center justify-center" style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}>

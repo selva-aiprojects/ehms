@@ -80,7 +80,7 @@ export default function GlobalSettingsPage() {
                 onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
                 className="w-full px-3 py-2 border rounded-md"
               />
-              <p className="text-xs text-gray-400 mt-1">Provide a relative path (e.g., /eHMS_logo.png) or full URL.</p>
+              <p className="text-xs text-gray-400 mt-1">Provide a relative path (e.g., /CybeHMS_logo.png) or full URL.</p>
             </div>
           </div>
           <div className="space-y-4">

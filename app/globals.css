@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ─── eHMS Design System ─── */
+/* ─── CybeHMS Design System ─── */
 :root {
   /* Tenant theme — set dynamically by TenantThemeProvider, falls back to defaults */
   --tenant-primary:       #2BAE8E;

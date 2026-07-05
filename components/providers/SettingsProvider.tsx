@@ -12,8 +12,8 @@ interface Settings {
 }
 
 const defaultSettings: Settings = {
-  company_name: "eHMS",
-  logo_url: "/eHMS_logo.png",
+  company_name: "CybeHMS",
+  logo_url: "/CybeHMS_logo.png",
   primary_color: "#1A3C5E",
   secondary_color: "#2BAE8E",
   currency_symbol: "₹",

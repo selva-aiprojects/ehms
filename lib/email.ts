@@ -14,7 +14,7 @@ function getResend(): Resend | null {
   return resend;
 }
 
-const fromAddress = process.env.RESEND_FROM || "eHMS <onboarding@cognivectra.com>";
+const fromAddress = process.env.RESEND_FROM || "CybeHMS <onboarding@cybelinx.com>";
 
 function baseEmailHtml(
   title: string,
@@ -38,7 +38,7 @@ function baseEmailHtml(
       </td></tr>
       <tr><td style="padding:16px 32px 24px;border-top:1px solid #E2E8F0;text-align:center;">
         <p style="margin:0;font-size:11px;color:#94A3B8;">
-          eHMS Support System · This is an automated notification from the Platform Admin.<br>
+          CybeHMS Support System · This is an automated notification from the Platform Admin.<br>
           Please do not reply directly to this email.
         </p>
       </td></tr>
@@ -126,14 +126,14 @@ export async function sendWelcomeEmail(
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:40px 16px;">
     <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
       <tr><td style="padding:40px 40px 24px;background:linear-gradient(135deg,#1E3A8A,#3B82F6);text-align:center;">
-        <h1 style="margin:0;font-size:24px;color:#FFFFFF;letter-spacing:-0.5px;font-weight:700;font-family:'Playfair Display SC',Georgia,serif;">Welcome to eHMS</h1>
+        <h1 style="margin:0;font-size:24px;color:#FFFFFF;letter-spacing:-0.5px;font-weight:700;font-family:'Playfair Display SC',Georgia,serif;">Welcome to CybeHMS</h1>
         <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.85);">Your workspace has been provisioned successfully</p>
       </td></tr>
       <tr><td style="padding:32px 40px 16px;color:#1E40AF;font-size:14px;line-height:1.6;">
         <p style="margin:0 0 16px;">Dear <strong>${adminName}</strong>,</p>
         <p style="margin:0 0 16px;">
           We are pleased to inform you that <strong>${tenantName}</strong> has been successfully onboarded onto
-          the eHMS platform. Your dedicated workspace is now live and ready for configuration.
+          the CybeHMS platform. Your dedicated workspace is now live and ready for configuration.
         </p>
 
         <h3 style="margin:24px 0 12px;font-size:15px;color:#1E3A8A;font-weight:600;">Admin Credentials</h3>
@@ -161,10 +161,10 @@ export async function sendWelcomeEmail(
       </td></tr>
       <tr><td style="padding:24px 40px 32px;border-top:1px solid #E2E8F0;text-align:center;">
         <p style="margin:0 0 4px;font-size:11px;color:#94A3B8;">
-          eHMS — Enterprise Hospitality Management System
+          CybeHMS — Cybelinx Hospitality Management System
         </p>
         <p style="margin:0;font-size:11px;color:#94A3B8;">
-          This is an automated message from the eHMS Platform Team.
+          This is an automated message from the CybeHMS Platform Team.
         </p>
       </td></tr>
     </table>
@@ -178,7 +178,7 @@ export async function sendWelcomeEmail(
     await r.emails.send({
       from: fromAddress,
       to,
-      subject: `Welcome to eHMS — ${tenantName} Workspace Is Ready`,
+      subject: `Welcome to CybeHMS — ${tenantName} Workspace Is Ready`,
       html,
     });
   } catch (error) {

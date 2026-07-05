@@ -9,8 +9,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "eHMS — Enterprise Hospitality Management System",
-  description: "Multi-Vertical Hospitality & Space Management Suite",
+  title: "CybeHMS — Cybelinx Hospitality Management System",
+  description: "Cybelinx Multi-Vertical Hospitality & Space Management Suite",
   icons: [
     { rel: "icon", url: "/favicon.png", type: "image/png" },
     { rel: "apple-touch-icon", url: "/favicon.png" },

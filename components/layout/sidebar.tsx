@@ -290,7 +290,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
         {settings.logo_url && (
           <Image
             src={settings.logo_url}
-            alt={settings.company_name || "eHMS"}
+            alt={settings.company_name || "CybeHMS"}
             width={collapsed ? 36 : 120}
             height={collapsed ? 36 : 80}
             className="object-contain transition-all duration-300"

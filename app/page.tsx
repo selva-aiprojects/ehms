@@ -50,7 +50,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center gap-3">
-              <Image src="/eHMS_logo.png" alt="eHMS" width={100} height={40} className="object-contain brightness-110" priority />
+              <Image src="/CybeHMS_logo.png" alt="CybeHMS" width={100} height={40} className="object-contain brightness-110" priority />
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
@@ -146,8 +146,8 @@ export default function LandingPage() {
               </div>
 
               <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4 opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-200" : ""}`}>
-                <span style={{ color: "#FFFFFF" }}>Enterprise Hospitality<br/>Powered by </span>
-                <span style={{ color: "#2BAE8E" }}>eHMS</span>
+                <span style={{ color: "#FFFFFF" }}>Cybelinx Hospitality<br/>Powered by </span>
+                <span style={{ color: "#2BAE8E" }}>CybeHMS</span>
               </h1>
 
               <p className={`text-lg sm:text-xl mb-8 max-w-xl leading-relaxed opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-300" : ""}`}
@@ -187,7 +187,7 @@ export default function LandingPage() {
               >
                 <div className="p-8 flex flex-col justify-center h-full">
                   <div className="text-center mb-6">
-                    <div className="text-4xl font-bold mb-2" style={{ color: "#2BAE8E" }}>eHMS</div>
+                    <div className="text-4xl font-bold mb-2" style={{ color: "#2BAE8E" }}>CybeHMS</div>
                     <div className="text-xs tracking-widest uppercase" style={{ color: "rgba(245,247,250,0.4)" }}>
                       Multi-Tenant Platform
                     </div>
@@ -292,7 +292,7 @@ export default function LandingPage() {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase mb-4 border opacity-0 animate-slide-up ${visibleSections["product"] ? "animation-delay-100" : ""}`}
               style={{ background: "rgba(43,174,142,0.1)", borderColor: "rgba(43,174,142,0.25)", color: "#2BAE8E" }}>
-              <Sparkles className="w-3.5 h-3.5" /> Powered by eHMS
+              <Sparkles className="w-3.5 h-3.5" /> Powered by CybeHMS
             </div>
             <h2 className={`text-3xl sm:text-4xl font-bold mb-4 opacity-0 animate-slide-up ${visibleSections["product"] ? "animation-delay-200" : ""}`}
               style={{ color: "#FFFFFF" }}>
@@ -301,7 +301,7 @@ export default function LandingPage() {
             </h2>
             <p className={`text-lg opacity-0 animate-slide-up ${visibleSections["product"] ? "animation-delay-300" : ""}`}
               style={{ color: "rgba(245,247,250,0.55)" }}>
-              From luxury hotels to coworking spaces — eHMS unifies operations across
+              From luxury hotels to coworking spaces — CybeHMS unifies operations across
               all hospitality verticals with a single, secure, multi-tenant architecture.
             </p>
           </div>
@@ -457,7 +457,7 @@ export default function LandingPage() {
             <span style={{ color: "#2BAE8E" }}>Hospitality Operations</span>?
           </h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto" style={{ color: "rgba(245,247,250,0.55)" }}>
-            Join forward-thinking hospitality groups already running on eHMS.
+            Join forward-thinking hospitality groups already running on CybeHMS.
             Experience enterprise-grade multi-tenant hospitality management with
             per-tenant feature selection.
           </p>
@@ -485,9 +485,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
             <div>
-              <Image src="/eHMS_logo.png" alt="eHMS" width={100} height={40} className="object-contain brightness-110 mb-4" />
+              <Image src="/CybeHMS_logo.png" alt="CybeHMS" width={100} height={40} className="object-contain brightness-110 mb-4" />
               <p className="text-xs leading-relaxed" style={{ color: "rgba(245,247,250,0.35)" }}>
-                Enterprise Hospitality Management System — powering multi-vertical,
+                Cybelinx Hospitality Management System — powering multi-vertical,
                 multi-tenant hospitality operations worldwide.
               </p>
             </div>
@@ -514,7 +514,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="pt-8 text-center text-xs" style={{ borderTop: "1px solid rgba(255,255,255,0.05)", color: "rgba(245,247,250,0.25)" }}>
-            &copy; {new Date().getFullYear()} eHMS — Enterprise Hospitality Management System. All rights reserved.
+            &copy; {new Date().getFullYear()} CybeHMS — Cybelinx Hospitality Management System. All rights reserved.
             <span className="mx-2">·</span>
             Multi-Tenant v2.0
             <span className="mx-2">·</span>

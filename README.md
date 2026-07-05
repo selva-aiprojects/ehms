@@ -1,4 +1,4 @@
-# eHMS — Enterprise Hospitality Management System
+# CybeHMS — Cybelinx Hospitality Management System
 
 A **subscription-based** multi-tenant hospitality and facilities management platform serving Hotels, Serviced Apartments, Apartment Management (Rental), and Workplace Services verticals.
 
@@ -24,7 +24,7 @@ Open [http://localhost:3000](http://localhost:3000).
 DATABASE_URL=postgresql://...
 JWT_SECRET=...
 RESEND_API_KEY=re_...           # Transactional emails
-RESEND_FROM=eHMS <...>          # Sender address
+RESEND_FROM=CybeHMS <...>          # Sender address
 ```
 
 ## Deploy on Vercel

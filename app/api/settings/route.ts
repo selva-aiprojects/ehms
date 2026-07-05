@@ -15,8 +15,8 @@ export async function GET(req: NextRequest) {
       // Return defaults if not found (fallback)
       return NextResponse.json({
         data: {
-          company_name: 'eHMS',
-          logo_url: '/eHMS_logo.png',
+          company_name: 'CybeHMS',
+          logo_url: '/CybeHMS_logo.png',
           primary_color: '#1A3C5E',
           secondary_color: '#2BAE8E',
           currency_symbol: '₹',
@@ -66,8 +66,8 @@ export async function PUT(req: NextRequest) {
         INSERT INTO system_settings (
           company_name, logo_url, primary_color, secondary_color, currency_symbol, timezone
         ) VALUES (
-          ${company_name || 'eHMS'},
-          ${logo_url || '/eHMS_logo.png'},
+          ${company_name || 'CybeHMS'},
+          ${logo_url || '/CybeHMS_logo.png'},
           ${primary_color || '#1A3C5E'},
           ${secondary_color || '#2BAE8E'},
           ${currency_symbol || '₹'},

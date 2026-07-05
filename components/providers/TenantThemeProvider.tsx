@@ -16,8 +16,8 @@ const DEFAULT_BRANDING: TenantBranding = {
   secondary_color: "#1A3C5E",
   accent_color: "#D4A853",
   sidebar_color: "#2C3547",
-  logo_url: "/eHMS_logo.png",
-  company_name: "eHMS",
+  logo_url: "/CybeHMS_logo.png",
+  company_name: "CybeHMS",
 };
 
 interface TenantThemeContextType {

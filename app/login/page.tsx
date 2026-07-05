@@ -233,7 +233,7 @@ function LoginContent() {
           {/* Mini nav */}
           <nav className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
             <Link href="/">
-              <Image src="/eHMS_logo.png" alt="eHMS" width={100} height={40} className="object-contain brightness-110" priority />
+              <Image src="/CybeHMS_logo.png" alt="CybeHMS" width={100} height={40} className="object-contain brightness-110" priority />
             </Link>
             <Link href="/" className="text-sm font-medium transition-colors" style={{ color: "rgba(245,247,250,0.5)" }}
               onMouseEnter={e => e.currentTarget.style.color = "#2BAE8E"}
@@ -366,7 +366,7 @@ function LoginContent() {
                     <Lock className="w-4 h-4" /> Platform Admin Sign In
                   </button>
                   <p className="mt-2 text-xs" style={{ color: "rgba(245,247,250,0.3)" }}>
-                    Authenticate as eHMS platform superadmin to manage tenant shards
+                    Authenticate as CybeHMS platform superadmin to manage tenant shards
                   </p>
                 </div>
               )}
@@ -394,7 +394,7 @@ function LoginContent() {
                 <div>
                   <h3 className="text-lg font-bold" style={{ color: "#F5F7FA" }}>Platform Admin</h3>
                   <p className="text-xs" style={{ color: "rgba(245,247,250,0.5)" }}>
-                    Sign in to manage eHMS tenant shards
+                    Sign in to manage CybeHMS tenant shards
                   </p>
                 </div>
               </div>
@@ -408,7 +408,7 @@ function LoginContent() {
                     onChange={(e) => setPlEmail(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
                     style={{ borderColor: "rgba(212,168,83,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}
-                    placeholder="admin@ehms.co" />
+                    placeholder="admin@cybelinx.com" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
@@ -518,10 +518,10 @@ function LoginContent() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 30% 70%, rgba(43,174,142,0.15) 0%, transparent 60%)" }} />
         <div className="relative z-10">
           <div className="mb-10">
-            <Image src="/eHMS_logo.png" alt="eHMS" width={140} height={56} className="object-contain" style={{ filter: "brightness(1.08)" }} />
+            <Image src="/CybeHMS_logo.png" alt="CybeHMS" width={140} height={56} className="object-contain" style={{ filter: "brightness(1.08)" }} />
           </div>
           <p className="text-xs font-medium mb-6 tracking-widest uppercase" style={{ color: "#2BAE8E" }}>
-            Enterprise Hospitality Management System
+            Cybelinx Hospitality Management System
           </p>
           <h1 className="text-4xl font-bold leading-tight mb-4">Unified Multi-Vertical Hospitality & Space Management</h1>
           <p className="text-lg max-w-md" style={{ color: "rgba(255,255,255,0.65)" }}>
@@ -539,7 +539,7 @@ function LoginContent() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex justify-center mb-8">
-            <Image src="/eHMS_logo.png" alt="eHMS" width={100} height={40} className="object-contain" />
+            <Image src="/CybeHMS_logo.png" alt="CybeHMS" width={100} height={40} className="object-contain" />
           </div>
 
           {/* Tenant badge — click to switch shard */}
@@ -595,7 +595,7 @@ function LoginContent() {
             })}
           </div>
 
-          <h2 className="text-2xl font-bold mb-1" style={{ color: "#1A3C5E" }}>eHMS Portal</h2>
+          <h2 className="text-2xl font-bold mb-1" style={{ color: "#1A3C5E" }}>CybeHMS Portal</h2>
           <p className="text-sm mb-6" style={{ color: "#64748B" }}>Access your hospitality workspace</p>
 
           <form onSubmit={handleLogin} className="space-y-4">
