@@ -75,7 +75,7 @@ FROM pa, (VALUES
     'View Invoice'
   )
 ) AS t(title, content, category, priority, target_vertical, target_tenant_code, action_url, action_label)
-ON CONFLICT (title) DO NOTHING;
+WHERE NOT EXISTS (SELECT 1 FROM public.platform_broadcasts pb WHERE pb.title = t.title);
 
 -- Seed Platform Support Tickets (Tenants calling Service Provider support)
 WITH pa AS (SELECT id FROM public.platform_admins WHERE email = 'provider@ehms.demo' LIMIT 1)
@@ -87,7 +87,7 @@ FROM pa, (VALUES
   ('VISWA', 'API Integration inquiry for Biometric Access at Innovate Coworking', 'Can we connect workplace turnstiles to eHMS membership check-ins via webhook?', 'Technical Support', 'medium', 'open', 'Aryan Kapoor', 'admin@ehms.demo'),
   ('VISWA', 'Subscription billing cycle change request', 'Requesting to switch from monthly invoicing to annual billing with fiscal year discount.', 'Billing & Subscription', 'low', 'resolved', 'Raghu Admin', 'raghu.superadmin@ehms.demo')
 ) AS t(tenant_code, subject, description, category, priority, status, contact_name, contact_email)
-ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (SELECT 1 FROM public.support_tickets st WHERE st.subject = t.subject AND st.tenant_code = t.tenant_code);
 
 
 -- ── 2. Tenant Schema (viswa) Seed Data ──
@@ -100,7 +100,9 @@ WITH u AS (SELECT id FROM viswa.users WHERE email = 'admin@ehms.demo' LIMIT 1),
 INSERT INTO viswa.user_roles (user_id, role_id, property_id)
 SELECT u.id, r.id, p.id
 FROM u, r, p
-ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (
+  SELECT 1 FROM viswa.user_roles ur WHERE ur.user_id = u.id AND ur.role_id = r.id AND ur.property_id = p.id
+);
 
 -- Seed sample Membership Plans for Innovate Coworking (ICS)
 WITH ics AS (SELECT id FROM viswa.properties WHERE code = 'ICS' LIMIT 1)
@@ -111,6 +113,8 @@ FROM ics, (VALUES
   ('Hot Desk Starter',   'hot_desk',       'monthly', 6500.00,  1, 5),
   ('Private Cabin 4-Seat','private_office', 'monthly', 45000.00, 4, 25)
 ) AS p(name, plan_type, billing_cycle, price, seat_pool, max_meeting_room_hours)
-ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (
+  SELECT 1 FROM viswa.membership_plans mp WHERE mp.property_id = ics.id AND mp.name = p.name
+);
 
 SELECT 'seed_v6_platform_and_workflows complete!' AS status;

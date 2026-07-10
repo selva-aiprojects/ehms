@@ -310,15 +310,20 @@ BEGIN
     b.id,
     t.request_type,
     t.description,
-    'open',
+    'pending',
     CURRENT_TIMESTAMP - (random() * interval '3 hours')
-  ) AS t(request_type, description) ON true
+  FROM bookings b
+  CROSS JOIN (VALUES
+    ('room_service', 'Guest requested extra towels and pillows'),
+    ('housekeeping', 'Room needs additional housekeeping service'),
+    ('maintenance', 'Minor maintenance issue reported by guest'),
+    ('complaint', 'Guest raised a concern about noise')
+  ) AS t(request_type, description)
   WHERE b.status = 'checked_in'
     AND NOT EXISTS (
       SELECT 1 FROM guest_requests gr WHERE gr.booking_id = b.id AND gr.request_type = t.request_type
     )
-  LIMIT 8
-  ON CONFLICT DO NOTHING;
+  LIMIT 8;
 
   RAISE NOTICE 'Seeded pending guest requests.';
 
