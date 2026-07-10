@@ -2,11 +2,12 @@
 
 import { use, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, Hotel, Home, Briefcase, MapPin, Phone, Mail, Star, ArrowLeft, Save, Loader2, CheckCircle, AlertCircle, Settings, Eye, EyeOff, RefreshCw } from "lucide-react";
+import { Building2, Hotel, Home, Briefcase, MapPin, Phone, Mail, Star, ArrowLeft, Save, Loader2, CheckCircle, AlertCircle, Settings, Eye, EyeOff, RefreshCw, DoorOpen } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
 import { useProperty } from "@/lib/hooks";
+import PropertyRoomsInventory from "./components/PropertyRoomsInventory";
 
 const VERTICAL_LABELS: Record<string, string> = {
   hotel: "Hotel",
@@ -46,11 +47,20 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
   const { id } = use(params);
   const router = useRouter();
   const { property, isLoading, mutate } = useProperty(id);
-  const [activeTab, setActiveTab] = useState<"overview" | "configuration">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "configuration" | "rooms">("overview");
   const [config, setConfig] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [initialConfig, setInitialConfig] = useState<any>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tabParam = new URLSearchParams(window.location.search).get("tab");
+      if (tabParam === "rooms" || tabParam === "configuration" || tabParam === "overview") {
+        setActiveTab(tabParam);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (property?.config) {
@@ -149,13 +159,14 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
       )}
 
       <div className="flex items-center gap-1 border-b" style={{ borderColor: "#E2E8F0" }}>
-        {(["overview", "configuration"] as const).map((tab) => (
-          <button key={tab} onClick={() => setActiveTab(tab)}
-            className="px-4 py-2.5 text-sm font-medium capitalize transition-colors relative"
+        {(["overview", "configuration", "rooms"] as const).map((tab) => (
+          <button key={tab} onClick={() => { setActiveTab(tab); router.replace(`/dashboard/admin/properties/${id}?tab=${tab}`, { scroll: false }); }}
+            className="px-4 py-2.5 text-sm font-medium capitalize transition-colors relative flex items-center gap-1.5"
             style={{ color: activeTab === tab ? "#1A3C5E" : "#64748B", borderBottom: activeTab === tab ? "2px solid #1A3C5E" : "2px solid transparent" }}>
-            {tab === "overview" && <Building2 className="w-3.5 h-3.5 inline mr-1.5" />}
-            {tab === "configuration" && <Settings className="w-3.5 h-3.5 inline mr-1.5" />}
-            {tab}
+            {tab === "overview" && <Building2 className="w-3.5 h-3.5" />}
+            {tab === "configuration" && <Settings className="w-3.5 h-3.5" />}
+            {tab === "rooms" && <DoorOpen className="w-3.5 h-3.5" />}
+            {tab === "rooms" ? "Rooms & Inventory" : tab}
           </button>
         ))}
       </div>
@@ -322,6 +333,10 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
             )}
           </Card>
         </div>
+      )}
+
+      {activeTab === "rooms" && (
+        <PropertyRoomsInventory propertyId={id} property={property} />
       )}
     </div>
   );

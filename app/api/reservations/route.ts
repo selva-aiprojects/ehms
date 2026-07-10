@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
     const sql = getDb();
     const body = await req.json();
 
+    // 1. Create the booking
     const rows = await sql`
       INSERT INTO bookings (property_id, unit_id, guest_id, booking_model, status, source, check_in, check_out, adults, children, total_amount, special_requests)
       VALUES (
@@ -60,11 +61,59 @@ export async function POST(req: NextRequest) {
       RETURNING *
     `;
 
+    const booking = rows[0] as Record<string, unknown>;
+
+    // 2. Mark unit as reserved
     if (body.unit_id) {
       await sql`UPDATE units SET status = 'reserved' WHERE id = ${body.unit_id}`;
     }
 
-    return NextResponse.json({ data: rows[0] }, { status: 201 });
+    // ── G7 FIX: Auto-create a draft Invoice for this booking ──────────────
+    try {
+      const totalAmount = Number(body.total_amount || 0);
+      const checkIn = body.check_in ? new Date(body.check_in) : new Date();
+      const checkOut = body.check_out ? new Date(body.check_out) : new Date();
+      const nights = Math.max(1, Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24)));
+      const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`;
+
+      const invRows = await sql`
+        INSERT INTO invoices (booking_id, property_id, guest_id, invoice_number, status, subtotal, tax_total, grand_total, balance_due, due_date)
+        VALUES (
+          ${booking.id as string},
+          ${body.property_id},
+          ${body.guest_id},
+          ${invoiceNumber},
+          'draft',
+          ${totalAmount},
+          0,
+          ${totalAmount},
+          ${totalAmount},
+          ${checkOut.toISOString()}
+        )
+        RETURNING id
+      `;
+
+      const invoiceId = (invRows[0] as Record<string, unknown>).id as string;
+
+      // Add room charges line item
+      await sql`
+        INSERT INTO invoice_lines (invoice_id, description, quantity, unit_price, amount, line_type)
+        VALUES (
+          ${invoiceId},
+          ${"Room charges — " + nights + " night(s)"},
+          ${nights},
+          ${totalAmount / nights},
+          ${totalAmount},
+          'room_charge'
+        )
+      `;
+    } catch (invErr) {
+      // Non-fatal: log but don't fail the booking
+      console.error("[reservations POST] invoice auto-create failed:", invErr);
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
+    return NextResponse.json({ data: booking }, { status: 201 });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Failed to create reservation";
     return NextResponse.json({ error: msg }, { status: 500 });

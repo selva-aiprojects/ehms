@@ -836,6 +836,24 @@ export function usePropertyFeatures(propertyId?: string) {
   };
 }
 
+export function usePropertyInventory(propertyId?: string) {
+  const { data, error, isLoading, mutate } = useSWR(
+    propertyId ? `/api/properties/${propertyId}/inventory` : null,
+    fetcher
+  );
+  return {
+    property: data?.data?.property,
+    buildings: data?.data?.buildings || [],
+    floors: data?.data?.floors || [],
+    units: data?.data?.units || [],
+    roomCategories: data?.data?.room_categories || [],
+    facilities: data?.data?.facilities || [],
+    isLoading,
+    isError: !!error,
+    mutate,
+  };
+}
+
 export function useReconciliations(filters?: { status?: string; property_id?: string }) {
   const params = new URLSearchParams();
   if (filters?.status) params.set("status", filters.status);

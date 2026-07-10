@@ -36,31 +36,38 @@ export async function GET(req: NextRequest) {
         u.id,
         u.unit_label,
         u.unit_type,
+        u.layout_type,
         u.status,
+        u.attributes,
         f.floor_number,
+        bl.code as building_code,
+        bl.name as building_name,
+        p.name as property_name,
         ab.booking_id,
         ab.first_name || ' ' || ab.last_name as guest_name,
         ab.check_in,
         ab.check_out,
         ab.total_amount as rate,
-        false as vip, -- can be derived if guest profile has VIP flag
+        false as vip,
         ab.parking_slot,
         ab.pending_requests_count,
-        COALESCE(rp.base_rate, 3500) as base_rate
+        COALESCE(u.base_rate, rp.base_rate) as base_rate
       FROM units u
       JOIN floors f ON u.floor_id = f.id
       JOIN buildings bl ON f.building_id = bl.id
       JOIN properties p ON bl.property_id = p.id
       LEFT JOIN active_bookings ab ON ab.unit_id = u.id
       LEFT JOIN (
-        SELECT DISTINCT ON (property_id, unit_type) property_id, unit_type, base_rate 
+        SELECT DISTINCT ON (property_id, unit_type) property_id, unit_type, base_rate, name as plan_name
         FROM rate_plans 
         WHERE is_active = true 
+          AND (effective_from IS NULL OR effective_from <= CURRENT_DATE)
+          AND (effective_to IS NULL OR effective_to >= CURRENT_DATE)
         ORDER BY property_id, unit_type, created_at DESC
       ) rp ON rp.property_id = p.id AND rp.unit_type = u.unit_type
-      WHERE p.vertical_type = 'hotel'
+      WHERE p.vertical_type IN ('hotel', 'service_apartment', 'rental_apartment')
       ${propertyId ? sql`AND p.id = ${propertyId}` : sql``}
-      ORDER BY f.floor_number, u.unit_label
+      ORDER BY bl.code, f.floor_number, u.unit_label
     `;
 
     return NextResponse.json({ data: rows });

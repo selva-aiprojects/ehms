@@ -9,20 +9,22 @@ export async function GET(req: NextRequest) {
     const dateFrom = searchParams.get("date_from");
     const dateTo = searchParams.get("date_to");
     const status = searchParams.get("status");
+    const propertyId = searchParams.get("property_id"); // G11: property scope
 
     const rows = await sql`
       SELECT
         t.*,
-        json_build_object('id', e.id, 'employee_code', e.employee_code, 'designation', e.designation) AS employee,
+        json_build_object('id', e.id, 'employee_code', e.employee_code, 'designation', e.designation, 'property_id', e.property_id) AS employee,
         json_build_object('id', u.id, 'first_name', u.first_name, 'last_name', u.last_name) AS user
       FROM timesheets t
       LEFT JOIN employees e ON e.id = t.employee_id
       LEFT JOIN users u ON u.id = e.user_id
       WHERE 1=1
-        ${employeeId ? sql`AND t.employee_id = ${employeeId}` : sql``}
-        ${dateFrom ? sql`AND t.date >= ${dateFrom}::date` : sql``}
-        ${dateTo ? sql`AND t.date <= ${dateTo}::date` : sql``}
-        ${status ? sql`AND t.status = ${status}` : sql``}
+        ${employeeId  ? sql`AND t.employee_id = ${employeeId}` : sql``}
+        ${dateFrom    ? sql`AND t.date >= ${dateFrom}::date` : sql``}
+        ${dateTo      ? sql`AND t.date <= ${dateTo}::date` : sql``}
+        ${status      ? sql`AND t.status = ${status}` : sql``}
+        ${propertyId  ? sql`AND e.property_id = ${propertyId}` : sql``}
       ORDER BY t.date DESC, t.created_at DESC
     `;
 

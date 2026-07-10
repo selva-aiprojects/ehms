@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Hotel, Star, MapPin, Users, TrendingUp, DollarSign, AlertCircle, Loader2, RefreshCw, Search, Building2, Phone, Mail, ChevronRight, Calendar, Briefcase, Sun, Snowflake, CloudRain, BarChart3, ThumbsUp, Globe, Coffee, Wifi, Waves, Dumbbell, Utensils, Car, MessageSquare, UserCheck, DoorOpen } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
@@ -25,6 +26,7 @@ function SkeletonCard() {
 }
 
 export default function HotelsPage() {
+  const router = useRouter();
   const { selectedPropertyId } = useJourney();
   const [search, setSearch] = useState("");
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -197,8 +199,8 @@ export default function HotelsPage() {
                     <div className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>₹{((p.total_units || 0) * 4200).toLocaleString()}</div>
                     <div className="text-xs" style={{ color: "#64748B" }}>Est. Revenue</div>
                   </div>
-                  <Button variant="outline" size="sm">
-                    View <ChevronRight className="w-3 h-3 ml-1" />
+                  <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/admin/properties/${p.id}?tab=rooms`)}>
+                    Manage Rooms <ChevronRight className="w-3 h-3 ml-1" />
                   </Button>
                 </div>
               </div>

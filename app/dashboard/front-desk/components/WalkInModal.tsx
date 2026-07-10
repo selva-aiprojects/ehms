@@ -10,9 +10,10 @@ interface WalkInModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  propertyId?: string;
 }
 
-export default function WalkInModal({ isOpen, onClose, onSuccess }: WalkInModalProps) {
+export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: propPropertyId }: WalkInModalProps) {
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -25,7 +26,7 @@ export default function WalkInModal({ isOpen, onClose, onSuccess }: WalkInModalP
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const { rooms } = useRoomMatrix();
+  const { rooms } = useRoomMatrix(propPropertyId);
   const vacantRooms = (rooms || []).filter((r: any) => r.status === "vacant");
 
   // Dynamic Pricing Calculation
@@ -42,7 +43,7 @@ export default function WalkInModal({ isOpen, onClose, onSuccess }: WalkInModalP
   }, [formData.unit_id, formData.check_out, vacantRooms]);
 
   const { properties } = useProperties("hotel");
-  const propertyId = properties?.[0]?.id || "";
+  const activePropertyId = propPropertyId || properties?.[0]?.id || (vacantRooms[0] as any)?.property_id || "26b9252e-c62b-426e-905b-21e979696ba8";
 
   if (!isOpen) return null;
 
@@ -50,7 +51,7 @@ export default function WalkInModal({ isOpen, onClose, onSuccess }: WalkInModalP
     e.preventDefault();
     setSubmitting(true);
     try {
-      if (!propertyId) throw new Error("No active property found");
+      if (!activePropertyId) throw new Error("No active property found");
 
       // 1. Create Guest Profile
       const guestRes = await fetch("/api/guests", {
@@ -74,7 +75,7 @@ export default function WalkInModal({ isOpen, onClose, onSuccess }: WalkInModalP
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          property_id: propertyId,
+          property_id: activePropertyId,
           guest_id: guestId,
           unit_id: formData.unit_id,
           source: "direct",
@@ -141,7 +142,9 @@ export default function WalkInModal({ isOpen, onClose, onSuccess }: WalkInModalP
             <select required value={formData.unit_id} onChange={e => setFormData({...formData, unit_id: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]">
               <option value="" disabled>Select Vacant Room...</option>
               {vacantRooms.map((r: any) => (
-                <option key={r.id} value={r.id}>Unit {r.unit_label} ({r.unit_type})</option>
+                <option key={r.id} value={r.id}>
+                  Unit {r.unit_label} — {r.layout_type || r.unit_type} ({r.attributes?.ac !== undefined ? (r.attributes.ac ? "AC" : "Non-AC") : "Standard"}) — ₹{r.base_rate}/night
+                </option>
               ))}
             </select>
           </div>

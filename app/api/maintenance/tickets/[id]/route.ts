@@ -7,7 +7,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const body = await req.json();
 
-    const oldTicket = (await sql`SELECT status FROM maintenance_tickets WHERE id = ${id}`)[0] as { status: string } | undefined;
+    const oldRows = await sql`
+      SELECT mt.status, mt.unit_id, mt.property_id
+      FROM maintenance_tickets mt
+      WHERE mt.id = ${id}
+    `;
+    const oldTicket = oldRows[0] as { status: string; unit_id: string | null; property_id: string | null } | undefined;
     if (!oldTicket) {
       return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
     }
@@ -15,6 +20,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const newStatus = body.status || oldTicket.status;
     const resolvedAt = newStatus === "resolved" ? sql`NOW()` : undefined;
 
+    // Log assignment event
     if (newStatus === "assigned" && oldTicket.status !== "assigned") {
       await sql`
         INSERT INTO maintenance_approvals (ticket_id, action, performed_by, comment)
@@ -35,6 +41,41 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       WHERE id = ${id}
       RETURNING *
     `;
+
+    if (!rows[0]) return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
+
+    // ── G6 FIX: On RESOLVE — reset unit status and auto-queue a HK task ──────
+    if (newStatus === "resolved" && oldTicket.unit_id) {
+      try {
+        // After maintenance completes, room needs cleaning before it's sellable
+        await sql`UPDATE units SET status = 'dirty' WHERE id = ${oldTicket.unit_id}`;
+
+        // Auto-create a housekeeping task to clean the post-maintenance room
+        await sql`
+          INSERT INTO housekeeping_tasks (unit_id, property_id, task_type, priority, status, scheduled_at, notes)
+          VALUES (
+            ${oldTicket.unit_id},
+            ${oldTicket.property_id},
+            'post_maintenance_clean',
+            'medium',
+            'open',
+            NOW(),
+            ${"Auto-generated after maintenance ticket #" + id + " resolved"}
+          )
+          ON CONFLICT DO NOTHING
+        `;
+      } catch (syncErr) {
+        console.error("[ticket PUT] unit status sync on resolve failed:", syncErr);
+      }
+    }
+
+    // On IN_PROGRESS — mark unit as maintenance (in case it wasn't already set)
+    if (newStatus === "in_progress" && oldTicket.unit_id) {
+      try {
+        await sql`UPDATE units SET status = 'maintenance' WHERE id = ${oldTicket.unit_id}`;
+      } catch { /* non-fatal */ }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     return NextResponse.json({ data: rows[0] });
   } catch (error: any) {
