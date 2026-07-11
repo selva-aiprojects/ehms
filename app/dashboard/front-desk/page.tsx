@@ -71,8 +71,20 @@ export default function FrontDeskPage() {
   const checkInMutation = useCheckIn();
   const checkOutMutation = useCheckOut();
 
+  useEffect(() => {
+    if (!selectedPropertyId) return;
+    setLoadingDashboard(true);
+    fetch(`/api/dashboard/front-desk/dashboard?property_id=${selectedPropertyId}`)
+      .then(res => res.json())
+      .then(data => setDashboardData(data))
+      .catch(() => setDashboardData(null))
+      .finally(() => setLoadingDashboard(false));
+  }, [selectedPropertyId]);
+
   const [checkInModalData, setCheckInModalData] = useState<{ isOpen: boolean, roomId: string, bookingId: string, guestName: string, unitLabel: string } | null>(null);
   const [folioModalData, setFolioModalData] = useState<{ isOpen: boolean, roomId: string, bookingId: string, guestName: string } | null>(null);
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
 
   const rooms = matrixRooms || [];
   const distinctBuildings = Array.from(new Set(rooms.map((r: any) => r.building_code || "A"))).sort() as string[];
@@ -443,8 +455,8 @@ export default function FrontDeskPage() {
           )}
         </Card>
         
-        <ChannelPartnersCard />
-        <OffersCard />
+        <ChannelPartnersCard propertyId={selectedPropertyId} />
+        <OffersCard propertyId={selectedPropertyId} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -570,38 +582,52 @@ export default function FrontDeskPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Guest Messaging" subtitle="Send quick notifications" action={<button className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "#F5F7FA", color: "#1A3C5E" }}><Settings className="w-3 h-3" /></button>} />
+          <CardHeader title="Guest Messaging" subtitle={`${dashboardData?.recentRequests?.filter((r: any) => r.status !== 'resolved').length || 0} open requests`} action={<button onClick={() => router.push("/dashboard/front-desk")} className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "#F5F7FA", color: "#1A3C5E" }}><Settings className="w-3 h-3" /></button>} />
           <div className="space-y-3">
-            <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "rgba(42,157,143,0.15)", color: "#2BAE8E" }}>RK</div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate" style={{ color: "#1A2E44" }}>Rajesh Kumar · Room 101</div>
-                  <div className="text-xs truncate" style={{ color: "#64748B" }}>Requesting extra towels</div>
-                </div>
-                <span className="text-xs whitespace-nowrap" style={{ color: "#64748B" }}>2 min ago</span>
+            {loadingDashboard ? (
+              <div className="flex justify-center p-6"><Loader2 className="w-5 h-5 animate-spin text-[#64748B]" /></div>
+            ) : dashboardData?.recentRequests?.filter((r: any) => r.status !== 'resolved').length === 0 ? (
+              <div className="text-center py-6">
+                <MessageSquare className="w-5 h-5 mx-auto mb-2 text-[#64748B]" />
+                <p className="text-sm text-[#64748B]">No open requests</p>
               </div>
-            </div>
-            <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "rgba(245,166,35,0.15)", color: "#D4850A" }}>AS</div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate" style={{ color: "#1A2E44" }}>Amit Sharma · Room 203</div>
-                  <div className="text-xs truncate" style={{ color: "#64748B" }}>Late checkout request</div>
-                </div>
-                <span className="text-xs whitespace-nowrap" style={{ color: "#64748B" }}>15 min ago</span>
-              </div>
-            </div>
-            <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "rgba(26,60,94,0.1)", color: "#1A3C5E" }}>SJ</div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate" style={{ color: "#1A2E44" }}>Sarah Johnson · Room 201</div>
-                  <div className="text-xs truncate" style={{ color: "#64748B" }}>Needs restaurant recommendation</div>
-                </div>
-                <span className="text-xs whitespace-nowrap" style={{ color: "#64748B" }}>1 hour ago</span>
-              </div>
-            </div>
+            ) : (
+              dashboardData?.recentRequests?.filter((r: any) => r.status !== 'resolved').slice(0, 3).map((req: any) => {
+                const initials = req.unit_label ? req.unit_label.slice(0, 2) : "GD";
+                const typeColors: Record<string, { bg: string; color: string }> = {
+                  room_service: { bg: "rgba(42,157,143,0.15)", color: "#2BAE8E" },
+                  housekeeping: { bg: "rgba(245,166,35,0.15)", color: "#D4850A" },
+                  maintenance: { bg: "rgba(229,62,62,0.1)", color: "#E53E3E" },
+                  complaint: { bg: "rgba(26,60,94,0.1)", color: "#1A3C5E" },
+                };
+                const tc = typeColors[req.request_type] || { bg: "rgba(100,116,139,0.1)", color: "#64748B" };
+                const timeAgo = (() => {
+                  const diff = Date.now() - new Date(req.created_at).getTime();
+                  const mins = Math.floor(diff / 60000);
+                  if (mins < 60) return `${mins} min ago`;
+                  const hrs = Math.floor(mins / 60);
+                  if (hrs < 24) return `${hrs}h ago`;
+                  return `${Math.floor(hrs / 24)}d ago`;
+                })();
+                return (
+                  <div key={req.id} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: tc.bg, color: tc.color }}>{initials}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate" style={{ color: "#1A2E44" }}>Room {req.unit_label || "?"} · {req.request_type.replace("_", " ")}</div>
+                        <div className="text-xs truncate" style={{ color: "#64748B" }}>{req.description}</div>
+                      </div>
+                      <div className="text-right">
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${req.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {req.status}
+                        </span>
+                        <span className="text-[10px] block mt-0.5" style={{ color: "#64748B" }}>{timeAgo}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
             <div className="flex gap-2">
               <div className="flex-1 relative">
                 <input
@@ -622,71 +648,80 @@ export default function FrontDeskPage() {
 
       <Card>
         <CardHeader title="Today's Activity Feed" subtitle="Real-time front desk log" action={
-          <button className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
+          <button onClick={() => {
+            setLoadingDashboard(true);
+            if (selectedPropertyId) {
+              fetch(`/api/dashboard/front-desk/dashboard?property_id=${selectedPropertyId}`)
+                .then(res => res.json())
+                .then(data => setDashboardData(data))
+                .finally(() => setLoadingDashboard(false));
+            }
+          }} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
             <RefreshCw className="w-3 h-3" /> Refresh
           </button>
         } />
         <div className="space-y-0">
-          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid #E2E8F0" }}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(42,157,143,0.12)" }}>
-              <LogIn className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>Check-In Completed</span>
-                <span className="text-xs" style={{ color: "#64748B" }}>08:45 AM</span>
-              </div>
-              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Emily Chen checked into Suite 304 (3-night stay)</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid #E2E8F0" }}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(229,62,62,0.1)" }}>
-              <LogOut className="w-3.5 h-3.5" style={{ color: "#E53E3E" }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>Check-Out Processed</span>
-                <span className="text-xs" style={{ color: "#64748B" }}>09:30 AM</span>
-              </div>
-              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Michael Torres checked out of Deluxe King 102 (Folio settled)</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid #E2E8F0" }}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(245,166,35,0.12)" }}>
-              <Bell className="w-3.5 h-3.5" style={{ color: "#F5A623" }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>Guest Request Logged</span>
-                <span className="text-xs" style={{ color: "#64748B" }}>10:15 AM</span>
-              </div>
-              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Room 203 (Amit Sharma) requested late checkout until 3 PM</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid #E2E8F0" }}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(43,174,142,0.1)" }}>
-              <RotateCcw className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>Room Status Updated</span>
-                <span className="text-xs" style={{ color: "#64748B" }}>11:00 AM</span>
-              </div>
-              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Room 102 marked as Cleaning (housekeeping dispatched)</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 py-3">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(100,116,139,0.1)" }}>
-              <Users className="w-3.5 h-3.5" style={{ color: "#64748B" }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>Walk-in Booking</span>
-                <span className="text-xs" style={{ color: "#64748B" }}>11:45 AM</span>
-              </div>
-              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>New walk-in reservation for Deluxe Twin 202 (2-night stay)</p>
-            </div>
-          </div>
+          {loadingDashboard ? (
+            <SkeletonPanel />
+          ) : (() => {
+            const activities: Array<{ icon: any; iconBg: string; iconColor: string; title: string; desc: string; time: string }> = [];
+            
+            // Recent check-ins
+            dashboardData?.recentBookings?.filter((b: any) => b.status === 'checked_in' && b.checked_in_at?.startsWith(new Date().toISOString().split('T')[0])).forEach((b: any) => {
+              activities.push({ icon: LogIn, iconBg: "rgba(42,157,143,0.12)", iconColor: "#2BAE8E", title: "Check-In Completed", desc: `${b.guest_name || 'Guest'} checked into Room ${b.unit_label || '?'}`, time: new Date(b.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+            });
+            
+            // Recent check-outs
+            dashboardData?.recentBookings?.filter((b: any) => b.status === 'checked_out' && b.checked_out_at?.startsWith(new Date().toISOString().split('T')[0])).forEach((b: any) => {
+              activities.push({ icon: LogOut, iconBg: "rgba(229,62,62,0.1)", iconColor: "#E53E3E", title: "Check-Out Processed", desc: `${b.guest_name || 'Guest'} checked out of Room ${b.unit_label || '?'}`, time: new Date(b.checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+            });
+            
+            // Guest requests
+            dashboardData?.recentRequests?.slice(0, 3).forEach((r: any) => {
+              const icon = r.request_type === 'complaint' ? AlertCircle : Bell;
+              activities.push({ icon, iconBg: "rgba(245,166,35,0.12)", iconColor: "#F5A623", title: "Guest Request Logged", desc: `Room ${r.unit_label || '?'}: ${r.description}`, time: new Date(r.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+            });
+            
+            // Housekeeping
+            dashboardData?.recentHK?.slice(0, 2).forEach((h: any) => {
+              activities.push({ icon: RotateCcw, iconBg: "rgba(43,174,142,0.1)", iconColor: "#2BAE8E", title: "Housekeeping Update", desc: `Room ${h.unit_label || '?'}: ${h.task_type} — ${h.status}`, time: new Date(h.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+            });
+            
+            // Maintenance
+            dashboardData?.recentMaint?.slice(0, 2).forEach((m: any) => {
+              activities.push({ icon: Settings, iconBg: "rgba(100,116,139,0.1)", iconColor: "#64748B", title: "Maintenance Ticket", desc: `${m.title} (Room ${m.unit_label || '?'})`, time: new Date(m.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+            });
+            
+            activities.sort((a, b) => b.time.localeCompare(a.time));
+            const displayed = activities.slice(0, 6);
+            
+            if (displayed.length === 0) {
+              return (
+                <div className="text-center py-6">
+                  <Clock className="w-5 h-5 mx-auto mb-2 text-[#64748B]" />
+                  <p className="text-sm text-[#64748B]">No activity today</p>
+                </div>
+              );
+            }
+            
+            return displayed.map((act, i) => {
+              const IconComp = act.icon;
+              return (
+                <div key={i} className="flex items-start gap-3 py-3" style={{ borderBottom: i < displayed.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: act.iconBg }}>
+                    <IconComp className="w-3.5 h-3.5" style={{ color: act.iconColor }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>{act.title}</span>
+                      <span className="text-xs" style={{ color: "#64748B" }}>{act.time}</span>
+                    </div>
+                    <p className="text-xs mt-0.5 truncate" style={{ color: "#64748B" }}>{act.desc}</p>
+                  </div>
+                </div>
+              );
+            });
+          })()}
         </div>
       </Card>
 
@@ -695,94 +730,69 @@ export default function FrontDeskPage() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="p-3 rounded-lg text-center" style={{ background: "rgba(42,157,143,0.08)" }}>
-              <div className="text-lg font-bold" style={{ color: "#2BAE8E" }}>67%</div>
+              <div className="text-lg font-bold" style={{ color: "#2BAE8E" }}>
+                {dashboardData?.occupancy?.total_rooms ? Math.round((dashboardData.occupancy.occupied / dashboardData.occupancy.total_rooms) * 100) : 0}%
+              </div>
               <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Occupancy Rate</div>
             </div>
             <div className="p-3 rounded-lg text-center" style={{ background: "rgba(26,60,94,0.06)" }}>
-              <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>₹1,08,000</div>
+              <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>₹{((dashboardData?.revenue?.revenue || 0) / 1000).toFixed(0)}K</div>
               <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Today's Revenue</div>
             </div>
             <div className="p-3 rounded-lg text-center" style={{ background: "rgba(245,166,35,0.08)" }}>
-              <div className="text-lg font-bold" style={{ color: "#F5A623" }}>₹12,857</div>
+              <div className="text-lg font-bold" style={{ color: "#F5A623" }}>
+                ₹{dashboardData?.revenue?.bookings_today ? ((dashboardData.revenue.revenue / dashboardData.revenue.bookings_today) / 1000).toFixed(1) + 'K' : '0'}
+              </div>
               <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Avg. Daily Rate</div>
             </div>
             <div className="p-3 rounded-lg text-center" style={{ background: "rgba(100,116,139,0.08)" }}>
-              <div className="text-lg font-bold" style={{ color: "#64748B" }}>6</div>
-              <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Check-outs Today</div>
+              <div className="text-lg font-bold" style={{ color: "#64748B" }}>{dashboardData?.revenue?.bookings_today || 0}</div>
+              <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Bookings Today</div>
             </div>
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium" style={{ color: "#1A3C5E" }}>Room Type Breakdown</span>
-              <span className="text-xs" style={{ color: "#64748B" }}>Status by category</span>
+              <span className="text-sm font-medium" style={{ color: "#1A3C5E" }}>Room Status Breakdown</span>
+              <span className="text-xs" style={{ color: "#64748B" }}>{dashboardData?.occupancy?.total_rooms || 0} total rooms</span>
             </div>
             <div className="space-y-2">
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span style={{ color: "#1A2E44" }}>Deluxe King</span>
-                  <span style={{ color: "#64748B" }}>1/3 occupied</span>
+              {[
+                { label: 'Occupied', count: dashboardData?.occupancy?.occupied || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: '#3B82F6' },
+                { label: 'Vacant (Available)', count: dashboardData?.occupancy?.vacant || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: '#10B981' },
+                { label: 'Dirty / Cleaning', count: dashboardData?.occupancy?.dirty || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: '#F59E0B' },
+                { label: 'Maintenance', count: dashboardData?.occupancy?.maint || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: '#EF4444' },
+              ].map(s => (
+                <div key={s.label}>
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span style={{ color: "#1A2E44" }}>{s.label}</span>
+                    <span style={{ color: "#64748B" }}>{s.count}/{s.total} rooms</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full" style={{ background: "#F5F7FA" }}>
+                    <div className="h-2 rounded-full" style={{ width: `${(s.count / s.total) * 100}%`, background: s.color }} />
+                  </div>
                 </div>
-                <div className="w-full h-2 rounded-full" style={{ background: "#F5F7FA" }}>
-                  <div className="h-2 rounded-full" style={{ width: "33%", background: "#2BAE8E" }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span style={{ color: "#1A2E44" }}>Deluxe Twin</span>
-                  <span style={{ color: "#64748B" }}>1/3 occupied</span>
-                </div>
-                <div className="w-full h-2 rounded-full" style={{ background: "#F5F7FA" }}>
-                  <div className="h-2 rounded-full" style={{ width: "33%", background: "#2BAE8E" }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span style={{ color: "#1A2E44" }}>Suite</span>
-                  <span style={{ color: "#64748B" }}>2/3 occupied</span>
-                </div>
-                <div className="w-full h-2 rounded-full" style={{ background: "#F5F7FA" }}>
-                  <div className="h-2 rounded-full" style={{ width: "66%", background: "#2BAE8E" }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span style={{ color: "#1A2E44" }}>Executive Suite</span>
-                  <span style={{ color: "#64748B" }}>1/1 occupied</span>
-                </div>
-                <div className="w-full h-2 rounded-full" style={{ background: "#F5F7FA" }}>
-                  <div className="h-2 rounded-full" style={{ width: "100%", background: "#2BAE8E" }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span style={{ color: "#1A2E44" }}>Penthouse</span>
-                  <span style={{ color: "#64748B" }}>0/1 occupied</span>
-                </div>
-                <div className="w-full h-2 rounded-full" style={{ background: "#F5F7FA" }}>
-                  <div className="h-2 rounded-full" style={{ width: "0%", background: "#2BAE8E" }} />
-                </div>
-              </div>
+              ))}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 pt-2">
             <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
               <div className="flex items-center gap-2 mb-2">
                 <Wifi className="w-3.5 h-3.5" style={{ color: "#64748B" }} />
-                <span className="text-xs font-medium" style={{ color: "#1A2E44" }}>Amenity Requests Today</span>
+                <span className="text-xs font-medium" style={{ color: "#1A2E44" }}>Guest Requests Today</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-lg font-bold" style={{ color: "#1A3C5E" }}>7</span>
-                <span className="text-xs" style={{ color: "#2BAE8E" }}>4 pending</span>
+                <span className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{dashboardData?.amenityRequests?.total || 0}</span>
+                <span className="text-xs" style={{ color: "#F5A623" }}>{dashboardData?.amenityRequests?.pending || 0} pending</span>
               </div>
             </div>
             <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
               <div className="flex items-center gap-2 mb-2">
                 <Coffee className="w-3.5 h-3.5" style={{ color: "#64748B" }} />
-                <span className="text-xs font-medium" style={{ color: "#1A2E44" }}>Room Service Orders</span>
+                <span className="text-xs font-medium" style={{ color: "#1A2E44" }}>F&B Orders Today</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-lg font-bold" style={{ color: "#1A3C5E" }}>12</span>
-                <span className="text-xs" style={{ color: "#F5A623" }}>3 in progress</span>
+                <span className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{dashboardData?.fbOrders?.total || 0}</span>
+                <span className="text-xs" style={{ color: "#2BAE8E" }}>{dashboardData?.fbOrders?.in_progress || 0} in progress</span>
               </div>
             </div>
           </div>

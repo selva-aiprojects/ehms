@@ -1,21 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe, Loader2, CheckCircle2, Clock } from "lucide-react";
+import { Globe, Loader2, CheckCircle2, Clock, XCircle } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 
-export default function ChannelPartnersCard() {
+interface ChannelPartnersCardProps {
+  propertyId?: string;
+}
+
+export default function ChannelPartnersCard({ propertyId }: ChannelPartnersCardProps) {
   const [channels, setChannels] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/dashboard/front-desk/channels")
+    const url = propertyId
+      ? `/api/dashboard/front-desk/channels?property_id=${propertyId}`
+      : "/api/dashboard/front-desk/channels";
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         if (data.data) setChannels(data.data);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [propertyId]);
 
   return (
     <Card>
@@ -39,19 +46,26 @@ export default function ChannelPartnersCard() {
                   <p className="font-semibold text-[#1A2E44]">{channel.channel_name}</p>
                   <p className="text-xs text-[#64748B] flex items-center gap-1">
                     <Clock className="w-3 h-3" /> 
-                    {channel.last_sync_time ? new Date(channel.last_sync_time).toLocaleTimeString() : "Never"}
+                    {channel.last_sync_time ? new Date(channel.last_sync_time).toLocaleTimeString() : "Never synced"}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                {channel.last_sync_status === 'success' ? (
+                {channel.last_sync_status === 200 || channel.last_sync_status === 201 ? (
                   <span className="flex items-center gap-1 text-xs font-medium text-[#2BAE8E]">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Synced
                   </span>
+                ) : channel.last_sync_status ? (
+                  <span className="flex items-center gap-1 text-xs font-medium text-[#E53E3E]">
+                    <XCircle className="w-3.5 h-3.5" /> Failed
+                  </span>
                 ) : (
-                  <span className="text-xs font-medium text-[#E53E3E]">Sync Failed</span>
+                  <span className="text-xs font-medium text-[#64748B]">No sync</span>
                 )}
-                <p className="text-[10px] text-[#64748B] mt-0.5">{channel.new_bookings_24h} new today</p>
+                <p className="text-[10px] text-[#64748B] mt-0.5">{channel.new_bookings_24h || 0} bookings today</p>
+                {channel.commission_rate > 0 && (
+                  <p className="text-[10px] text-[#64748B]">{channel.commission_rate}% commission</p>
+                )}
               </div>
             </div>
           ))}

@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     // Create the guest request
     const result = await sql`
       INSERT INTO guest_requests (property_id, booking_id, request_type, description, assigned_to_dept, status)
-      VALUES (${propertyId}, ${bookingId}, ${requestType}, ${description}, ${assignedToDept || null}, 'open')
+      VALUES (${propertyId}, ${bookingId}, ${requestType}, ${description}, ${assignedToDept || null}, 'pending')
       RETURNING *
     `;
     const newRequest = (result as any[])[0];

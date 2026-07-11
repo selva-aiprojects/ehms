@@ -5,18 +5,25 @@ import { Tag, Loader2, Sparkles } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 
-export default function OffersCard() {
+interface OffersCardProps {
+  propertyId?: string;
+}
+
+export default function OffersCard({ propertyId }: OffersCardProps) {
   const [offers, setOffers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/dashboard/front-desk/offers")
+    const url = propertyId
+      ? `/api/dashboard/front-desk/offers?property_id=${propertyId}`
+      : "/api/dashboard/front-desk/offers";
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         if (data.data) setOffers(data.data);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [propertyId]);
 
   return (
     <Card>
@@ -30,7 +37,7 @@ export default function OffersCard() {
         </div>
       ) : (
         <div className="space-y-3">
-          {offers.map(offer => (
+          {offers.slice(0, 4).map(offer => (
             <div key={offer.id} className="p-3 rounded-lg border border-[#E2E8F0] bg-gradient-to-br from-white to-[#F5F7FA]">
               <div className="flex justify-between items-start mb-1">
                 <p className="font-semibold text-sm text-[#1A3C5E] flex items-center gap-1">
@@ -38,10 +45,12 @@ export default function OffersCard() {
                 </p>
                 <Badge variant="amber" className="text-[10px] uppercase font-bold">{offer.offer_code}</Badge>
               </div>
-              <p className="text-xs text-[#64748B] mb-2">{offer.description}</p>
               <div className="text-[10px] font-medium text-[#2BAE8E]">
                 {offer.discount_type === 'percentage' ? `${offer.discount_value}% OFF` : `₹${offer.discount_value} OFF`}
               </div>
+              {offer.valid_from && offer.valid_until && (
+                <p className="text-[10px] text-[#64748B] mt-1">Valid: {new Date(offer.valid_from).toLocaleDateString()} – {new Date(offer.valid_until).toLocaleDateString()}</p>
+              )}
             </div>
           ))}
         </div>

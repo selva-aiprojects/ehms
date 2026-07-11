@@ -43,7 +43,7 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
   }, [formData.unit_id, formData.check_out, vacantRooms]);
 
   const { properties } = useProperties("hotel");
-  const activePropertyId = propPropertyId || properties?.[0]?.id || (vacantRooms[0] as any)?.property_id || "26b9252e-c62b-426e-905b-21e979696ba8";
+  const activePropertyId = propPropertyId || properties?.[0]?.id || (vacantRooms[0] as any)?.property_id;
 
   if (!isOpen) return null;
 
