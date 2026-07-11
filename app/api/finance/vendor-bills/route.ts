@@ -1,12 +1,15 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const status = searchParams.get("status");
     const vendorId = searchParams.get("vendor_id");
 
@@ -19,6 +22,7 @@ export async function GET(req: NextRequest) {
     const params: any[] = [];
     let idx = 1;
     if (propertyId) { query += ` AND vb.property_id = $${idx++}`; params.push(propertyId); }
+    else if (scope.assignedPropertyIds.length > 0) { query += ` AND vb.property_id = ANY($${idx++})`; params.push(scope.assignedPropertyIds); }
     if (status) { query += ` AND vb.status = $${idx++}`; params.push(status); }
     if (vendorId) { query += ` AND vb.vendor_id = $${idx++}`; params.push(vendorId); }
     query += " ORDER BY vb.bill_date DESC LIMIT 100";

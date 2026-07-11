@@ -22,6 +22,8 @@ export interface JwtPayload {
   tenant_verticals?: Vertical[];
   /** Platform admin flag — true for eHMS platform superadmins */
   is_platform_admin?: boolean;
+  /** Property-scoped access — assigned property IDs for property_manager / department roles */
+  assigned_property_ids?: string[];
 }
 
 export function signToken(payload: JwtPayload): string {

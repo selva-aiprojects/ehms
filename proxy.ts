@@ -71,6 +71,9 @@ export default async function proxy(request: NextRequest) {
       requestHeaders.set("x-tenant-schema", payload.tenant_schema || "");
       requestHeaders.set("x-tenant-name", payload.tenant_name || "");
       requestHeaders.set("x-tenant-verticals", (payload.tenant_verticals || []).join(","));
+      if (payload.assigned_property_ids && payload.assigned_property_ids.length > 0) {
+        requestHeaders.set("x-user-property-ids", payload.assigned_property_ids.join(","));
+      }
     }
   }
 
@@ -94,6 +97,9 @@ export default async function proxy(request: NextRequest) {
       response.headers.set("x-tenant-schema", payload.tenant_schema || "");
       response.headers.set("x-tenant-name", payload.tenant_name || "");
       response.headers.set("x-tenant-verticals", (payload.tenant_verticals || []).join(","));
+      if (payload.assigned_property_ids && payload.assigned_property_ids.length > 0) {
+        response.headers.set("x-user-property-ids", payload.assigned_property_ids.join(","));
+      }
     }
   }
   return response;

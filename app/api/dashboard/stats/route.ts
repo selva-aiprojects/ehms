@@ -1,45 +1,55 @@
 export const dynamic = "force-dynamic";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess } from "@/lib/property-scope";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const propertyId = searchParams.get("property_id") || undefined;
+    const propertyId = searchParams.get("property_id");
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const sql = getDb();
 
-    const param = propertyId || null;
+    const propFilter = propertyId
+      ? sql`property_id = ${propertyId}::uuid`
+      : scope.assignedPropertyIds.length > 0
+        ? sql`property_id = ANY(${scope.assignedPropertyIds}::uuid[])`
+        : sql`true`;
     const [globalStatsRows, monthlyRows] = await Promise.all([
       sql`
         SELECT
-          (SELECT COUNT(*)::int FROM bookings WHERE (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_bookings,
-          (SELECT COUNT(*)::int FROM bookings WHERE status = 'checked_in' AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS checked_in,
+          (SELECT COUNT(*)::int FROM bookings WHERE (${propFilter})) AS total_bookings,
+          (SELECT COUNT(*)::int FROM bookings WHERE status = 'checked_in' AND (${propFilter})) AS checked_in,
           (
             CASE 
-              WHEN ${param}::uuid IS NOT NULL THEN (SELECT COUNT(DISTINCT guest_id)::int FROM bookings WHERE property_id = ${param}::uuid)
+              WHEN ${propertyId || scope.assignedPropertyIds.length > 0} THEN (SELECT COUNT(DISTINCT guest_id)::int FROM bookings WHERE (${propFilter}))
               ELSE (SELECT COUNT(*)::int FROM guest_profiles)
             END
           ) AS total_guests,
           -- Revenue: prefer payments table, fall back to bookings.paid_amount
           COALESCE(
-            NULLIF((SELECT SUM(amount)::numeric FROM payments WHERE status = 'completed' AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)), 0),
-            (SELECT COALESCE(SUM(paid_amount),0)::numeric FROM bookings WHERE paid_amount > 0 AND status IN ('checked_out','checked_in') AND (${param}::uuid IS NULL OR property_id = ${param}::uuid))
+            NULLIF((SELECT SUM(amount)::numeric FROM payments WHERE status = 'completed' AND (${propFilter})), 0),
+            (SELECT COALESCE(SUM(paid_amount),0)::numeric FROM bookings WHERE paid_amount > 0 AND status IN ('checked_out','checked_in') AND (${propFilter}))
           ) AS total_revenue,
-          (SELECT COALESCE(SUM(balance_due),0)::numeric FROM vendor_bills WHERE status IN ('pending', 'approved', 'overdue') AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS total_payables,
-          (SELECT COALESCE(ROUND(AVG(rating), 1), 0.0)::numeric FROM guest_feedbacks WHERE (${param}::uuid IS NULL OR property_id = ${param}::uuid)) AS avg_rating,
+          (SELECT COALESCE(SUM(balance_due),0)::numeric FROM vendor_bills WHERE status IN ('pending', 'approved', 'overdue') AND (${propFilter})) AS total_payables,
+          (SELECT COALESCE(ROUND(AVG(rating), 1), 0.0)::numeric FROM guest_feedbacks WHERE (${propFilter})) AS avg_rating,
           (
             SELECT COUNT(*)::int 
             FROM units 
-            WHERE (${param}::uuid IS NULL OR floor_id IN (
-              SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE b.property_id = ${param}::uuid
-            ))
+            WHERE ${propertyId || scope.assignedPropertyIds.length > 0} IS NOT TRUE 
+              OR floor_id IN (
+                SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE (${propFilter})
+              )
           ) AS total_units,
           (
             SELECT COUNT(*)::int 
             FROM units 
-            WHERE status = 'occupied' AND (${param}::uuid IS NULL OR floor_id IN (
-              SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE b.property_id = ${param}::uuid
-            ))
+            WHERE status = 'occupied'
+              AND (${propertyId || scope.assignedPropertyIds.length > 0} IS NOT TRUE 
+                OR floor_id IN (
+                  SELECT f.id FROM floors f JOIN buildings b ON b.id = f.building_id WHERE (${propFilter})
+                ))
           ) AS occupied_units
       `,
       sql`
@@ -48,19 +58,19 @@ export async function GET(req: Request) {
           FROM payments
           WHERE status = 'completed'
             AND payment_date >= NOW() - INTERVAL '11 months'
-            AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
+            AND (${propFilter})
           GROUP BY 1
           UNION ALL
           SELECT TO_CHAR(check_in, 'YYYY-MM') AS month, SUM(paid_amount) AS revenue
           FROM bookings
           WHERE paid_amount > 0 AND status IN ('checked_out', 'checked_in')
             AND check_in >= NOW() - INTERVAL '11 months'
-            AND (${param}::uuid IS NULL OR property_id = ${param}::uuid)
+            AND (${propFilter})
             AND NOT EXISTS (
               SELECT 1 FROM payments p2
               WHERE p2.status = 'completed'
                 AND TO_CHAR(p2.payment_date, 'YYYY-MM') = TO_CHAR(bookings.check_in, 'YYYY-MM')
-                AND (${param}::uuid IS NULL OR p2.property_id = ${param}::uuid)
+                AND (${propFilter})
             )
           GROUP BY 1
         ) combined

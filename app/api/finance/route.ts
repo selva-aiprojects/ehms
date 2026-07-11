@@ -1,12 +1,15 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
 
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
@@ -17,6 +20,9 @@ export async function GET(req: NextRequest) {
     if (propertyId) {
       invQuery += " AND property_id = $1";
       invParams.push(propertyId);
+    } else if (scope.assignedPropertyIds.length > 0) {
+      invQuery += " AND property_id = ANY($1)";
+      invParams.push(scope.assignedPropertyIds);
     }
     invQuery += " ORDER BY created_at DESC LIMIT 100";
 
@@ -25,6 +31,9 @@ export async function GET(req: NextRequest) {
     if (propertyId) {
       payQuery += " AND property_id = $1";
       payParams.push(propertyId);
+    } else if (scope.assignedPropertyIds.length > 0) {
+      payQuery += " AND property_id = ANY($1)";
+      payParams.push(scope.assignedPropertyIds);
     }
 
     let recentPayQuery = `
@@ -37,6 +46,9 @@ export async function GET(req: NextRequest) {
     if (propertyId) {
       recentPayQuery += " AND p.property_id = $1";
       recentPayParams.push(propertyId);
+    } else if (scope.assignedPropertyIds.length > 0) {
+      recentPayQuery += " AND p.property_id = ANY($1)";
+      recentPayParams.push(scope.assignedPropertyIds);
     }
     recentPayQuery += " ORDER BY p.payment_date DESC LIMIT 15";
 
@@ -45,6 +57,9 @@ export async function GET(req: NextRequest) {
     if (propertyId) {
       arQuery += " AND property_id = $1";
       arParams.push(propertyId);
+    } else if (scope.assignedPropertyIds.length > 0) {
+      arQuery += " AND property_id = ANY($1)";
+      arParams.push(scope.assignedPropertyIds);
     }
 
     let vbQuery = "SELECT * FROM vendor_bills WHERE 1=1";
@@ -52,6 +67,9 @@ export async function GET(req: NextRequest) {
     if (propertyId) {
       vbQuery += " AND property_id = $1";
       vbParams.push(propertyId);
+    } else if (scope.assignedPropertyIds.length > 0) {
+      vbQuery += " AND property_id = ANY($1)";
+      vbParams.push(scope.assignedPropertyIds);
     }
     vbQuery += " ORDER BY bill_date DESC LIMIT 50";
 
@@ -65,6 +83,9 @@ export async function GET(req: NextRequest) {
     if (propertyId) {
       bgQuery += " AND h.property_id = $1";
       bgParams.push(propertyId);
+    } else if (scope.assignedPropertyIds.length > 0) {
+      bgQuery += " AND h.property_id = ANY($1)";
+      bgParams.push(scope.assignedPropertyIds);
     }
     bgQuery += " ORDER BY b.period_month ASC";
 
@@ -73,6 +94,9 @@ export async function GET(req: NextRequest) {
     if (propertyId) {
       taxQuery += " AND property_id = $1";
       taxParams.push(propertyId);
+    } else if (scope.assignedPropertyIds.length > 0) {
+      taxQuery += " AND property_id = ANY($1)";
+      taxParams.push(scope.assignedPropertyIds);
     }
     taxQuery += " ORDER BY period_end DESC";
 

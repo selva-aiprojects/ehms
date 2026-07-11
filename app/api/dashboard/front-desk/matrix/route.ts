@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess } from "@/lib/property-scope";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,8 @@ export async function GET(req: NextRequest) {
     const sql = getDb();
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
 
     // Get units with their current active reservation (if any)
     const rows = await sql`
@@ -66,7 +69,7 @@ export async function GET(req: NextRequest) {
         ORDER BY property_id, unit_type, created_at DESC
       ) rp ON rp.property_id = p.id AND rp.unit_type = u.unit_type
       WHERE p.vertical_type IN ('hotel', 'service_apartment', 'rental_apartment')
-      ${propertyId ? sql`AND p.id = ${propertyId}` : sql``}
+      ${propertyId ? sql`AND p.id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND p.id = ANY(${scope.assignedPropertyIds})` : sql``}
       ORDER BY bl.code, f.floor_number, u.unit_label
     `;
 

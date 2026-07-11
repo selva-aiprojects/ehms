@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,6 +9,9 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
     const status = searchParams.get("status");
+
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
 
     const rows = await sql`
       SELECT
@@ -18,7 +22,11 @@ export async function GET(req: NextRequest) {
       LEFT JOIN units u ON u.id = ht.unit_id
       LEFT JOIN users usr ON usr.id = ht.assigned_to
       WHERE 1=1
-        ${propertyId ? sql`AND ht.property_id = ${propertyId}` : sql``}
+        ${propertyId
+          ? sql`AND ht.property_id = ${propertyId}`
+          : scope.assignedPropertyIds.length > 0
+            ? sql`AND ht.property_id = ANY(${scope.assignedPropertyIds})`
+            : sql``}
         ${status ? sql`AND ht.status = ${status}` : sql``}
       ORDER BY ht.scheduled_at ASC
     `;

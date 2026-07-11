@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const status = searchParams.get("status");
     const search = searchParams.get("search");
 
@@ -24,6 +27,8 @@ export async function GET(req: NextRequest) {
 
     if (propertyId) {
       query = sql`${query} AND v.property_id = ${propertyId}`;
+    } else if (scope.assignedPropertyIds.length > 0) {
+      query = sql`${query} AND v.property_id = ANY(${scope.assignedPropertyIds})`;
     }
     if (status) {
       query = sql`${query} AND v.status = ${status}`;

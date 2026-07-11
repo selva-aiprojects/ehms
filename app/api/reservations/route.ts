@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,6 +9,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const propertyId = searchParams.get("property_id");
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const date = searchParams.get("date");
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
     const limit = Math.min(100, parseInt(searchParams.get("limit") || "20"));
@@ -26,7 +29,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN properties p ON p.id = b.property_id
       WHERE 1=1
         ${status ? sql`AND b.status = ${status}` : sql``}
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        ${propertyId ? sql`AND b.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND b.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
         ${date ? sql`AND b.check_in::date = ${date}::date` : sql``}
       ORDER BY b.created_at DESC
       LIMIT ${limit} OFFSET ${offset}

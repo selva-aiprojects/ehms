@@ -126,6 +126,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
+    const assignments = await sql`
+      SELECT property_id FROM user_roles WHERE user_id = ${user.id} AND property_id IS NOT NULL
+    `;
+    const assignedPropertyIds = (assignments as Record<string, unknown>[]).map(r => r.property_id as string);
+
     const payload = {
       user_id: user.id as string,
       email: user.email as string,
@@ -138,6 +143,7 @@ export async function POST(req: NextRequest) {
       tenant_schema: targetSchema,
       tenant_name: tenantName,
       tenant_verticals: tenantVerticals,
+      assigned_property_ids: assignedPropertyIds,
     };
 
     const token = signToken(payload);

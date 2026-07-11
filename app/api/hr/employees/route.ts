@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,6 +9,8 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search");
     const deptId = searchParams.get("department_id");
     const propertyId = searchParams.get("property_id");
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
 
     const rows = await sql`
       SELECT
@@ -19,7 +22,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN users u ON u.id = e.user_id
       WHERE e.is_active = true
         ${deptId ? sql`AND e.department_id = ${deptId}` : sql``}
-        ${propertyId ? sql`AND e.property_id = ${propertyId}` : sql``}
+        ${propertyId ? sql`AND e.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND e.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
         ${search ? sql`AND (
           e.employee_code ILIKE ${"%" + search + "%"} OR
           u.first_name ILIKE ${"%" + search + "%"} OR
