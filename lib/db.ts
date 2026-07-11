@@ -64,22 +64,23 @@ function makeThenableQuery(
   values: unknown[],
   executeFn: (text: string, params: unknown[]) => Promise<Record<string, unknown>[]>
 ) {
-  return {
+  const obj = {
     queryData: { strings, values },
     then(onFulfilled?: (value: Record<string, unknown>[]) => any, onRejected?: (reason: any) => any) {
       const { text, params } = flattenTaggedTemplate(strings, values);
       return executeFn(text, params).then(onFulfilled, onRejected);
     },
     catch(onRejected?: (reason: any) => any) {
-      return this.then(undefined, onRejected);
+      return obj.then(undefined, onRejected);
     },
     finally(onFinally?: () => void) {
-      return this.then(
-        (v) => { onFinally?.(); return v; },
-        (e) => { onFinally?.(); throw e; }
+      return obj.then(
+        (v: any) => { onFinally?.(); return v; },
+        (e: any) => { onFinally?.(); throw e; }
       );
     }
-  } as unknown as Promise<Record<string, unknown>[]>;
+  };
+  return obj as unknown as Promise<Record<string, unknown>[]>;
 }
 
 function makeWrappedSql(schema: string): WrappedSql {
