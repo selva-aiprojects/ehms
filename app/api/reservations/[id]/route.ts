@@ -88,13 +88,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       // G4: Auto-create Housekeeping Task for the vacated room
       try {
         await sql`
-          INSERT INTO housekeeping_tasks (unit_id, property_id, task_type, priority, status, notes)
+          INSERT INTO housekeeping_tasks (unit_id, property_id, task_type, priority, status, scheduled_at, notes)
           VALUES (
             ${unitId},
             ${propertyId},
             'checkout_clean',
             'high',
             'open',
+            now() + interval '2 hours',
             ${"Auto-generated on checkout for booking #" + realBookingId}
           )
         `;

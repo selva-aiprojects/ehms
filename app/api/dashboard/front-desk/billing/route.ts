@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
         u.unit_type,
         p.name as property_name,
         COALESCE(inv.grand_total, b.total_amount, 0) as invoice_total,
-        COALESCE(inv.paid_total, inv.amount_paid, 0) as amount_paid,
+        COALESCE(inv.paid_total, b.paid_amount, 0) as amount_paid,
         COALESCE(inv.balance_due, b.total_amount, 0) as balance_due,
         inv.invoice_number,
         inv.status as invoice_status

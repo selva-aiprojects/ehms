@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       FROM invoices i
       LEFT JOIN invoice_lines il ON il.invoice_id = i.id
       WHERE i.booking_id = ${bookingId}
-      ORDER BY i.created_at ASC, il.rowid ASC
+      ORDER BY i.created_at ASC, il.id ASC
     `;
 
     // Payments
@@ -277,7 +277,7 @@ export async function PUT(req: NextRequest) {
     await sql`
       UPDATE invoices SET
         paid_total = ${newPaid},
-        amount_paid = ${newPaid},
+        balance_due = COALESCE(grand_total, 0) - ${newPaid},
         status = ${newStatus}
       WHERE id = ${invId}
     `;

@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
         o.status,
         o.total_amount,
         o.is_complimentary,
-        o.created_at,
+        o.ordered_at AS created_at,
         b.id   AS booking_id,
         u.unit_label,
         (
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN units    u ON u.id = b.unit_id
       WHERE 1=1
       ${scope.assignedPropertyIds.length > 0 ? sql`AND o.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
-      ORDER BY o.created_at DESC
+      ORDER BY o.ordered_at DESC
       LIMIT 50
     `;
 

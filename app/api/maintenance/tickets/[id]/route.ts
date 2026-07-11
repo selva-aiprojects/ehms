@@ -46,25 +46,48 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (!rows[0]) return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
 
-    // ── G6 FIX: On RESOLVE or CLOSE — reset unit status to vacant and auto-queue HK task ──
+    // ── G6 FIX: On RESOLVE or CLOSE — reset unit status safely and auto-queue HK task ──
     if ((newStatus === "resolved" || newStatus === "closed") && oldTicket.unit_id) {
       try {
-        // Reset room status so it is no longer stuck in maintenance
-        await sql`UPDATE units SET status = 'vacant' WHERE id = ${oldTicket.unit_id}`;
+        // Only transition unit status if no other active maintenance tickets exist for this room
+        const activeTickets = await sql`
+          SELECT id FROM maintenance_tickets 
+          WHERE unit_id = ${oldTicket.unit_id} 
+            AND id != ${id} 
+            AND status IN ('open', 'in_progress', 'assigned') 
+          LIMIT 1
+        `;
 
-        // Auto-create a housekeeping check task
-        if (oldTicket.property_id) {
-          await sql`
-            INSERT INTO housekeeping_tasks (unit_id, property_id, task_type, priority, status, notes)
-            VALUES (
-              ${oldTicket.unit_id},
-              ${oldTicket.property_id},
-              'post_maintenance_clean',
-              'medium',
-              'open',
-              ${"Auto-generated after maintenance ticket #" + id + " resolved"}
-            )
+        if (!activeTickets[0]) {
+          // Check if there is an active checked-in booking
+          const activeBooking = await sql`
+            SELECT id FROM bookings 
+            WHERE unit_id = ${oldTicket.unit_id} AND status = 'checked_in' 
+            LIMIT 1
           `;
+
+          if (activeBooking[0]) {
+            await sql`UPDATE units SET status = 'occupied' WHERE id = ${oldTicket.unit_id}`;
+          } else {
+            // Mark dirty so housekeeping verifies before room goes vacant
+            await sql`UPDATE units SET status = 'dirty' WHERE id = ${oldTicket.unit_id}`;
+            
+            // Auto-create a housekeeping post-maintenance task with 2-hour SLA
+            if (oldTicket.property_id) {
+              await sql`
+                INSERT INTO housekeeping_tasks (unit_id, property_id, task_type, priority, status, scheduled_at, notes)
+                VALUES (
+                  ${oldTicket.unit_id},
+                  ${oldTicket.property_id},
+                  'post_maintenance_clean',
+                  'medium',
+                  'open',
+                  now() + interval '2 hours',
+                  ${"Auto-generated after maintenance ticket #" + id + " resolved"}
+                )
+              `;
+            }
+          }
         }
       } catch (syncErr) {
         console.error("[ticket PUT] unit status sync on resolve failed:", syncErr);

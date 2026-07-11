@@ -180,6 +180,7 @@ async function main() {
   await runSeedFile(join(DATABASE_DIR, "seed_v5_yearly.sql"), "seed_v5_yearly.sql (1-2 years demo data)");
   await runSeedFile(join(DATABASE_DIR, "seed_v6_platform_and_workflows.sql"), "seed_v6_platform_and_workflows.sql (Platform Broadcasts & Workflow data)");
   await runSeedFile(join(DATABASE_DIR, "seed_v7_payments_backfill.sql"), "seed_v7_payments_backfill.sql (Payments backfill + live activity data)");
+  await runSeedFile(join(DATABASE_DIR, "seed_v8_workflow_certification.sql"), "seed_v8_workflow_certification.sql (Workflow Certification — 50 Rooms, 25 Bookings, All Personas)");
 
   // Final verification
   console.log("\n\uD83D\uDCC8 Final counts:");
