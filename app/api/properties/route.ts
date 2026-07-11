@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
       GROUP BY p.id, r.name, r.city, r.state, r.country
       ORDER BY p.name
     `;
-    const rows = await sql.query(query, params.length > 0 ? params : undefined);
+    const rows = await sql.query(query, params);
 
     const withOccupancy = (rows as any[]).map(p => {
       const units = p.units || [];

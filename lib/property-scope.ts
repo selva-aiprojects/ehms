@@ -151,7 +151,9 @@ export async function validateIndirectPropertyAccess(
   if (assignedPropertyIds.length === 0) return null;
 
   // Look up the property_id from the parent record
-  const rows = await sql`SELECT ${sql(propertyColumn)} FROM ${sql(tableName)} WHERE ${sql(idColumn)} = ${recordId} LIMIT 1`;
+  const queryText = `SELECT "${propertyColumn}" FROM "${tableName}" WHERE "${idColumn}" = $1 LIMIT 1`;
+  const result = await sql.query(queryText, [recordId]);
+  const rows = result.rows || result;
   if (!rows || rows.length === 0) return null; // Let the main handler deal with not-found
   const propId = rows[0][propertyColumn];
   if (propId && !assignedPropertyIds.includes(String(propId))) {
