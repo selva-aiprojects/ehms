@@ -59,18 +59,42 @@ function flattenTaggedTemplate(strings: TemplateStringsArray, values: unknown[])
   return { text, params };
 }
 
+function makeThenableQuery(
+  strings: TemplateStringsArray,
+  values: unknown[],
+  executeFn: (text: string, params: unknown[]) => Promise<Record<string, unknown>[]>
+) {
+  return {
+    queryData: { strings, values },
+    then(onFulfilled?: (value: Record<string, unknown>[]) => any, onRejected?: (reason: any) => any) {
+      const { text, params } = flattenTaggedTemplate(strings, values);
+      return executeFn(text, params).then(onFulfilled, onRejected);
+    },
+    catch(onRejected?: (reason: any) => any) {
+      return this.then(undefined, onRejected);
+    },
+    finally(onFinally?: () => void) {
+      return this.then(
+        (v) => { onFinally?.(); return v; },
+        (e) => { onFinally?.(); throw e; }
+      );
+    }
+  } as unknown as Promise<Record<string, unknown>[]>;
+}
+
 function makeWrappedSql(schema: string): WrappedSql {
   const sql = neon(databaseUrl) as SqlFn;
   const setPathSQL = `SET search_path TO ${schema}, public`;
 
-  const wrapped = (async (strings: TemplateStringsArray, ...values: unknown[]) => {
-    const { text, params } = flattenTaggedTemplate(strings, values);
-    const results = await sql.transaction([
-      sql.query(setPathSQL),
-      sql.query(text, params),
-    ]);
-    return results[1] as Record<string, unknown>[];
-  }) as WrappedSql;
+  const wrapped = ((strings: TemplateStringsArray, ...values: unknown[]) => {
+    return makeThenableQuery(strings, values, async (text, params) => {
+      const results = await sql.transaction([
+        sql.query(setPathSQL),
+        sql.query(text, params),
+      ]);
+      return results[1] as Record<string, unknown>[];
+    });
+  }) as unknown as WrappedSql;
 
   wrapped.query = ((text: string, params?: unknown[], opts?: Record<string, unknown>) => {
     return sql.transaction([
@@ -94,16 +118,17 @@ function makeWrappedSql(schema: string): WrappedSql {
 function makeDynamicWrappedSql(): WrappedSql {
   const sql = neon(databaseUrl) as SqlFn;
 
-  const wrapped = (async (strings: TemplateStringsArray, ...values: unknown[]) => {
-    const schema = await resolveSchema();
-    const setPathSQL = `SET search_path TO ${schema}, public`;
-    const { text, params } = flattenTaggedTemplate(strings, values);
-    const results = await sql.transaction([
-      sql.query(setPathSQL),
-      sql.query(text, params),
-    ]);
-    return results[1] as Record<string, unknown>[];
-  }) as WrappedSql;
+  const wrapped = ((strings: TemplateStringsArray, ...values: unknown[]) => {
+    return makeThenableQuery(strings, values, async (text, params) => {
+      const schema = await resolveSchema();
+      const setPathSQL = `SET search_path TO ${schema}, public`;
+      const results = await sql.transaction([
+        sql.query(setPathSQL),
+        sql.query(text, params),
+      ]);
+      return results[1] as Record<string, unknown>[];
+    });
+  }) as unknown as WrappedSql;
 
   wrapped.query = (async (text: string, params?: unknown[], opts?: Record<string, unknown>) => {
     const schema = await resolveSchema();

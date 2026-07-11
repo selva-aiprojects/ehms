@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
         e.department_id,
         e.property_id,
         e.shift_id,
-        e.status AS employment_status,
+        CASE WHEN e.is_active = false THEN 'inactive' ELSE 'active' END AS employment_status,
         json_build_object(
           'id', u.id,
           'first_name', u.first_name,
@@ -55,12 +55,12 @@ export async function GET(req: NextRequest) {
           SELECT 1 FROM leave_requests lr
           WHERE lr.employee_id = e.id
             AND lr.status = 'approved'
-            AND ${targetDate}::date BETWEEN lr.from_date AND lr.to_date
+            AND ${targetDate}::date BETWEEN lr.start_date AND lr.end_date
         ) AS on_leave
       FROM employees e
       LEFT JOIN users u ON u.id = e.user_id
       LEFT JOIN shift_rotations s ON s.id = e.shift_id
-      WHERE COALESCE(e.status, 'active') = 'active'
+      WHERE (e.is_active = true OR e.is_active IS NULL)
         ${propertyId ? sql`AND e.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND e.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
         ${departmentId ? sql`AND e.department_id = ${departmentId}` : sql``}
       ORDER BY u.first_name ASC, e.employee_code ASC

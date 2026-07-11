@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Settings, BedDouble, Tag, Truck, Users, DollarSign, CreditCard, Package, Plus, Edit2, Trash2, Check, AlertCircle, Loader2, Save, X } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
-import { useTaxSlabs, usePaymentModes, useBookingSources, useRatePlans, useIdProofTypes, useAssetCategories, useUOM } from "@/lib/hooks";
+import { useTaxSlabs, usePaymentModes, useBookingSources, useRatePlans, useIdProofTypes, useAssetCategories, useUOM, useProperties } from "@/lib/hooks";
 import { useJourney } from "@/components/providers/JourneyProvider";
 import MasterDataTable from "./components/MasterDataTable";
 
@@ -239,6 +239,7 @@ function FinanceTab() {
 
 function PaymentsTab() {
   const { selectedPropertyId } = useJourney();
+  const { properties = [] } = useProperties();
   const { paymentModes, isLoading: pmLoading } = usePaymentModes();
   const { bookingSources, isLoading: bsLoading } = useBookingSources();
   const { ratePlans, isLoading: rpLoading, mutate: mutateRatePlans } = useRatePlans();
@@ -247,7 +248,7 @@ function PaymentsTab() {
   const [editingPlan, setEditingPlan] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     name: "",
-    unit_type: "Standard Room",
+    unit_type: "room",
     base_rate: 2500,
     currency: "INR",
     is_dynamic: false,
@@ -262,7 +263,7 @@ function PaymentsTab() {
     setEditingPlan(null);
     setFormData({
       name: "",
-      unit_type: "Standard Room",
+      unit_type: "room",
       base_rate: 2500,
       currency: "INR",
       is_dynamic: false,
@@ -277,7 +278,7 @@ function PaymentsTab() {
     setEditingPlan(plan);
     setFormData({
       name: plan.name || "",
-      unit_type: plan.unit_type || "Standard Room",
+      unit_type: plan.unit_type || "room",
       base_rate: Number(plan.base_rate || plan.base_price || 2500),
       currency: plan.currency || "INR",
       is_dynamic: !!plan.is_dynamic,
@@ -294,7 +295,8 @@ function PaymentsTab() {
     try {
       const url = editingPlan ? `/api/rate-plans` : `/api/rate-plans`;
       const method = editingPlan ? "PUT" : "POST";
-      const payload: any = { ...formData, property_id: selectedPropertyId !== "all" ? selectedPropertyId : "p-1" };
+      const validPropId = (selectedPropertyId && selectedPropertyId !== "all") ? selectedPropertyId : (properties[0]?.id || "2579f5fb-bbfa-42c0-b19b-61fec874ea48");
+      const payload: any = { ...formData, property_id: validPropId };
       if (editingPlan) payload.id = editingPlan.id;
 
       const res = await fetch(url, {
@@ -457,13 +459,19 @@ function PaymentsTab() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-medium text-slate-700 mb-1">Unit Type</label>
-                    <input
-                      type="text"
+                    <select
                       value={formData.unit_type}
                       onChange={(e) => setFormData({ ...formData, unit_type: e.target.value })}
-                      placeholder="e.g. Deluxe Suite"
-                      className="w-full px-3 py-1.5 rounded border outline-none focus:border-teal-600 text-sm"
-                    />
+                      className="w-full px-3 py-1.5 rounded border outline-none focus:border-teal-600 text-sm bg-white"
+                    >
+                      <option value="room">Room</option>
+                      <option value="suite">Suite</option>
+                      <option value="apartment">Apartment</option>
+                      <option value="desk">Desk</option>
+                      <option value="seat">Seat</option>
+                      <option value="meeting_room">Meeting Room</option>
+                      <option value="cabin">Cabin</option>
+                    </select>
                   </div>
                   <div>
                     <label className="block font-medium text-slate-700 mb-1">Base Rate ({formData.currency}) *</label>

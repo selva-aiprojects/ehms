@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       FROM employees e
       LEFT JOIN users u ON u.id = e.user_id
       LEFT JOIN shift_rotations s ON s.id = e.shift_id
-      WHERE COALESCE(e.status, 'active') = 'active'
+      WHERE (e.is_active = true OR e.is_active IS NULL)
         ${propertyId ? sql`AND e.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND e.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
         ${shiftId ? (shiftId === "unassigned" ? sql`AND e.shift_id IS NULL` : sql`AND e.shift_id = ${shiftId}`) : sql``}
       ORDER BY s.name ASC NULLS LAST, u.first_name ASC
