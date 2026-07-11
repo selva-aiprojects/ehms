@@ -14,7 +14,7 @@ const MOCK_LEASES = [
   { id: "L-001", tenant_name: "Amit Sharma", unit_label: "3BHK-05", property_name: "Greenwood Residency", start_date: "01 Jan 2026", end_date: "31 Dec 2026", monthly_rent: 28000, status: "active" },
   { id: "L-002", tenant_name: "Neha Gupta", unit_label: "2BHK-12", property_name: "Greenwood Residency", start_date: "15 Mar 2026", end_date: "14 Mar 2027", monthly_rent: 22000, status: "active" },
   { id: "L-003", tenant_name: "Rahul Verma", unit_label: "1BHK-08", property_name: "Lakeview Apartments", start_date: "01 Jun 2025", end_date: "31 May 2026", monthly_rent: 18000, status: "renewal_due" },
-  { id: "L-004", tenant_name: "Priya Kapoor", unit_label: "Studio-03", property_name: "Cityscape Residences", start_date: "20 Apr 2026", end_date: "19 Apr 2027", monthly_rent: 15000, status: "signed" },
+  { id: "L-004", tenant_name: "Priya Kapoor", unit_label: "Studio-03", property_name: "Viswa Service Apartments", start_date: "20 Apr 2026", end_date: "19 Apr 2027", monthly_rent: 15000, status: "signed" },
   { id: "L-005", tenant_name: "Vikram Singh", unit_label: "3BHK-07", property_name: "Greenwood Residency", start_date: "01 Aug 2024", end_date: "31 Jul 2025", monthly_rent: 26000, status: "terminated" },
   { id: "L-006", tenant_name: "Sneha Reddy", unit_label: "2BHK-09", property_name: "Greenwood Residency", start_date: "01 Feb 2026", end_date: "31 Jan 2027", monthly_rent: 25000, status: "active" },
   { id: "L-007", tenant_name: "Mohit Raj", unit_label: "1BHK-04", property_name: "Lakeview Apartments", start_date: "10 Jun 2025", end_date: "09 Jun 2026", monthly_rent: 16000, status: "renewal_due" },
@@ -54,7 +54,7 @@ const TENANT_MESSAGES = [
 const PROPERTY_COMPARISON = [
   { name: "Greenwood Residency", occupancy: 87, avgRent: 24500, collection: 94, satisfaction: 4.5, revenue: 560000 },
   { name: "Lakeview Apartments", occupancy: 83, avgRent: 17000, collection: 88, satisfaction: 4.2, revenue: 380000 },
-  { name: "Cityscape Residences", occupancy: 83, avgRent: 15000, collection: 91, satisfaction: 4.3, revenue: 420000 },
+  { name: "Viswa Service Apartments", occupancy: 83, avgRent: 15000, collection: 91, satisfaction: 4.3, revenue: 420000 },
 ];
 
 const NOTICE_PERIOD_TRACKING = [
@@ -363,7 +363,7 @@ export default function RentalPage() {
           {[
             { name: "Greenwood Residency", units: "24", occupied: "21", occPct: "87%", rev: "₹5.6L" },
             { name: "Lakeview Apartments", units: "12", occupied: "10", occPct: "83%", rev: "₹3.8L" },
-            { name: "Cityscape Residences", units: "18", occupied: "15", occPct: "83%", rev: "₹4.2L" },
+            { name: "Viswa Service Apartments", units: "18", occupied: "15", occPct: "83%", rev: "₹4.2L" },
           ].map((p) => (
             <div key={p.name} className="p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
               <div className="font-semibold text-sm mb-2" style={{ color: "#1A3C5E" }}>{p.name}</div>

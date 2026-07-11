@@ -11,7 +11,7 @@ import Link from "next/link";
 
 const SYSTEM_USERS = [
   { name: "Rajesh Mehta", email: "rajesh@samp.com", role: "Property Manager", property: "Oceanview Hotel", status: "active" },
-  { name: "Sneha Kapoor", email: "sneha@samp.com", role: "Property Manager", property: "Cityscape Apts", status: "active" },
+  { name: "Sneha Kapoor", email: "sneha@samp.com", role: "Property Manager", property: "Viswa Service Apts", status: "active" },
   { name: "Priya Sharma", email: "priya@samp.com", role: "Front Desk", property: "Oceanview Hotel", status: "active" },
   { name: "Ravi Kumar", email: "ravi@samp.com", role: "Housekeeping Staff", property: "Oceanview Hotel", status: "active" },
   { name: "Anita Desai", email: "anita@samp.com", role: "Finance Manager", property: "Global", status: "active" },

@@ -10,7 +10,7 @@ import { useFinance } from "@/lib/hooks";
 
 const MOCK_INVOICES = [
   { id: "INV-2026-001", guest_name: "Rajesh Kumar", property_name: "Oceanview Hotel", grand_total: 32250, due_date: "22 Jun 2026", status: "paid" },
-  { id: "INV-2026-002", guest_name: "Sarah Johnson", property_name: "Cityscape Apts", grand_total: 37800, due_date: "25 Jun 2026", status: "sent" },
+  { id: "INV-2026-002", guest_name: "Sarah Johnson", property_name: "Viswa Service Apts", grand_total: 37800, due_date: "25 Jun 2026", status: "sent" },
   { id: "INV-2026-003", guest_name: "Amit Sharma (Lease)", property_name: "Greenwood", grand_total: 28000, due_date: "05 Jul 2026", status: "overdue" },
   { id: "INV-2026-004", guest_name: "Acme Corp", property_name: "Innovate Coworking", grand_total: 120000, due_date: "01 Jul 2026", status: "pending" },
   { id: "INV-2026-005", guest_name: "Emily Chen", property_name: "Oceanview Hotel", grand_total: 105000, due_date: "21 Jun 2026", status: "paid" },

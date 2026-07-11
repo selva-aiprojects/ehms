@@ -19,7 +19,7 @@ INSERT INTO properties (region_id, name, code, vertical_type, booking_model, add
 SELECT r.id, p.name, p.code, p.vertical_type::vertical_type, p.booking_model::booking_model, p.address, p.phone, p.email, p.star
 FROM regions r, (VALUES
   ('Oceanview Hotel', 'OVH', 'hotel', 'nightly', '12 Marina Beach Rd, Chennai', '+91-44-1001-0001', 'oceanview@ehms.demo', 5),
-  ('Cityscape Serviced Apts', 'CSA', 'service_apartment', 'nightly', '45 Anna Salai, Chennai', '+91-44-1001-0002', 'cityscape@ehms.demo', 4),
+  ('Viswa Service Apartments', 'VSA', 'service_apartment', 'nightly', '45 Anna Salai, Chennai', '+91-44-1001-0002', 'viswa@ehms.demo', 4),
   ('Greenwood Residency', 'GWR', 'rental_apartment', 'lease', '78 Velachery Main Rd, Chennai', '+91-44-1001-0003', 'greenwood@ehms.demo', NULL),
   ('Innovate Coworking', 'ICS', 'workplace', 'hourly', '23 OMR Tech Park, Chennai', '+91-44-1001-0004', 'innovate@ehms.demo', NULL)
 ) AS p(name, code, vertical_type, booking_model, address, phone, email, star)

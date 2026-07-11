@@ -1535,7 +1535,7 @@ Seeded in `public.tenants`:
 
 ### Existing Properties (now scoped under Viswa tenant)
 
-All 4 properties (Oceanview Hotel, Cityscape Serviced Apts, Greenwood Residency, Innovate Coworking) along with their units, bookings, employees, and all associated data now reside in the `viswa` schema, isolated under the Viswa Group of Estates tenant.
+All 4 properties (Oceanview Hotel, Viswa Service Apartments, Greenwood Residency, Innovate Coworking) along with their units, bookings, employees, and all associated data now reside in the `viswa` schema, isolated under the Viswa Group of Estates tenant.
 
 ---
 

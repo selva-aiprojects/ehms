@@ -17,7 +17,7 @@ async function main() {
   console.log("🌱 [Seed & Enrich] Preparing 100% complete workflow verification data across all 13 Gaps...");
 
   const hotelId = '52471369-f921-437e-9d6f-2aadc93fa595'; // Oceanview Hotel (OVH)
-  const csaId = '2579f5fb-bbfa-42c0-b19b-61fec874ea48';   // Cityscape Serviced Apts (CSA)
+  const csaId = '2579f5fb-bbfa-42c0-b19b-61fec874ea48';   // Viswa Service Apartments (VSA)
   const today = new Date().toISOString().split("T")[0];
   const now = new Date().toISOString();
 

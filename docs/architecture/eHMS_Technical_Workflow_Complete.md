@@ -2190,7 +2190,7 @@ STEP 1: PORTFOLIO DASHBOARD
   └── View all rental properties in portfolio:
        ├── Greenwood Residency — 24 units, 87% occ, ₹5.6L rev
        ├── Lakeview Apartments — 12 units, 83% occ, ₹3.8L rev
-       └── Cityscape Residences — 18 units, 83% occ, ₹4.2L rev
+       └── Viswa Service Apartments — 18 units, 83% occ, ₹4.2L rev
 
 STEP 2: PERFORMANCE COMPARISON
   └── Property Comparison table shows:
