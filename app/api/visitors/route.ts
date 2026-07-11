@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,6 +12,9 @@ export async function POST(req: NextRequest) {
     if (!property_id || !visitor_name) {
       return NextResponse.json({ error: "Property and visitor name are required" }, { status: 400 });
     }
+
+    const accessErr = validateMutationPropertyAccess(req, property_id);
+    if (accessErr) return accessErr;
 
     const result = await sql`
       INSERT INTO visitor_logs (property_id, visitor_name, visitor_phone, visitor_email, host_employee_id, purpose, id_proof_type, id_proof_number, vehicle_number, check_in)
@@ -28,6 +32,8 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
     const status = searchParams.get("status");
@@ -40,7 +46,7 @@ export async function GET(req: NextRequest) {
       FROM visitor_logs vl
       LEFT JOIN users he ON he.id = vl.host_employee_id
       WHERE 1=1
-        ${propertyId ? sql`AND vl.property_id = ${propertyId}` : sql``}
+        ${propertyId ? sql`AND vl.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND vl.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
         ${status === "checked_in" ? sql`AND vl.check_out IS NULL` : sql``}
         ${status === "checked_out" ? sql`AND vl.check_out IS NOT NULL` : sql``}
       ORDER BY vl.check_in DESC

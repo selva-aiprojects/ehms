@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
 
@@ -18,7 +21,7 @@ export async function GET(req: NextRequest) {
       FROM vendors v
       LEFT JOIN vendor_services vs ON vs.vendor_id = v.id
       WHERE 1=1
-        ${propertyId ? sql`AND v.property_id = ${propertyId}` : sql``}
+        ${propertyId ? sql`AND v.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND v.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       GROUP BY v.id
       ORDER BY v.company_name ASC
     `;
@@ -55,6 +58,9 @@ export async function POST(req: NextRequest) {
     if (!body.company_name) {
       return NextResponse.json({ error: "Company name is required" }, { status: 400 });
     }
+
+    const accessErr = validateMutationPropertyAccess(req, body.property_id);
+    if (accessErr) return accessErr;
 
     const result = await sql`
       INSERT INTO vendors (company_name, contact_person, email, phone, gst_number, property_id, status)

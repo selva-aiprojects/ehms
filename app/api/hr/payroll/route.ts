@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
 
@@ -16,7 +19,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN users pu ON pu.id = pr.processed_by
       LEFT JOIN users au ON au.id = pr.approved_by
       WHERE 1=1
-        ${propertyId ? sql`AND pr.property_id = ${propertyId}` : sql``}
+        ${propertyId ? sql`AND pr.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND pr.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       ORDER BY pr.created_at DESC
     `;
 
@@ -31,6 +34,9 @@ export async function POST(req: NextRequest) {
   try {
     const sql = getDb();
     const body = await req.json();
+
+    const accessErr = validateMutationPropertyAccess(req, body.property_id);
+    if (accessErr) return accessErr;
 
     const empRows = (await sql`
       SELECT e.id, e.base_salary

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const vendorId = searchParams.get("vendor_id");
     const propertyId = searchParams.get("property_id");
@@ -35,6 +38,7 @@ export async function GET(req: NextRequest) {
 
     if (vendorId) query = sql`${query} AND po.vendor_id = ${vendorId}`;
     if (propertyId) query = sql`${query} AND po.property_id = ${propertyId}`;
+    else if (scope.assignedPropertyIds.length > 0) query = sql`${query} AND po.property_id = ANY(${scope.assignedPropertyIds})`;
     if (status) query = sql`${query} AND po.status = ${status}`;
     if (search) query = sql`${query} AND (po.po_number ILIKE ${`%${search}%`} OR v.company_name ILIKE ${`%${search}%`})`;
 
@@ -57,6 +61,10 @@ export async function POST(req: NextRequest) {
     if (!property_id) {
       return NextResponse.json({ error: "Property is required" }, { status: 400 });
     }
+
+    const accessErr = validateMutationPropertyAccess(req, property_id);
+    if (accessErr) return accessErr;
+
     if (!line_items || !Array.isArray(line_items) || line_items.length === 0) {
       return NextResponse.json({ error: "At least one line item is required" }, { status: 400 });
     }

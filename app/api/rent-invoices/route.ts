@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateIndirectPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const leaseId = searchParams.get("lease_id");
     const status = searchParams.get("status");
@@ -22,6 +25,7 @@ export async function GET(req: NextRequest) {
     `;
 
     if (leaseId) query = sql`${query} AND ri.lease_id = ${leaseId}`;
+    else if (scope.assignedPropertyIds.length > 0) query = sql`${query} AND la.property_id = ANY(${scope.assignedPropertyIds})`;
     if (status) query = sql`${query} AND ri.status = ${status}`;
 
     query = sql`${query} ORDER BY ri.period_start DESC`;
@@ -43,6 +47,10 @@ export async function POST(req: NextRequest) {
     if (!lease_id || !period_start || !period_end || !rent_amount || !due_date) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
+
+    // Validate property access indirectly via lease → property_id
+    const accessErr = await validateIndirectPropertyAccess(req, sql, "lease_agreements", lease_id);
+    if (accessErr) return accessErr;
 
     const lease = await sql`SELECT agreement_ref FROM lease_agreements WHERE id = ${lease_id}`;
     if (!lease.length) {

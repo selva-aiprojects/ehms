@@ -81,3 +81,84 @@ export async function validatePropertyAccess(
     error: null,
   };
 }
+
+/**
+ * Validates that the requesting user has write access to a given property_id.
+ * Use this in POST/PUT/DELETE handlers where property_id comes from the request body.
+ *
+ * Usage:
+ *   const body = await req.json();
+ *   const accessError = validateMutationPropertyAccess(req, body.property_id);
+ *   if (accessError) return accessError;
+ */
+export function validateMutationPropertyAccess(
+  request: NextRequest,
+  propertyId: string | null | undefined
+): NextResponse | null {
+  const role = request.headers.get("x-user-role") || "";
+  const propertyIdsHeader = request.headers.get("x-user-property-ids") || "";
+  const assignedPropertyIds = propertyIdsHeader
+    ? propertyIdsHeader.split(",").filter(Boolean)
+    : [];
+
+  // Super admin / executive can write to any property
+  if (ROLES_WITHOUT_RESTRICTION.has(role)) {
+    return null;
+  }
+
+  // If user has no property restrictions (empty = all access)
+  if (assignedPropertyIds.length === 0) {
+    return null;
+  }
+
+  // If a property_id is provided, validate it's in the allowed list
+  if (propertyId) {
+    if (!assignedPropertyIds.includes(propertyId)) {
+      return NextResponse.json(
+        { error: "Access denied: you do not have write access to this property" },
+        { status: 403 }
+      );
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Validates that the requesting user has access to a property resolved indirectly.
+ * Use this when property_id is not in the body directly, but can be looked up
+ * from a parent record (e.g., booking → property_id, lease → property_id, etc.)
+ *
+ * Usage:
+ *   const accessError = await validateIndirectPropertyAccess(req, sql, 'bookings', bookingId);
+ *   if (accessError) return accessError;
+ */
+export async function validateIndirectPropertyAccess(
+  request: NextRequest,
+  sql: any,
+  tableName: string,
+  recordId: string,
+  idColumn: string = "id",
+  propertyColumn: string = "property_id"
+): Promise<NextResponse | null> {
+  const role = request.headers.get("x-user-role") || "";
+  if (ROLES_WITHOUT_RESTRICTION.has(role)) return null;
+
+  const propertyIdsHeader = request.headers.get("x-user-property-ids") || "";
+  const assignedPropertyIds = propertyIdsHeader
+    ? propertyIdsHeader.split(",").filter(Boolean)
+    : [];
+  if (assignedPropertyIds.length === 0) return null;
+
+  // Look up the property_id from the parent record
+  const rows = await sql`SELECT ${sql(propertyColumn)} FROM ${sql(tableName)} WHERE ${sql(idColumn)} = ${recordId} LIMIT 1`;
+  if (!rows || rows.length === 0) return null; // Let the main handler deal with not-found
+  const propId = rows[0][propertyColumn];
+  if (propId && !assignedPropertyIds.includes(String(propId))) {
+    return NextResponse.json(
+      { error: "Access denied: you do not have write access to this property" },
+      { status: 403 }
+    );
+  }
+  return null;
+}

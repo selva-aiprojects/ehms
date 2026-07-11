@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
     const status = searchParams.get("status");
@@ -17,7 +20,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN units u ON u.id = ar.unit_id
       LEFT JOIN properties p ON p.id = ar.property_id
       WHERE 1=1
-      ${propertyId ? sql`AND ar.property_id = ${propertyId}` : sql``}
+      ${propertyId ? sql`AND ar.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND ar.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       ${status ? sql`AND ar.status = ${status}` : sql``}
       ORDER BY ar.created_at DESC
     `;
@@ -33,6 +36,9 @@ export async function POST(req: NextRequest) {
   try {
     const sql = getDb();
     const body = await req.json();
+
+    const accessErr = validateMutationPropertyAccess(req, body.property_id);
+    if (accessErr) return accessErr;
 
     const rows = await sql`
       INSERT INTO asset_register (unit_id, property_id, asset_type, brand, model, serial_number, purchase_date, warranty_months, depreciation_method, depreciation_rate, current_value, status)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,6 +9,8 @@ export async function GET(req: NextRequest) {
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const rows = await sql`
       SELECT 
         gr.id, gr.request_type, gr.description, gr.status, gr.assigned_to_dept, gr.created_at,
@@ -15,6 +18,8 @@ export async function GET(req: NextRequest) {
       FROM guest_requests gr
       JOIN bookings b ON b.id = gr.booking_id
       LEFT JOIN units u ON u.id = b.unit_id
+      WHERE 1=1
+      ${scope.assignedPropertyIds.length > 0 ? sql`AND gr.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       ORDER BY gr.created_at DESC
       LIMIT 50
     `;
@@ -37,6 +42,9 @@ export async function POST(req: NextRequest) {
     if (!propertyId || !bookingId || !requestType || !description) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
+
+    const accessErr = validateMutationPropertyAccess(req, propertyId);
+    if (accessErr) return accessErr;
 
     const sql = getDb();
     

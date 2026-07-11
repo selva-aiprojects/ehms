@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 async function generateSku(sql: any, categoryId?: string, propertyId?: string): Promise<string> {
   const prefix = "INV";
@@ -12,6 +13,8 @@ async function generateSku(sql: any, categoryId?: string, propertyId?: string): 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
     const categoryId = searchParams.get("category_id");
@@ -28,7 +31,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN inventory_categories ic ON ic.id = ii.category_id
       LEFT JOIN warehouses w ON w.id = ii.warehouse_id
       WHERE 1=1
-      ${propertyId ? sql`AND ii.property_id = ${propertyId}` : sql``}
+      ${propertyId ? sql`AND ii.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND ii.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       ${categoryId ? sql`AND ii.category_id = ${categoryId}` : sql``}
       ${lowStock === "true" ? sql`AND ii.quantity_on_hand <= ii.reorder_level` : sql``}
       ${search ? sql`AND (ii.name ILIKE ${"%" + search + "%"} OR ii.sku ILIKE ${"%" + search + "%"} OR ii.description ILIKE ${"%" + search + "%"})` : sql``}
@@ -50,6 +53,9 @@ export async function POST(req: NextRequest) {
     if (!body.name) {
       return NextResponse.json({ error: "Item name is required" }, { status: 400 });
     }
+
+    const accessErr = validateMutationPropertyAccess(req, body.property_id);
+    if (accessErr) return accessErr;
 
     const sku = body.sku || await generateSku(sql, body.category_id, body.property_id);
 

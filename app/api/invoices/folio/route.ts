@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validateIndirectPropertyAccess } from "@/lib/property-scope";
 
 const CHARGE_TYPES: Record<string, { label: string; category: string }> = {
   room_charge:    { label: "Room Charges",          category: "accommodation" },
@@ -133,6 +134,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "booking_id, description, and unit_price are required" }, { status: 400 });
     }
 
+    // Validate property access indirectly via booking → property_id
+    const accessErr = await validateIndirectPropertyAccess(req, sql, "bookings", booking_id);
+    if (accessErr) return accessErr;
+
     const qty = parseInt(String(quantity)) || 1;
     const price = parseFloat(String(unit_price));
     const taxPct = parseFloat(String(tax_rate)) || 0;
@@ -221,6 +226,13 @@ export async function DELETE(req: NextRequest) {
     const lineRows = await sql`SELECT invoice_id FROM invoice_lines WHERE id = ${lineId}`;
     if (!lineRows[0]) return NextResponse.json({ error: "Charge not found" }, { status: 404 });
     const invoiceId = (lineRows[0] as Record<string, unknown>).invoice_id as string;
+
+    // Validate property access indirectly via invoice → booking → property_id
+    const invBookingRows = await sql`SELECT booking_id FROM invoices WHERE id = ${invoiceId} LIMIT 1`;
+    if (invBookingRows.length > 0) {
+      const accessErr = await validateIndirectPropertyAccess(req, sql, "bookings", (invBookingRows[0] as any).booking_id);
+      if (accessErr) return accessErr;
+    }
 
     await sql`DELETE FROM invoice_lines WHERE id = ${lineId}`;
 

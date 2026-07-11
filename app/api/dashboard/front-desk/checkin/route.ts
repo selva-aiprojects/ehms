@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
+import { validateIndirectPropertyAccess } from "@/lib/property-scope";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,6 +18,10 @@ export async function POST(req: NextRequest) {
     }
 
     const sql = getDb();
+
+    // Validate property access indirectly via booking → property_id
+    const accessErr = await validateIndirectPropertyAccess(req, sql, "bookings", bookingId);
+    if (accessErr) return accessErr;
 
     // Use a transaction to ensure all check-in steps complete together
       // 1. Update Booking Status

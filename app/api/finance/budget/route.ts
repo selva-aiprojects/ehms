@@ -1,10 +1,13 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateIndirectPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
     const fiscalYearId = searchParams.get("fiscal_year_id");
@@ -20,6 +23,7 @@ export async function GET(req: NextRequest) {
     const params: any[] = [];
     let idx = 1;
     if (propertyId) { query += ` AND bh.property_id = $${idx++}`; params.push(propertyId); }
+    else if (scope.assignedPropertyIds.length > 0) { query += ` AND bh.property_id = ANY($${idx++})`; params.push(scope.assignedPropertyIds); }
     if (fiscalYearId) { query += ` AND be.fiscal_year_id = $${idx++}`; params.push(fiscalYearId); }
     if (headId) { query += ` AND be.budget_head_id = $${idx++}`; params.push(headId); }
     query += " ORDER BY bh.code, be.period_month";
@@ -36,6 +40,10 @@ export async function POST(req: NextRequest) {
   try {
     const sql = getDb();
     const body = await req.json();
+
+    // Validate property access indirectly via budget_head → property_id
+    const accessErr = await validateIndirectPropertyAccess(req, sql, "budget_heads", body.budget_head_id);
+    if (accessErr) return accessErr;
 
     const rows = await sql`
       INSERT INTO budget_entries (budget_head_id, fiscal_year_id, period_month, budget_amount, notes)

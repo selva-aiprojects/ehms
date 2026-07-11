@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
+    const { searchParams } = new URL(req.url);
+    const propertyId = searchParams.get("property_id");
 
-    const rows = await sql`
+    let query = sql`
       SELECT * FROM attendance_policies
       WHERE is_active = true
-      ORDER BY created_at DESC
     `;
+    if (propertyId) query = sql`${query} AND property_id = ${propertyId}`;
+    else if (scope.assignedPropertyIds.length > 0) query = sql`${query} AND property_id = ANY(${scope.assignedPropertyIds})`;
+    query = sql`${query} ORDER BY created_at DESC`;
 
+    const rows = await query;
     return NextResponse.json({ data: rows });
   } catch (error) {
     console.error("[hr/attendance-policies GET]", error);
@@ -22,6 +30,9 @@ export async function POST(req: NextRequest) {
   try {
     const sql = getDb();
     const body = await req.json();
+
+    const accessErr = validateMutationPropertyAccess(req, body.property_id);
+    if (accessErr) return accessErr;
 
     const rows = await sql`
       INSERT INTO attendance_policies (name, late_threshold, half_day_threshold, early_exit_threshold, grace_period, requires_geo, requires_face_auth, property_id)

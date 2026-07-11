@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
-export async function GET(_: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
-    const rows = await sql`
-      SELECT * FROM shift_rotations ORDER BY name ASC
-    `;
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
+    const { searchParams } = new URL(req.url);
+    const propertyId = searchParams.get("property_id");
+
+    let query = sql`SELECT * FROM shift_rotations WHERE 1=1`;
+    if (propertyId) query = sql`${query} AND property_id = ${propertyId}`;
+    else if (scope.assignedPropertyIds.length > 0) query = sql`${query} AND property_id = ANY(${scope.assignedPropertyIds})`;
+    query = sql`${query} ORDER BY name ASC`;
+
+    const rows = await query;
     return NextResponse.json({ data: rows });
   } catch (error) {
     console.error("[hr/shifts GET]", error);
@@ -18,6 +27,9 @@ export async function POST(req: NextRequest) {
   try {
     const sql = getDb();
     const body = await req.json();
+
+    const accessErr = validateMutationPropertyAccess(req, body.property_id);
+    if (accessErr) return accessErr;
 
     const rows = await sql`
       INSERT INTO shift_rotations (name, start_time, end_time, property_id)
@@ -38,6 +50,9 @@ export async function PUT(req: NextRequest) {
   try {
     const sql = getDb();
     const body = await req.json();
+
+    const accessErr = validateMutationPropertyAccess(req, body.property_id);
+    if (accessErr) return accessErr;
 
     const rows = await sql`
       UPDATE shift_rotations SET

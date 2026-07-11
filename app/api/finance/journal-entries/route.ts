@@ -1,10 +1,13 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
     const fromDate = searchParams.get("from_date");
@@ -18,6 +21,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN users u ON u.id = je.created_by
       WHERE 1=1`;
     if (propertyId) query = sql`${query} AND je.property_id = ${propertyId}`;
+    else if (scope.assignedPropertyIds.length > 0) query = sql`${query} AND je.property_id = ANY(${scope.assignedPropertyIds})`;
     if (fromDate) query = sql`${query} AND je.entry_date >= ${fromDate}::date`;
     if (toDate) query = sql`${query} AND je.entry_date <= ${toDate}::date`;
     if (type) query = sql`${query} AND je.journal_type = ${type}`;
@@ -36,6 +40,9 @@ export async function POST(req: NextRequest) {
     const sql = getDb();
     const body = await req.json();
     const { lines, ...entry } = body;
+
+    const accessErr = validateMutationPropertyAccess(req, entry.property_id);
+    if (accessErr) return accessErr;
 
     const entries = await sql`
       INSERT INTO journal_entries (property_id, entry_date, reference_type, reference_id, description, created_by, journal_type, is_adjusting, is_posted)

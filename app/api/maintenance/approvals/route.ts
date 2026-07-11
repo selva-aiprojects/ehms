@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateIndirectPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const ticketId = searchParams.get("ticket_id");
 
@@ -17,6 +20,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN users u ON u.id = ma.performed_by
       WHERE 1=1
       ${ticketId ? sql`AND ma.ticket_id = ${ticketId}` : sql``}
+      ${!ticketId && scope.assignedPropertyIds.length > 0 ? sql`AND mt.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       ORDER BY ma.created_at DESC
     `;
 
@@ -31,6 +35,10 @@ export async function POST(req: NextRequest) {
   try {
     const sql = getDb();
     const body = await req.json();
+
+    // Validate property access indirectly via ticket → property_id
+    const accessErr = await validateIndirectPropertyAccess(req, sql, "maintenance_tickets", body.ticket_id);
+    if (accessErr) return accessErr;
 
     const rows = await sql`
       INSERT INTO maintenance_approvals (ticket_id, action, performed_by, comment)

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateIndirectPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const poId = searchParams.get("po_id");
 
@@ -33,6 +36,7 @@ export async function GET(req: NextRequest) {
     `;
 
     if (poId) query = sql`${query} AND grn.po_id = ${poId}`;
+    else if (scope.assignedPropertyIds.length > 0) query = sql`${query} AND po.property_id = ANY(${scope.assignedPropertyIds})`;
 
     query = sql`${query} GROUP BY grn.id, po.po_number, v.company_name ORDER BY grn.received_date DESC`;
 
@@ -53,6 +57,11 @@ export async function POST(req: NextRequest) {
     if (!po_id) {
       return NextResponse.json({ error: "Purchase order ID is required" }, { status: 400 });
     }
+
+    // Validate property access indirectly via PO → property_id
+    const accessErr = await validateIndirectPropertyAccess(req, sql, "purchase_orders", po_id);
+    if (accessErr) return accessErr;
+
     if (!lines || !Array.isArray(lines) || lines.length === 0) {
       return NextResponse.json({ error: "At least one line item is required" }, { status: 400 });
     }

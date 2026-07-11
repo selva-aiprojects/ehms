@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { validatePropertyAccess } from "@/lib/property-scope";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
@@ -72,6 +72,9 @@ export async function POST(req: NextRequest) {
     if (!body.company_name) {
       return NextResponse.json({ error: "Company name is required" }, { status: 400 });
     }
+
+    const accessErr = validateMutationPropertyAccess(req, body.property_id);
+    if (accessErr) return accessErr;
 
     const result = await sql`
       INSERT INTO vendors (company_name, contact_person, email, phone, gst_number, property_id, status, is_compliant)

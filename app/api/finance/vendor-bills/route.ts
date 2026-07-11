@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { validatePropertyAccess } from "@/lib/property-scope";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,6 +40,9 @@ export async function POST(req: NextRequest) {
     const sql = getDb();
     const body = await req.json();
     const { lines, ...bill } = body;
+
+    const accessErr = validateMutationPropertyAccess(req, bill.property_id);
+    if (accessErr) return accessErr;
 
     const bills = await sql`
       INSERT INTO vendor_bills (property_id, vendor_id, bill_number, bill_date, due_date, category, subtotal, tax_total, grand_total, status, notes, created_by)

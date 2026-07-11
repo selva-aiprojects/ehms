@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,8 @@ export async function GET(req: NextRequest) {
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const rows = await sql`
       SELECT
         o.id,
@@ -38,6 +41,8 @@ export async function GET(req: NextRequest) {
       FROM f_and_b_orders o
       LEFT JOIN bookings b ON b.id = o.booking_id
       LEFT JOIN units    u ON u.id = b.unit_id
+      WHERE 1=1
+      ${scope.assignedPropertyIds.length > 0 ? sql`AND o.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       ORDER BY o.created_at DESC
       LIMIT 50
     `;
@@ -66,6 +71,9 @@ export async function POST(req: NextRequest) {
     if (!propertyId || !items || !items.length) {
       return NextResponse.json({ error: "Missing required fields: propertyId and items" }, { status: 400 });
     }
+
+    const accessErr = validateMutationPropertyAccess(req, propertyId);
+    if (accessErr) return accessErr;
 
     const sql = getDb();
 

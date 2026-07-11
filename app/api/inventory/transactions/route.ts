@@ -1,10 +1,13 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const itemId = searchParams.get("item_id");
     const propertyId = searchParams.get("property_id");
@@ -25,7 +28,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN warehouses w ON w.id = it.warehouse_id
       WHERE 1=1
       ${itemId ? sql`AND it.item_id = ${itemId}` : sql``}
-      ${propertyId ? sql`AND it.property_id = ${propertyId}` : sql``}
+      ${propertyId ? sql`AND it.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND it.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       ${transactionType ? sql`AND it.transaction_type = ${transactionType}` : sql``}
       ${fromDate ? sql`AND it.created_at >= ${fromDate}` : sql``}
       ${toDate ? sql`AND it.created_at <= ${toDate + " 23:59:59"}` : sql``}
@@ -48,6 +51,9 @@ export async function POST(req: NextRequest) {
     if (!body.item_id || !body.transaction_type || !body.quantity) {
       return NextResponse.json({ error: "item_id, transaction_type, and quantity are required" }, { status: 400 });
     }
+
+    const accessErr = validateMutationPropertyAccess(req, body.property_id);
+    if (accessErr) return accessErr;
 
     const validTypes = ["purchase_receipt", "sales_issue", "transfer_in", "transfer_out", "adjustment_add", "adjustment_subtract", "return", "damage"];
     if (!validTypes.includes(body.transaction_type)) {

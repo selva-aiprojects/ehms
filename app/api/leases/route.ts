@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const renewalDue = searchParams.get("renewal_due");
@@ -22,7 +25,7 @@ export async function GET(req: NextRequest) {
       WHERE 1=1
         ${status ? sql`AND la.status = ${status}` : sql``}
         ${renewalDue ? sql`AND la.status IN ('active', 'renewal_due')` : sql``}
-        ${propertyId ? sql`AND la.property_id = ${propertyId}` : sql``}
+        ${propertyId ? sql`AND la.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND la.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       ORDER BY la.created_at DESC
     `;
 
@@ -57,6 +60,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const accessErr = validateMutationPropertyAccess(req, property_id);
+    if (accessErr) return accessErr;
 
     // Verify dates
     const start = new Date(start_date);

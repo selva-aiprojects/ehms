@@ -1,11 +1,14 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 
 // GET /api/rate-plans?property_id=...&unit_type=...&active_only=true&date=YYYY-MM-DD
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
     const unitType = searchParams.get("unit_type");
@@ -20,7 +23,7 @@ export async function GET(req: NextRequest) {
       FROM rate_plans rp
       LEFT JOIN properties p ON p.id = rp.property_id
       WHERE 1=1
-        ${propertyId ? sql`AND rp.property_id = ${propertyId}` : sql``}
+        ${propertyId ? sql`AND rp.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND rp.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
         ${unitType   ? sql`AND rp.unit_type = ${unitType}::unit_type` : sql``}
         ${activeOnly ? sql`AND rp.is_active = true` : sql``}
         ${checkDate  ? sql`AND (rp.effective_from IS NULL OR rp.effective_from <= ${checkDate}::date)
@@ -45,6 +48,9 @@ export async function POST(req: NextRequest) {
     if (!property_id || !name || !base_rate) {
       return NextResponse.json({ error: "property_id, name, and base_rate are required" }, { status: 400 });
     }
+
+    const accessErr = validateMutationPropertyAccess(req, property_id);
+    if (accessErr) return accessErr;
 
     if (parseFloat(String(base_rate)) <= 0) {
       return NextResponse.json({ error: "base_rate must be greater than 0" }, { status: 400 });
@@ -103,6 +109,13 @@ export async function PUT(req: NextRequest) {
 
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
 
+    // Validate property access on the rate plan being updated
+    const existing = await sql`SELECT property_id FROM rate_plans WHERE id = ${id} LIMIT 1`;
+    if (existing.length > 0) {
+      const accessErr = validateMutationPropertyAccess(req, (existing[0] as any).property_id);
+      if (accessErr) return accessErr;
+    }
+
     const rows = await sql`
       UPDATE rate_plans SET
         name           = COALESCE(${name ?? null}, name),
@@ -132,6 +145,13 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
+
+    // Validate property access on the rate plan being deactivated
+    const existing = await sql`SELECT property_id FROM rate_plans WHERE id = ${id} LIMIT 1`;
+    if (existing.length > 0) {
+      const accessErr = validateMutationPropertyAccess(req, (existing[0] as any).property_id);
+      if (accessErr) return accessErr;
+    }
 
     const rows = await sql`
       UPDATE rate_plans SET is_active = false WHERE id = ${id} RETURNING id, name
