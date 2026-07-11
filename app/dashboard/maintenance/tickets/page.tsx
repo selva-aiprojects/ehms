@@ -10,7 +10,7 @@ import {
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Table from "@/components/ui/table";
-import { useMaintenance, useMaintenanceStats, useMaintenanceTicketParts, useMaintenanceTimeEntries, useMaintenanceApprovals, useVendors } from "@/lib/hooks";
+import { useMaintenance, useMaintenanceStats, useMaintenanceTicketParts, useMaintenanceTimeEntries, useMaintenanceApprovals, useVendors, useEmployees, useStaffAvailability } from "@/lib/hooks";
 import { useJourney } from "@/components/providers/JourneyProvider";
 
 function SkeletonRow() {
@@ -51,6 +51,8 @@ export default function TicketsPage() {
   });
   const { maintStats, isLoading: statsLoading } = useMaintenanceStats(selectedPropertyId);
   const { vendors, isLoading: vendorsLoading } = useVendors();
+  const { employees } = useEmployees(undefined, undefined, selectedPropertyId);
+  const { staffAvailability } = useStaffAvailability({ property_id: selectedPropertyId });
   const displayTickets = (tickets || []) as any[];
 
   useEffect(() => {
@@ -273,8 +275,18 @@ export default function TicketsPage() {
                           <div className="p-2">
                             <p className="text-[10px] font-medium mb-1" style={{ color: "#667085" }}>Assign to:</p>
                             <select onChange={(e) => { if (e.target.value) handleAssign(t.id, e.target.value); }} className="w-full px-2 py-1 rounded text-xs border outline-none" style={{ borderColor: "#E5E7EB", background: "#F5F7FA", color: "#1A2E44" }}>
-                              <option value="">Select...</option>
-                              {vendors?.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
+                              <option value="">Select Assignee...</option>
+                              <optgroup label="Maintenance Vendors">
+                                {vendors?.map((v: any) => <option key={`v-${v.id}`} value={v.id}>{v.name}</option>)}
+                              </optgroup>
+                              <optgroup label="On-site Staff (Live Availability)">
+                                {employees?.map((emp: any) => {
+                                  const avail = staffAvailability?.find((s: any) => s.id === emp.id || s.user?.id === emp.user_id);
+                                  const badge = avail?.availability_badge?.text ? ` [${avail.availability_badge.text}]` : "";
+                                  const name = emp.user ? `${emp.user.first_name} ${emp.user.last_name || ""}` : emp.employee_code;
+                                  return <option key={`e-${emp.id}`} value={emp.id}>{name}{badge}</option>;
+                                })}
+                              </optgroup>
                             </select>
                           </div>
                         </div>
@@ -353,7 +365,17 @@ export default function TicketsPage() {
                 <select value={formData.assigned_to} onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
                   style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "#1A2E44" }}>
                   <option value="">Unassigned</option>
-                  {vendors?.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
+                  <optgroup label="Maintenance Vendors">
+                    {vendors?.map((v: any) => <option key={`v-${v.id}`} value={v.id}>{v.name}</option>)}
+                  </optgroup>
+                  <optgroup label="On-site Staff (Live Availability)">
+                    {employees?.map((emp: any) => {
+                      const avail = staffAvailability?.find((s: any) => s.id === emp.id || s.user?.id === emp.user_id);
+                      const badge = avail?.availability_badge?.text ? ` [${avail.availability_badge.text}]` : "";
+                      const name = emp.user ? `${emp.user.first_name} ${emp.user.last_name || ""}` : emp.employee_code;
+                      return <option key={`e-${emp.id}`} value={emp.id}>{name}{badge}</option>;
+                    })}
+                  </optgroup>
                 </select>
               </div>
             </div>

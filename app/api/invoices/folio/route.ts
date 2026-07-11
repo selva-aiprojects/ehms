@@ -162,8 +162,8 @@ export async function POST(req: NextRequest) {
       const bkg = bkgRows[0] as Record<string, unknown>;
       const invNum = `INV-${Date.now().toString(36).toUpperCase()}`;
       const newInv = await sql`
-        INSERT INTO invoices (booking_id, property_id, guest_id, invoice_number, status, subtotal, tax_total, grand_total, paid_total, due_date)
-        VALUES (${booking_id}, ${bkg.property_id as string}, ${bkg.guest_id as string}, ${invNum}, 'draft', 0, 0, 0, 0, ${bkg.check_out as string}::date)
+        INSERT INTO invoices (booking_id, property_id, guest_id, invoice_number, invoice_date, status, subtotal, tax_total, grand_total, paid_total, due_date)
+        VALUES (${booking_id}, ${bkg.property_id as string}, ${bkg.guest_id as string || null}, ${invNum}, CURRENT_DATE, 'draft', 0, 0, 0, 0, COALESCE(${bkg.check_out as string}::date, CURRENT_DATE))
         RETURNING id
       `;
       invoiceId = (newInv[0] as Record<string, unknown>).id as string;
@@ -249,5 +249,50 @@ export async function DELETE(req: NextRequest) {
   } catch (error: any) {
     console.error("[folio DELETE]", error);
     return NextResponse.json({ error: error?.message || "Failed to remove charge" }, { status: 500 });
+  }
+}
+
+// PUT — process payment on a folio
+export async function PUT(req: NextRequest) {
+  try {
+    const token = req.cookies.get("ehms_token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const sql = getDb();
+    const body = await req.json();
+    const { booking_id, amount, payment_method } = body;
+    if (!booking_id) return NextResponse.json({ error: "booking_id required" }, { status: 400 });
+
+    const accessErr = await validateIndirectPropertyAccess(req, sql, "bookings", booking_id);
+    if (accessErr) return accessErr;
+
+    const existingInv = await sql`SELECT id, grand_total, paid_total FROM invoices WHERE booking_id = ${booking_id} LIMIT 1`;
+    if (!existingInv[0]) return NextResponse.json({ error: "No invoice found for booking" }, { status: 404 });
+
+    const inv = existingInv[0] as Record<string, unknown>;
+    const invId = inv.id as string;
+    const newPaid = Number(inv.paid_total || 0) + Number(amount || inv.grand_total);
+    const newStatus = newPaid >= Number(inv.grand_total) ? 'paid' : 'sent';
+
+    await sql`
+      UPDATE invoices SET
+        paid_total = ${newPaid},
+        amount_paid = ${newPaid},
+        status = ${newStatus}
+      WHERE id = ${invId}
+    `;
+
+    try {
+      await sql`
+        INSERT INTO bill_payments (property_id, bill_id, payment_date, amount, payment_method, reference)
+        SELECT property_id, ${invId}, NOW(), ${Number(amount || inv.grand_total)}, ${payment_method || 'card'}, 'Folio Payment'
+        FROM invoices WHERE id = ${invId}
+      `;
+    } catch { /* non-fatal if table schema differs */ }
+
+    return NextResponse.json({ message: "Payment recorded successfully" });
+  } catch (error: any) {
+    console.error("[folio PUT]", error);
+    return NextResponse.json({ error: error?.message || "Payment processing failed" }, { status: 500 });
   }
 }

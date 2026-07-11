@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
     const accessErr = validateMutationPropertyAccess(req, body.property_id);
     if (accessErr) return accessErr;
 
+    const ticketNum = body.ticket_number || `MT-${Date.now().toString(36).toUpperCase()}`;
     const rows = await sql`
       INSERT INTO maintenance_tickets (property_id, unit_id, title, description, priority, category, reported_by, status, ticket_type, ticket_number)
       VALUES (
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
         ${body.title}, ${body.description || null},
         ${body.priority || "medium"}, ${body.category || null},
         ${body.reported_by || null}, 'open', 'corrective',
-        'MT-' || LPAD(NEXTVAL('maintenance_ticket_seq')::text, 4, '0')
+        ${ticketNum}
       )
       RETURNING *
     `;

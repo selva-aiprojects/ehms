@@ -247,12 +247,13 @@ export function useFnBMenu() {
   return { menu: data?.data, isLoading, isError: !!error, mutate };
 }
 
-export function useTimesheets(filters?: { employee_id?: string; date_from?: string; date_to?: string; status?: string }) {
+export function useTimesheets(filters?: { employee_id?: string; date_from?: string; date_to?: string; status?: string; property_id?: string }) {
   const params = new URLSearchParams();
   if (filters?.employee_id) params.set("employee_id", filters.employee_id);
   if (filters?.date_from) params.set("date_from", filters.date_from);
   if (filters?.date_to) params.set("date_to", filters.date_to);
   if (filters?.status) params.set("status", filters.status);
+  if (filters?.property_id && filters.property_id !== "all") params.set("property_id", filters.property_id);
   const { data, error, isLoading, mutate } = useSWR(`/api/hr/timesheets?${params}`, fetcher);
   return { timesheets: data?.data, isLoading, isError: !!error, mutate };
 }
@@ -687,8 +688,9 @@ export function useGuestRequests(filters?: { property_id?: string; status?: stri
   return { requests: data?.data, isLoading, isError: !!error, mutate };
 }
 
-export function useFrontDeskBilling() {
-  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/front-desk/billing`, fetcher);
+export function useFrontDeskBilling(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/front-desk/billing${params}`, fetcher);
   return { billing: data?.data, isLoading, isError: !!error, mutate };
 }
 
@@ -899,3 +901,22 @@ export function useAdminOverview(propertyId?: string) {
     mutate,
   };
 }
+
+export function useStaffAvailability(filters?: { property_id?: string; department_id?: string; role_name?: string; date?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id && filters.property_id !== "all") params.set("property_id", filters.property_id);
+  if (filters?.department_id) params.set("department_id", filters.department_id);
+  if (filters?.role_name) params.set("role_name", filters.role_name);
+  if (filters?.date) params.set("date", filters.date);
+  const { data, error, isLoading, mutate } = useSWR(`/api/hr/staff-availability?${params}`, fetcher);
+  return { staffAvailability: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useDutyRoster(filters?: { property_id?: string; shift_id?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id && filters.property_id !== "all") params.set("property_id", filters.property_id);
+  if (filters?.shift_id) params.set("shift_id", filters.shift_id);
+  const { data, error, isLoading, mutate } = useSWR(`/api/hr/roster?${params}`, fetcher);
+  return { roster: data?.data || [], isLoading, isError: !!error, mutate };
+}
+

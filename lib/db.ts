@@ -30,14 +30,44 @@ async function resolveSchema(explicitSchema?: string): Promise<string> {
   return process.env.DEFAULT_TENANT_SCHEMA || "viswa";
 }
 
+/**
+ * Flatten a Neon tagged-template query into a raw {text, values} suitable for sql.query().
+ * Recursively inlines nested NeonQueryPromise objects (which Neon's transaction handler
+ * does NOT flatten, causing "syntax error at or near $1" when nested templates are used).
+ */
+function flattenTaggedTemplate(strings: TemplateStringsArray, values: unknown[]): { text: string; params: unknown[] } {
+  let text = '';
+  const params: unknown[] = [];
+
+  for (let i = 0; i < strings.length; i++) {
+    text += strings[i];
+    if (i < values.length) {
+      const val = values[i] as Record<string, unknown> | undefined;
+      if (val && typeof val === 'object' && val.queryData) {
+        // NeonQueryPromise from a nested tagged template — recursively flatten
+        const nested = val.queryData as { strings: TemplateStringsArray; values: unknown[] };
+        const inner = flattenTaggedTemplate(nested.strings, nested.values);
+        text += inner.text;
+        params.push(...inner.params);
+      } else {
+        params.push(val);
+        text += `$${params.length}`;
+      }
+    }
+  }
+
+  return { text, params };
+}
+
 function makeWrappedSql(schema: string): WrappedSql {
   const sql = neon(databaseUrl) as SqlFn;
   const setPathSQL = `SET search_path TO ${schema}, public`;
 
   const wrapped = (async (strings: TemplateStringsArray, ...values: unknown[]) => {
+    const { text, params } = flattenTaggedTemplate(strings, values);
     const results = await sql.transaction([
       sql.query(setPathSQL),
-      sql(strings, ...values),
+      sql.query(text, params),
     ]);
     return results[1] as Record<string, unknown>[];
   }) as WrappedSql;
@@ -67,9 +97,10 @@ function makeDynamicWrappedSql(): WrappedSql {
   const wrapped = (async (strings: TemplateStringsArray, ...values: unknown[]) => {
     const schema = await resolveSchema();
     const setPathSQL = `SET search_path TO ${schema}, public`;
+    const { text, params } = flattenTaggedTemplate(strings, values);
     const results = await sql.transaction([
       sql.query(setPathSQL),
-      sql(strings, ...values),
+      sql.query(text, params),
     ]);
     return results[1] as Record<string, unknown>[];
   }) as WrappedSql;

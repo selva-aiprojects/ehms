@@ -10,7 +10,7 @@ import {
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Table from "@/components/ui/table";
-import { useHousekeeping, useHKChecklists, useEmployees, useHKStats, useProperties } from "@/lib/hooks";
+import { useHousekeeping, useHKChecklists, useEmployees, useHKStats, useProperties, useStaffAvailability } from "@/lib/hooks";
 import { useJourney } from "@/components/providers/JourneyProvider";
 
 const PRIORITY_BADGE: Record<string, "gray" | "amber" | "red" | "teal"> = {
@@ -40,6 +40,7 @@ export default function HKTasksPage() {
   const { tasks, isLoading, isError, mutate } = useHousekeeping({ status: statusFilter || undefined, property_id: propertyFilter || undefined });
   const { hkStats } = useHKStats();
   const { employees } = useEmployees();
+  const { staffAvailability } = useStaffAvailability({ property_id: selectedPropertyId });
   const { properties } = useProperties();
   const { checklists } = useHKChecklists(checklistTask?.id);
 
@@ -298,13 +299,19 @@ export default function HKTasksPage() {
                   style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} placeholder="Unit ID" />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Assigned To</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Assigned To (Live Availability)</label>
                 <select value={formData.assigned_to} onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
                   style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }}>
-                  <option value="">Select employee</option>
-                  {(employees || []).map((e: any) => (
-                    <option key={e.id} value={e.id}>{e.user ? `${e.user.first_name} ${e.user.last_name || ""}` : e.employee_code}</option>
-                  ))}
+                  <option value="">Select employee (or leave unassigned)</option>
+                  {(employees || []).map((e: any) => {
+                    const avail = staffAvailability?.find((s: any) => s.id === e.id || s.user?.id === e.user_id);
+                    const badgeText = avail?.availability_badge?.text ? ` [${avail.availability_badge.text}]` : "";
+                    return (
+                      <option key={e.id} value={e.id}>
+                        {e.user ? `${e.user.first_name} ${e.user.last_name || ""}` : e.employee_code}{badgeText}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               <div>

@@ -17,37 +17,97 @@ export default function FolioModal({ isOpen, onClose, bookingId, guestName, onCh
   const [folio, setFolio] = useState<any>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("card");
-  
-  const handleProcessPayment = () => {
-    setProcessingPayment(true);
-    setTimeout(() => {
-      setFolio((prev: any) => ({
-        ...prev,
-        amountPaid: prev.totalAmount,
-        balanceDue: 0,
-        payments: [...prev.payments, {
-          id: Math.random().toString(),
-          payment_date: new Date().toISOString(),
-          amount: prev.balanceDue,
-          payment_method: paymentMethod,
-          status: "completed"
-        }]
-      }));
-      setProcessingPayment(false);
-    }, 2000);
+  const [showPostCharge, setShowPostCharge] = useState(false);
+  const [chargeType, setChargeType] = useState("room_service");
+  const [chargeDesc, setChargeDesc] = useState("");
+  const [chargePrice, setChargePrice] = useState("");
+  const [chargeQty, setChargeQty] = useState("1");
+  const [chargeTax, setChargeTax] = useState("5");
+  const [posting, setPosting] = useState(false);
+
+  const fetchFolio = () => {
+    if (!bookingId) return;
+    setLoading(true);
+    fetch(`/api/invoices/folio?booking_id=${bookingId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.data) setFolio(data.data);
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     if (isOpen && bookingId) {
-      setLoading(true);
-      fetch(`/api/invoices/folio?booking_id=${bookingId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.data) setFolio(data.data);
-        })
-        .finally(() => setLoading(false));
+      fetchFolio();
     }
   }, [isOpen, bookingId]);
+
+  const handleProcessPayment = async () => {
+    if (!bookingId || !folio) return;
+    const amountToPay = folio.balanceDue;
+    if (amountToPay <= 0) return;
+
+    setProcessingPayment(true);
+    try {
+      const res = await fetch("/api/invoices/folio", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          booking_id: bookingId,
+          amount: amountToPay,
+          payment_method: paymentMethod,
+        }),
+      });
+      if (res.ok) {
+        fetchFolio();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Payment processing failed");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Payment processing failed");
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  const handlePostCharge = async () => {
+    if (!bookingId || !chargePrice || isNaN(Number(chargePrice)) || Number(chargePrice) <= 0) {
+      alert("Please enter a valid price amount.");
+      return;
+    }
+    setPosting(true);
+    try {
+      const res = await fetch("/api/invoices/folio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          booking_id: bookingId,
+          charge_type: chargeType,
+          description: chargeDesc || chargeType.replace("_", " ").toUpperCase(),
+          unit_price: Number(chargePrice),
+          quantity: Number(chargeQty) || 1,
+          tax_rate: Number(chargeTax) || 0,
+        }),
+      });
+      if (res.ok) {
+        setShowPostCharge(false);
+        setChargeDesc("");
+        setChargePrice("");
+        setChargeQty("1");
+        fetchFolio();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to post charge");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to post charge");
+    } finally {
+      setPosting(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -94,10 +154,88 @@ export default function FolioModal({ isOpen, onClose, bookingId, guestName, onCh
               <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] overflow-hidden">
                 <div className="px-4 py-3 bg-[#1A3C5E] text-white flex justify-between items-center">
                   <h3 className="font-medium text-sm">Itemized Charges</h3>
-                  <button className="text-xs flex items-center gap-1 hover:text-[#4DB88A] transition-colors">
-                    <Plus className="w-3 h-3" /> Post Charge
+                  <button 
+                    onClick={() => setShowPostCharge(!showPostCharge)}
+                    className="text-xs flex items-center gap-1 hover:text-[#4DB88A] transition-colors"
+                  >
+                    <Plus className="w-3 h-3" /> {showPostCharge ? "Cancel" : "Post Charge"}
                   </button>
                 </div>
+
+                {showPostCharge && (
+                  <div className="p-4 bg-[#F8FAFC] border-b border-[#E2E8F0] space-y-3 animate-in fade-in duration-200">
+                    <h4 className="text-xs font-semibold text-[#1A3C5E] uppercase tracking-wider">Post New Charge</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-medium text-[#64748B] block mb-1">Charge Type</label>
+                        <select
+                          value={chargeType}
+                          onChange={(e) => setChargeType(e.target.value)}
+                          className="w-full text-xs p-2 border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]"
+                        >
+                          <option value="room_service">Room Service</option>
+                          <option value="laundry">Laundry Service</option>
+                          <option value="restaurant">Restaurant / F&B</option>
+                          <option value="bar">Bar & Lounge</option>
+                          <option value="minibar">Minibar Consumption</option>
+                          <option value="spa">Spa & Wellness</option>
+                          <option value="transport">Transportation / Taxi</option>
+                          <option value="damage">Property Damage / Loss</option>
+                          <option value="early_checkin">Early Check-in Fee</option>
+                          <option value="late_checkout">Late Check-out Fee</option>
+                          <option value="other">Other Charge</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-medium text-[#64748B] block mb-1">Description (Optional)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Dry cleaning 3 shirts"
+                          value={chargeDesc}
+                          onChange={(e) => setChargeDesc(e.target.value)}
+                          className="w-full text-xs p-2 border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-medium text-[#64748B] block mb-1">Unit Price (₹)</label>
+                        <input
+                          type="number"
+                          placeholder="0.00"
+                          value={chargePrice}
+                          onChange={(e) => setChargePrice(e.target.value)}
+                          className="w-full text-xs p-2 border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[11px] font-medium text-[#64748B] block mb-1">Qty</label>
+                          <input
+                            type="number"
+                            value={chargeQty}
+                            onChange={(e) => setChargeQty(e.target.value)}
+                            className="w-full text-xs p-2 border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[11px] font-medium text-[#64748B] block mb-1">Tax (%)</label>
+                          <input
+                            type="number"
+                            value={chargeTax}
+                            onChange={(e) => setChargeTax(e.target.value)}
+                            className="w-full text-xs p-2 border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2 pt-1">
+                      <Button variant="outline" size="sm" onClick={() => setShowPostCharge(false)}>Cancel</Button>
+                      <Button variant="primary" size="sm" onClick={handlePostCharge} disabled={posting}>
+                        {posting ? "Posting..." : "Add to Folio"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="divide-y divide-[#E2E8F0]">
                   {folio.charges?.length === 0 ? (
                     <div className="p-8 text-center text-sm text-[#64748B]">No charges posted yet.</div>

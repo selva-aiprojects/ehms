@@ -83,38 +83,36 @@ export async function POST(req: NextRequest) {
       const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`;
 
       const invRows = await sql`
-        INSERT INTO invoices (booking_id, property_id, guest_id, invoice_number, status, subtotal, tax_total, grand_total, balance_due, due_date)
+        INSERT INTO invoices (booking_id, property_id, guest_id, invoice_number, invoice_date, due_date, status, subtotal, tax_total, grand_total, paid_total)
         VALUES (
           ${booking.id as string},
           ${body.property_id},
-          ${body.guest_id},
+          ${body.guest_id || null},
           ${invoiceNumber},
+          CURRENT_DATE,
+          ${checkOut.toISOString().split("T")[0]},
           'draft',
           ${totalAmount},
           0,
           ${totalAmount},
-          ${totalAmount},
-          ${checkOut.toISOString()}
+          0
         )
         RETURNING id
       `;
 
       const invoiceId = (invRows[0] as Record<string, unknown>).id as string;
 
-      // Add room charges line item
       await sql`
-        INSERT INTO invoice_lines (invoice_id, description, quantity, unit_price, amount, line_type)
+        INSERT INTO invoice_lines (invoice_id, description, quantity, unit_price, tax_rate)
         VALUES (
           ${invoiceId},
           ${"Room charges — " + nights + " night(s)"},
           ${nights},
           ${totalAmount / nights},
-          ${totalAmount},
-          'room_charge'
+          0
         )
       `;
     } catch (invErr) {
-      // Non-fatal: log but don't fail the booking
       console.error("[reservations POST] invoice auto-create failed:", invErr);
     }
     // ─────────────────────────────────────────────────────────────────────

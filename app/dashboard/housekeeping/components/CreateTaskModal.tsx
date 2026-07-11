@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, Sparkles, AlertCircle, Search } from "lucide-react";
-import { useRoomMatrix, useAdminUsers } from "@/lib/hooks";
+import { useRoomMatrix, useAdminUsers, useStaffAvailability } from "@/lib/hooks";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -21,6 +21,7 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
 
   const { rooms, isLoading: loadingRooms } = useRoomMatrix(defaultPropertyId);
   const { users, isLoading: loadingUsers } = useAdminUsers({ role: "housekeeping" });
+  const { staffAvailability } = useStaffAvailability({ property_id: defaultPropertyId });
 
   useEffect(() => {
     if (isOpen) {
@@ -140,17 +141,23 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1A2E44] mb-1.5">Assign To (Optional)</label>
+              <label className="block text-sm font-medium text-[#1A2E44] mb-1.5">Assign To (Live Staff Availability Check)</label>
               <select
                 value={assignedTo}
                 onChange={(e) => setAssignedTo(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-lg border border-[#E2E8F0] focus:outline-none focus:border-[#2BAE8E] bg-[#F5F7FA]"
                 disabled={loadingUsers}
               >
-                <option value="">Unassigned (Any available)</option>
-                {users?.map((u: any) => (
-                  <option key={u.id} value={u.id}>{u.first_name} {u.last_name} ({u.email})</option>
-                ))}
+                <option value="">Unassigned (Any available staff)</option>
+                {users?.map((u: any) => {
+                  const avail = staffAvailability?.find((s: any) => s.user?.id === u.id);
+                  const badgeText = avail?.availability_badge?.text ? ` · ${avail.availability_badge.text}` : "";
+                  return (
+                    <option key={u.id} value={u.id}>
+                      {u.first_name} {u.last_name}{badgeText} ({u.email})
+                    </option>
+                  );
+                })}
               </select>
             </div>
 

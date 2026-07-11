@@ -47,6 +47,7 @@ export async function GET(req: NextRequest) {
         bl.name as building_name,
         p.name as property_name,
         ab.booking_id,
+        ab.booking_status,
         ab.first_name || ' ' || ab.last_name as guest_name,
         ab.check_in,
         ab.check_out,

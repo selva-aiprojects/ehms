@@ -22,10 +22,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     // Log assignment event
     if (newStatus === "assigned" && oldTicket.status !== "assigned") {
-      await sql`
-        INSERT INTO maintenance_approvals (ticket_id, action, performed_by, comment)
-        VALUES (${id}, 'assigned', ${body.assigned_to || null}, 'Ticket assigned')
-      `;
+      try {
+        await sql`
+          INSERT INTO maintenance_approvals (ticket_id, action, performed_by, comment)
+          VALUES (${id}, 'assigned', ${body.assigned_to || null}, 'Ticket assigned')
+        `;
+      } catch { /* safe if approvals table optional */ }
     }
 
     const rows = await sql`
@@ -35,7 +37,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         ${body.assigned_to !== undefined ? sql`assigned_to = ${body.assigned_to},` : sql``}
         ${body.priority !== undefined ? sql`priority = ${body.priority},` : sql``}
         ${body.category !== undefined ? sql`category = ${body.category},` : sql``}
-        ${body.notes !== undefined ? sql`notes = ${body.notes},` : sql``}
+        ${body.notes !== undefined || body.resolution_notes !== undefined ? sql`resolution_notes = ${body.notes || body.resolution_notes},` : sql``}
         ${resolvedAt ? sql`resolved_at = NOW(),` : sql``}
         updated_at = NOW()
       WHERE id = ${id}
@@ -44,26 +46,26 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (!rows[0]) return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
 
-    // ── G6 FIX: On RESOLVE — reset unit status and auto-queue a HK task ──────
-    if (newStatus === "resolved" && oldTicket.unit_id) {
+    // ── G6 FIX: On RESOLVE or CLOSE — reset unit status to vacant and auto-queue HK task ──
+    if ((newStatus === "resolved" || newStatus === "closed") && oldTicket.unit_id) {
       try {
-        // After maintenance completes, room needs cleaning before it's sellable
-        await sql`UPDATE units SET status = 'dirty' WHERE id = ${oldTicket.unit_id}`;
+        // Reset room status so it is no longer stuck in maintenance
+        await sql`UPDATE units SET status = 'vacant' WHERE id = ${oldTicket.unit_id}`;
 
-        // Auto-create a housekeeping task to clean the post-maintenance room
-        await sql`
-          INSERT INTO housekeeping_tasks (unit_id, property_id, task_type, priority, status, scheduled_at, notes)
-          VALUES (
-            ${oldTicket.unit_id},
-            ${oldTicket.property_id},
-            'post_maintenance_clean',
-            'medium',
-            'open',
-            NOW(),
-            ${"Auto-generated after maintenance ticket #" + id + " resolved"}
-          )
-          ON CONFLICT DO NOTHING
-        `;
+        // Auto-create a housekeeping check task
+        if (oldTicket.property_id) {
+          await sql`
+            INSERT INTO housekeeping_tasks (unit_id, property_id, task_type, priority, status, notes)
+            VALUES (
+              ${oldTicket.unit_id},
+              ${oldTicket.property_id},
+              'post_maintenance_clean',
+              'medium',
+              'open',
+              ${"Auto-generated after maintenance ticket #" + id + " resolved"}
+            )
+          `;
+        }
       } catch (syncErr) {
         console.error("[ticket PUT] unit status sync on resolve failed:", syncErr);
       }

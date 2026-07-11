@@ -4,16 +4,16 @@ import { useState } from "react";
 import { Wallet, Search, CreditCard, ChevronRight, Loader2, Download, AlertCircle } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
-import useSWR from "swr";
 import FolioModal from "../components/FolioModal";
 import { useCheckOut } from "@/lib/hooks/mutations";
-
-const fetcher = (url: string) => fetch(url).then(r => r.json());
+import { useJourney } from "@/components/providers/JourneyProvider";
+import { useFrontDeskBilling } from "@/lib/hooks";
 
 export default function BillingFolioPage() {
+  const { selectedPropertyId } = useJourney();
   const [search, setSearch] = useState("");
-  const { data, error, isLoading, mutate } = useSWR("/api/dashboard/front-desk/billing", fetcher, { refreshInterval: 60000 });
-  const folios = data?.data || [];
+  const { billing, isLoading, mutate } = useFrontDeskBilling(selectedPropertyId || undefined);
+  const folios = billing || [];
   
   const [folioModalData, setFolioModalData] = useState<{ isOpen: boolean; bookingId: string; guestName: string } | null>(null);
   const checkOutMutation = useCheckOut();

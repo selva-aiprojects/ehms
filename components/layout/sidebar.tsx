@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  LayoutDashboard, CalendarCheck, Users, Clock, Calendar,
+  LayoutDashboard, CalendarCheck, Users, Clock, Calendar, DoorOpen,
   Building2, Sparkles, Wrench, CreditCard, Briefcase,
   UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star, BadgePercent,
   Settings, DollarSign, Layers, CheckCircle, Ticket, Package, FileText, Database,
@@ -27,6 +27,7 @@ const ALL_NAV_ITEMS = [
   { label: "Requests",      icon: Wrench,         href: "/dashboard/front-desk/requests", roles: ["super_admin","executive","property_manager","front_desk"] },
   { label: "Feedbacks",     icon: Star,           href: "/dashboard/front-desk/feedbacks", roles: ["super_admin","executive","property_manager","front_desk"] },
   { label: "Hotels",       icon: Hotel,           href: "/dashboard/hotels", roles: ["super_admin","executive","property_manager"] },
+  { label: "Rooms & Units", icon: DoorOpen,       href: "/dashboard/rooms-inventory", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor"] },
   { label: "Apartments",   icon: Building2,       href: "/dashboard/apartments", roles: ["super_admin","executive","property_manager"] },
   { label: "Rental",       icon: Home,            href: "/dashboard/rental", roles: ["super_admin","executive","property_manager"] },
   { label: "Workplace",    icon: Briefcase,       href: "/dashboard/workplace", roles: ["super_admin","executive","property_manager","workplace_facility_manager","security_staff"] },
@@ -98,7 +99,7 @@ const ALL_NAV_ITEMS = [
 
 const NAV_GROUPS = [
   { label: "Front Desk & Guests",   icon: CalendarCheck, items: ["Dashboard","Command Center","Guest Profiles","Check-Ins","Billing & Folio","F&B / Pantry","Requests","Feedbacks"] },
-  { label: "Properties & Verticals", icon: Building2,    items: ["Hotels","Apartments","Rental","Leases","Rent Invoices","Deposits","Workplace","Memberships","Visitors"] },
+  { label: "Properties & Verticals", icon: Building2,    items: ["Hotels","Rooms & Units","Apartments","Rental","Leases","Rent Invoices","Deposits","Workplace","Memberships","Visitors"] },
   { label: "Housekeeping",           icon: Sparkles,     items: ["Housekeeping","HK Tasks","Linen","Inspections","HK Staff"] },
   { label: "Maintenance",            icon: Wrench,       items: ["Maintenance","Tickets","Parts","Assets"] },
   { label: "Finance & Accounts",     icon: CreditCard,   items: ["Finance","Chart of Accts","Journal","Ledger","Receivables","Payables","Budget","Tax","Fixed Assets","Reports","Fin Settings","Reconciliation"] },
@@ -111,7 +112,7 @@ const NAV_GROUPS = [
 const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
   all: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
-    "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Apartments", "Rental",
+    "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Rooms & Units", "Apartments", "Rental",
     "Leases", "Rent Invoices", "Deposits",
     "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets", "Finance",
@@ -129,7 +130,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
   ],
   hotels: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
-    "F&B / Pantry", "Requests", "Feedbacks", "Hotels",
+    "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Rooms & Units",
     "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
@@ -144,7 +145,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
   ],
   apartments: [
     "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
-    "F&B / Pantry", "Requests", "Feedbacks", "Apartments",
+    "F&B / Pantry", "Requests", "Feedbacks", "Apartments", "Rooms & Units",
     "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
@@ -158,7 +159,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Support Tickets", "Broadcasts", "My Tickets"
   ],
   rental: [
-    "Dashboard", "Rental", "Leases", "Rent Invoices", "Deposits",
+    "Dashboard", "Rental", "Rooms & Units", "Leases", "Rent Invoices", "Deposits",
     "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
@@ -172,7 +173,7 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Support Tickets", "Broadcasts", "My Tickets"
   ],
   workplace: [
-    "Dashboard", "Workplace",
+    "Dashboard", "Workplace", "Rooms & Units",
     "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",

@@ -11,6 +11,7 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Table from "@/components/ui/table";
 import { useAuth } from "@/lib/auth-context";
+import { useJourney } from "@/components/providers/JourneyProvider";
 
 function SkeletonRow() {
   return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
@@ -50,6 +51,7 @@ const EMPTY_ENTRY = {
 
 export default function TimesheetPage() {
   const { user } = useAuth();
+  const { selectedPropertyId } = useJourney();
   const isHrOrManager = user?.role_name === "hr" || user?.role_name === "super_admin" || user?.role_name === "admin";
   const [view, setView] = useState<"my" | "team">("my");
   const [dateRange, setDateRange] = useState(getWeekDates());
@@ -75,7 +77,14 @@ export default function TimesheetPage() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
+      if (selectedPropertyId && selectedPropertyId !== "all") {
+        params.set("property_id", selectedPropertyId);
+      }
       if (view === "my") {
+        if (user?.id) {
+          const empMatch = employees.find((e: any) => e.user_id === user.id || e.user?.id === user.id);
+          if (empMatch) params.set("employee_id", empMatch.id);
+        }
         params.set("date_from", dateRange.start);
         params.set("date_to", dateRange.end);
       } else {
@@ -84,7 +93,7 @@ export default function TimesheetPage() {
         if (dateRange.end) params.set("date_to", dateRange.end);
         if (statusFilter) params.set("status", statusFilter);
       }
-      const res = await fetch(`/api/hr/timesheet?${params}`);
+      const res = await fetch(`/api/hr/timesheets?${params}`);
       const d = await res.json();
       setEntries(d?.data || []);
     } catch {
@@ -95,21 +104,29 @@ export default function TimesheetPage() {
   };
 
   useEffect(() => {
-    fetch("/api/hr/employees?limit=200").then(r => r.json()).then(d => setEmployees(d?.data || [])).catch(() => {});
-  }, []);
+    const p = new URLSearchParams();
+    p.set("limit", "200");
+    if (selectedPropertyId && selectedPropertyId !== "all") p.set("property_id", selectedPropertyId);
+    fetch(`/api/hr/employees?${p}`).then(r => r.json()).then(d => setEmployees(d?.data || [])).catch(() => {});
+  }, [selectedPropertyId]);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { fetchEntries(); }, [view, dateRange, selectedEmployee, statusFilter]);
+  useEffect(() => { fetchEntries(); }, [view, dateRange, selectedEmployee, statusFilter, selectedPropertyId]);
 
   const handleClockIn = async () => {
     setClocking(true);
     try {
       const today = new Date().toISOString().split("T")[0];
       const now = new Date().toISOString();
-      const res = await fetch("/api/hr/timesheet", {
+      const empMatch = employees.find((e: any) => e.user_id === user?.id || e.user?.id === user?.id) || employees[0];
+      if (!empMatch) {
+        setFeedback({ type: "error", message: "No employee record linked to user" });
+        return;
+      }
+      const res = await fetch("/api/hr/timesheets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: today, clock_in: now, status: "draft" }),
+        body: JSON.stringify({ employee_id: empMatch.id, date: today, clock_in: now, status: "draft" }),
       });
       if (!res.ok) throw new Error();
       setFeedback({ type: "success", message: "Clocked in" });
@@ -128,7 +145,7 @@ export default function TimesheetPage() {
       const existing = entries.find((e: any) => e.date?.split("T")[0] === today && !e.clock_out);
       if (!existing) { setFeedback({ type: "error", message: "No active session" }); setClocking(false); return; }
       const now = new Date().toISOString();
-      const res = await fetch(`/api/hr/timesheet/${existing.id}`, {
+      const res = await fetch(`/api/hr/timesheets/${existing.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ clock_out: now }),
@@ -146,14 +163,20 @@ export default function TimesheetPage() {
   const handleSaveEntry = async () => {
     setSaving(true);
     try {
+      const empMatch = employees.find((e: any) => e.user_id === user?.id || e.user?.id === user?.id) || (selectedEmployee ? { id: selectedEmployee } : employees[0]);
+      if (!empMatch) {
+        setFeedback({ type: "error", message: "Please select an employee" });
+        return;
+      }
       const payload = {
         ...entryForm,
+        employee_id: empMatch.id,
         clock_in: entryForm.clock_in ? new Date(`${entryForm.date}T${entryForm.clock_in}`).toISOString() : null,
         clock_out: entryForm.clock_out ? new Date(`${entryForm.date}T${entryForm.clock_out}`).toISOString() : null,
         break_hours: Number(entryForm.break_hours),
         status: "draft",
       };
-      const res = await fetch("/api/hr/timesheet", {
+      const res = await fetch("/api/hr/timesheets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -172,7 +195,7 @@ export default function TimesheetPage() {
 
   const handleApproveReject = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`/api/hr/timesheet/${id}`, {
+      const res = await fetch(`/api/hr/timesheets/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

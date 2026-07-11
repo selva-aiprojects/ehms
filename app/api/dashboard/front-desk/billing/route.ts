@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { validatePropertyAccess } from "@/lib/property-scope";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
     const sql = getDb();
+    const scope = await validatePropertyAccess(req);
+    if (scope.error) return scope.error;
+
     const { searchParams } = new URL(req.url);
     const propertyId = searchParams.get("property_id");
 
@@ -24,7 +28,7 @@ export async function GET(req: NextRequest) {
         u.unit_type,
         p.name as property_name,
         COALESCE(inv.grand_total, b.total_amount, 0) as invoice_total,
-        COALESCE(inv.amount_paid, 0) as amount_paid,
+        COALESCE(inv.paid_total, inv.amount_paid, 0) as amount_paid,
         COALESCE(inv.balance_due, b.total_amount, 0) as balance_due,
         inv.invoice_number,
         inv.status as invoice_status
@@ -34,7 +38,7 @@ export async function GET(req: NextRequest) {
       JOIN properties p ON p.id = b.property_id
       LEFT JOIN invoices inv ON inv.booking_id = b.id
       WHERE b.status IN ('checked_in', 'confirmed')
-        ${propertyId ? sql`AND b.property_id = ${propertyId}` : sql``}
+        ${propertyId ? sql`AND b.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND b.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
       ORDER BY b.check_out ASC
     `;
 

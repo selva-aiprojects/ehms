@@ -107,7 +107,7 @@ export default function FrontDeskPage() {
     ? (reservations as any[])?.filter((b: any) => b.status === "confirmed" || b.status === "pending") || []
     : [];
     
-  const inHouseData = rooms.filter((r: any) => r.booking_status === "checked_in");
+  const inHouseData = rooms.filter((r: any) => r.booking_status === "checked_in" || (r.status === "occupied" && r.booking_id));
   const departuresData = inHouseData.filter((r: any) => {
     if (!r.check_out) return false;
     return r.check_out?.startsWith(today);

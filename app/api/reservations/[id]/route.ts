@@ -47,11 +47,29 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       RETURNING *
     `;
 
+    if (!rows[0] && id.startsWith("b-")) {
+      const unitIdFallback = id.replace("b-", "");
+      const fallbackRows = await sql`
+        UPDATE bookings SET
+          status           = COALESCE(${newStatus}, status),
+          checked_in_at    = CASE WHEN ${newStatus} = 'checked_in'  THEN ${checkedInAt}  ELSE checked_in_at  END,
+          checked_out_at   = CASE WHEN ${newStatus} = 'checked_out' THEN ${checkedOutAt} ELSE checked_out_at END,
+          special_requests = CASE WHEN ${specialReqs}::text IS NOT NULL THEN ${specialReqs} ELSE special_requests END,
+          paid_amount      = CASE WHEN ${paidAmount}::numeric IS NOT NULL THEN ${paidAmount} ELSE paid_amount END
+        WHERE unit_id = ${unitIdFallback} AND status = 'checked_in'
+        RETURNING *
+      `;
+      if (fallbackRows[0]) {
+        rows.push(fallbackRows[0]);
+      }
+    }
+
     if (!rows[0]) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const booking = rows[0] as Record<string, unknown>;
     const unitId = booking.unit_id as string | null;
     const propertyId = booking.property_id as string | null;
+    const realBookingId = booking.id as string;
 
     // Sync unit status
     if (unitId && newStatus) {
@@ -65,20 +83,19 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // ── G4 + G5 FIX: On CHECK-OUT — auto-create HK task + finalize Invoice ──
-    if (newStatus === "checked_out" && unitId) {
+    if (newStatus === "checked_out" && unitId && propertyId) {
 
       // G4: Auto-create Housekeeping Task for the vacated room
       try {
         await sql`
-          INSERT INTO housekeeping_tasks (unit_id, property_id, task_type, priority, status, scheduled_at, notes)
+          INSERT INTO housekeeping_tasks (unit_id, property_id, task_type, priority, status, notes)
           VALUES (
             ${unitId},
             ${propertyId},
             'checkout_clean',
             'high',
             'open',
-            NOW(),
-            ${"Auto-generated on checkout for booking #" + id}
+            ${"Auto-generated on checkout for booking #" + realBookingId}
           )
         `;
       } catch (hkErr) {
@@ -87,23 +104,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
       // G5: Finalize / ensure Invoice exists and mark it 'sent'
       try {
-        // Check if invoice already exists for this booking
-        const existingInv = await sql`SELECT id, grand_total FROM invoices WHERE booking_id = ${id} LIMIT 1`;
+        const existingInv = await sql`SELECT id, grand_total FROM invoices WHERE booking_id = ${realBookingId} LIMIT 1`;
 
         if (existingInv[0]) {
-          // Invoice exists (created at booking) — mark it as 'sent' (ready for payment)
           const inv = existingInv[0] as Record<string, unknown>;
           await sql`
             UPDATE invoices SET
               status = 'sent',
               amount_paid = COALESCE(${paidAmount}::numeric, amount_paid),
-              balance_due = ${paidAmount
-                ? Math.max(0, Number(inv.grand_total) - Number(paidAmount))
-                : null}::numeric
+              paid_total = COALESCE(${paidAmount}::numeric, paid_total)
             WHERE id = ${inv.id as string}
           `;
         } else {
-          // No invoice found — create one now from booking total
           const totalAmount = Number(booking.total_amount || 0);
           const checkIn = booking.check_in ? new Date(booking.check_in as string) : new Date();
           const checkOut = new Date();
@@ -111,18 +123,19 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           const invoiceNumber = `INV-CO-${Date.now().toString(36).toUpperCase()}`;
 
           const invRows = await sql`
-            INSERT INTO invoices (booking_id, property_id, guest_id, invoice_number, status, subtotal, tax_total, grand_total, balance_due, due_date)
+            INSERT INTO invoices (booking_id, property_id, guest_id, invoice_number, invoice_date, due_date, status, subtotal, tax_total, grand_total, paid_total)
             VALUES (
-              ${id},
+              ${realBookingId},
               ${propertyId},
-              ${booking.guest_id as string},
+              ${booking.guest_id as string || null},
               ${invoiceNumber},
+              CURRENT_DATE,
+              CURRENT_DATE,
               'sent',
               ${totalAmount},
               0,
               ${totalAmount},
-              ${totalAmount},
-              NOW()
+              ${paidAmount || 0}
             )
             RETURNING id
           `;
@@ -130,14 +143,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
           const invoiceId = (invRows[0] as Record<string, unknown>).id as string;
 
           await sql`
-            INSERT INTO invoice_lines (invoice_id, description, quantity, unit_price, amount, line_type)
+            INSERT INTO invoice_lines (invoice_id, description, quantity, unit_price, tax_rate)
             VALUES (
               ${invoiceId},
               ${"Room charges — " + nights + " night(s) (checkout)"},
               ${nights},
               ${totalAmount / nights},
-              ${totalAmount},
-              'room_charge'
+              0
             )
           `;
         }
