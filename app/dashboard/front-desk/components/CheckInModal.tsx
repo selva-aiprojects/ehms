@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { X, CheckCircle, Car, ShieldCheck, DoorOpen, Loader2, Sparkles, Smartphone, PlusCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, CheckCircle, Car, ShieldCheck, DoorOpen, Loader2, Sparkles, Smartphone, Copy, RefreshCw, Key } from "lucide-react";
 import Button from "@/components/ui/button";
+import { toast } from "react-hot-toast";
 
 interface CheckInModalProps {
   isOpen: boolean;
@@ -20,14 +21,65 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
   const [parking, setParking] = useState({ vehicleNumber: "", slotNumber: "" });
   const [upsells, setUpsells] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  
+  // Real Digital Smart Key State
   const [digitalKeyIssuing, setDigitalKeyIssuing] = useState(false);
+  const [smartKey, setSmartKey] = useState<any>(null);
 
-  const issueDigitalKey = () => {
+  useEffect(() => {
+    if (isOpen && bookingId) {
+      // Check if smart key already exists for this booking
+      fetch(`/api/reservations/${bookingId}/smart-key`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.data) {
+            setSmartKey(data.data);
+            setChecklist(prev => ({ ...prev, keysIssued: true }));
+          }
+        })
+        .catch(err => console.error("Could not check smart key status:", err));
+    }
+  }, [isOpen, bookingId]);
+
+  const issueDigitalKey = async () => {
+    if (!bookingId) return;
     setDigitalKeyIssuing(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch(`/api/reservations/${bookingId}/smart-key`, {
+        method: "POST"
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to generate digital key");
+      
+      setSmartKey(json.data);
       setChecklist(prev => ({ ...prev, keysIssued: true }));
+      toast.success(json.message || "Smart Key PIN generated successfully!");
+    } catch (err: any) {
+      toast.error(err?.message || "Error issuing digital key");
+    } finally {
       setDigitalKeyIssuing(false);
-    }, 1500);
+    }
+  };
+
+  const regenerateDigitalKey = async () => {
+    if (!bookingId) return;
+    setDigitalKeyIssuing(true);
+    try {
+      const res = await fetch(`/api/reservations/${bookingId}/smart-key`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "regenerate" })
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to regenerate digital key");
+      
+      setSmartKey(json.data);
+      toast.success(json.message || "Fresh PIN generated!");
+    } catch (err: any) {
+      toast.error(err?.message || "Error regenerating digital key");
+    } finally {
+      setDigitalKeyIssuing(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -42,7 +94,8 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
       checklistItems: checklist,
       vehicleNumber: parking.vehicleNumber,
       parkingSlot: parking.slotNumber,
-      upsells
+      upsells,
+      digitalPin: smartKey?.pin_code
     });
     setSubmitting(false);
     onClose();
@@ -50,7 +103,7 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid #E2E8F0" }}>
           <div>
@@ -129,26 +182,71 @@ export default function CheckInModal({ isOpen, onClose, bookingId, roomId, guest
               </div>
 
               <div 
-                className="flex items-center p-4 rounded-lg transition-colors"
+                className="p-4 rounded-lg transition-colors space-y-3"
                 style={{ background: checklist.keysIssued ? "rgba(43,174,142,0.1)" : "#F5F7FA", border: "1px solid", borderColor: checklist.keysIssued ? "#2BAE8E" : "transparent" }}
               >
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 transition-colors ${checklist.keysIssued ? "border-[#2BAE8E] bg-[#2BAE8E]" : "border-gray-300"}`}>
-                  {checklist.keysIssued && <CheckCircle className="w-3 h-3 text-white" />}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${checklist.keysIssued ? "border-[#2BAE8E] bg-[#2BAE8E]" : "border-gray-300"}`}>
+                      {checklist.keysIssued && <CheckCircle className="w-3 h-3 text-white" />}
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm" style={{ color: "#1A2E44" }}>Key Handover (Smart Keyless Access)</p>
+                      <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Issue Salto Digital Key PIN or physical card.</p>
+                    </div>
+                  </div>
+                  <div>
+                    {!checklist.keysIssued && !smartKey ? (
+                      <Button onClick={issueDigitalKey} disabled={digitalKeyIssuing} size="sm" style={{ background: "#1A3C5E", color: "white" }}>
+                        {digitalKeyIssuing ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Smartphone className="w-3.5 h-3.5 mr-1.5" />}
+                        Issue Digital Key
+                      </Button>
+                    ) : (
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#2BAE8E] text-white flex items-center gap-1">
+                        <Key className="w-3 h-3" /> Key Issued
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm" style={{ color: "#1A2E44" }}>Key Handover</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Encode and issue a digital or physical key.</p>
-                </div>
-                <div>
-                  {!checklist.keysIssued ? (
-                    <Button onClick={issueDigitalKey} disabled={digitalKeyIssuing} size="sm" style={{ background: "#1A3C5E", color: "white" }}>
-                      {digitalKeyIssuing ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Smartphone className="w-3.5 h-3.5 mr-1.5" />}
-                      Issue Digital Key
-                    </Button>
-                  ) : (
-                    <span className="text-xs font-medium px-2 py-1 rounded bg-[#2BAE8E]/10 text-[#2BAE8E]">Key Issued</span>
-                  )}
-                </div>
+
+                {/* Digital Key Display Box */}
+                {smartKey && (
+                  <div className="mt-2 p-3 bg-white border border-[#2BAE8E] rounded-lg shadow-sm flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#1A3C5E]">
+                        <Smartphone className="w-3.5 h-3.5 text-[#2BAE8E]" /> {smartKey.lock_vendor || "Salto PIN Lock"}
+                      </div>
+                      <div className="text-xl font-mono font-bold tracking-widest text-[#065F46] mt-0.5">
+                        {smartKey.pin_code}
+                      </div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">
+                        Valid until: {smartKey.valid_to ? new Date(smartKey.valid_to).toLocaleDateString() : "Check-out"}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          navigator.clipboard.writeText(smartKey.pin_code);
+                          toast.success("PIN copied to clipboard!");
+                        }}
+                        className="h-7 px-2 text-xs"
+                      >
+                        <Copy className="w-3 h-3 mr-1" /> Copy PIN
+                      </Button>
+                      <button
+                        type="button"
+                        onClick={regenerateDigitalKey}
+                        disabled={digitalKeyIssuing}
+                        title="Regenerate fresh PIN"
+                        className="p-1.5 rounded border border-gray-200 hover:bg-gray-100 text-gray-600 transition-colors"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${digitalKeyIssuing ? "animate-spin" : ""}`} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ) : activeTab === "parking" ? (

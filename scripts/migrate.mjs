@@ -259,6 +259,17 @@ async function run() {
       }
     }
 
+    // ── Step 9.6: Run smart locks & channels migration ──
+    console.log(`▶ 029_smart_locks_and_channels.sql (${TENANT_SCHEMA})`);
+    const smartLocksPath = join(DATABASE_DIR, "029_smart_locks_and_channels.sql");
+    if (existsSync(smartLocksPath)) {
+      await client.query(`SET search_path TO ${TENANT_SCHEMA}, public`);
+      const statements = splitStatements(readFileSync(smartLocksPath, "utf-8"));
+      for (const stmt of statements) {
+        await client.query(stmt + ";");
+      }
+    }
+
     // ── Step 10: Verify ──
     console.log("\n✅ Migration complete! Verifying tables...");
     const tables = await client.query(`
