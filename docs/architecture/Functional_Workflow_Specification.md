@@ -239,3 +239,31 @@ node scripts/verify-workflow.mjs
 # 3. Start Local Development Server (Runs on http://localhost:3000)
 npm run dev
 ```
+
+---
+
+## 9. Competitive Parity & Advanced Operational Automations (Flexi-Stay, Channel Manager, Keyless Entry & AI Revenue)
+
+To certify complete operational parity across modern front-of-house Property Management Systems (e.g., StayFlexi) while maintaining our core Enterprise ERP advantages (GL Accounting & HRMS), eHMS integrates four specialized automation engines:
+
+### 9.1 Flexible Hourly Stays & Micro-Stay Turnover Buffer (`SAMP BRD 3.3 Parity`)
+* **Fractional Slot Billing (`lib/pricing.ts`)**: Supports 3, 6, and 12-hour micro-stay bookings for transit and same-day day-use guests alongside traditional nightly reservations (`booking_model: 'hourly' | 'nightly' | 'lease'`).
+* **Automated 30-Minute Turnover Buffer (`/api/reservations/check-availability`)**: When calculating room availability between back-to-back hourly bookings on the same day, the availability engine automatically enforces a mandatory **30-Minute Housekeeping Buffer** between check-out and check-in to guarantee room sanitization without overbooking clashes.
+* **Front Desk SOP (`WalkInModal.tsx`)**: Receptionists can toggle between Nightly and Hourly stay modes, instantly selecting fractional packages with real-time tax and turnover validation.
+
+### 9.2 High-Speed OTA Channel Manager Sync & Webhook Bridge (`/api/dashboard/front-desk/channels/sync`)
+* **Real-Time Inventory Broadcast (`push_availability`)**: Automatically calculates vacant units per category and transmits rate and availability inventory counts across active OTA partners (`Booking.com`, `MakeMyTrip / GoIbibo`, `Airbnb`, `Expedia`, `Agoda`) with full logging inside `channel_sync_log`.
+* **Inbound Webhook Booking Simulator (`webhook_booking`)**: Ingests live external OTA booking payloads. Automatically performs double-booking conflict checks (`check_in < target_checkout + 30m AND check_out > target_checkin`), locks the unit, issues a digital smart key, and pushes inventory decrement alerts to remaining channels.
+
+### 9.3 Digital Smart Locks & Keyless Mobile Entry (`/api/reservations/[id]/smart-key`)
+* **Digital Access Key Schema (`digital_keys` table)**: Issues secure, time-bounded (`valid_from` to `valid_to`) 6-digit access PIN codes (`e.g., 482910`) mapped to physical electronic lock hardware (`Salto Keyless PIN Lock`, `Assa Abloy`).
+* **SOP Check-In Verification Card (`CheckInModal.tsx`)**: During guest check-in, receptionists immediately view the **Smart Lock Keyless Access Card** with quick-copy (`Copy PIN`) and one-click key revocation/regeneration controls (`Regenerate Key`).
+
+### 9.4 AI Revenue Manager & Dynamic Yield Engine (`lib/revenue-ai.ts` & `/api/dashboard/front-desk/revenue-ai`)
+* **Algorithmic Occupancy Velocity Scaling**:
+  * **High Demand Surge (`≥ 80% Occupancy`)**: Automatically recommends and applies a `+25% Surge Multiplier` over base rates.
+  * **Moderate Demand (`65% – 79% Occupancy`)**: Recommends a `+12% Surge Multiplier`.
+  * **Low Occupancy Incentive (`≤ 28% Occupancy`)**: Recommends a `-15% Incentive Multiplier` to stimulate direct bookings and walk-in volume.
+* **Day-of-Week & Weekend Modifiers**: Automatically layers an additional `+15% Weekend Surge` on Fridays, Saturdays, and Sundays.
+* **Front Desk Yield Controller (`AiRevenueManagerCard.tsx`)**: Displays live property occupancy velocity, itemized factor tags (`⚡ High Occupancy Surge (+25%)`), projected daily revenue lift (`+₹4,375/day`), and a **Dynamic Auto-Pilot Toggle Switch** (`properties.config.ai_auto_pilot`) that automatically pushes AI rates directly into direct walk-in quotes and OTA channels.
+

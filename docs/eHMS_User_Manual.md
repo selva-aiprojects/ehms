@@ -311,7 +311,14 @@ Dashboard URL changes based on active journey:
 
 ## 8.1 Command Center (`/dashboard/front-desk`)
 
-Central hub for front desk operations. View today's arrivals, departures, in-house guests, and room status.
+Central hub for front desk operations. View today's arrivals, departures, in-house guests, and room status matrix.
+
+**Advanced Command Center Capabilities:**
+- **AI Revenue Manager Card**: View real-time property occupancy velocity (`≥80% Surge`, `≤28% Incentive`), check projected daily revenue lift, and apply dynamic rates with one click or toggle **Dynamic Auto-Pilot** (`properties.config.ai_auto_pilot`).
+- **OTA Channel Partners Sync**: View real-time availability sync status across `Booking.com`, `MakeMyTrip`, `Airbnb`, `Expedia`, and `Agoda`. Trigger instant inventory push broadcasts or simulate webhook arrivals.
+- **Keyless Smart Lock PIN Issuance**: During check-in (`CheckInModal`), generate secure 6-digit access PIN codes (`e.g., 482910`) mapped to physical Salto/Assa Abloy locks valid exclusively for the guest's stay window.
+- **Hourly & Flexi-Stay Walk-Ins**: Toggle between Nightly and Hourly stay modes (`WalkInModal`) for 3h, 6h, or 12h transit packages with automated 30-minute housekeeping turnover buffers.
+
 
 ## 8.2 Guest Profiles (`/dashboard/front-desk/guests`)
 

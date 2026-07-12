@@ -25,6 +25,7 @@
 12. [Architecture Diagrams](#12-architecture-diagrams)
 13. [API Endpoint Reference](#13-api-endpoint-reference)
 14. [Test Users & User Journeys by Workspace](#14-test-users--user-journeys-by-workspace)
+15. [StayFlexi Competitive Parity Architecture & Automation Engines (Phases 1-3)](#15-stayflexi-competitive-parity-architecture--automation-engines-phases-1-3)
 
 ---
 
@@ -2596,5 +2597,68 @@ TEST ASSERTIONS:
 
 ---
 
-*Document generated from eHMS codebase analysis — 27 June 2026*  
+## 15. StayFlexi Competitive Parity Architecture & Automation Engines (Phases 1-3)
+
+To certify full technical and feature parity with modern cloud PMS competitors (specifically StayFlexi) across our NeonDB sharded PostgreSQL architecture, eHMS implements four dedicated automation layers:
+
+### 15.1 Flexible Hourly Stays & Micro-Stay Turnover Buffer (`Phase 1`)
+* **Technical Engine (`lib/pricing.ts`)**:
+  * Implements `calculateBookingQuote({ booking_model: 'hourly' | 'nightly' | 'lease', duration_hours, ... })`.
+  * Computes tier packages for 3h, 6h, and 12h slots with automatic prorated tax calculations (`12%` for rates ≤ ₹7,500; `18%` for rates > ₹7,500).
+* **Housekeeping Buffer Enforcement (`app/api/reservations/check-availability/route.ts`)**:
+  * Prevents consecutive same-day booking collisions by embedding an automated **30-minute turnover sanitization window** inside SQL interval logic:
+    ```sql
+    -- Rejection Condition for hourly overlap:
+    WHERE (
+      (check_in < (:targetCheckout + INTERVAL '30 minutes'))
+      AND 
+      (check_out > :targetCheckin)
+    )
+    ```
+
+### 15.2 OTA Channel Manager Sync & Webhook Bridge (`Phase 2`)
+* **Endpoints & Controllers**:
+  * `POST /api/dashboard/front-desk/channels/sync`: Handles bidirectional actions (`push_availability`, `webhook_booking`).
+* **Inbound Booking Webhook Simulator**:
+  * Simulates external reservations arriving from `Booking.com`, `MakeMyTrip`, `Airbnb`, `Expedia`, or `Agoda`.
+  * Executes atomic database checks:
+    1. Validates unit vacancy (`SELECT * FROM units WHERE id = $1 AND status = 'vacant'`).
+    2. Locks room (`UPDATE units SET status = 'reserved'`).
+    3. Inserts booking record (`INSERT INTO bookings`).
+    4. Auto-generates digital smart key (`INSERT INTO digital_keys`).
+    5. Records sync event (`INSERT INTO channel_sync_log`).
+
+### 15.3 Digital Smart Locks & Keyless PIN Issuance (`Phase 2`)
+* **Endpoint & Hardware Schema**:
+  * `POST /api/reservations/[id]/smart-key`: Issues 6-digit access PIN codes valid exclusively between `check_in` and `check_out` timestamps.
+* **Database Table (`digital_keys`)**:
+  ```sql
+  CREATE TABLE digital_keys (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    booking_id UUID REFERENCES bookings(id) ON DELETE CASCADE,
+    unit_id UUID REFERENCES units(id),
+    key_code VARCHAR(20) NOT NULL, -- e.g., '482910'
+    key_type VARCHAR(20) DEFAULT 'pin',
+    status VARCHAR(20) DEFAULT 'active',
+    valid_from TIMESTAMP WITH TIME ZONE NOT NULL,
+    valid_to TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  );
+  ```
+
+### 15.4 AI Revenue Manager & Dynamic Yield Auto-Pilot (`Phase 3`)
+* **Technical Engine (`lib/revenue-ai.ts`)**:
+  * Implements algorithmic yield scoring via `calculateAiRateRecommendation()`.
+  * Scales pricing dynamically based on **Occupancy Velocity**:
+    * `Occupancy Velocity ≥ 80%`: `high_demand` (`+25% Surge`).
+    * `Occupancy Velocity 65% - 79%`: `moderate_demand` (`+12% Surge`).
+    * `Occupancy Velocity ≤ 28%`: `low_occupancy` (`-15% Incentive`).
+  * Integrates **Weekend Demand Lift** (`+15%` on Friday, Saturday, Sunday).
+* **API Endpoints**:
+  * `GET /api/dashboard/front-desk/revenue-ai`: Computes real-time occupancy percentages across physical units and returns itemized rate recommendations per room tier (`Standard`, `Deluxe`, `Suite`).
+  * `POST /api/dashboard/front-desk/revenue-ai/apply`: Applies AI recommended rates directly to `rate_plans.base_rate` (`is_dynamic = true`) and manages property-wide **Dynamic Auto-Pilot** (`properties.config.ai_auto_pilot`).
+
+---
+
+*Document generated from eHMS codebase analysis — 12 July 2026*  
 *Source: `d:\Training\working\HMS` — 23 SQL migrations, 100+ API routes, 40+ pages, 80+ hooks*
