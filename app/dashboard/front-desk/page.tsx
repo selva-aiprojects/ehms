@@ -12,6 +12,7 @@ import CheckInModal from "./components/CheckInModal";
 import FolioModal from "./components/FolioModal";
 import OffersCard from "./components/OffersCard";
 import ChannelPartnersCard from "./components/ChannelPartnersCard";
+import AiRevenueManagerCard from "./components/AiRevenueManagerCard";
 import WalkInModal from "./components/WalkInModal";
 import LogRequestModal from "./components/LogRequestModal";
 import { useRouter } from "next/navigation";
@@ -455,6 +456,7 @@ export default function FrontDeskPage() {
           )}
         </Card>
         
+        <AiRevenueManagerCard propertyId={selectedPropertyId} />
         <ChannelPartnersCard propertyId={selectedPropertyId} />
         <OffersCard propertyId={selectedPropertyId} />
       </div>
