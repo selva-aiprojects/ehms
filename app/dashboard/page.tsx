@@ -274,7 +274,7 @@ const cardStyle = { border: "1px solid #E2E8F0", boxShadow: "0 1px 4px rgba(26,6
 
 export default function DashboardPage() {
   const { selectedPropertyId } = useJourney();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   
   const [period, setPeriod] = useState<"monthly" | "quarterly" | "half_yearly" | "annually" | "custom">("monthly");
   const [startDate, setStartDate] = useState("");
@@ -290,8 +290,16 @@ export default function DashboardPage() {
 
   const { stats, isLoading } = useStats(selectedPropertyId, filters);
   const { overview, isLoading: overviewLoading } = useAdminOverview(selectedPropertyId);
-  const role = user?.role_name || "";
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const role = user?.role_name || "";
   const isAdmin = role === "super_admin" || role === "property_manager";
 
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["today", "dashboards", "employees", "issues", "rooms", "feedback", "financial"]));
