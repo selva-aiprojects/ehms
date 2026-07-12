@@ -71,14 +71,48 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const propertyId = booking.property_id as string | null;
     const realBookingId = booking.id as string;
 
-    // Sync unit status
+    // Sync unit status (Scoped to vertical: block/unblock children if apartment, block/unblock parent if room)
     if (unitId && newStatus) {
       const unitStatus =
         newStatus === "checked_in" ? "occupied" :
         newStatus === "checked_out" ? "dirty" :
         newStatus === "cancelled" ? "vacant" : null;
       if (unitStatus) {
-        await sql`UPDATE units SET status = ${unitStatus} WHERE id = ${unitId}`;
+        try {
+          const unitDetails = await sql`
+            SELECT p.vertical_type, u.unit_type, u.parent_unit_id
+            FROM units u
+            JOIN floors f ON f.id = u.floor_id
+            JOIN buildings b ON b.id = f.building_id
+            JOIN properties p ON p.id = b.property_id
+            WHERE u.id = ${unitId}
+            LIMIT 1
+          ` as any[];
+
+          if (unitDetails.length > 0) {
+            const detail = unitDetails[0];
+            const isApartmentVertical = detail.vertical_type === "service_apartment" || detail.vertical_type === "rental_apartment";
+
+            if (isApartmentVertical) {
+              if (detail.unit_type === "apartment") {
+                // Block/unblock the apartment and all its child rooms
+                await sql`UPDATE units SET status = ${unitStatus} WHERE id = ${unitId} OR parent_unit_id = ${unitId}`;
+              } else if (detail.parent_unit_id) {
+                // Block/unblock the individual room and its parent apartment
+                await sql`UPDATE units SET status = ${unitStatus} WHERE id = ${unitId} OR id = ${detail.parent_unit_id}`;
+              } else {
+                await sql`UPDATE units SET status = ${unitStatus} WHERE id = ${unitId}`;
+              }
+            } else {
+              await sql`UPDATE units SET status = ${unitStatus} WHERE id = ${unitId}`;
+            }
+          } else {
+            await sql`UPDATE units SET status = ${unitStatus} WHERE id = ${unitId}`;
+          }
+        } catch (err) {
+          console.error("Failed to sync hierarchy status:", err);
+          await sql`UPDATE units SET status = ${unitStatus} WHERE id = ${unitId}`;
+        }
       }
     }
 
@@ -174,7 +208,41 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
     const rows = await sql`SELECT unit_id FROM bookings WHERE id = ${id}`;
     await sql`UPDATE bookings SET status = 'cancelled' WHERE id = ${id}`;
     const unitId = rows[0] ? (rows[0] as Record<string, unknown>).unit_id as string : null;
-    if (unitId) await sql`UPDATE units SET status = 'vacant' WHERE id = ${unitId}`;
+    if (unitId) {
+      try {
+        const unitDetails = await sql`
+          SELECT p.vertical_type, u.unit_type, u.parent_unit_id
+          FROM units u
+          JOIN floors f ON f.id = u.floor_id
+          JOIN buildings b ON b.id = f.building_id
+          JOIN properties p ON p.id = b.property_id
+          WHERE u.id = ${unitId}
+          LIMIT 1
+        ` as any[];
+
+        if (unitDetails.length > 0) {
+          const detail = unitDetails[0];
+          const isApartmentVertical = detail.vertical_type === "service_apartment" || detail.vertical_type === "rental_apartment";
+
+          if (isApartmentVertical) {
+            if (detail.unit_type === "apartment") {
+              await sql`UPDATE units SET status = 'vacant' WHERE id = ${unitId} OR parent_unit_id = ${unitId}`;
+            } else if (detail.parent_unit_id) {
+              await sql`UPDATE units SET status = 'vacant' WHERE id = ${unitId} OR id = ${detail.parent_unit_id}`;
+            } else {
+              await sql`UPDATE units SET status = 'vacant' WHERE id = ${unitId}`;
+            }
+          } else {
+            await sql`UPDATE units SET status = 'vacant' WHERE id = ${unitId}`;
+          }
+        } else {
+          await sql`UPDATE units SET status = 'vacant' WHERE id = ${unitId}`;
+        }
+      } catch (err) {
+        console.error("Failed to sync hierarchy cancel status:", err);
+        await sql`UPDATE units SET status = 'vacant' WHERE id = ${unitId}`;
+      }
+    }
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Delete failed";

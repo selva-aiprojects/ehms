@@ -248,6 +248,17 @@ async function run() {
       }
     }
 
+    // ── Step 9.5: Run flat & room hierarchy migration ──
+    console.log(`▶ 028_flat_room_hierarchy.sql (${TENANT_SCHEMA})`);
+    const hierarchyPath = join(DATABASE_DIR, "028_flat_room_hierarchy.sql");
+    if (existsSync(hierarchyPath)) {
+      await client.query(`SET search_path TO ${TENANT_SCHEMA}, public`);
+      const statements = splitStatements(readFileSync(hierarchyPath, "utf-8"));
+      for (const stmt of statements) {
+        await client.query(stmt + ";");
+      }
+    }
+
     // ── Step 10: Verify ──
     console.log("\n✅ Migration complete! Verifying tables...");
     const tables = await client.query(`

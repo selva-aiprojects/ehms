@@ -32,12 +32,43 @@ export async function POST(req: NextRequest) {
         WHERE id = ${bookingId}
       `;
 
-      // 2. Update Unit Status
-      await sql`
-        UPDATE units
-        SET status = 'occupied'
-        WHERE id = ${roomId}
-      `;
+      // 2. Update Unit Status (Scoped to vertical: block children if apartment, block parent if room)
+      try {
+        const unitDetails = await sql`
+          SELECT p.vertical_type, u.unit_type, u.parent_unit_id
+          FROM units u
+          JOIN floors f ON f.id = u.floor_id
+          JOIN buildings b ON b.id = f.building_id
+          JOIN properties p ON p.id = b.property_id
+          WHERE u.id = ${roomId}
+          LIMIT 1
+        ` as any[];
+
+        if (unitDetails.length > 0) {
+          const detail = unitDetails[0];
+          const isApartmentVertical = detail.vertical_type === "service_apartment" || detail.vertical_type === "rental_apartment";
+
+          if (isApartmentVertical) {
+            if (detail.unit_type === "apartment") {
+              // Block the apartment and all its child rooms
+              await sql`UPDATE units SET status = 'occupied' WHERE id = ${roomId} OR parent_unit_id = ${roomId}`;
+            } else if (detail.parent_unit_id) {
+              // Block the individual room and its parent apartment
+              await sql`UPDATE units SET status = 'occupied' WHERE id = ${roomId} OR id = ${detail.parent_unit_id}`;
+            } else {
+              await sql`UPDATE units SET status = 'occupied' WHERE id = ${roomId}`;
+            }
+          } else {
+            // Standard vertical (e.g. Hotel)
+            await sql`UPDATE units SET status = 'occupied' WHERE id = ${roomId}`;
+          }
+        } else {
+          await sql`UPDATE units SET status = 'occupied' WHERE id = ${roomId}`;
+        }
+      } catch (err) {
+        console.error("Failed to update hierarchy check-in status:", err);
+        await sql`UPDATE units SET status = 'occupied' WHERE id = ${roomId}`;
+      }
 
       // 3. Save Checklist if provided
       if (checklistItems && Object.keys(checklistItems).length > 0) {
