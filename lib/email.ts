@@ -164,7 +164,7 @@ export async function sendWelcomeEmail(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=device-width">
-  <title>Welcome to CybeeHMS</title>
+  <title>Welcome to CybeHMS</title>
 </head>
 <body style="margin:0;padding:0;background:#F8FAFC;font-family:'Karla',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
   <table width="100%" cellpadding="0" cellspacing="0">
@@ -174,7 +174,7 @@ export async function sendWelcomeEmail(
           <!-- Top Header Gradient -->
           <tr>
             <td style="padding:48px 40px 36px;background:linear-gradient(135deg,#1E3A8A 0%,#3B82F6 100%);text-align:center;">
-              <h1 style="margin:0;font-size:28px;color:#FFFFFF;letter-spacing:-0.5px;font-weight:700;font-family:'Playfair Display SC',Georgia,serif;">Welcome to CybeeHMS</h1>
+              <h1 style="margin:0;font-size:28px;color:#FFFFFF;letter-spacing:-0.5px;font-weight:700;font-family:'Playfair Display SC',Georgia,serif;">Welcome to CybeHMS</h1>
               <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.85);letter-spacing:0.5px;text-transform:uppercase;">Enterprise Hospitality & Facilities Platform</p>
             </td>
           </tr>
@@ -187,7 +187,7 @@ export async function sendWelcomeEmail(
             <td style="padding:40px 40px 24px;color:#334155;font-size:14px;line-height:1.6;">
               <p style="margin:0 0 16px;font-size:15px;">Dear <strong>${adminName}</strong>,</p>
               <p style="margin:0 0 20px;">
-                We are thrilled to welcome <strong>${tenantName}</strong> to the CybeeHMS platform. Your organization account has been successfully provisioned, and your multi-vertical workspace is ready for immediate setup and configurations.
+                We are thrilled to welcome <strong>${tenantName}</strong> to the CybeHMS platform. Your organization account has been successfully provisioned, and your multi-vertical workspace is ready for immediate setup and configurations.
               </p>
 
               <!-- Credentials Box -->
@@ -247,10 +247,10 @@ export async function sendWelcomeEmail(
           <tr>
             <td style="padding:32px 40px;background:#F8FAFC;border-top:1px solid #E2E8F0;text-align:center;">
               <p style="margin:0 0 6px;font-size:12px;color:#475569;font-weight:600;font-family:'Playfair Display SC',Georgia,serif;">
-                CybeeHMS &middot; Cybelinx Hospitality Management System
+                CybeHMS &middot; Cybelinx Hospitality Management System
               </p>
               <p style="margin:0;font-size:11px;color:#94A3B8;">
-                This is an automated notification from your CybeeHMS Provider. Please do not reply directly to this mail.<br>
+                This is an automated notification from your CybeHMS Provider. Please do not reply directly to this mail.<br>
                 For support, contact us at <a href="mailto:support@cybelinx.com" style="color:#3B82F6;text-decoration:none;">support@cybelinx.com</a>.
               </p>
             </td>
@@ -268,7 +268,7 @@ export async function sendWelcomeEmail(
     await r.emails.send({
       from: fromAddress,
       to,
-      subject: `Welcome to CybeeHMS — ${tenantName} Workspace Is Ready`,
+      subject: `Welcome to CybeHMS — ${tenantName} Workspace Is Ready`,
       html,
     });
   } catch (error) {
