@@ -18,54 +18,114 @@ function Skeleton({ className = "" }: { className?: string }) {
 }
 
 /* ─── Line chart (SVG) with real data ─── */
-function LineChart({ data }: { data: { month: string; revenue: number }[] }) {
-  if (!data?.length) return <Skeleton className="w-full h-40" />;
-  const max = Math.max(...data.map(d => d.revenue), 1);
-  const W = 800, H = 200, padL = 48, padR = 20, padT = 10, padB = 30;
+function LineChart({ data, smooth }: { data: { label: string; revenue: number; expenses: number }[]; smooth: boolean }) {
+  if (!data?.length) return <Skeleton className="w-full h-56" />;
+  const max = Math.max(...data.map(d => Math.max(d.revenue, d.expenses)), 1);
+  const W = 800, H = 250, padL = 60, padR = 30, padT = 30, padB = 40;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
-  const toX = (i: number) => padL + (i / (data.length - 1)) * chartW;
+  const toX = (i: number) => padL + (i / Math.max(data.length - 1, 1)) * chartW;
   const toY = (v: number) => padT + chartH - (v / max) * chartH;
-  const path = data.map((d, i) => `${i === 0 ? "M" : "L"} ${toX(i)} ${toY(d.revenue)}`).join(" ");
-  const area = path + ` L ${toX(data.length - 1)} ${toY(0)} L ${toX(0)} ${toY(0)} Z`;
-  const allZero = data.every(d => d.revenue === 0);
+
+  const formatVal = (v: number) => {
+    if (v >= 10000000) return `₹${(v / 10000000).toFixed(1)}Cr`;
+    if (v >= 100000) return `₹${(v / 100000).toFixed(1)}L`;
+    if (v >= 1000) return `₹${(v / 1000).toFixed(0)}K`;
+    return `₹${v.toFixed(0)}`;
+  };
+
+  const revPoints = data.map((d, i) => ({ x: toX(i), y: toY(d.revenue), val: d.revenue }));
+  const expPoints = data.map((d, i) => ({ x: toX(i), y: toY(d.expenses), val: d.expenses }));
+
+  const getPath = (pts: typeof revPoints) => {
+    if (pts.length === 0) return "";
+    if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+    if (!smooth) {
+      return pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+    }
+    let path = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i];
+      const p1 = pts[i + 1];
+      const cpX1 = p0.x + (p1.x - p0.x) / 2;
+      const cpY1 = p0.y;
+      const cpX2 = p0.x + (p1.x - p0.x) / 2;
+      const cpY2 = p1.y;
+      path += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p1.x} ${p1.y}`;
+    }
+    return path;
+  };
+
+  const revPath = getPath(revPoints);
+  const expPath = getPath(expPoints);
+
+  const revArea = revPath + ` L ${toX(data.length - 1)} ${toY(0)} L ${toX(0)} ${toY(0)} Z`;
+  const expArea = expPath + ` L ${toX(data.length - 1)} ${toY(0)} L ${toX(0)} ${toY(0)} Z`;
+  const allZero = data.every(d => d.revenue === 0 && d.expenses === 0);
 
   if (allZero) {
     return (
-      <div className="flex flex-col items-center justify-center h-40 rounded-xl" style={{ background: "#F8FAFC", border: "1px dashed #CBD5E1" }}>
+      <div className="flex flex-col items-center justify-center h-48 rounded-xl" style={{ background: "#F8FAFC", border: "1px dashed #CBD5E1" }}>
         <IndianRupee className="w-8 h-8 mb-2" style={{ color: "#CBD5E1" }} />
-        <p className="text-sm font-medium" style={{ color: "#94A3B8" }}>No revenue data yet</p>
-        <Link href="/dashboard/finance" className="text-xs mt-1 hover:underline" style={{ color: "#2BAE8E" }}>
-          Go to Finance →
-        </Link>
+        <p className="text-sm font-medium" style={{ color: "#94A3B8" }}>No financial data yet</p>
       </div>
     );
   }
 
   return (
     <div className="w-full overflow-x-auto">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ minHeight: 160 }}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ minHeight: 220 }}>
         <defs>
           <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2BAE8E" stopOpacity="0.28" />
-            <stop offset="100%" stopColor="#2BAE8E" stopOpacity="0.02" />
+            <stop offset="0%" stopColor="#2BAE8E" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#2BAE8E" stopOpacity="0.01" />
+          </linearGradient>
+          <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#E53E3E" stopOpacity="0.10" />
+            <stop offset="100%" stopColor="#E53E3E" stopOpacity="0.01" />
           </linearGradient>
         </defs>
         {[0, 25, 50, 75, 100].map(pct => (
           <g key={pct}>
-            <line x1={padL} y1={toY(max * pct / 100)} x2={W - padR} y2={toY(max * pct / 100)} stroke="#E2E8F0" strokeWidth={1} />
-            <text x={padL - 6} y={toY(max * pct / 100) + 4} textAnchor="end" fontSize={10} fill="#64748B">
-              {pct > 0 ? `${(max * pct / 100 / 1000).toFixed(0)}k` : "0"}
+            <line x1={padL} y1={toY(max * pct / 100)} x2={W - padR} y2={toY(max * pct / 100)} stroke="#F1F5F9" strokeWidth={1} />
+            <text x={padL - 10} y={toY(max * pct / 100) + 4} textAnchor="end" fontSize={10} fill="#94A3B8">
+              {formatVal(max * pct / 100)}
             </text>
           </g>
         ))}
-        <path d={area} fill="url(#revGrad)" />
-        <path d={path} fill="none" stroke="#2BAE8E" strokeWidth={2.5} strokeLinejoin="round" />
-        {data.map((d, i) => (
-          <g key={d.month}>
-            <circle cx={toX(i)} cy={toY(d.revenue)} r={4} fill="#2BAE8E" stroke="#fff" strokeWidth={1.5} />
-            <text x={toX(i)} y={H - 6} textAnchor="middle" fontSize={10} fill="#64748B">{d.month}</text>
+        {data.length > 1 && (
+          <>
+            <path d={revArea} fill="url(#revGrad)" />
+            <path d={expArea} fill="url(#expGrad)" />
+          </>
+        )}
+        <path d={revPath} fill="none" stroke="#2BAE8E" strokeWidth={2.5} strokeLinejoin="round" />
+        <path d={expPath} fill="none" stroke="#E53E3E" strokeWidth={2.5} strokeLinejoin="round" />
+
+        {revPoints.map((p, i) => (
+          <g key={`rev-pt-${i}`}>
+            <circle cx={p.x} cy={p.y} r={4.5} fill="#2BAE8E" stroke="#fff" strokeWidth={1.5} />
+            {p.val > 0 && (
+              <text x={p.x} y={p.y - 8} textAnchor="middle" fontSize={9} fontWeight="600" fill="#1e293b">
+                {formatVal(p.val)}
+              </text>
+            )}
           </g>
+        ))}
+
+        {expPoints.map((p, i) => (
+          <g key={`exp-pt-${i}`}>
+            <circle cx={p.x} cy={p.y} r={4.5} fill="#E53E3E" stroke="#fff" strokeWidth={1.5} />
+            {p.val > 0 && (
+              <text x={p.x} y={p.y + 14} textAnchor="middle" fontSize={9} fontWeight="600" fill="#991b1b">
+                {formatVal(p.val)}
+              </text>
+            )}
+          </g>
+        ))}
+
+        {data.map((d, i) => (
+          <text key={d.label} x={toX(i)} y={H - 10} textAnchor="middle" fontSize={10} fill="#64748B">{d.label}</text>
         ))}
       </svg>
     </div>
@@ -215,7 +275,20 @@ const cardStyle = { border: "1px solid #E2E8F0", boxShadow: "0 1px 4px rgba(26,6
 export default function DashboardPage() {
   const { selectedPropertyId } = useJourney();
   const { user } = useAuth();
-  const { stats, isLoading } = useStats(selectedPropertyId);
+  
+  const [period, setPeriod] = useState<"monthly" | "quarterly" | "half_yearly" | "annually" | "custom">("monthly");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [customFilterActive, setCustomFilterActive] = useState(false);
+  const [smoothCurve, setSmoothCurve] = useState(true);
+
+  const filters = {
+    period,
+    start_date: period === "custom" && customFilterActive ? startDate : undefined,
+    end_date: period === "custom" && customFilterActive ? endDate : undefined,
+  };
+
+  const { stats, isLoading } = useStats(selectedPropertyId, filters);
   const { overview, isLoading: overviewLoading } = useAdminOverview(selectedPropertyId);
   const role = user?.role_name || "";
 
@@ -262,55 +335,198 @@ export default function DashboardPage() {
   const pendingReqs = overview?.issues?.find(i => i.category === "Other")?.count ?? 0;
   const pendingBills = overview?.issues?.find(i => i.category === "Vendor")?.count ?? 0;
 
-  const lastMonthRev = stats?.chartData?.[10]?.revenue ?? 0;
-  const thisMonthRev = stats?.chartData?.[11]?.revenue ?? 0;
-  const revTrend = lastMonthRev > 0
-    ? { pct: Math.round(((thisMonthRev - lastMonthRev) / lastMonthRev) * 100), label: "vs last month" }
-    : (thisMonthRev > 0 ? { pct: 100, label: "vs last month" } : undefined);
+  const current = stats?.current || {
+    bookings: 0,
+    checkedIn: 0,
+    guests: 0,
+    revenue: 0,
+    payables: 0,
+    avgRating: 0,
+    occupancyRate: 0,
+    expenses: { salary: 0, maintenance: 0, subscriptions: 0, utilities: 0, other: 0, total: 0 },
+    channels: { channelPartners: 0, direct: 0, walkins: 0 },
+    positiveRatingPct: 0,
+  };
+
+  const previous = stats?.previous || {
+    bookings: 0,
+    checkedIn: 0,
+    guests: 0,
+    revenue: 0,
+    payables: 0,
+    avgRating: 0,
+    occupancyRate: 0,
+    expenses: { salary: 0, maintenance: 0, subscriptions: 0, utilities: 0, other: 0, total: 0 },
+    channels: { channelPartners: 0, direct: 0, walkins: 0 },
+    positiveRatingPct: 0,
+  };
+
+  const trendLabel = period === "quarterly"
+    ? "vs last quarter"
+    : period === "half_yearly"
+    ? "vs last 6 months"
+    : period === "annually"
+    ? "vs last year"
+    : period === "custom"
+    ? "vs prev period"
+    : "vs last month";
+
+  const revDiff = current.revenue - previous.revenue;
+  const revTrend = {
+    pct: previous.revenue > 0 ? Math.round((revDiff / previous.revenue) * 100) : (current.revenue > 0 ? 100 : 0),
+    label: trendLabel,
+  };
+
+  const expDiff = current.expenses.total - previous.expenses.total;
+  const expTrend = {
+    pct: previous.expenses.total > 0 ? Math.round((expDiff / previous.expenses.total) * 100) : (current.expenses.total > 0 ? 100 : 0),
+    label: trendLabel,
+  };
+
+  const ratingDiff = current.avgRating - previous.avgRating;
+  const ratingTrend = {
+    pct: previous.avgRating > 0 ? Math.round((ratingDiff / previous.avgRating) * 100) : (current.avgRating > 0 ? 100 : 0),
+    label: trendLabel,
+  };
+
+  const bookingsDiff = current.bookings - previous.bookings;
+  const bookingsTrend = {
+    pct: previous.bookings > 0 ? Math.round((bookingsDiff / previous.bookings) * 100) : (current.bookings > 0 ? 100 : 0),
+    label: trendLabel,
+  };
+
+  const occupancyDiff = current.occupancyRate - previous.occupancyRate;
+  const occupancyTrend = {
+    pct: previous.occupancyRate > 0 ? Math.round((occupancyDiff / previous.occupancyRate) * 100) : (current.occupancyRate > 0 ? 100 : 0),
+    label: trendLabel,
+  };
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}k`;
+    return `₹${amount.toFixed(0)}`;
+  };
 
   const kpiCards = [
     {
       label: "Total Revenue",
-      value: stats ? `₹${(stats.totalRevenue / 1000).toFixed(1)}k` : "—",
+      value: stats ? formatCurrency(current.revenue) : "—",
       icon: <IndianRupee className="w-5 h-5" style={{ color: "#2BAE8E" }} />,
       bg: "rgba(43,174,142,0.12)",
       trend: revTrend,
     },
     {
-      label: "Accounts Payable",
-      value: stats ? `₹${(stats.totalPayables / 1000).toFixed(1)}k` : "—",
+      label: "Total Expenses",
+      value: stats ? formatCurrency(current.expenses.total) : "—",
       icon: <DollarSign className="w-5 h-5" style={{ color: "#E53E3E" }} />,
       bg: "rgba(229,62,62,0.12)",
+      trend: expTrend,
     },
     {
       label: "Overall Rating",
-      value: stats ? `${stats.avgRating} / 5` : "—",
+      value: stats ? `${current.avgRating} / 5` : "—",
       icon: <Star className="w-5 h-5" style={{ color: "#F5A623" }} />,
       bg: "rgba(245,166,35,0.12)",
-      trend: undefined,
+      trend: ratingTrend,
     },
     {
-      label: "Active Reservations",
-      value: stats ? String(stats.checkedIn) : "—",
+      label: "Total Bookings",
+      value: stats ? String(current.bookings) : "—",
       icon: <Building2 className="w-5 h-5" style={{ color: "#1A3C5E" }} />,
       bg: "rgba(26,60,94,0.12)",
+      trend: bookingsTrend,
     },
     {
-      label: "Total Guests",
-      value: stats ? String(stats.totalGuests) : "—",
+      label: "Occupancy Rate",
+      value: stats ? `${current.occupancyRate}%` : "—",
       icon: <Users className="w-5 h-5" style={{ color: "#1A3C5E" }} />,
       bg: "rgba(26,60,94,0.12)",
+      trend: occupancyTrend,
     },
   ];
+
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(229,62,62,0.1)" }}>
+          <AlertTriangle className="w-8 h-8" style={{ color: "#E53E3E" }} />
+        </div>
+        <h2 className="text-lg font-bold mb-2" style={{ color: "#1A3C5E" }}>Dashboard Access Restricted</h2>
+        <p className="text-sm max-w-md mb-4" style={{ color: "#64748B" }}>
+          This unified operational dashboard is only accessible to Superadmin and Property Manager roles. Please use the sidebar to navigate to your assigned operational modules.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Dashboard</h1>
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Unified Executive Dashboard</h1>
+          <p className="text-xs text-slate-400 mt-0.5">Real-time revenue metrics, quality logs, and operational expenses</p>
+        </div>
         <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Live · refreshes every 30s</span>
         </div>
+      </div>
+
+      {/* Dynamic Date Filters Panel */}
+      <div className="bg-white rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4" style={{ border: "1px solid #E2E8F0" }}>
+        <div className="flex items-center gap-3">
+          <label className="text-xs font-bold uppercase tracking-wider" style={{ color: "#64748B" }}>Analysis Period:</label>
+          <select
+            value={period}
+            onChange={(e) => {
+              const val = e.target.value as any;
+              setPeriod(val);
+              if (val !== "custom") {
+                setCustomFilterActive(false);
+              }
+            }}
+            className="text-xs px-3 py-1.5 rounded-lg border outline-none font-medium"
+            style={{ borderColor: "#CBD5E1", color: "#1A3C5E", background: "#F8FAFC" }}
+          >
+            <option value="monthly">Monthly (This Month vs Last Month)</option>
+            <option value="quarterly">Quarterly (This Q vs Last Q)</option>
+            <option value="half_yearly">Half-Yearly (Last 6 Months)</option>
+            <option value="annually">Annually (This Year vs Last Year)</option>
+            <option value="custom">Custom Date Range (On Demand)</option>
+          </select>
+        </div>
+
+        {period === "custom" && (
+          <div className="flex flex-wrap items-center gap-3 animate-fade-in">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs" style={{ color: "#64748B" }}>From:</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="text-xs px-2.5 py-1.5 rounded-lg border outline-none font-medium"
+                style={{ borderColor: "#CBD5E1" }}
+              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs" style={{ color: "#64748B" }}>To:</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="text-xs px-2.5 py-1.5 rounded-lg border outline-none font-medium"
+                style={{ borderColor: "#CBD5E1" }}
+              />
+            </div>
+            <button
+              onClick={() => setCustomFilterActive(true)}
+              className="text-xs px-4 py-1.5 rounded-lg font-bold text-white transition-all hover:opacity-90"
+              style={{ background: "#2BAE8E" }}
+            >
+              Apply Filter
+            </button>
+          </div>
+        )}
       </div>
 
       {/* KPI Cards */}
@@ -324,97 +540,133 @@ export default function DashboardPage() {
 
       {/* Revenue Trend Chart */}
       <div className={card} style={cardStyle}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>Revenue Trend (Last 12 Months)</h2>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs" style={{ color: "#64748B" }}>
-              <span className="inline-block w-3 h-0.5 rounded" style={{ background: "#2BAE8E" }} /> Revenue
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div>
+            <h2 className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>Revenue vs Expenses Trend</h2>
+            <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Comparison of cash inflows and operational expenses</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: "#2BAE8E" }}>
+                <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#2BAE8E" }} /> Revenue
+              </div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: "#E53E3E" }}>
+                <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#E53E3E" }} /> Expenses
+              </div>
             </div>
-            <Link href="/dashboard/finance" className="text-xs hover:underline" style={{ color: "#2BAE8E" }}>
-              View Finance →
-            </Link>
+            
+            <div className="flex items-center gap-1.5 border-l pl-4" style={{ borderColor: "#E2E8F0" }}>
+              <input
+                type="checkbox"
+                id="smoothCurve"
+                checked={smoothCurve}
+                onChange={(e) => setSmoothCurve(e.target.checked)}
+                className="w-3.5 h-3.5 accent-[#2BAE8E] cursor-pointer"
+              />
+              <label htmlFor="smoothCurve" className="text-xs font-medium cursor-pointer" style={{ color: "#64748B" }}>
+                Smooth curve
+              </label>
+            </div>
           </div>
         </div>
-        {isLoading ? <Skeleton className="w-full h-40" /> : <LineChart data={stats?.chartData || []} />}
+        {isLoading ? <Skeleton className="w-full h-56" /> : <LineChart data={stats?.chartData || []} smooth={smoothCurve} />}
       </div>
 
-      {/* Bottom row */}
+      {/* Breakdown grids */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className={card} style={cardStyle}>
-          <h3 className="text-sm font-semibold mb-4" style={{ color: "#1A3C5E" }}>Reservations</h3>
-          <div className="flex flex-col items-center gap-4">
-            {isLoading
-              ? <Skeleton className="w-28 h-28 rounded-full" />
-              : <DonutChart pct={stats?.occupancyRate ?? 0} color="#2BAE8E" />
-            }
-            <div className="w-full space-y-2 text-xs">
-              {[
-                { label: "Checked In", color: "#2BAE8E", value: stats?.checkedIn },
-                { label: "Total Bookings", color: "#1A3C5E", value: stats?.totalBookings },
-              ].map(item => (
-                <div key={item.label} className="flex items-center justify-between" style={{ color: "#64748B" }}>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full" style={{ background: item.color }} />
-                    {item.label}
-                  </span>
-                  <span className="font-semibold" style={{ color: "#1A3C5E" }}>{isLoading ? "…" : item.value ?? 0}</span>
-                </div>
-              ))}
-            </div>
-            <Link href="/dashboard/front-desk" className="w-full text-center text-xs py-2 rounded-xl font-medium transition-all hover:opacity-85"
-              style={{ background: "rgba(43,174,142,0.10)", color: "#2BAE8E", border: "1px solid rgba(43,174,142,0.20)" }}>
-              Open Front Desk →
-            </Link>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: "#1A3C5E" }}>Operations Expenses</h3>
+          <p className="text-xs text-slate-400 mb-4">Functional cost breakdown for this period</p>
+          <div className="space-y-3">
+            {isLoading ? (
+              [...Array(5)].map((_, i) => <Skeleton key={i} className="h-10" />)
+            ) : (
+              [
+                { label: "Staff Salary", value: current.expenses.salary, color: "#1A3C5E" },
+                { label: "Property Maintenance", value: current.expenses.maintenance, color: "#F5A623" },
+                { label: "Software & Subscriptions", value: current.expenses.subscriptions, color: "#2BAE8E" },
+                { label: "Utilities & Rent", value: current.expenses.utilities, color: "#64748B" },
+                { label: "Other Expenses", value: current.expenses.other, color: "#94A3B8" },
+              ].map(e => {
+                const total = current.expenses.total || 1;
+                const pct = Math.round((e.value / total) * 100);
+                return (
+                  <div key={e.label} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs font-medium">
+                      <span style={{ color: "#475569" }}>{e.label}</span>
+                      <span style={{ color: "#1A3C5E" }}>{formatCurrency(e.value)} ({pct}%)</span>
+                    </div>
+                    <div className="h-2 rounded-full w-full bg-slate-100">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: e.color }} />
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
         <div className={card} style={cardStyle}>
-          <h3 className="text-sm font-semibold mb-4" style={{ color: "#1A3C5E" }}>Guests</h3>
-          <div className="flex flex-col items-center gap-4">
-            {isLoading
-              ? <Skeleton className="w-28 h-28 rounded-full" />
-              : <DonutChart pct={stats ? Math.min(Math.round((stats.checkedIn / Math.max(stats.totalGuests, 1)) * 100), 100) : 0} color="#4DB88A" />
-            }
-            <div className="w-full space-y-2 text-xs">
-              {[
-                { label: "Total Registered", color: "#1A3C5E", value: stats?.totalGuests },
-                { label: "Currently Staying", color: "#4DB88A", value: stats?.checkedIn },
-              ].map(item => (
-                <div key={item.label} className="flex items-center justify-between" style={{ color: "#64748B" }}>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full" style={{ background: item.color }} />
-                    {item.label}
-                  </span>
-                  <span className="font-semibold" style={{ color: "#1A3C5E" }}>{isLoading ? "…" : item.value ?? 0}</span>
-                </div>
-              ))}
-            </div>
-            <Link href="/dashboard/front-desk/guests" className="w-full text-center text-xs py-2 rounded-xl font-medium transition-all hover:opacity-85"
-              style={{ background: "rgba(26,60,94,0.08)", color: "#1A3C5E", border: "1px solid rgba(26,60,94,0.15)" }}>
-              Guest Profiles →
-            </Link>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: "#1A3C5E" }}>Booking Channels</h3>
+          <p className="text-xs text-slate-400 mb-4">Traffic source split for active reservations</p>
+          <div className="space-y-3">
+            {isLoading ? (
+              [...Array(3)].map((_, i) => <Skeleton key={i} className="h-12" />)
+            ) : (
+              [
+                { label: "Channel Partners (OTAs)", value: current.channels.channelPartners, color: "#2BAE8E" },
+                { label: "Direct (Website/Social)", value: current.channels.direct, color: "#1A3C5E" },
+                { label: "Walk-ins (Direct Counter)", value: current.channels.walkins, color: "#F5A623" },
+              ].map(ch => {
+                const total = (current.channels.channelPartners + current.channels.direct + current.channels.walkins) || 1;
+                const pct = Math.round((ch.value / total) * 100);
+                return (
+                  <div key={ch.label} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs font-medium">
+                      <span style={{ color: "#475569" }}>{ch.label}</span>
+                      <span style={{ color: "#1A3C5E" }}>{ch.value} ({pct}%)</span>
+                    </div>
+                    <div className="h-2 rounded-full w-full bg-slate-100">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: ch.color }} />
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
         <div className={card} style={cardStyle}>
-          <h3 className="text-sm font-semibold mb-4" style={{ color: "#1A3C5E" }}>Quick Actions</h3>
-          <div className="space-y-2">
-            {[
-              { label: "Front Desk", desc: "Check-ins & room matrix", href: "/dashboard/front-desk", bg: "linear-gradient(135deg, #1A3C5E 0%, #2C3547 100%)" },
-              { label: "Housekeeping Board", desc: "Task allocation", href: "/dashboard/housekeeping", bg: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" },
-              { label: "Maintenance Tickets", desc: "Active repairs", href: "/dashboard/maintenance", bg: "#F5A623", color: "#1A2E44" },
-              { label: "Finance & Billing", desc: "Invoices & GL", href: "/dashboard/finance", bg: "linear-gradient(135deg, #1A3C5E 0%, #2C3547 100%)" },
-            ].map(a => (
-              <a key={a.label} href={a.href} className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all hover:opacity-85 hover:-translate-y-0.5"
-                style={{ background: a.bg, color: a.color || "#fff" }}>
-                <span>{a.label}</span>
-                <div className="flex items-center gap-1">
-                  <span className="opacity-70 font-normal">{a.desc}</span>
-                  <ArrowUpRight className="w-3 h-3 opacity-60" />
+          <h3 className="text-sm font-semibold mb-1" style={{ color: "#1A3C5E" }}>Quality & Reviews</h3>
+          <p className="text-xs text-slate-400 mb-4">Guest feedback performance ratings</p>
+          {isLoading ? (
+            <Skeleton className="h-40" />
+          ) : (
+            <div className="flex flex-col items-center gap-4 py-1">
+              <div className="text-center">
+                <div className="text-4xl font-extrabold" style={{ color: "#1A3C5E" }}>{current.avgRating.toFixed(1)} <span className="text-lg font-bold text-slate-400">/ 5.0</span></div>
+                <div className="text-xs font-semibold uppercase tracking-wider mt-1 text-slate-400">Average Rating</div>
+              </div>
+              
+              <div className="w-full space-y-2">
+                <div className="flex items-center justify-between text-xs font-medium">
+                  <span style={{ color: "#475569" }}>Positive Review Rate</span>
+                  <span style={{ color: "#2BAE8E" }}>{current.positiveRatingPct}%</span>
                 </div>
-              </a>
-            ))}
-          </div>
+                <div className="h-2.5 rounded-full w-full bg-slate-100">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${current.positiveRatingPct}%`, background: "#2BAE8E" }} />
+                </div>
+                <p className="text-[10px] text-center text-slate-400 mt-2">
+                  Positive ratings include 4-star and 5-star reviews
+                </p>
+              </div>
+
+              <Link href="/dashboard/front-desk/feedbacks" className="w-full text-center text-xs py-2 rounded-xl font-medium transition-all hover:opacity-85"
+                style={{ background: "rgba(26,60,94,0.08)", color: "#1A3C5E", border: "1px solid rgba(26,60,94,0.15)" }}>
+                View Reviews & Feedbacks →
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

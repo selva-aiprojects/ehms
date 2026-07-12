@@ -2,19 +2,41 @@ import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-export function useStats(propertyId?: string) {
-  const url = propertyId ? `/api/dashboard/stats?property_id=${propertyId}` : "/api/dashboard/stats";
-  const { data, error, isLoading, mutate } = useSWR(url, fetcher, { refreshInterval: 30000 });
+export function useStats(propertyId?: string, filters?: { period?: string; start_date?: string; end_date?: string }) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (filters?.period) params.set("period", filters.period);
+  if (filters?.start_date) params.set("start_date", filters.start_date);
+  if (filters?.end_date) params.set("end_date", filters.end_date);
+
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/stats?${params.toString()}`, fetcher, { refreshInterval: 30000 });
   return {
     stats: data as {
-      totalBookings: number;
-      checkedIn: number;
-      totalGuests: number;
-      totalRevenue: number;
-      totalPayables: number;
-      avgRating: number;
-      occupancyRate: number;
-      chartData: { month: string; revenue: number }[];
+      current: {
+        bookings: number;
+        checkedIn: number;
+        guests: number;
+        revenue: number;
+        payables: number;
+        avgRating: number;
+        occupancyRate: number;
+        expenses: { salary: number; maintenance: number; subscriptions: number; utilities: number; other: number; total: number };
+        channels: { channelPartners: number; direct: number; walkins: number };
+        positiveRatingPct: number;
+      };
+      previous: {
+        bookings: number;
+        checkedIn: number;
+        guests: number;
+        revenue: number;
+        payables: number;
+        avgRating: number;
+        occupancyRate: number;
+        expenses: { salary: number; maintenance: number; subscriptions: number; utilities: number; other: number; total: number };
+        channels: { channelPartners: number; direct: number; walkins: number };
+        positiveRatingPct: number;
+      };
+      chartData: { label: string; revenue: number; expenses: number }[];
     } | undefined,
     isLoading,
     isError: !!error,
