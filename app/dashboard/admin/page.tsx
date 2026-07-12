@@ -70,9 +70,9 @@ export default function AdminPage() {
   });
   const [newUserLoading, setNewUserLoading] = useState(false);
 
-  const displayUsers = (users && (users as any[]).length > 0) ? (users as any[]) : SYSTEM_USERS;
-  const displayLogs = (logs && (logs as any[]).length > 0) ? (logs as any[]) : AUDIT_LOGS;
-  const displayCompliance = (records && (records as any[]).length > 0) ? (records as any[]) : COMPLIANCE_ITEMS;
+  const displayUsers = (users as any[]) || [];
+  const displayLogs = (logs as any[]) || [];
+  const displayCompliance = (records as any[]) || [];
   const isLoadingDisplay = (loadingUsers || loadingLogs || loadingRecords) && !users && !logs;
 
   useEffect(() => {
@@ -222,6 +222,8 @@ export default function AdminPage() {
               <CardHeader title="Compliance Vault" subtitle={`${validCompliance}/${displayCompliance.length} valid`} />
               {isLoadingDisplay && !displayCompliance.length ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonLine key={i} />)}</div>
+              ) : displayCompliance.length === 0 ? (
+                <div className="text-center py-6 text-xs text-slate-400">No compliance records registered</div>
               ) : (
                 <div className="space-y-2 text-sm">
                   {displayCompliance.slice(0, 5).map((c: any, i: number) => {
@@ -241,6 +243,8 @@ export default function AdminPage() {
               <CardHeader title="Audit Log" subtitle="Recent activity" />
               {isLoadingDisplay ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonLine key={i} />)}</div>
+              ) : displayLogs.length === 0 ? (
+                <div className="text-center py-6 text-xs text-slate-400">No recent audit logs</div>
               ) : (
                 <div className="space-y-2 text-xs max-h-48 overflow-y-auto">
                   {displayLogs.slice(0, 5).map((a: any, i: number) => {

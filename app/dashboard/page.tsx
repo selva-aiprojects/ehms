@@ -262,13 +262,19 @@ export default function DashboardPage() {
   const pendingReqs = overview?.issues?.find(i => i.category === "Other")?.count ?? 0;
   const pendingBills = overview?.issues?.find(i => i.category === "Vendor")?.count ?? 0;
 
+  const lastMonthRev = stats?.chartData?.[10]?.revenue ?? 0;
+  const thisMonthRev = stats?.chartData?.[11]?.revenue ?? 0;
+  const revTrend = lastMonthRev > 0
+    ? { pct: Math.round(((thisMonthRev - lastMonthRev) / lastMonthRev) * 100), label: "vs last month" }
+    : (thisMonthRev > 0 ? { pct: 100, label: "vs last month" } : undefined);
+
   const kpiCards = [
     {
       label: "Total Revenue",
       value: stats ? `₹${(stats.totalRevenue / 1000).toFixed(1)}k` : "—",
       icon: <IndianRupee className="w-5 h-5" style={{ color: "#2BAE8E" }} />,
       bg: "rgba(43,174,142,0.12)",
-      trend: stats?.totalRevenue ? { pct: 12, label: "vs last month" } : undefined,
+      trend: revTrend,
     },
     {
       label: "Accounts Payable",
@@ -281,7 +287,7 @@ export default function DashboardPage() {
       value: stats ? `${stats.avgRating} / 5` : "—",
       icon: <Star className="w-5 h-5" style={{ color: "#F5A623" }} />,
       bg: "rgba(245,166,35,0.12)",
-      trend: stats?.avgRating ? { pct: 4, label: "vs last month" } : undefined,
+      trend: undefined,
     },
     {
       label: "Active Reservations",

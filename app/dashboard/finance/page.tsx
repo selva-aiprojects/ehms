@@ -37,8 +37,8 @@ export default function FinancePage() {
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const { finance, isLoading, isError, mutate } = useFinance();
 
-  const invoices = (finance?.invoices && Array.isArray(finance.invoices) && finance.invoices.length > 0) ? (finance.invoices as any[]) : (isLoading ? [] : MOCK_INVOICES);
-  const mtdRevenue = finance?.mtdRevenue ? Number(finance.mtdRevenue) : (finance?.totalRevenue ? Number(finance.totalRevenue) : 4820000);
+  const invoices = (finance?.invoices && Array.isArray(finance.invoices)) ? (finance.invoices as any[]) : [];
+  const mtdRevenue = finance?.mtdRevenue !== undefined ? Number(finance.mtdRevenue) : 0;
   const isLoadingDisplay = isLoading && !finance;
 
   useEffect(() => {
@@ -61,25 +61,25 @@ export default function FinancePage() {
 
   const vendorPayouts = finance?.totalVendorPayouts !== undefined
     ? Number(finance.totalVendorPayouts)
-    : (finance?.totalVendorBills !== undefined ? Number(finance.totalVendorBills) : 1250000);
+    : (finance?.totalVendorBills !== undefined ? Number(finance.totalVendorBills) : 0);
 
   const paidCount = invoices.filter((i: any) => i.status === "paid").length;
   const totalCount = invoices.length;
   const reconciledPct = totalCount > 0 ? Math.round((paidCount / totalCount) * 100) : 0;
 
   const revenueItems = [
-    { label: "Room Revenue", amount: mtdRevenue * 0.52 || 2850000 },
-    { label: "F&B", amount: mtdRevenue * 0.25 || 820000 },
-    { label: "Banquet", amount: mtdRevenue * 0.15 || 350000 },
-    { label: "Other Services", amount: mtdRevenue * 0.08 || 180000 },
+    { label: "Room Revenue", amount: mtdRevenue * 0.52 },
+    { label: "F&B", amount: mtdRevenue * 0.25 },
+    { label: "Banquet", amount: mtdRevenue * 0.15 },
+    { label: "Other Services", amount: mtdRevenue * 0.08 },
   ];
   const totalRevenue = revenueItems.reduce((s, r) => s + r.amount, 0);
 
   const expenseItems = [
-    { label: "Staff Salaries", amount: vendorPayouts * 0.45 || 1250000 },
-    { label: "Vendor Services", amount: vendorPayouts * 0.30 || 580000 },
-    { label: "Utilities", amount: vendorPayouts * 0.15 || 240000 },
-    { label: "Maintenance", amount: vendorPayouts * 0.10 || 190000 },
+    { label: "Staff Salaries", amount: vendorPayouts * 0.45 },
+    { label: "Vendor Services", amount: vendorPayouts * 0.30 },
+    { label: "Utilities", amount: vendorPayouts * 0.15 },
+    { label: "Maintenance", amount: vendorPayouts * 0.10 },
   ];
   const totalExpenses = expenseItems.reduce((s, r) => s + r.amount, 0);
   const netProfit = totalRevenue - totalExpenses;
@@ -93,14 +93,7 @@ export default function FinancePage() {
         const actual = mEntries.reduce((s: number, b: any) => s + Number(b.actual_amount || 0), 0);
         return { month, budget, actual };
       })
-    : [
-        { month: "Jan", budget: 4200000, actual: 3850000 },
-        { month: "Feb", budget: 4300000, actual: 4100000 },
-        { month: "Mar", budget: 4500000, actual: 4680000 },
-        { month: "Apr", budget: 4600000, actual: 4450000 },
-        { month: "May", budget: 4700000, actual: 4920000 },
-        { month: "Jun", budget: 4800000, actual: 4820000 },
-      ];
+    : monthNames.map(month => ({ month, budget: 0, actual: 0 }));
 
   const methodBreakdown = finance?.byMethod && Object.keys(finance.byMethod).length > 0
     ? Object.entries(finance.byMethod).map(([method, amount], idx) => {
@@ -115,53 +108,41 @@ export default function FinancePage() {
           color: colors[idx % colors.length],
         };
       })
-    : [
-        { method: "Card Payments", amount: "\u20B924.5L", pct: "51%", color: "#1A3C5E" },
-        { method: "UPI / Wallet", amount: "\u20B914.2L", pct: "29%", color: "#2BAE8E" },
-        { method: "Bank Transfer", amount: "\u20B96.8L", pct: "14%", color: "#F5A623" },
-        { method: "Cash / POS", amount: "\u20B92.7L", pct: "6%", color: "#64748B" },
-      ];
+    : [];
 
   const cashFlowItems = [
     { category: "Operating Activities", items: [
-      { label: "Rent & Room Revenue", amount: 3850000 },
-      { label: "F&B Revenue", amount: 820000 },
-      { label: "Other Income", amount: 350000 },
+      { label: "Rent & Room Revenue", amount: totalRevenue * 0.70 },
+      { label: "F&B Revenue", amount: totalRevenue * 0.15 },
+      { label: "Other Income", amount: totalRevenue * 0.15 },
     ] },
     { category: "Investing Activities", items: [
-      { label: "Equipment Purchase", amount: -450000 },
-      { label: "Renovation", amount: -1200000 },
+      { label: "Equipment Purchase", amount: totalRevenue > 0 ? -450000 : 0 },
+      { label: "Renovation", amount: totalRevenue > 0 ? -1200000 : 0 },
     ] },
     { category: "Financing Activities", items: [
-      { label: "Loan Repayment", amount: -600000 },
-      { label: "Interest Income", amount: 85000 },
+      { label: "Loan Repayment", amount: totalRevenue > 0 ? -600000 : 0 },
+      { label: "Interest Income", amount: totalRevenue > 0 ? 85000 : 0 },
     ] },
   ];
 
   const taxQuarters = [
-    { quarter: "Q1 (Jan-Mar)", gst: 385000, incomeTax: 520000, deadline: "20 Apr 2026", status: "paid" as const },
-    { quarter: "Q2 (Apr-Jun)", gst: 412000, incomeTax: 480000, deadline: "20 Jul 2026", status: "pending" as const },
-    { quarter: "Q3 (Jul-Sep)", gst: 440000, incomeTax: 510000, deadline: "20 Oct 2026", status: "upcoming" as const },
-    { quarter: "Q4 (Oct-Dec)", gst: 460000, incomeTax: 540000, deadline: "20 Jan 2027", status: "upcoming" as const },
+    { quarter: "Q1 (Jan-Mar)", gst: totalRevenue > 0 ? 385000 : 0, incomeTax: totalRevenue > 0 ? 520000 : 0, deadline: "20 Apr 2026", status: totalRevenue > 0 ? ("paid" as const) : ("upcoming" as const) },
+    { quarter: "Q2 (Apr-Jun)", gst: totalRevenue > 0 ? 412000 : 0, incomeTax: totalRevenue > 0 ? 480000 : 0, deadline: "20 Jul 2026", status: "pending" as const },
+    { quarter: "Q3 (Jul-Sep)", gst: totalRevenue > 0 ? 440000 : 0, incomeTax: totalRevenue > 0 ? 510000 : 0, deadline: "20 Oct 2026", status: "upcoming" as const },
+    { quarter: "Q4 (Oct-Dec)", gst: totalRevenue > 0 ? 460000 : 0, incomeTax: totalRevenue > 0 ? 540000 : 0, deadline: "20 Jan 2027", status: "upcoming" as const },
   ];
 
-  const yoyData = [
+  const yoyData = totalRevenue > 0 ? [
     { month: "Jan", thisYear: 3850000, lastYear: 3200000 },
     { month: "Feb", thisYear: 4100000, lastYear: 3450000 },
     { month: "Mar", thisYear: 4680000, lastYear: 3800000 },
     { month: "Apr", thisYear: 4450000, lastYear: 3900000 },
     { month: "May", thisYear: 4920000, lastYear: 4050000 },
     { month: "Jun", thisYear: 4820000, lastYear: 3950000 },
-  ];
+  ] : monthNames.map(month => ({ month, thisYear: 0, lastYear: 0 }));
 
-  const reconciledTxns = [
-    { date: "15 Jun 2026", description: "Razorpay Settlement - Jun 14", amount: 142500, account: "Razorpay", status: "matched" as const },
-    { date: "14 Jun 2026", description: "HDFC Transfer - Acme Corp Inv", amount: 120000, account: "HDFC Corp", status: "matched" as const },
-    { date: "13 Jun 2026", description: "POS Batch Settlement TERM-001", amount: 38500, account: "POS Terminal", status: "matched" as const },
-    { date: "12 Jun 2026", description: "UPI Collection - Rajesh Kumar", amount: 32250, account: "Razorpay", status: "pending" as const },
-    { date: "11 Jun 2026", description: "Refund - Event Cancellation", amount: -25000, account: "HDFC Corp", status: "matched" as const },
-    { date: "10 Jun 2026", description: "ICICI Salary Disbursement", amount: -1250000, account: "ICICI Payroll", status: "matched" as const },
-  ];
+  const recentPayments = finance?.recentPayments || [];
 
   return (
     <div className="space-y-6">
@@ -303,18 +284,24 @@ export default function FinancePage() {
         <Card>
           <CardHeader title="Bank Reconciliation" subtitle="Last sync: 6:00 AM" />
           <div className="space-y-3">
-            {MOCK_BANKS.map((b, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-                <div className="text-sm" style={{ color: "#1A2E44" }}>{b.bank}</div>
-                <Badge variant={b.v}>{b.status}</Badge>
-              </div>
-            ))}
+            {invoices.length === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-400 font-medium">No bank accounts linked yet</div>
+            ) : (
+              MOCK_BANKS.map((b, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                  <div className="text-sm" style={{ color: "#1A2E44" }}>{b.bank}</div>
+                  <Badge variant={b.v}>{b.status}</Badge>
+                </div>
+              ))
+            )}
           </div>
-          <div className="mt-4 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-            <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
-              Run Reconciliation
-            </button>
-          </div>
+          {invoices.length > 0 && (
+            <div className="mt-4 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
+              <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+                Run Reconciliation
+              </button>
+            </div>
+          )}
         </Card>
       </div>
 
@@ -367,191 +354,227 @@ export default function FinancePage() {
 
       <Card>
         <CardHeader title="Revenue Breakdown by Method" subtitle="This month" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          {methodBreakdown.map((m: any) => (
-            <div key={m.method} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <div className="text-lg font-bold" style={{ color: m.color }}>{m.amount}</div>
-              <div className="text-xs" style={{ color: "#64748B" }}>{m.method}</div>
-              <div className="text-[10px] mt-0.5" style={{ color: m.color }}>{m.pct} share</div>
-            </div>
-          ))}
-        </div>
+        {methodBreakdown.length === 0 ? (
+          <div className="text-center py-6 text-xs text-slate-400">No revenue transactions recorded this month</div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            {methodBreakdown.map((m: any) => (
+              <div key={m.method} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                <div className="text-lg font-bold" style={{ color: m.color }}>{m.amount}</div>
+                <div className="text-xs" style={{ color: "#64748B" }}>{m.method}</div>
+                <div className="text-[10px] mt-0.5" style={{ color: m.color }}>{m.pct} share</div>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       <Card>
         <CardHeader title="Budget vs Actual" subtitle="Monthly comparison - FY 2026" />
-        <div className="space-y-3">
-          {budgetVsActual.map((m) => {
-            const variance = ((m.actual - m.budget) / m.budget) * 100;
-            const maxVal = Math.max(m.budget, m.actual) * 1.3;
-            return (
-              <div key={m.month} className="text-sm">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium" style={{ color: "#1A2E44" }}>{m.month}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs" style={{ color: "#64748B" }}>B: {formatCurrency(m.budget)}</span>
-                    <span className="text-xs" style={{ color: "#2BAE8E" }}>A: {formatCurrency(m.actual)}</span>
-                    <span className={`text-xs font-medium ${variance >= 0 ? "text-green-600" : "text-red-500"}`}>
-                      {variance >= 0 ? "+" : ""}{variance.toFixed(1)}%
-                    </span>
+        {invoices.length === 0 ? (
+          <div className="text-center py-6 text-xs text-slate-400">No budget profiles defined for this property</div>
+        ) : (
+          <div className="space-y-3">
+            {budgetVsActual.map((m) => {
+              const variance = m.budget > 0 ? ((m.actual - m.budget) / m.budget) * 100 : 0;
+              const maxVal = Math.max(m.budget, m.actual) * 1.3 || 1;
+              return (
+                <div key={m.month} className="text-sm">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium" style={{ color: "#1A2E44" }}>{m.month}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs" style={{ color: "#64748B" }}>B: {formatCurrency(m.budget)}</span>
+                      <span className="text-xs" style={{ color: "#2BAE8E" }}>A: {formatCurrency(m.actual)}</span>
+                      <span className={`text-xs font-medium ${variance >= 0 ? "text-green-600" : "text-red-500"}`}>
+                        {variance >= 0 ? "+" : ""}{variance.toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1 items-center h-5">
+                    <div className="flex-1 h-2 rounded-full" style={{ background: "#E2E8F0", position: "relative" }}>
+                      <div className="absolute h-full rounded-full" style={{ width: `${(m.budget / maxVal) * 100}%`, background: "#94A3B8", opacity: 0.6 }} />
+                    </div>
+                    <div className="flex-1 h-2 rounded-full" style={{ background: "#E2E8F0", position: "relative" }}>
+                      <div className="absolute h-full rounded-full" style={{ width: `${(m.actual / maxVal) * 100}%`, background: variance >= 0 ? "#2BAE8E" : "#E53E3E" }} />
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-[10px]" style={{ color: "#94A3B8" }}>
+                    <span>Budget</span>
+                    <span>Actual</span>
                   </div>
                 </div>
-                <div className="flex gap-1 items-center h-5">
-                  <div className="flex-1 h-2 rounded-full" style={{ background: "#E2E8F0", position: "relative" }}>
-                    <div className="absolute h-full rounded-full" style={{ width: `${(m.budget / maxVal) * 100}%`, background: "#94A3B8", opacity: 0.6 }} />
-                  </div>
-                  <div className="flex-1 h-2 rounded-full" style={{ background: "#E2E8F0", position: "relative" }}>
-                    <div className="absolute h-full rounded-full" style={{ width: `${(m.actual / maxVal) * 100}%`, background: variance >= 0 ? "#2BAE8E" : "#E53E3E" }} />
-                  </div>
-                </div>
-                <div className="flex justify-between text-[10px]" style={{ color: "#94A3B8" }}>
-                  <span>Budget</span>
-                  <span>Actual</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </Card>
 
       <Card>
         <CardHeader title="Cash Flow Summary" subtitle="June 2026" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {cashFlowItems.map((group) => {
-            const total = group.items.reduce((s, i) => s + i.amount, 0);
-            return (
-              <div key={group.category} className="p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
-                <h4 className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#64748B" }}>{group.category}</h4>
-                <div className="space-y-1.5">
-                  {group.items.map((item) => (
-                    <div key={item.label} className="flex items-center justify-between text-sm">
-                      <span style={{ color: "#1A2E44" }}>{item.label}</span>
-                      <span className={`font-medium ${item.amount >= 0 ? "" : ""}`} style={{ color: item.amount >= 0 ? "#2BAE8E" : "#E53E3E" }}>
-                        {item.amount >= 0 ? "+" : ""}{formatCurrency(Math.abs(item.amount))}
-                      </span>
+        {invoices.length === 0 ? (
+          <div className="text-center py-6 text-xs text-slate-400">No cash flow transactions recorded yet</div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {cashFlowItems.map((group) => {
+                const total = group.items.reduce((s, i) => s + i.amount, 0);
+                return (
+                  <div key={group.category} className="p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
+                    <h4 className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#64748B" }}>{group.category}</h4>
+                    <div className="space-y-1.5">
+                      {group.items.map((item) => (
+                        <div key={item.label} className="flex items-center justify-between text-sm">
+                          <span style={{ color: "#1A2E44" }}>{item.label}</span>
+                          <span className={`font-medium`} style={{ color: item.amount >= 0 ? "#2BAE8E" : "#E53E3E" }}>
+                            {item.amount >= 0 ? "+" : ""}{formatCurrency(Math.abs(item.amount))}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                <div className="mt-2 pt-2 flex items-center justify-between text-sm font-semibold" style={{ borderTop: "1px solid #E2E8F0", color: "#1A3C5E" }}>
-                  <span>Net</span>
-                  <span style={{ color: total >= 0 ? "#2BAE8E" : "#E53E3E" }}>{total >= 0 ? "+" : ""}{formatCurrency(Math.abs(total))}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="mt-4 pt-3 flex items-center justify-between text-sm" style={{ borderTop: "1px solid #E2E8F0" }}>
-          <span className="font-semibold" style={{ color: "#1A3C5E" }}>Net Cash Flow</span>
-          <span className="font-bold text-lg" style={{ color: "#2BAE8E" }}>+{formatCurrency(3850000 + 820000 + 350000 - 450000 - 1200000 - 600000 + 85000)}</span>
-        </div>
+                    <div className="mt-2 pt-2 flex items-center justify-between text-sm font-semibold" style={{ borderTop: "1px solid #E2E8F0", color: "#1A3C5E" }}>
+                      <span>Net</span>
+                      <span style={{ color: total >= 0 ? "#2BAE8E" : "#E53E3E" }}>{total >= 0 ? "+" : ""}{formatCurrency(Math.abs(total))}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-4 pt-3 flex items-center justify-between text-sm" style={{ borderTop: "1px solid #E2E8F0" }}>
+              <span className="font-semibold" style={{ color: "#1A3C5E" }}>Net Cash Flow</span>
+              <span className="font-bold text-lg" style={{ color: "#2BAE8E" }}>+{formatCurrency(cashFlowItems.reduce((acc, group) => acc + group.items.reduce((s, i) => s + i.amount, 0), 0))}</span>
+            </div>
+          </>
+        )}
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader title="Tax Summary" subtitle="Quarterly GST & Income Tax" />
-          <div className="space-y-3">
-            {taxQuarters.map((q) => {
-              const badgeVariant = q.status === "paid" ? "teal" as const : q.status === "pending" ? "amber" as const : "gray" as const;
-              return (
-                <div key={q.quarter} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>{q.quarter}</span>
-                    <Badge variant={badgeVariant}>{q.status}</Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="p-2 rounded" style={{ background: "rgba(42,157,143,0.08)" }}>
-                      <span style={{ color: "#64748B" }}>GST</span>
-                      <div className="font-semibold" style={{ color: "#2BAE8E" }}>{'\u20B9'}{q.gst.toLocaleString()}</div>
+          {invoices.length === 0 ? (
+            <div className="text-center py-6 text-xs text-slate-400">No tax filings recorded yet</div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {taxQuarters.map((q) => {
+                  const badgeVariant = q.status === "paid" ? "teal" as const : q.status === "pending" ? "amber" as const : "gray" as const;
+                  return (
+                    <div key={q.quarter} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>{q.quarter}</span>
+                        <Badge variant={badgeVariant}>{q.status}</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="p-2 rounded" style={{ background: "rgba(42,157,143,0.08)" }}>
+                          <span style={{ color: "#64748B" }}>GST</span>
+                          <div className="font-semibold" style={{ color: "#2BAE8E" }}>{'\u20B9'}{q.gst.toLocaleString()}</div>
+                        </div>
+                        <div className="p-2 rounded" style={{ background: "rgba(26,60,94,0.08)" }}>
+                          <span style={{ color: "#64748B" }}>Income Tax</span>
+                          <div className="font-semibold" style={{ color: "#1A3C5E" }}>{'\u20B9'}{q.incomeTax.toLocaleString()}</div>
+                        </div>
+                      </div>
+                      <div className="mt-1.5 text-[10px] flex items-center gap-1" style={{ color: "#94A3B8" }}>
+                        <CalendarDays className="w-3 h-3" /> Due: {q.deadline}
+                      </div>
                     </div>
-                    <div className="p-2 rounded" style={{ background: "rgba(26,60,94,0.08)" }}>
-                      <span style={{ color: "#64748B" }}>Income Tax</span>
-                      <div className="font-semibold" style={{ color: "#1A3C5E" }}>{'\u20B9'}{q.incomeTax.toLocaleString()}</div>
-                    </div>
-                  </div>
-                  <div className="mt-1.5 text-[10px] flex items-center gap-1" style={{ color: "#94A3B8" }}>
-                    <CalendarDays className="w-3 h-3" /> Due: {q.deadline}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-            <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
-              View Tax Filing Dashboard
-            </button>
-          </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
+                <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+                  View Tax Filing Dashboard
+                </button>
+              </div>
+            </>
+          )}
         </Card>
 
         <Card>
           <CardHeader title="Year-over-Year Comparison" subtitle="2026 vs 2025 Revenue" />
-          <div className="space-y-3">
-            {yoyData.map((m) => {
-              const growth = ((m.thisYear - m.lastYear) / m.lastYear) * 100;
-              const maxVal = Math.max(m.thisYear, m.lastYear) * 1.2;
-              return (
-                <div key={m.month} className="text-sm">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium" style={{ color: "#1A2E44" }}>{m.month}</span>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs ${growth >= 0 ? "text-green-600" : "text-red-500"}`}>
-                        {growth >= 0 ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
-                        {" "}{growth >= 0 ? "+" : ""}{growth.toFixed(1)}%
-                      </span>
+          {invoices.length === 0 ? (
+            <div className="text-center py-6 text-xs text-slate-400">No comparative historical data available</div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {yoyData.map((m) => {
+                  const growth = m.lastYear > 0 ? ((m.thisYear - m.lastYear) / m.lastYear) * 100 : 0;
+                  const maxVal = Math.max(m.thisYear, m.lastYear) * 1.2 || 1;
+                  return (
+                    <div key={m.month} className="text-sm">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium" style={{ color: "#1A2E44" }}>{m.month}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs ${growth >= 0 ? "text-green-600" : "text-red-500"}`}>
+                            {growth >= 0 ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
+                            {" "}{growth >= 0 ? "+" : ""}{growth.toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex gap-0.5 items-end h-6">
+                        <div className="flex-1 flex flex-col items-center">
+                          <div className="text-[9px]" style={{ color: "#94A3B8" }}>{formatCurrency(m.lastYear)}</div>
+                          <div className="w-full rounded-t-sm" style={{ height: `${(m.lastYear / maxVal) * 100}%`, background: "#CBD5E1", maxHeight: "24px", minHeight: "4px" }} />
+                        </div>
+                        <div className="flex-1 flex flex-col items-center">
+                          <div className="text-[9px]" style={{ color: "#2BAE8E" }}>{formatCurrency(m.thisYear)}</div>
+                          <div className="w-full rounded-t-sm" style={{ height: `${(m.thisYear / maxVal) * 100}%`, background: "#2BAE8E", maxHeight: "24px", minHeight: "4px" }} />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-0.5 items-end h-6">
-                    <div className="flex-1 flex flex-col items-center">
-                      <div className="text-[9px]" style={{ color: "#94A3B8" }}>{formatCurrency(m.lastYear)}</div>
-                      <div className="w-full rounded-t-sm" style={{ height: `${(m.lastYear / maxVal) * 100}%`, background: "#CBD5E1", maxHeight: "24px", minHeight: "4px" }} />
-                    </div>
-                    <div className="flex-1 flex flex-col items-center">
-                      <div className="text-[9px]" style={{ color: "#2BAE8E" }}>{formatCurrency(m.thisYear)}</div>
-                      <div className="w-full rounded-t-sm" style={{ height: `${(m.thisYear / maxVal) * 100}%`, background: "#2BAE8E", maxHeight: "24px", minHeight: "4px" }} />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-3 pt-3 flex items-center justify-center gap-4 text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#CBD5E1" }} /> 2025</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#2BAE8E" }} /> 2026</span>
-          </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3 pt-3 flex items-center justify-center gap-4 text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#CBD5E1" }} /> 2025</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#2BAE8E" }} /> 2026</span>
+              </div>
+            </>
+          )}
         </Card>
       </div>
 
       <Card>
         <CardHeader title="Recently Reconciled Transactions" subtitle="Last 6 transactions" />
-        <div className="space-y-2">
-          {reconciledTxns.map((txn, i) => (
-            <div key={i} className="flex items-center justify-between py-2.5 text-sm" style={{ borderBottom: i < reconciledTxns.length - 1 ? "1px solid #E2E8F0" : "none" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: txn.amount >= 0 ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.1)" }}>
-                  {txn.amount >= 0 ? <ArrowUpRight className="w-4 h-4" style={{ color: "#2BAE8E" }} /> : <ArrowDownRight className="w-4 h-4" style={{ color: "#E53E3E" }} />}
-                </div>
-                <div>
-                  <div className="font-medium" style={{ color: "#1A2E44" }}>{txn.description}</div>
-                  <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
-                    <span>{txn.date}</span>
-                    <span>\u00B7</span>
-                    <span>{txn.account}</span>
+        {recentPayments.length === 0 ? (
+          <div className="text-center py-6 text-xs text-slate-400">No recently matched payments found</div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              {recentPayments.slice(0, 6).map((txn: any, i: number) => {
+                const isPositive = Number(txn.amount) >= 0;
+                const timeStr = txn.payment_date ? new Date(txn.payment_date).toLocaleDateString("en-IN") : "—";
+                return (
+                  <div key={txn.id || i} className="flex items-center justify-between py-2.5 text-sm" style={{ borderBottom: i < recentPayments.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: isPositive ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.1)" }}>
+                        {isPositive ? <ArrowUpRight className="w-4 h-4" style={{ color: "#2BAE8E" }} /> : <ArrowDownRight className="w-4 h-4" style={{ color: "#E53E3E" }} />}
+                      </div>
+                      <div>
+                        <div className="font-medium" style={{ color: "#1A2E44" }}>Payment for Invoice #{txn.invoice_number || "—"}</div>
+                        <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+                          <span>{timeStr}</span>
+                          <span>&middot;</span>
+                          <span>{txn.payment_method || "Other"}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`font-medium`} style={{ color: isPositive ? "#1A3C5E" : "#E53E3E" }}>
+                        {isPositive ? "+" : ""}&#8377;{Math.abs(Number(txn.amount)).toLocaleString()}
+                      </span>
+                      <Badge variant="teal">{txn.status || "completed"}</Badge>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`font-medium ${txn.amount >= 0 ? "" : "text-red-500"}`} style={{ color: txn.amount >= 0 ? "#1A3C5E" : "#E53E3E" }}>
-                  {txn.amount >= 0 ? "+" : ""}{'\u20B9'}{Math.abs(txn.amount).toLocaleString()}
-                </span>
-                <Badge variant={txn.status === "matched" ? "teal" : "amber"}>{txn.status}</Badge>
-              </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
-        <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-          <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
-            View All Transactions
-          </button>
-        </div>
+            <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
+              <Link href="/dashboard/finance/receivables" className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+                View All Transactions
+              </Link>
+            </div>
+          </>
+        )}
       </Card>
     </div>
   );

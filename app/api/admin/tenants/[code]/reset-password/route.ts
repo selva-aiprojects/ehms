@@ -34,6 +34,7 @@ export async function POST(
     const schema = tenantRow.schema_name as string;
     const tenantName = tenantRow.name as string;
     const config = (tenantRow.config as Record<string, unknown>) || {};
+    const workspaces = config.workspaces as { type: string; name: string; is_primary?: boolean }[] | undefined;
     const contactEmail = admin_email || (config.contact_email as string) || (tenantRow.contact_email as string);
 
     if (!contactEmail) {
@@ -69,7 +70,8 @@ export async function POST(
       adminName,
       targetUser.email,
       newPassword,
-      loginUrl
+      loginUrl,
+      workspaces
     );
 
     return NextResponse.json({

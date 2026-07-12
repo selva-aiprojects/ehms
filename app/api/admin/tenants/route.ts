@@ -124,7 +124,8 @@ export async function POST(req: NextRequest) {
       adminFirstName,
       adminEmail,
       tempPassword,
-      loginUrl
+      loginUrl,
+      validWorkspaces
     );
 
     // ── Store contact_email in tenants config ──

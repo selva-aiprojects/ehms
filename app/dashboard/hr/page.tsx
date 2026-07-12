@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -86,7 +86,7 @@ export default function HRPage() {
   const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const { employees, isLoading, isError, mutate } = useEmployees(search || undefined);
 
-  const displayEmployees = (employees && (employees as any[]).length > 0) ? (employees as any[]) : MOCK_EMPLOYEES;
+  const displayEmployees = (employees as any[]) || [];
   const isLoadingDisplay = isLoading && !employees;
 
   useEffect(() => {
@@ -145,21 +145,21 @@ export default function HRPage() {
             </div>
             <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-2xl font-bold">52</div>
+                <div className="text-2xl font-bold">{displayEmployees.length === 0 ? 0 : 52}</div>
                 <UserCheck className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">On Duty Today</div>
             </div>
             <div className="rounded-xl p-4" style={{ background: "#F5A623" }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>8</div>
+                <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>{displayEmployees.length === 0 ? 0 : 8}</div>
                 <UserX className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs" style={{ color: "rgba(0,0,0,0.6)" }}>On Leave</div>
             </div>
             <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-2xl font-bold">{'\u20B9'}12.5L</div>
+                <div className="text-2xl font-bold">{displayEmployees.length === 0 ? "₹0" : "₹12.5L"}</div>
                 <Briefcase className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">Payroll MTD</div>
@@ -239,35 +239,43 @@ export default function HRPage() {
         <Card>
           <CardHeader title="Shift Schedule" subtitle="Today" />
           <div className="space-y-3">
-            {SHIFT_DATA.map((s, i) => (
-              <div key={i} className="flex items-center justify-between py-3 text-sm" style={{ borderBottom: i < SHIFT_DATA.length - 1 ? "1px solid #E2E8F0" : "none" }}>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" style={{ color: "#2BAE8E" }} />
-                    <span className="font-medium" style={{ color: "#1A2E44" }}>{s.shift}</span>
+            {displayEmployees.length === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-400">No active shifts scheduled</div>
+            ) : (
+              SHIFT_DATA.map((s, i) => (
+                <div key={i} className="flex items-center justify-between py-3 text-sm" style={{ borderBottom: i < SHIFT_DATA.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+                      <span className="font-medium" style={{ color: "#1A2E44" }}>{s.shift}</span>
+                    </div>
+                    <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{s.dept}</div>
                   </div>
-                  <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{s.dept}</div>
+                  <Badge variant="teal">{s.staff} staff</Badge>
                 </div>
-                <Badge variant="teal">{s.staff} staff</Badge>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Card>
         <Card>
           <CardHeader title="Statutory Compliance" subtitle="This month" />
           <div className="space-y-3 text-sm">
-            {COMPLIANCE_DATA.map((c, i) => (
-              <div key={i} className="flex items-center justify-between py-2" style={{ borderBottom: i < COMPLIANCE_DATA.length - 1 ? "1px solid #E2E8F0" : "none" }}>
-                <div className="flex items-center gap-2">
-                  <BadgePercent className="w-4 h-4" style={{ color: i < 2 ? "#2BAE8E" : i < 3 ? "#F5A623" : "#E53E3E" }} />
-                  <span style={{ color: "#1A2E44" }}>{c.label}</span>
+            {displayEmployees.length === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-400">No compliance data recorded</div>
+            ) : (
+              COMPLIANCE_DATA.map((c, i) => (
+                <div key={i} className="flex items-center justify-between py-2" style={{ borderBottom: i < COMPLIANCE_DATA.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                  <div className="flex items-center gap-2">
+                    <BadgePercent className="w-4 h-4" style={{ color: i < 2 ? "#2BAE8E" : i < 3 ? "#F5A623" : "#E53E3E" }} />
+                    <span style={{ color: "#1A2E44" }}>{c.label}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-medium" style={{ color: "#1A3C5E" }}>{c.amount}</span>
+                    <Badge variant={c.status === "Processed" ? "teal" : c.status === "Pending" ? "amber" : "red"}>{c.status}</Badge>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-medium" style={{ color: "#1A3C5E" }}>{c.amount}</span>
-                  <Badge variant={c.status === "Processed" ? "teal" : c.status === "Pending" ? "amber" : "red"}>{c.status}</Badge>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Card>
       </div>
@@ -291,83 +299,99 @@ export default function HRPage() {
         <Card>
           <CardHeader title="Recruitment Pipeline" subtitle="Active openings - June 2026" />
           <div className="space-y-3">
-            {RECRUITMENT_PIPELINE.map((stage, i) => {
-              const pct = (stage.count / RECRUITMENT_PIPELINE[0].count) * 100;
-              return (
-                <div key={stage.stage} className="flex items-center gap-3 text-sm">
-                  <div className="w-24 text-xs font-medium" style={{ color: "#64748B" }}>{stage.stage}</div>
-                  <div className="flex-1 h-2.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: stage.color }} />
+            {displayEmployees.length === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-400">No active job openings</div>
+            ) : (
+              RECRUITMENT_PIPELINE.map((stage, i) => {
+                const pct = (stage.count / RECRUITMENT_PIPELINE[0].count) * 100;
+                return (
+                  <div key={stage.stage} className="flex items-center gap-3 text-sm">
+                    <div className="w-24 text-xs font-medium" style={{ color: "#64748B" }}>{stage.stage}</div>
+                    <div className="flex-1 h-2.5 rounded-full" style={{ background: "#E2E8F0" }}>
+                      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: stage.color }} />
+                    </div>
+                    <div className="w-8 text-right font-bold text-xs" style={{ color: "#1A2E44" }}>{stage.count}</div>
                   </div>
-                  <div className="w-8 text-right font-bold text-xs" style={{ color: "#1A2E44" }}>{stage.count}</div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
-          <div className="mt-4 pt-3 grid grid-cols-2 gap-2 text-xs" style={{ borderTop: "1px solid #E2E8F0" }}>
-            <div className="p-2 rounded text-center" style={{ background: "#F5F7FA" }}>
-              <div className="font-bold" style={{ color: "#1A3C5E" }}>5</div>
-              <span style={{ color: "#64748B" }}>Open Positions</span>
+          {displayEmployees.length > 0 && (
+            <div className="mt-4 pt-3 grid grid-cols-2 gap-2 text-xs" style={{ borderTop: "1px solid #E2E8F0" }}>
+              <div className="p-2 rounded text-center" style={{ background: "#F5F7FA" }}>
+                <div className="font-bold" style={{ color: "#1A3C5E" }}>5</div>
+                <span style={{ color: "#64748B" }}>Open Positions</span>
+              </div>
+              <div className="p-2 rounded text-center" style={{ background: "#F5F7FA" }}>
+                <div className="font-bold" style={{ color: "#2BAE8E" }}>12</div>
+                <span style={{ color: "#64748B" }}>This Month Hires</span>
+              </div>
             </div>
-            <div className="p-2 rounded text-center" style={{ background: "#F5F7FA" }}>
-              <div className="font-bold" style={{ color: "#2BAE8E" }}>12</div>
-              <span style={{ color: "#64748B" }}>This Month Hires</span>
-            </div>
-          </div>
+          )}
         </Card>
 
         <Card>
           <CardHeader title="Training & Development" subtitle="Upcoming sessions" />
           <div className="space-y-2">
-            {TRAINING_SESSIONS.slice(0, 4).map((t, i) => (
-              <div key={i} className="p-3 rounded-lg text-sm" style={{ background: "#F5F7FA" }}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="font-medium flex items-center gap-1.5" style={{ color: "#1A2E44" }}>
-                      <BookOpen className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
-                      {t.title}
+            {displayEmployees.length === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-400">No upcoming training sessions</div>
+            ) : (
+              TRAINING_SESSIONS.slice(0, 4).map((t, i) => (
+                <div key={i} className="p-3 rounded-lg text-sm" style={{ background: "#F5F7FA" }}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="font-medium flex items-center gap-1.5" style={{ color: "#1A2E44" }}>
+                        <BookOpen className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+                        {t.title}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "#64748B" }}>
+                        <Calendar className="w-3 h-3" /> {t.date}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+                        <Clock className="w-3 h-3" /> {t.time}
+                      </div>
+                      <div className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>{t.dept} \u00B7 {t.enrolled} enrolled</div>
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "#64748B" }}>
-                      <Calendar className="w-3 h-3" /> {t.date}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
-                      <Clock className="w-3 h-3" /> {t.time}
-                    </div>
-                    <div className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>{t.dept} \u00B7 {t.enrolled} enrolled</div>
+                    <Badge variant={t.status === "upcoming" ? "teal" : "gray"}>{t.status}</Badge>
                   </div>
-                  <Badge variant={t.status === "upcoming" ? "teal" : "gray"}>{t.status}</Badge>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-          <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
-            <span>{TRAINING_SESSIONS.length} total sessions</span>
-            <button className="font-medium hover:underline" style={{ color: "#2BAE8E" }}>View Calendar</button>
-          </div>
+          {displayEmployees.length > 0 && (
+            <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
+              <span>{TRAINING_SESSIONS.length} total sessions</span>
+              <button className="font-medium hover:underline" style={{ color: "#2BAE8E" }}>View Calendar</button>
+            </div>
+          )}
         </Card>
 
         <Card>
           <CardHeader title="Leave Balance Summary" subtitle="Company-wide averages" />
           <div className="space-y-2">
-            {LEAVE_BALANCES.map((l, i) => {
-              const usedPct = (l.used / l.total) * 100;
-              return (
-                <div key={l.type} className="flex items-center justify-between py-1.5 text-sm" style={{ borderBottom: i < LEAVE_BALANCES.length - 1 ? "1px solid #E2E8F0" : "none" }}>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs" style={{ color: "#1A2E44" }}>{l.type}</span>
-                      <span className="text-xs font-medium" style={{ color: "#1A3C5E" }}>{l.remaining} left</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <div className="flex-1 h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                        <div className="h-full rounded-full" style={{ width: `${usedPct}%`, background: usedPct > 60 ? "#F5A623" : usedPct > 80 ? "#E53E3E" : "#2BAE8E" }} />
+            {displayEmployees.length === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-400">No leave history recorded</div>
+            ) : (
+              LEAVE_BALANCES.map((l, i) => {
+                const usedPct = (l.used / l.total) * 100;
+                return (
+                  <div key={l.type} className="flex items-center justify-between py-1.5 text-sm" style={{ borderBottom: i < LEAVE_BALANCES.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs" style={{ color: "#1A2E44" }}>{l.type}</span>
+                        <span className="text-xs font-medium" style={{ color: "#1A3C5E" }}>{l.remaining} left</span>
                       </div>
-                      <span className="text-[10px]" style={{ color: "#94A3B8" }}>{l.used}/{l.total}</span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <div className="flex-1 h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
+                          <div className="h-full rounded-full" style={{ width: `${usedPct}%`, background: usedPct > 60 ? "#F5A623" : usedPct > 80 ? "#E53E3E" : "#2BAE8E" }} />
+                        </div>
+                        <span className="text-[10px]" style={{ color: "#94A3B8" }}>{l.used}/{l.total}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </Card>
       </div>
@@ -376,146 +400,174 @@ export default function HRPage() {
         <Card>
           <CardHeader title="Top Performers" subtitle="Highest rated employees this quarter" />
           <div className="space-y-2">
-            {TOP_PERFORMERS.map((p, i) => {
-              const badgeColor = p.badge === "Excellent" ? "teal" as const : p.badge === "Great" ? "navy" as const : "amber" as const;
-              return (
-                <div key={p.name} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < TOP_PERFORMERS.length - 1 ? "1px solid #E2E8F0" : "none" }}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: i === 0 ? "#F5A623" : i < 3 ? "#2BAE8E" : "#1A3C5E" }}>
-                      {i + 1}
+            {displayEmployees.length === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-400">No performance records yet</div>
+            ) : (
+              TOP_PERFORMERS.map((p, i) => {
+                const badgeColor = p.badge === "Excellent" ? "teal" as const : p.badge === "Great" ? "navy" as const : "amber" as const;
+                return (
+                  <div key={p.name} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < TOP_PERFORMERS.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: i === 0 ? "#F5A623" : i < 3 ? "#2BAE8E" : "#1A3C5E" }}>
+                        {i + 1}
+                      </div>
+                      <div>
+                        <div className="font-medium" style={{ color: "#1A2E44" }}>{p.name}</div>
+                        <div className="text-xs" style={{ color: "#64748B" }}>{p.dept} \u00B7 {p.achievements} achievements</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-medium" style={{ color: "#1A2E44" }}>{p.name}</div>
-                      <div className="text-xs" style={{ color: "#64748B" }}>{p.dept} \u00B7 {p.achievements} achievements</div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-0.5">
+                        <Star className="w-3 h-3" style={{ color: "#F5A623", fill: "#F5A623" }} />
+                        <span className="text-xs font-bold" style={{ color: "#1A2E44" }}>{p.rating.toFixed(1)}</span>
+                      </div>
+                      <Badge variant={badgeColor}>{p.badge}</Badge>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-0.5">
-                      <Star className="w-3 h-3" style={{ color: "#F5A623", fill: "#F5A623" }} />
-                      <span className="text-xs font-bold" style={{ color: "#1A2E44" }}>{p.rating.toFixed(1)}</span>
-                    </div>
-                    <Badge variant={badgeColor}>{p.badge}</Badge>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
-          <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-            <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
-              View Full Performance Report
-            </button>
-          </div>
+          {displayEmployees.length > 0 && (
+            <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
+              <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+                View Full Performance Report
+              </button>
+            </div>
+          )}
         </Card>
 
         <Card>
           <CardHeader title="Payroll History" subtitle="Last 5 payroll runs" />
           <div className="space-y-2">
-            {PAYROLL_HISTORY.map((pr, i) => (
-              <div key={pr.run} className="flex items-center justify-between p-3 rounded-lg text-sm" style={{ background: i === 0 ? "rgba(42,157,143,0.06)" : "#F5F7FA" }}>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: i === 0 ? "rgba(42,157,143,0.15)" : "#E2E8F0" }}>
-                    <DollarSign className="w-4 h-4" style={{ color: i === 0 ? "#2BAE8E" : "#64748B" }} />
-                  </div>
-                  <div>
-                    <div className="font-medium" style={{ color: "#1A2E44" }}>{pr.run}</div>
-                    <div className="text-xs flex items-center gap-2" style={{ color: "#64748B" }}>
-                      <Calendar className="w-3 h-3" /> {pr.period}
+            {displayEmployees.length === 0 ? (
+              <div className="text-center py-6 text-xs text-slate-400">No payroll runs recorded yet</div>
+            ) : (
+              PAYROLL_HISTORY.map((pr, i) => (
+                <div key={pr.run} className="flex items-center justify-between p-3 rounded-lg text-sm" style={{ background: i === 0 ? "rgba(42,157,143,0.06)" : "#F5F7FA" }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: i === 0 ? "rgba(42,157,143,0.15)" : "#E2E8F0" }}>
+                      <DollarSign className="w-4 h-4" style={{ color: i === 0 ? "#2BAE8E" : "#64748B" }} />
+                    </div>
+                    <div>
+                      <div className="font-medium" style={{ color: "#1A2E44" }}>{pr.run}</div>
+                      <div className="text-xs flex items-center gap-2" style={{ color: "#64748B" }}>
+                        <Calendar className="w-3 h-3" /> {pr.period}
+                      </div>
                     </div>
                   </div>
+                  <div className="text-right">
+                    <div className="font-semibold" style={{ color: "#1A3C5E" }}>{pr.amount}</div>
+                    <div className="text-xs" style={{ color: "#64748B" }}>{pr.employees} employees</div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="font-semibold" style={{ color: "#1A3C5E" }}>{pr.amount}</div>
-                  <div className="text-xs" style={{ color: "#64748B" }}>{pr.employees} employees</div>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-          <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
-            <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" style={{ color: "#2BAE8E" }} /> +3.2% vs last month</span>
-            <button className="font-medium hover:underline" style={{ color: "#2BAE8E" }}>Run Payroll</button>
-          </div>
+          {displayEmployees.length > 0 && (
+            <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
+              <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" style={{ color: "#2BAE8E" }} /> +3.2% vs last month</span>
+              <button className="font-medium hover:underline" style={{ color: "#2BAE8E" }}>Run Payroll</button>
+            </div>
+          )}
         </Card>
       </div>
 
       <Card>
         <CardHeader title="Employee Engagement & Satisfaction" subtitle="Q2 2026 survey results" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
-          {[
-            { label: "Overall Satisfaction", score: "4.2/5", change: "+0.3", color: "#2BAE8E" },
-            { label: "Work Environment", score: "4.4/5", change: "+0.2", color: "#2BAE8E" },
-            { label: "Growth Opportunities", score: "3.8/5", change: "+0.1", color: "#F5A623" },
-            { label: "Management Support", score: "4.1/5", change: "+0.4", color: "#2BAE8E" },
-          ].map((s) => (
-            <div key={s.label} className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-              <div className="text-lg font-bold" style={{ color: s.color }}>{s.score}</div>
-              <div className="text-xs" style={{ color: "#64748B" }}>{s.label}</div>
-              <div className="text-[10px] mt-0.5 flex items-center justify-center gap-0.5" style={{ color: s.color }}>
-                <TrendingUp className="w-2.5 h-2.5" /> {s.change} vs Q1
+        {displayEmployees.length === 0 ? (
+          <div className="text-center py-6 text-xs text-slate-400">No survey results available</div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
+              {[
+                { label: "Overall Satisfaction", score: "4.2/5", change: "+0.3", color: "#2BAE8E" },
+                { label: "Work Environment", score: "4.4/5", change: "+0.2", color: "#2BAE8E" },
+                { label: "Growth Opportunities", score: "3.8/5", change: "+0.1", color: "#F5A623" },
+                { label: "Management Support", score: "4.1/5", change: "+0.4", color: "#2BAE8E" },
+              ].map((s) => (
+                <div key={s.label} className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
+                  <div className="text-lg font-bold" style={{ color: s.color }}>{s.score}</div>
+                  <div className="text-xs" style={{ color: "#64748B" }}>{s.label}</div>
+                  <div className="text-[10px] mt-0.5 flex items-center justify-center gap-0.5" style={{ color: s.color }}>
+                    <TrendingUp className="w-2.5 h-2.5" /> {s.change} vs Q1
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-xs" style={{ color: "#64748B" }}>
+              <div className="flex items-center justify-between p-2 rounded" style={{ background: "#F5F7FA" }}>
+                <span>Survey participation rate</span>
+                <span className="font-semibold" style={{ color: "#1A3C5E" }}>78% (42 of 54 employees)</span>
               </div>
             </div>
-          ))}
-        </div>
-        <div className="text-xs" style={{ color: "#64748B" }}>
-          <div className="flex items-center justify-between p-2 rounded" style={{ background: "#F5F7FA" }}>
-            <span>Survey participation rate</span>
-            <span className="font-semibold" style={{ color: "#1A3C5E" }}>78% (42 of 54 employees)</span>
-          </div>
-        </div>
+          </>
+        )}
       </Card>
 
       <Card>
         <CardHeader title="Certifications & Skills Matrix" subtitle="Department-wise skill coverage" />
-        <div className="space-y-4">
-          {[
-            { dept: "Front Office", skills: ["Hospitality Certification", "POS Systems", "CRM Software", "Multi-lingual"], coverage: 85 },
-            { dept: "Housekeeping", skills: ["Cleaning Standards", "Chemical Handling", "Inventory Mgmt"], coverage: 78 },
-            { dept: "Maintenance", skills: ["Electrical Safety", "Plumbing", "HVAC", "Fire Safety"], coverage: 72 },
-            { dept: "Finance", skills: ["Tally ERP", "GST Compliance", "Financial Reporting"], coverage: 90 },
-          ].map((d) => (
-            <div key={d.dept}>
-              <div className="flex items-center justify-between text-sm mb-1">
-                <span className="font-medium" style={{ color: "#1A2E44" }}>{d.dept}</span>
-                <span className="text-xs" style={{ color: "#64748B" }}>{d.coverage}% coverage</span>
-              </div>
-              <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                {d.skills.map((skill) => (
-                  <span key={skill} className="px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: "rgba(42,157,143,0.1)", color: "#2BAE8E" }}>
-                    {skill}
-                  </span>
-                ))}
-              </div>
-              <div className="h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                <div className="h-full rounded-full" style={{ width: `${d.coverage}%`, background: d.coverage >= 85 ? "#2BAE8E" : d.coverage >= 75 ? "#F5A623" : "#E53E3E" }} />
-              </div>
+        {displayEmployees.length === 0 ? (
+          <div className="text-center py-6 text-xs text-slate-400">No skill coverage data recorded</div>
+        ) : (
+          <>
+            <div className="space-y-4">
+              {[
+                { dept: "Front Office", skills: ["Hospitality Certification", "POS Systems", "CRM Software", "Multi-lingual"], coverage: 85 },
+                { dept: "Housekeeping", skills: ["Cleaning Standards", "Chemical Handling", "Inventory Mgmt"], coverage: 78 },
+                { dept: "Maintenance", skills: ["Electrical Safety", "Plumbing", "HVAC", "Fire Safety"], coverage: 72 },
+                { dept: "Finance", skills: ["Tally ERP", "GST Compliance", "Financial Reporting"], coverage: 90 },
+              ].map((d) => (
+                <div key={d.dept}>
+                  <div className="flex items-center justify-between text-sm mb-1">
+                    <span className="font-medium" style={{ color: "#1A2E44" }}>{d.dept}</span>
+                    <span className="text-xs" style={{ color: "#64748B" }}>{d.coverage}% coverage</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                    {d.skills.map((skill) => (
+                      <span key={skill} className="px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: "rgba(42,157,143,0.1)", color: "#2BAE8E" }}>
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
+                    <div className="h-full rounded-full" style={{ width: `${d.coverage}%`, background: d.coverage >= 85 ? "#2BAE8E" : d.coverage >= 75 ? "#F5A623" : "#E53E3E" }} />
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="mt-4 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-          <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
-            Manage Skills Matrix
-          </button>
-        </div>
+            <div className="mt-4 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
+              <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+                Manage Skills Matrix
+              </button>
+            </div>
+          </>
+        )}
       </Card>
 
       <Card>
         <CardHeader title="Upcoming Birthdays & Anniversaries" subtitle="This month" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          {[
-            { name: "Priya Sharma", event: "Work Anniversary - 5 years", date: "22 Jun", icon: Star },
-            { name: "Arjun Sharma", event: "Birthday", date: "25 Jun", icon: Star },
-            { name: "Kavya Menon", event: "Birthday", date: "28 Jun", icon: Star },
-            { name: "Rajesh Mehta", event: "Work Anniversary - 10 years", date: "30 Jun", icon: Star },
-          ].map((item) => (
-            <div key={item.name} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(42,157,143,0.15)" }}>
-                <item.icon className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+          {displayEmployees.length === 0 ? (
+            <div className="text-center col-span-2 py-6 text-xs text-slate-400">No upcoming events this month</div>
+          ) : (
+            [
+              { name: "Priya Sharma", event: "Work Anniversary - 5 years", date: "22 Jun", icon: Star },
+              { name: "Arjun Sharma", event: "Birthday", date: "25 Jun", icon: Star },
+              { name: "Kavya Menon", event: "Birthday", date: "28 Jun", icon: Star },
+              { name: "Rajesh Mehta", event: "Work Anniversary - 10 years", date: "30 Jun", icon: Star },
+            ].map((item) => (
+              <div key={item.name} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(42,157,143,0.15)" }}>
+                  <item.icon className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+                </div>
+                <div>
+                  <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>{item.name}</div>
+                  <div className="text-xs" style={{ color: "#64748B" }}>{item.event} \u00B7 {item.date}</div>
+                </div>
               </div>
-              <div>
-                <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>{item.name}</div>
-                <div className="text-xs" style={{ color: "#64748B" }}>{item.event} \u00B7 {item.date}</div>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </Card>
     </div>
