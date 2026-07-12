@@ -143,8 +143,16 @@ BEGIN
         EXECUTE format('CREATE SEQUENCE IF NOT EXISTS %I.%I_%I_seq', p_schema_name, v_tbl, 'id');
     END LOOP;
 
-    -- Copy master roles from template schema
+    -- Copy foundational master data from template schema
     EXECUTE format('INSERT INTO %I.roles SELECT * FROM viswa.roles ON CONFLICT DO NOTHING;', p_schema_name);
+    EXECUTE format('INSERT INTO %I.enterprises SELECT * FROM viswa.enterprises ON CONFLICT DO NOTHING;', p_schema_name);
+    EXECUTE format('INSERT INTO %I.regions SELECT * FROM viswa.regions ON CONFLICT DO NOTHING;', p_schema_name);
+    EXECUTE format('INSERT INTO %I.properties SELECT * FROM viswa.properties ON CONFLICT DO NOTHING;', p_schema_name);
+    EXECUTE format('INSERT INTO %I.departments SELECT * FROM viswa.departments ON CONFLICT DO NOTHING;', p_schema_name);
+    EXECUTE format('INSERT INTO %I.leave_types SELECT * FROM viswa.leave_types ON CONFLICT DO NOTHING;', p_schema_name);
+    EXECUTE format('INSERT INTO %I.fiscal_years SELECT * FROM viswa.fiscal_years ON CONFLICT DO NOTHING;', p_schema_name);
+    EXECUTE format('INSERT INTO %I.cost_centers SELECT * FROM viswa.cost_centers ON CONFLICT DO NOTHING;', p_schema_name);
+    EXECUTE format('INSERT INTO %I.rate_plans SELECT * FROM viswa.rate_plans ON CONFLICT DO NOTHING;', p_schema_name);
 
     -- Register tenant
     INSERT INTO public.tenants (name, code, schema_name, config)
