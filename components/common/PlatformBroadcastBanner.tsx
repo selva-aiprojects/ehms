@@ -17,7 +17,6 @@ interface Broadcast {
 
 export default function PlatformBroadcastBanner() {
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
-  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const { user } = useAuth();
   const { activeJourney } = useJourney();
 
@@ -25,26 +24,10 @@ export default function PlatformBroadcastBanner() {
     // Don't show banners to Platform Super Admins on their own admin pages
     if (user?.is_platform_admin) return;
 
-    // Load dismissed IDs from localStorage with a 30-day (monthly) expiry
+    let seenMap: Record<string, { dismissed: boolean; lastSeenMonth: string }> = {};
     try {
-      const saved = localStorage.getItem("ehms_dismissed_broadcasts");
-      if (saved) {
-        const data = JSON.parse(saved) as Record<string, number>;
-        const activeDismissals = new Set<string>();
-        const cleanData: Record<string, number> = {};
-        const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-        const now = Date.now();
-
-        Object.entries(data).forEach(([id, dismissedAt]) => {
-          if (now - dismissedAt < thirtyDaysMs) {
-            activeDismissals.add(id);
-            cleanData[id] = dismissedAt;
-          }
-        });
-
-        setDismissedIds(activeDismissals);
-        localStorage.setItem("ehms_dismissed_broadcasts", JSON.stringify(cleanData));
-      }
+      const saved = localStorage.getItem("ehms_broadcasts_tracking");
+      if (saved) seenMap = JSON.parse(saved);
     } catch {
       // Ignore
     }
@@ -54,7 +37,34 @@ export default function PlatformBroadcastBanner() {
         const res = await fetch(`/api/broadcasts/active?vertical=${activeJourney}`);
         if (res.ok) {
           const data = await res.json();
-          setBroadcasts(data.broadcasts || []);
+          const activeBroadcasts = (data.broadcasts || []) as Broadcast[];
+
+          const currentMonthKey = new Date().toISOString().slice(0, 7); // e.g. "2026-07"
+          const updatedSeenMap = { ...seenMap };
+          let updated = false;
+
+          const filtered = activeBroadcasts.filter(b => {
+            const track = seenMap[b.id];
+            if (track) {
+              if (track.dismissed) return false;
+              if (track.lastSeenMonth === currentMonthKey) return false;
+            }
+            return true;
+          });
+
+          filtered.forEach(b => {
+            updatedSeenMap[b.id] = {
+              dismissed: false,
+              lastSeenMonth: currentMonthKey
+            };
+            updated = true;
+          });
+
+          if (updated) {
+            localStorage.setItem("ehms_broadcasts_tracking", JSON.stringify(updatedSeenMap));
+          }
+
+          setBroadcasts(filtered);
         }
       } catch {
         // Silently skip if network error
@@ -65,26 +75,25 @@ export default function PlatformBroadcastBanner() {
   }, [user, activeJourney]);
 
   const dismiss = (id: string) => {
-    const next = new Set(dismissedIds);
-    next.add(id);
-    setDismissedIds(next);
+    setBroadcasts(prev => prev.filter(b => b.id !== id));
     try {
-      const saved = localStorage.getItem("ehms_dismissed_broadcasts");
-      const currentData = saved ? (JSON.parse(saved) as Record<string, number>) : {};
-      currentData[id] = Date.now();
-      localStorage.setItem("ehms_dismissed_broadcasts", JSON.stringify(currentData));
+      const saved = localStorage.getItem("ehms_broadcasts_tracking");
+      const seenMap = saved ? JSON.parse(saved) : {};
+      seenMap[id] = {
+        dismissed: true,
+        lastSeenMonth: new Date().toISOString().slice(0, 7)
+      };
+      localStorage.setItem("ehms_broadcasts_tracking", JSON.stringify(seenMap));
     } catch {
       // Ignore
     }
   };
 
-  const visibleBroadcasts = broadcasts.filter((b) => !dismissedIds.has(b.id));
-
-  if (visibleBroadcasts.length === 0) return null;
+  if (broadcasts.length === 0) return null;
 
   return (
     <div className="space-y-3 mb-6">
-      {visibleBroadcasts.map((b) => {
+      {broadcasts.map((b) => {
         let bgClass = "bg-gradient-to-r from-indigo-900 via-blue-900 to-indigo-950 text-white border-indigo-700/50";
         let icon = <Megaphone className="w-5 h-5 text-indigo-300 shrink-0" />;
         let badge = "Service Provider Notice";
