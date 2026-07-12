@@ -53,6 +53,7 @@ export default function TenantsPage() {
     price: 0,
   });
   const [scrolled, setScrolled] = useState(false);
+  const [wizardStep, setWizardStep] = useState(1);
 
   // Platform admin auth
   const [platformAuthed, setPlatformAuthed] = useState(false);
@@ -134,6 +135,7 @@ export default function TenantsPage() {
     if (!platformAuthed) {
       setShowPlatformLogin(true);
     } else {
+      setWizardStep(1);
       setShowProvision(true);
     }
   }
@@ -465,160 +467,295 @@ export default function TenantsPage() {
       {showProvision && platformAuthed && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}>
-          <div className="relative w-full max-w-md rounded-2xl p-8 animate-slide-up"
-            style={{ background: "var(--color-bg-surface)", border: "1px solid rgba(43,174,142,0.15)" }}>
-            <button onClick={() => { setShowProvision(false); setProvisionResult(null); }}
-              className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors"
-              style={{ color: "rgba(245,247,250,0.4)" }}>
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: "rgba(43,174,142,0.12)" }}>
-                <Globe className="w-5 h-5" style={{ color: "#2BAE8E" }} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold">Provision New Shard</h3>
-                <p className="text-xs" style={{ color: "rgba(245,247,250,0.5)" }}>
-                  Platform admin &middot; {platformEmail}
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={handleProvision} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-              <input type="text" value={form.name} required onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Organization Name" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
-                style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
-
-              <div className="grid grid-cols-2 gap-3">
-                <input type="text" value={form.code} required onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-                  placeholder="Code (e.g. ABC)" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors font-mono uppercase"
-                  style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
-                <input type="text" value={form.schema} required onChange={(e) => setForm({ ...form, schema: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })}
-                  placeholder="Schema (e.g. abc)" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors font-mono"
-                  style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
-              </div>
-
-              <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
-                    <User className="w-3.5 h-3.5 inline mr-1" /> Primary Contact Name
-                  </label>
-                  <input type="text" value={form.primary_contact_name} onChange={(e) => setForm({ ...form, primary_contact_name: e.target.value })}
-                    placeholder="e.g. John Doe" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
-                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+          <div className="relative w-full max-w-4xl rounded-3xl p-8 animate-slide-up flex flex-col md:flex-row gap-8"
+            style={{ background: "var(--color-bg-surface)", border: "1px solid rgba(43,174,142,0.15)", maxHeight: "90vh" }}>
+            
+            {/* LEFT COLUMN: WIZARD STEPS */}
+            <div className="w-full md:w-64 shrink-0 flex flex-row md:flex-col justify-between md:justify-start gap-4 md:gap-8 pb-4 md:pb-0 border-b md:border-b-0 md:border-r"
+              style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+              <div className="flex items-center gap-3 mb-6 hidden md:flex">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: "rgba(43,174,142,0.12)" }}>
+                  <Globe className="w-5 h-5" style={{ color: "#2BAE8E" }} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
-                    <Mail className="w-3.5 h-3.5 inline mr-1" /> Contact Email <span style={{ color: "#E53E3E" }}>*</span>
-                  </label>
-                  <input type="email" value={form.contact_email} required onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
-                    placeholder="admin@org.com" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
-                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
-                  <p className="text-[10px] mt-1" style={{ color: "rgba(245,247,250,0.35)" }}>
-                    Welcome kit with admin credentials will be sent to this email
+                  <h3 className="text-base font-bold text-white">Provision Shard</h3>
+                  <p className="text-[10px]" style={{ color: "rgba(245,247,250,0.5)" }}>
+                    Admin: {platformEmail}
                   </p>
                 </div>
+              </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium" style={{ color: "rgba(245,247,250,0.7)" }}>
-                    Workspaces
-                  </label>
-                  <button type="button" onClick={addWorkspace}
-                    className="text-xs font-semibold flex items-center gap-1 px-2 py-1 rounded transition-colors"
-                    style={{ color: "#2BAE8E" }}>
-                    <Plus className="w-3 h-3" /> Add Workspace
-                  </button>
-                </div>
-                {form.workspaces.map((ws, idx) => (
-                  <div key={idx} className="flex items-start gap-2 mb-2 p-2 rounded-lg"
-                    style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                    <div className="flex-1 space-y-2">
-                      <select value={ws.type} required
-                        onChange={(e) => updateWorkspace(idx, "type", e.target.value)}
-                        className="w-full px-3 py-1.5 rounded-lg border text-xs outline-none transition-colors"
-                        style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}>
-                        <option value="" disabled>Select type</option>
-                        {ALL_VERTICAL_KEYS.map((vk) => (
-                          <option key={vk} value={vk}>{VERTICAL_META[vk].label}</option>
-                        ))}
-                      </select>
-                      <input type="text" value={ws.name} required
-                        onChange={(e) => updateWorkspace(idx, "name", e.target.value)}
-                        placeholder="Workspace name" className="w-full px-3 py-1.5 rounded-lg border text-xs outline-none transition-colors"
-                        style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
-                    </div>
-                    <div className="flex flex-col items-center gap-1 pt-1">
-                      <button type="button" onClick={() => setPrimary(idx)}
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${ws.is_primary ? "border-[#2BAE8E]" : "border-gray-500"}`}>
-                        {ws.is_primary && <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#2BAE8E" }} />}
-                      </button>
-                      <span className="text-[9px] font-medium" style={{ color: "rgba(245,247,250,0.4)" }}>Primary</span>
-                      {form.workspaces.length > 1 && (
-                        <button type="button" onClick={() => removeWorkspace(idx)}
-                          className="p-1 rounded transition-colors hover:bg-red-500/10"
-                          style={{ color: "#E53E3E" }}>
-                          <Trash2 className="w-3 h-3" />
-                        </button>
+              {/* Step indicator items */}
+              {[
+                { number: 1, title: "Organization Info", desc: "Basic profile details" },
+                { number: 2, title: "Workspaces", desc: "Operational areas" },
+                { number: 3, title: "Billing Plan", desc: "Pricing & charges" },
+              ].map((s) => {
+                const isActive = wizardStep === s.number;
+                const isCompleted = wizardStep > s.number;
+                return (
+                  <div key={s.number} className="flex items-center md:items-start gap-3 flex-1 md:flex-none">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all border-2"
+                        style={{
+                          background: isCompleted ? "#2BAE8E" : isActive ? "rgba(43,174,142,0.12)" : "transparent",
+                          borderColor: isCompleted || isActive ? "#2BAE8E" : "rgba(255,255,255,0.15)",
+                          color: isCompleted ? "#0B1A2E" : isActive ? "#2BAE8E" : "rgba(245,247,250,0.4)"
+                        }}
+                      >
+                        {isCompleted ? "✓" : s.number}
+                      </div>
+                      {/* Vertical line connector (desktop only) */}
+                      {s.number < 3 && (
+                        <div className="w-0.5 h-10 hidden md:block" style={{ background: isCompleted ? "#2BAE8E" : "rgba(255,255,255,0.08)" }} />
                       )}
                     </div>
+                    <div className="hidden md:block">
+                      <p className="text-xs font-bold transition-all"
+                        style={{ color: isActive || isCompleted ? "var(--color-light)" : "rgba(245,247,250,0.4)" }}>
+                        {s.title}
+                      </p>
+                      <p className="text-[10px]" style={{ color: "rgba(245,247,250,0.3)" }}>
+                        {s.desc}
+                      </p>
+                    </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
+            </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
-                    <CreditCard className="w-3 h-3 inline mr-1" /> Payment Mode
-                  </label>
-                  <select value={form.payment_mode} onChange={(e) => setForm({ ...form, payment_mode: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-xs outline-none transition-colors"
-                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}>
-                    <option value="monthly">Monthly</option>
-                    <option value="quarterly">Quarterly</option>
-                    <option value="yearly">Yearly</option>
-                    <option value="one-time">One-Time</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
-                    <DollarSign className="w-3 h-3 inline mr-1" /> Charge Model
-                  </label>
-                  <select value={form.subscription_charges_type} onChange={(e) => setForm({ ...form, subscription_charges_type: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-xs outline-none transition-colors"
-                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}>
-                    <option value="Free">Free</option>
-                    <option value="Monthly">Per-Month</option>
-                    <option value="Quarterly">Per-Quarter</option>
-                    <option value="Yearly">Per-Year</option>
-                    <option value="Per-User">Per-User</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "rgba(245,247,250,0.7)" }}>
-                    Price (₹)
-                  </label>
-                  <input type="number" min="0" value={form.price} onChange={(e) => setForm({ ...form, price: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-xs outline-none transition-colors"
-                    style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
-                </div>
-              </div>
-
-              {provisionResult && (
-                <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
-                  style={{ background: provisionResult.ok ? "rgba(43,174,142,0.1)" : "rgba(229,62,62,0.08)", color: provisionResult.ok ? "#2BAE8E" : "#E53E3E", border: `1px solid ${provisionResult.ok ? "rgba(43,174,142,0.2)" : "rgba(229,62,62,0.2)"}` }}>
-                  {provisionResult.ok ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-                  {provisionResult.msg}
-                </div>
-              )}
-
-              <button type="submit" disabled={provisioning || form.workspaces.length === 0 || form.workspaces.some((w) => !w.type || !w.name)}
-                className="w-full py-2.5 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-60 cursor-pointer"
-                style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" }}>
-                {provisioning ? <><Loader2 className="w-4 h-4 animate-spin" /> Provisioning...</> : <><Globe className="w-4 h-4" /> Create Tenant Shard</>}
+            {/* RIGHT COLUMN: ACTIVE FORM STEP */}
+            <div className="flex-1 flex flex-col min-h-0">
+              <button onClick={() => { setShowProvision(false); setProvisionResult(null); }}
+                className="absolute top-6 right-6 p-1.5 rounded-lg transition-colors hover:bg-white/5"
+                style={{ color: "rgba(245,247,250,0.4)" }}>
+                <X className="w-5 h-5" />
               </button>
-            </form>
+
+              <form onSubmit={handleProvision} className="flex-1 flex flex-col min-h-0">
+                {/* Form fields section (scrollable only if needed for screen sizes) */}
+                <div className="flex-1 overflow-y-auto pr-1 py-1 space-y-5 min-h-[320px] max-h-[50vh] md:max-h-[55vh]">
+                  
+                  {/* STEP 1: ORGANIZATION DETAILS */}
+                  {wizardStep === 1 && (
+                    <div className="space-y-4 animate-fade-in">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-3 uppercase tracking-wider text-teal-400">Step 1: Organization Profile</h4>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(245,247,250,0.7)" }}>
+                          Organization / Corporate Name <span style={{ color: "#E53E3E" }}>*</span>
+                        </label>
+                        <input type="text" value={form.name} required onChange={(e) => setForm({ ...form, name: e.target.value })}
+                          placeholder="e.g. Grand Hyatt Hotels Group" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+                          style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(245,247,250,0.7)" }}>
+                            Unique Code (e.g. OMEGA) <span style={{ color: "#E53E3E" }}>*</span>
+                          </label>
+                          <input type="text" value={form.code} required onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
+                            placeholder="Code (e.g. ABC)" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors font-mono uppercase"
+                            style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(245,247,250,0.7)" }}>
+                            Database Schema Name <span style={{ color: "#E53E3E" }}>*</span>
+                          </label>
+                          <input type="text" value={form.schema} required onChange={(e) => setForm({ ...form, schema: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })}
+                            placeholder="Schema (e.g. abc)" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors font-mono"
+                            style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(245,247,250,0.7)" }}>
+                            <User className="w-3.5 h-3.5 inline mr-1" /> Primary Contact Name
+                          </label>
+                          <input type="text" value={form.primary_contact_name} onChange={(e) => setForm({ ...form, primary_contact_name: e.target.value })}
+                            placeholder="e.g. John Doe" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+                            style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(245,247,250,0.7)" }}>
+                            <Mail className="w-3.5 h-3.5 inline mr-1" /> Contact Email <span style={{ color: "#E53E3E" }}>*</span>
+                          </label>
+                          <input type="email" value={form.contact_email} required onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
+                            placeholder="admin@org.com" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+                            style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 2: WORKSPACE NAMES CONFIGURATION */}
+                  {wizardStep === 2 && (
+                    <div className="space-y-4 animate-fade-in">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold uppercase tracking-wider text-teal-400">Step 2: Workspace Properties</h4>
+                        <button type="button" onClick={addWorkspace}
+                          className="text-xs font-bold flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors border hover:bg-white/5 animate-fade-in"
+                          style={{ color: "#2BAE8E", borderColor: "rgba(43,174,142,0.25)" }}>
+                          <Plus className="w-3.5 h-3.5" /> Add Workspace
+                        </button>
+                      </div>
+
+                      <div className="space-y-3 max-h-[35vh] overflow-y-auto pr-1">
+                        {form.workspaces.map((ws, idx) => (
+                          <div key={idx} className="flex items-center gap-3 p-3.5 rounded-xl transition-all"
+                            style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                            <div className="flex-1 space-y-2">
+                              <select value={ws.type} required
+                                onChange={(e) => updateWorkspace(idx, "type", e.target.value)}
+                                className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors cursor-pointer"
+                                style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.7)", color: "var(--color-light)" }}>
+                                <option value="" disabled>Select Property Type</option>
+                                {ALL_VERTICAL_KEYS.map((vk) => (
+                                  <option key={vk} value={vk}>{VERTICAL_META[vk].label}</option>
+                                ))}
+                              </select>
+                              <input type="text" value={ws.name} required
+                                onChange={(e) => updateWorkspace(idx, "name", e.target.value)}
+                                placeholder="e.g. Hyderabad Hitech City Hotel" className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors"
+                                style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.7)", color: "var(--color-light)" }} />
+                            </div>
+                            <div className="flex flex-col items-center gap-1.5 shrink-0 px-2">
+                              <button type="button" onClick={() => setPrimary(idx)}
+                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${ws.is_primary ? "border-[#2BAE8E]" : "border-gray-500"}`}>
+                                {ws.is_primary && <div className="w-2.5 h-2.5 rounded-full" style={{ background: "#2BAE8E" }} />}
+                              </button>
+                              <span className="text-[9px] font-medium" style={{ color: "rgba(245,247,250,0.4)" }}>Primary</span>
+                              {form.workspaces.length > 1 && (
+                                <button type="button" onClick={() => removeWorkspace(idx)}
+                                  className="p-1 rounded-lg transition-colors hover:bg-red-500/10 text-xs mt-1"
+                                  style={{ color: "#E53E3E" }}>
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 3: PRICING & SUBSCRIPTION CHARGES */}
+                  {wizardStep === 3 && (
+                    <div className="space-y-4 animate-fade-in">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-3 uppercase tracking-wider text-teal-400">Step 3: Subscription Plan</h4>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(245,247,250,0.7)" }}>
+                            <CreditCard className="w-3.5 h-3.5 inline mr-1" /> Payment Cycle
+                          </label>
+                          <select value={form.payment_mode} onChange={(e) => setForm({ ...form, payment_mode: e.target.value })}
+                            className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors"
+                            style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}>
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="one-time">One-Time</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(245,247,250,0.7)" }}>
+                            <DollarSign className="w-3.5 h-3.5 inline mr-1" /> Charge Type
+                          </label>
+                          <select value={form.subscription_charges_type} onChange={(e) => setForm({ ...form, subscription_charges_type: e.target.value })}
+                            className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors"
+                            style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }}>
+                            <option value="Free">Free</option>
+                            <option value="Monthly">Per-Month</option>
+                            <option value="Quarterly">Per-Quarter</option>
+                            <option value="Yearly">Per-Year</option>
+                            <option value="Per-User">Per-User</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(245,247,250,0.7)" }}>
+                            Base Price (₹)
+                          </label>
+                          <input type="number" min="0" value={form.price} onChange={(e) => setForm({ ...form, price: parseInt(e.target.value) || 0 })}
+                            className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors"
+                            style={{ borderColor: "rgba(43,174,142,0.2)", background: "rgba(11,26,46,0.5)", color: "var(--color-light)" }} />
+                        </div>
+                      </div>
+
+                      {/* Display a summary of the tenant setup */}
+                      <div className="p-4 rounded-2xl space-y-2 mt-4" style={{ background: "rgba(43,174,142,0.06)", border: "1px solid rgba(43,174,142,0.12)" }}>
+                        <p className="text-xs font-bold text-teal-400">Review Summary</p>
+                        <div className="grid grid-cols-2 gap-y-1.5 text-xs text-slate-300">
+                          <div>Organization: <strong className="text-white">{form.name || "—"}</strong></div>
+                          <div>Schema Name: <strong className="text-white font-mono">{form.schema || "—"}</strong></div>
+                          <div>Contact: <strong className="text-white">{form.primary_contact_name || "—"} ({form.contact_email || "—"})</strong></div>
+                          <div>Workspaces: <strong className="text-white">{form.workspaces.length} configured</strong></div>
+                        </div>
+                      </div>
+
+                      {provisionResult && (
+                        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
+                          style={{ background: provisionResult.ok ? "rgba(43,174,142,0.1)" : "rgba(229,62,62,0.08)", color: provisionResult.ok ? "#2BAE8E" : "#E53E3E", border: `1px solid ${provisionResult.ok ? "rgba(43,174,142,0.2)" : "rgba(229,62,62,0.2)"}` }}>
+                          {provisionResult.ok ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                          {provisionResult.msg}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                </div>
+
+                {/* BOTTOM NAVIGATION BUTTONS */}
+                <div className="flex items-center justify-between pt-4 mt-4 border-t"
+                  style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                  
+                  <button type="button" onClick={() => { setShowProvision(false); setProvisionResult(null); }}
+                    className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/5 border border-slate-700"
+                    style={{ color: "rgba(245,247,250,0.6)" }}>
+                    Cancel
+                  </button>
+
+                  <div className="flex items-center gap-3">
+                    {wizardStep > 1 && (
+                      <button type="button" onClick={() => setWizardStep(prev => prev - 1)}
+                        className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/5 border border-slate-700"
+                        style={{ color: "#2BAE8E" }}>
+                        Back
+                      </button>
+                    )}
+
+                    {wizardStep < 3 ? (
+                      <button type="button" onClick={() => {
+                        // Check validations for Step 1
+                        if (wizardStep === 1 && (!form.name || !form.code || !form.schema || !form.contact_email)) {
+                          alert("Please fill in all required fields marked with *");
+                          return;
+                        }
+                        setWizardStep(prev => prev + 1);
+                      }}
+                        className="px-5 py-2.5 rounded-xl text-sm font-medium text-white transition-all hover:opacity-90 cursor-pointer"
+                        style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" }}>
+                        Next
+                      </button>
+                    ) : (
+                      <button type="submit" disabled={provisioning || form.workspaces.length === 0 || form.workspaces.some((w) => !w.type || !w.name)}
+                        className="px-6 py-2.5 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-60 cursor-pointer"
+                        style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" }}>
+                        {provisioning ? <><Loader2 className="w-4 h-4 animate-spin" /> Provisioning...</> : <><Globe className="w-4 h-4" /> Create Tenant Shard</>}
+                      </button>
+                    )}
+                  </div>
+
+                </div>
+              </form>
+            </div>
+            
           </div>
         </div>
       )}
