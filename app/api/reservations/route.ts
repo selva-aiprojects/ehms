@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
+import { calculateBookingPrice } from "@/lib/pricing";
 
 export async function GET(req: NextRequest) {
   try {
@@ -54,6 +55,40 @@ export async function POST(req: NextRequest) {
     const accessErr = validateMutationPropertyAccess(req, body.property_id);
     if (accessErr) return accessErr;
 
+    // Check for overlapping bookings (+30 min turnaround buffer)
+    if (body.unit_id && body.check_in && body.check_out) {
+      const conflicts = await sql`
+        SELECT id FROM bookings
+        WHERE unit_id = ${body.unit_id}
+          AND status IN ('confirmed', 'checked_in')
+          AND check_in < (${body.check_out}::timestamptz + interval '30 minutes')
+          AND check_out > ${body.check_in}::timestamptz
+        LIMIT 1
+      ` as any[];
+      if (conflicts.length > 0) {
+        return NextResponse.json(
+          { error: "The selected room has an overlapping reservation during this time window." },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Dynamic price calculation if total_amount is missing or needs computation
+    let calculatedAmount = body.total_amount;
+    if (body.unit_id && body.check_in && body.check_out && (calculatedAmount === undefined || calculatedAmount === null || Number(calculatedAmount) === 0)) {
+      const unitRows = await sql`SELECT base_rate FROM units WHERE id = ${body.unit_id} LIMIT 1` as any[];
+      if (unitRows.length > 0) {
+        const rate = Number(unitRows[0].base_rate || 0);
+        const priceObj = calculateBookingPrice(
+          body.booking_model || "nightly",
+          rate,
+          new Date(body.check_in),
+          new Date(body.check_out)
+        );
+        calculatedAmount = priceObj.totalAmount;
+      }
+    }
+
     // 1. Create the booking
     const rows = await sql`
       INSERT INTO bookings (property_id, unit_id, guest_id, booking_model, status, source, check_in, check_out, adults, children, total_amount, special_requests)
@@ -62,7 +97,7 @@ export async function POST(req: NextRequest) {
         ${body.booking_model || "nightly"}, 'confirmed', ${body.source || "direct"},
         ${body.check_in}, ${body.check_out},
         ${body.adults || 1}, ${body.children || 0},
-        ${body.total_amount}, ${body.special_requests || null}
+        ${calculatedAmount || 0}, ${body.special_requests || null}
       )
       RETURNING *
     `;
