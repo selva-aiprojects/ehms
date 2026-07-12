@@ -300,7 +300,7 @@ export default function DashboardPage() {
   }
 
   const role = user?.role_name || "";
-  const isAdmin = role === "super_admin" || role === "property_manager";
+  const isAdmin = role === "super_admin" || role === "property_manager" || role === "platform_super_admin";
 
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["today", "dashboards", "employees", "issues", "rooms", "feedback", "financial"]));
   const [drilling, setDrilling] = useState<{ section: string; items: Record<string, unknown>[]; href?: string } | null>(null);
