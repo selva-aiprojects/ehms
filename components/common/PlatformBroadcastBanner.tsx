@@ -25,10 +25,26 @@ export default function PlatformBroadcastBanner() {
     // Don't show banners to Platform Super Admins on their own admin pages
     if (user?.is_platform_admin) return;
 
-    // Load dismissed IDs from sessionStorage so banners don't annoy users on every route change
+    // Load dismissed IDs from localStorage with a 30-day (monthly) expiry
     try {
-      const saved = sessionStorage.getItem("ehms_dismissed_broadcasts");
-      if (saved) setDismissedIds(new Set(JSON.parse(saved)));
+      const saved = localStorage.getItem("ehms_dismissed_broadcasts");
+      if (saved) {
+        const data = JSON.parse(saved) as Record<string, number>;
+        const activeDismissals = new Set<string>();
+        const cleanData: Record<string, number> = {};
+        const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+
+        Object.entries(data).forEach(([id, dismissedAt]) => {
+          if (now - dismissedAt < thirtyDaysMs) {
+            activeDismissals.add(id);
+            cleanData[id] = dismissedAt;
+          }
+        });
+
+        setDismissedIds(activeDismissals);
+        localStorage.setItem("ehms_dismissed_broadcasts", JSON.stringify(cleanData));
+      }
     } catch {
       // Ignore
     }
@@ -53,7 +69,10 @@ export default function PlatformBroadcastBanner() {
     next.add(id);
     setDismissedIds(next);
     try {
-      sessionStorage.setItem("ehms_dismissed_broadcasts", JSON.stringify(Array.from(next)));
+      const saved = localStorage.getItem("ehms_dismissed_broadcasts");
+      const currentData = saved ? (JSON.parse(saved) as Record<string, number>) : {};
+      currentData[id] = Date.now();
+      localStorage.setItem("ehms_dismissed_broadcasts", JSON.stringify(currentData));
     } catch {
       // Ignore
     }
