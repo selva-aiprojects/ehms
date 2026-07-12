@@ -613,7 +613,7 @@ function LoginContent() {
                     ? getTenantWorkspaces(tenant)
                     : allowedJourneys.map(j => ({ type: j as VerticalKey, name: VERTICAL_META[j as VerticalKey]?.label || j, is_primary: false, suspended: false }))
                   ).map((ws) => (
-                    <option key={ws.type} value={ws.type} disabled={ws.suspended}>
+                    <option key={ws.type + "-" + ws.name} value={ws.type} disabled={ws.suspended}>
                       {ws.name} {ws.suspended ? " (Suspended)" : ""}
                     </option>
                   ))}
