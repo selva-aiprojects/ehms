@@ -170,15 +170,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // 5. Create Single Unit / Room
     if (action === "create_unit") {
-      const { floor_id, unit_label, unit_type, layout_type, sq_ft, max_occupancy, base_rate, status, attributes } = body;
+      const { floor_id, unit_label, unit_type, layout_type, sq_ft, max_occupancy, base_rate, status, attributes, parent_unit_id } = body;
       if (!floor_id || !unit_label || !unit_type) {
         return NextResponse.json({ error: "floor_id, unit_label, and unit_type are required" }, { status: 400 });
       }
 
       const attrJson = JSON.stringify(attributes || {});
+      const pUnitId = parent_unit_id && parent_unit_id !== "" ? parent_unit_id : null;
       const unitRows = await sql.query(
-        `INSERT INTO units (floor_id, unit_type, unit_label, layout_type, sq_ft, max_occupancy, base_rate, status, attributes)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)
+        `INSERT INTO units (floor_id, unit_type, unit_label, layout_type, sq_ft, max_occupancy, base_rate, status, attributes, parent_unit_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10)
          ON CONFLICT (floor_id, unit_label) DO UPDATE SET
            unit_type = EXCLUDED.unit_type,
            layout_type = EXCLUDED.layout_type,
@@ -186,6 +187,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
            max_occupancy = EXCLUDED.max_occupancy,
            base_rate = EXCLUDED.base_rate,
            attributes = EXCLUDED.attributes,
+           parent_unit_id = EXCLUDED.parent_unit_id,
            updated_at = now()
          RETURNING *`,
         [
@@ -197,7 +199,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           max_occupancy ? parseInt(max_occupancy) : 2,
           base_rate ? parseFloat(base_rate) : 0,
           status || "vacant",
-          attrJson
+          attrJson,
+          pUnitId
         ]
       );
 
@@ -256,7 +259,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // 7. Update Unit / Room Specifications
     if (action === "update_unit") {
-      const { unit_id, unit_label, unit_type, layout_type, sq_ft, max_occupancy, base_rate, status, attributes } = body;
+      const { unit_id, unit_label, unit_type, layout_type, sq_ft, max_occupancy, base_rate, status, attributes, parent_unit_id } = body;
       if (!unit_id) {
         return NextResponse.json({ error: "unit_id is required" }, { status: 400 });
       }
@@ -273,6 +276,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       if (base_rate !== undefined) { updates.push(`base_rate = $${idx++}`); values.push(parseFloat(base_rate)); }
       if (status !== undefined) { updates.push(`status = $${idx++}`); values.push(status); }
       if (attributes !== undefined) { updates.push(`attributes = $${idx++}::jsonb`); values.push(JSON.stringify(attributes)); }
+      if (parent_unit_id !== undefined) {
+        updates.push(`parent_unit_id = $${idx++}`);
+        values.push(parent_unit_id && parent_unit_id !== "" ? parent_unit_id : null);
+      }
 
       if (updates.length === 0) {
         return NextResponse.json({ error: "No fields to update" }, { status: 400 });

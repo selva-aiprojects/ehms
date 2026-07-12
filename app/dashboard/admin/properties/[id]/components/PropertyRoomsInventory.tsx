@@ -50,6 +50,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
     max_occupancy: 2,
     base_rate: 4500,
     status: "vacant",
+    parent_unit_id: "",
     attributes: {
       ac: true,
       category_name: "",
@@ -168,7 +169,8 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
         max_occupancy: unitForm.max_occupancy,
         base_rate: unitForm.base_rate,
         status: unitForm.status,
-        attributes: unitForm.attributes
+        attributes: unitForm.attributes,
+        parent_unit_id: unitForm.parent_unit_id
       };
       if (unitForm.id) payload.unit_id = unitForm.id;
 
@@ -312,6 +314,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
       max_occupancy: 2,
       base_rate: firstCat ? firstCat.base_price || 4500 : 4500,
       status: "vacant",
+      parent_unit_id: "",
       attributes: {
         ac: firstCat?.name?.toLowerCase().includes("non-ac") ? false : true,
         category_name: firstCat ? firstCat.name : "Deluxe Room",
@@ -336,6 +339,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
       max_occupancy: unit.max_occupancy || 2,
       base_rate: unit.base_rate || 0,
       status: unit.status || "vacant",
+      parent_unit_id: unit.parent_unit_id || "",
       attributes: {
         ac: unit.attributes?.ac !== false,
         category_name: unit.attributes?.category_name || unit.layout_type || "",
@@ -420,6 +424,8 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
       }));
     }
   }
+
+  const isApartmentVertical = property?.vertical_type === "service_apartment" || property?.vertical_type === "rental_apartment";
 
   if (isLoading) {
     return (
@@ -855,6 +861,51 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                   />
                 </div>
               </div>
+
+              {/* Unit Type & Parent Flat for Serviced Apartments / Rental Apartments */}
+              {isApartmentVertical && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-blue-50/50 border border-blue-100/60">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1A3C5E] uppercase mb-1">Unit / Configuration Type <span className="text-red-500">*</span></label>
+                    <select
+                      value={unitForm.unit_type}
+                      onChange={e => {
+                        const nextType = e.target.value;
+                        setUnitForm({ 
+                          ...unitForm, 
+                          unit_type: nextType, 
+                          parent_unit_id: nextType === "apartment" ? "" : unitForm.parent_unit_id 
+                        });
+                      }}
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white font-medium">
+                      <option value="room">Room (Private Bedroom)</option>
+                      <option value="suite">Suite (Premium Room)</option>
+                      <option value="apartment">Apartment (Entire Flat)</option>
+                    </select>
+                    <p className="text-[10px] text-slate-400 mt-1">Specify whether this represents an individual bedroom or a whole apartment / flat.</p>
+                  </div>
+
+                  {(unitForm.unit_type === "room" || unitForm.unit_type === "suite") && (
+                    <div>
+                      <label className="block text-xs font-semibold text-[#1A3C5E] uppercase mb-1">Parent Flat / Apartment</label>
+                      <select
+                        value={unitForm.parent_unit_id || ""}
+                        onChange={e => setUnitForm({ ...unitForm, parent_unit_id: e.target.value })}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white font-medium">
+                        <option value="">-- Independent (No Parent Apartment) --</option>
+                        {units
+                          .filter(u => u.unit_type === "apartment" && u.id !== unitForm.id)
+                          .map(apt => (
+                            <option key={apt.id} value={apt.id}>
+                              Flat {apt.unit_label} ({apt.layout_type || "Apartment"})
+                            </option>
+                          ))}
+                      </select>
+                      <p className="text-[10px] text-slate-400 mt-1">Associate this room with a parent flat for consolidated packing bookings.</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Category & Air Conditioning Specification */}
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
