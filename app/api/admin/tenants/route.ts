@@ -88,8 +88,15 @@ export async function POST(req: NextRequest) {
 
     const tenantDb = getDb(schema);
 
-    // Copy master roles from viswa template schema in case not done by DB function
+    // Copy master data from viswa template schema to ensure new tenant has functional workspaces and RBAC configs
     await tenantDb.query(`INSERT INTO ${schema}.roles SELECT * FROM viswa.roles ON CONFLICT DO NOTHING`);
+    await tenantDb.query(`INSERT INTO ${schema}.enterprises SELECT * FROM viswa.enterprises ON CONFLICT DO NOTHING`);
+    await tenantDb.query(`INSERT INTO ${schema}.regions SELECT * FROM viswa.regions ON CONFLICT DO NOTHING`);
+    await tenantDb.query(`INSERT INTO ${schema}.properties SELECT * FROM viswa.properties ON CONFLICT DO NOTHING`);
+    await tenantDb.query(`INSERT INTO ${schema}.permissions SELECT * FROM viswa.permissions ON CONFLICT DO NOTHING`);
+    await tenantDb.query(`INSERT INTO ${schema}.role_permissions SELECT * FROM viswa.role_permissions ON CONFLICT DO NOTHING`);
+    await tenantDb.query(`INSERT INTO ${schema}.departments SELECT * FROM viswa.departments ON CONFLICT DO NOTHING`);
+    await tenantDb.query(`INSERT INTO ${schema}.leave_types SELECT * FROM viswa.leave_types ON CONFLICT DO NOTHING`);
 
     await tenantDb`
       INSERT INTO users (email, first_name, password_hash, is_active)
