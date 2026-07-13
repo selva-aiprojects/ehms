@@ -148,8 +148,8 @@ export default function InventoryDashboard() {
               <DollarSign className="w-5 h-5" style={{ color: "#1A3C5E" }} />
             </div>
             <div>
-              <div className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>
-                {statsLoading ? "..." : `$${parseFloat(stats.total_value || 0).toLocaleString()}`}
+              <div className="text-2xl font-bold mt-1" style={{ color: "#1A3C5E" }}>
+                {statsLoading ? "..." : `₹${parseFloat(stats.total_value || 0).toLocaleString()}`}
               </div>
               <div className="text-xs" style={{ color: "#64748B" }}>Total Value</div>
             </div>
@@ -294,7 +294,7 @@ export default function InventoryDashboard() {
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit Cost ($)</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit Cost (₹)</label>
                   <input type="number" min="0" step="0.01" value={itemForm.unit_cost}
                     onChange={(e) => setItemForm({ ...itemForm, unit_cost: parseFloat(e.target.value) || 0 })}
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />

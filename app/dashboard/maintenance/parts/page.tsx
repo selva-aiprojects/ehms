@@ -282,7 +282,7 @@ export default function PartsPage() {
                     style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Unit Price ($)</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Unit Price (₹)</label>
                   <input type="number" min={0} step="0.01" value={formData.unit_price} onChange={(e) => setFormData({ ...formData, unit_price: Number(e.target.value) })}
                     style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>

@@ -8,18 +8,27 @@ import PropertyRoomsInventory from "@/app/dashboard/admin/properties/[id]/compon
 
 export default function RoomsInventoryPage() {
   const { properties = [], isLoading: propsLoading } = useProperties();
-  const { selectedPropertyId: journeyPropertyId } = useJourney();
+  const { activeJourney, selectedPropertyId: journeyPropertyId, setSelectedPropertyId: setJourneyPropertyId } = useJourney();
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
+
+  const filteredProperties = properties.filter((p: any) => {
+    if (activeJourney === "all") return true;
+    if (activeJourney === "hotels") return p.vertical_type === "hotel";
+    if (activeJourney === "apartments") return p.vertical_type === "service_apartment";
+    if (activeJourney === "rental") return p.vertical_type === "rental_apartment";
+    if (activeJourney === "workplace") return p.vertical_type === "workplace";
+    return true;
+  });
 
   useEffect(() => {
     if (journeyPropertyId && journeyPropertyId !== "all") {
       setSelectedPropertyId(journeyPropertyId);
-    } else if (properties.length > 0 && !selectedPropertyId) {
-      setSelectedPropertyId(properties[0].id);
+    } else if (filteredProperties.length > 0 && (!selectedPropertyId || !filteredProperties.some((p: any) => p.id === selectedPropertyId))) {
+      setSelectedPropertyId(filteredProperties[0].id);
     }
-  }, [journeyPropertyId, properties, selectedPropertyId]);
+  }, [journeyPropertyId, filteredProperties, selectedPropertyId]);
 
-  const currentProperty = properties.find((p: any) => p.id === selectedPropertyId) || properties[0];
+  const currentProperty = filteredProperties.find((p: any) => p.id === selectedPropertyId) || filteredProperties[0] || properties[0];
 
   if (propsLoading) {
     return (
@@ -58,11 +67,14 @@ export default function RoomsInventoryPage() {
           <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Property:</label>
           <select
             value={selectedPropertyId || currentProperty?.id || ""}
-            onChange={(e) => setSelectedPropertyId(e.target.value)}
+            onChange={(e) => {
+              setSelectedPropertyId(e.target.value);
+              setJourneyPropertyId(e.target.value);
+            }}
             className="px-3 py-1.5 rounded-lg border text-sm font-medium outline-none bg-white shadow-sm"
             style={{ borderColor: "#CBD5E1", color: "#1E293B" }}
           >
-            {properties.map((p: any) => (
+            {filteredProperties.map((p: any) => (
               <option key={p.id} value={p.id}>
                 {p.name} ({p.vertical_type || "Property"})
               </option>

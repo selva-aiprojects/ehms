@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Wrench, Plus, AlertCircle, Loader2, RefreshCw, CheckCircle, Search, Building2, DollarSign, BadgePercent } from "lucide-react";
+import { Wrench, Plus, AlertCircle, Loader2, RefreshCw, CheckCircle, Search, Building2, DollarSign, IndianRupee, BadgePercent } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
@@ -122,8 +122,8 @@ export default function VendorServicesPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   {s.rate && (
-                    <span className="text-sm font-semibold" style={{ color: "#1A2E44" }}>
-                      <DollarSign className="w-3 h-3 inline" />{parseFloat(s.rate).toLocaleString()}{s.rate_unit ? `/${s.rate_unit}` : ""}
+                    <span className="text-sm font-semibold flex items-center" style={{ color: "#1A2E44" }}>
+                      <IndianRupee className="w-3.5 h-3.5 inline mr-0.5" />{parseFloat(s.rate).toLocaleString()}{s.rate_unit ? `/${s.rate_unit}` : ""}
                     </span>
                   )}
                   <Badge variant="gray">{s.service_type}</Badge>

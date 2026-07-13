@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const type = searchParams.get("journal_type");
 
     let query = sql`
-      SELECT je.*, u.name as created_by_name
+      SELECT je.*, TRIM(u.first_name || ' ' || COALESCE(u.last_name, '')) as created_by_name
       FROM journal_entries je
       LEFT JOIN users u ON u.id = je.created_by
       WHERE 1=1`;

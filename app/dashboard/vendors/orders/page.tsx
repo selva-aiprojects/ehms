@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ClipboardList, AlertCircle, Loader2, RefreshCw, CheckCircle, Search, Building2, Calendar, DollarSign, FileText } from "lucide-react";
+import { ClipboardList, AlertCircle, Loader2, RefreshCw, CheckCircle, Search, Building2, Calendar, DollarSign, IndianRupee, FileText } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import { useVendorOrders, useVendorsList } from "@/lib/hooks";
@@ -107,8 +107,8 @@ export default function VendorOrdersPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-sm" style={{ color: "#1A2E44" }}>
-                      <DollarSign className="w-3 h-3 inline" />{parseFloat(po.total_amount || 0).toLocaleString()}
+                    <span className="font-semibold text-sm flex items-center" style={{ color: "#1A2E44" }}>
+                      <IndianRupee className="w-3.5 h-3.5 inline mr-0.5" />{parseFloat(po.total_amount || 0).toLocaleString()}
                     </span>
                     <Badge variant={badgeColor}>{po.status?.replace("_", " ") || "draft"}</Badge>
                   </div>

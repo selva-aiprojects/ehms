@@ -116,7 +116,7 @@ export async function GET(req: NextRequest) {
             (SELECT COUNT(*)::int FROM bookings WHERE ${propWhere} AND check_in BETWEEN ${startIdx} AND ${endIdx}) AS total_bookings,
             (SELECT COUNT(*)::int FROM bookings WHERE status = 'checked_in' AND ${propWhere} AND check_in <= ${endIdx}) AS checked_in,
             (SELECT COUNT(DISTINCT guest_id)::int FROM bookings WHERE ${propWhere} AND check_in BETWEEN ${startIdx} AND ${endIdx}) AS total_guests,
-            COALESCE((SELECT SUM(amount)::numeric FROM payments WHERE status = 'completed' AND ${propWhere} AND payment_date BETWEEN ${startIdx} AND ${endIdx}), 0) AS total_revenue,
+            COALESCE((SELECT SUM(amount)::numeric FROM payments WHERE status = 'completed' AND ${propWhere} AND payment_date BETWEEN ${startIdx} AND ${endIdx}), 0) + COALESCE((SELECT SUM(total_amount)::numeric FROM bookings WHERE status IN ('checked_in', 'checked_out') AND ${propWhere} AND check_in BETWEEN ${startIdx} AND ${endIdx}), 0) + COALESCE((SELECT SUM(total_amount)::numeric FROM rent_invoices WHERE status = 'paid' AND period_start BETWEEN ${startIdx} AND ${endIdx} AND lease_id IN (SELECT id FROM lease_agreements WHERE ${propWhere})), 0) AS total_revenue,
             (SELECT COALESCE(SUM(balance_due),0)::numeric FROM vendor_bills WHERE status IN ('pending', 'approved', 'overdue') AND ${propWhere} AND due_date BETWEEN ${startIdx} AND ${endIdx}) AS total_payables,
             (SELECT COALESCE(ROUND(AVG(rating), 1), 0.0)::numeric FROM guest_feedbacks WHERE ${propWhere} AND created_at BETWEEN ${startIdx} AND ${endIdx}) AS avg_rating,
             (SELECT COUNT(*)::int FROM units WHERE ${unitsPropFilter}) AS total_units,
@@ -124,10 +124,23 @@ export async function GET(req: NextRequest) {
         `, qParams),
 
         sql.query(`
-          SELECT category, COALESCE(SUM(grand_total), 0)::numeric AS amount
-          FROM vendor_bills
-          WHERE ${propWhere} AND status IN ('pending', 'approved', 'paid', 'overdue') AND bill_date BETWEEN ${startIdx} AND ${endIdx}
-          GROUP BY category
+          SELECT category, SUM(amount)::numeric AS amount FROM (
+            SELECT COALESCE(category, 'Vendor Bill') AS category, grand_total AS amount
+            FROM vendor_bills
+            WHERE ${propWhere} AND status IN ('sent', 'pending', 'approved', 'paid', 'overdue') AND bill_date BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT 'Salary' AS category, total_gross AS amount
+            FROM payroll_runs
+            WHERE ${propWhere} AND period_start BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT 'Procurement' AS category, total_amount AS amount
+            FROM purchase_orders
+            WHERE ${propWhere} AND status IN ('pending', 'approved', 'ordered', 'partially_received', 'received') AND po_date BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT 'Maintenance' AS category, ROUND(value / 12, 2) AS amount
+            FROM amc_contracts
+            WHERE ${propWhere} AND status = 'active'
+          ) exp_all GROUP BY 1
         `, qParams),
 
         sql.query(`
@@ -151,17 +164,17 @@ export async function GET(req: NextRequest) {
       const occupancyRate = totalUnits > 0 ? Math.round((occupiedUnits / totalUnits) * 100) : 0;
 
       // Group expenses
-      const expenseMap = { salary: 0, maintenance: 0, subscriptions: 0, utilities: 0, other: 0 };
+      const expenseMap = { salary: 0, maintenance: 0, procurement: 0, utilities: 0, other: 0 };
       (expenses as { category: string; amount: string }[]).forEach(e => {
         const cat = (e.category || "").toLowerCase();
         const amt = Number(e.amount || 0);
         if (cat.includes("salary") || cat.includes("payroll") || cat.includes("staff")) {
           expenseMap.salary += amt;
-        } else if (cat.includes("maint") || cat.includes("repair")) {
+        } else if (cat.includes("maint") || cat.includes("repair") || cat.includes("amc")) {
           expenseMap.maintenance += amt;
-        } else if (cat.includes("sub") || cat.includes("licens")) {
-          expenseMap.subscriptions += amt;
-        } else if (cat.includes("util") || cat.includes("elect") || cat.includes("water") || cat.includes("gas") || cat.includes("rent")) {
+        } else if (cat.includes("procure") || cat.includes("purchase")) {
+          expenseMap.procurement += amt;
+        } else if (cat.includes("util") || cat.includes("elect") || cat.includes("water") || cat.includes("gas") || cat.includes("clean") || cat.includes("office") || cat.includes("f&b")) {
           expenseMap.utilities += amt;
         } else {
           expenseMap.other += amt;
@@ -229,16 +242,22 @@ export async function GET(req: NextRequest) {
 
       const [dailyRevenueRows, dailyExpenseRows] = await Promise.all([
         sql.query(`
-          SELECT TO_CHAR(payment_date, 'YYYY-MM-DD') AS key, SUM(amount)::numeric AS amount
-          FROM payments
-          WHERE status = 'completed' AND ${propWhere} AND payment_date BETWEEN ${startIdx} AND ${endIdx}
-          GROUP BY 1
+          SELECT key, SUM(amount)::numeric AS amount FROM (
+            SELECT TO_CHAR(payment_date, 'YYYY-MM-DD') AS key, amount FROM payments WHERE status = 'completed' AND ${propWhere} AND payment_date BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT TO_CHAR(check_in, 'YYYY-MM-DD') AS key, total_amount AS amount FROM bookings WHERE status IN ('checked_in', 'checked_out') AND ${propWhere} AND check_in BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT TO_CHAR(period_start, 'YYYY-MM-DD') AS key, total_amount AS amount FROM rent_invoices WHERE status = 'paid' AND period_start BETWEEN ${startIdx} AND ${endIdx} AND lease_id IN (SELECT id FROM lease_agreements WHERE ${propWhere})
+          ) rev_all GROUP BY 1
         `, cpParams),
         sql.query(`
-          SELECT TO_CHAR(bill_date, 'YYYY-MM-DD') AS key, SUM(grand_total)::numeric AS amount
-          FROM vendor_bills
-          WHERE status IN ('pending', 'approved', 'paid', 'overdue') AND ${propWhere} AND bill_date BETWEEN ${startIdx} AND ${endIdx}
-          GROUP BY 1
+          SELECT key, SUM(amount)::numeric AS amount FROM (
+            SELECT TO_CHAR(bill_date, 'YYYY-MM-DD') AS key, grand_total AS amount FROM vendor_bills WHERE status IN ('sent', 'pending', 'approved', 'paid', 'overdue') AND ${propWhere} AND bill_date BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT TO_CHAR(period_start, 'YYYY-MM-DD') AS key, total_gross AS amount FROM payroll_runs WHERE ${propWhere} AND period_start BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT TO_CHAR(po_date, 'YYYY-MM-DD') AS key, total_amount AS amount FROM purchase_orders WHERE status IN ('pending', 'approved', 'ordered', 'partially_received', 'received') AND ${propWhere} AND po_date BETWEEN ${startIdx} AND ${endIdx}
+          ) exp_all GROUP BY 1
         `, cpParams),
       ]);
 
@@ -265,16 +284,24 @@ export async function GET(req: NextRequest) {
 
       const [monthlyRevenueRows, monthlyExpenseRows] = await Promise.all([
         sql.query(`
-          SELECT TO_CHAR(payment_date, 'YYYY-MM') AS key, SUM(amount)::numeric AS amount
-          FROM payments
-          WHERE status = 'completed' AND ${propWhere} AND payment_date BETWEEN ${startIdx} AND ${endIdx}
-          GROUP BY 1
+          SELECT key, SUM(amount)::numeric AS amount FROM (
+            SELECT TO_CHAR(payment_date, 'YYYY-MM') AS key, amount FROM payments WHERE status = 'completed' AND ${propWhere} AND payment_date BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT TO_CHAR(check_in, 'YYYY-MM') AS key, total_amount AS amount FROM bookings WHERE status IN ('checked_in', 'checked_out') AND ${propWhere} AND check_in BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT TO_CHAR(period_start, 'YYYY-MM') AS key, total_amount AS amount FROM rent_invoices WHERE status = 'paid' AND period_start BETWEEN ${startIdx} AND ${endIdx} AND lease_id IN (SELECT id FROM lease_agreements WHERE ${propWhere})
+          ) rev_all GROUP BY 1
         `, cpParams),
         sql.query(`
-          SELECT TO_CHAR(bill_date, 'YYYY-MM') AS key, SUM(grand_total)::numeric AS amount
-          FROM vendor_bills
-          WHERE status IN ('pending', 'approved', 'paid', 'overdue') AND ${propWhere} AND bill_date BETWEEN ${startIdx} AND ${endIdx}
-          GROUP BY 1
+          SELECT key, SUM(amount)::numeric AS amount FROM (
+            SELECT TO_CHAR(bill_date, 'YYYY-MM') AS key, grand_total AS amount FROM vendor_bills WHERE status IN ('sent', 'pending', 'approved', 'paid', 'overdue') AND ${propWhere} AND bill_date BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT TO_CHAR(period_start, 'YYYY-MM') AS key, total_gross AS amount FROM payroll_runs WHERE ${propWhere} AND period_start BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT TO_CHAR(po_date, 'YYYY-MM') AS key, total_amount AS amount FROM purchase_orders WHERE status IN ('pending', 'approved', 'ordered', 'partially_received', 'received') AND ${propWhere} AND po_date BETWEEN ${startIdx} AND ${endIdx}
+            UNION ALL
+            SELECT TO_CHAR(d, 'YYYY-MM') AS key, ROUND(value / 12, 2) AS amount FROM amc_contracts CROSS JOIN generate_series(${startIdx}::date, ${endIdx}::date, '1 month'::interval) d WHERE status = 'active' AND ${propWhere}
+          ) exp_all GROUP BY 1
         `, cpParams),
       ]);
 

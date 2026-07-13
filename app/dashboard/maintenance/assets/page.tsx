@@ -174,7 +174,7 @@ export default function AssetsPage() {
           </div>
           <div className="rounded-xl p-4" style={{ background: "#F5F7FA" }}>
             <div className="flex items-center justify-between mb-2">
-              <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>${totalValue.toLocaleString()}</div>
+              <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>₹{totalValue.toLocaleString()}</div>
               <DollarSign className="w-5 h-5" style={{ color: "#64748B" }} />
             </div>
             <div className="text-xs" style={{ color: "#64748B" }}>Total Value</div>
@@ -309,7 +309,7 @@ export default function AssetsPage() {
                     style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Current Value ($)</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Current Value (₹)</label>
                   <input type="number" min={0} step="0.01" value={formData.current_value} onChange={(e) => setFormData({ ...formData, current_value: Number(e.target.value) })}
                     style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>

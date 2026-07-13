@@ -331,7 +331,7 @@ export default function InventoryItemsPage() {
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit Cost ($)</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit Cost (₹)</label>
                   <input type="number" min="0" step="0.01" value={formData.unit_cost}
                     onChange={(e) => setFormData({ ...formData, unit_cost: parseFloat(e.target.value) || 0 })}
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
@@ -422,7 +422,7 @@ export default function InventoryItemsPage() {
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit Cost ($)</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit Cost (₹)</label>
                   <input type="number" min="0" step="0.01" value={adjustForm.unit_cost}
                     onChange={(e) => setAdjustForm({ ...adjustForm, unit_cost: parseFloat(e.target.value) || 0 })}
                     className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />

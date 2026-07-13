@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const vendorId = searchParams.get("vendor_id");
 
     let query = `
-      SELECT vb.*, v.name as vendor_name, v.code as vendor_code
+      SELECT vb.*, v.company_name as vendor_name, v.id::text as vendor_code
       FROM vendor_bills vb
       LEFT JOIN vendors v ON v.id = vb.vendor_id
       WHERE 1=1

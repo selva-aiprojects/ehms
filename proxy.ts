@@ -4,8 +4,21 @@ import { ROLE_ACCESS } from "@/lib/role-access";
 
 const PUBLIC_ROUTES = ["/", "/tenants", "/login", "/_next/", "/favicon.ico", "/eHMS_logo.png", "/favicon.png"];
 
+const PUBLIC_API_PREFIXES = [
+  "/api/auth/login",
+  "/api/auth/platform-login",
+  "/api/admin/tenants"
+];
+
 function isPublic(pathname: string): boolean {
-  return PUBLIC_ROUTES.some((p) => pathname.startsWith(p));
+  if (pathname === "/") return true;
+  if (PUBLIC_ROUTES.some((p) => p !== "/" && (pathname === p || pathname.startsWith(p + "/")))) {
+    return true;
+  }
+  if (PUBLIC_API_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p + "?"))) {
+    return true;
+  }
+  return false;
 }
 
 export default async function proxy(request: NextRequest) {
