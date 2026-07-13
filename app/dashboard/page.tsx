@@ -409,10 +409,11 @@ export default function DashboardPage() {
     label: trendLabel,
   };
 
-  const formatCurrency = (amount: number) => {
-    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
-    if (amount >= 1000) return `₹${(amount / 1000).toFixed(1)}k`;
-    return `₹${amount.toFixed(0)}`;
+  const formatCurrency = (amount: number | undefined | null) => {
+    const val = Number(amount || 0);
+    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `₹${(val / 1000).toFixed(1)}k`;
+    return `₹${val.toFixed(0)}`;
   };
 
   const kpiCards = [
@@ -426,7 +427,7 @@ export default function DashboardPage() {
     {
       label: "Total Expenses",
       value: stats ? formatCurrency(current.expenses.total) : "—",
-      icon: <DollarSign className="w-5 h-5" style={{ color: "#E53E3E" }} />,
+      icon: <IndianRupee className="w-5 h-5" style={{ color: "#E53E3E" }} />,
       bg: "rgba(229,62,62,0.12)",
       trend: expTrend,
     },
@@ -726,7 +727,7 @@ export default function DashboardPage() {
                     { label: "Today Revenue", key: "today", recentKey: "recentToday", color: "#2BAE8E", bg: "rgba(43,174,142,0.08)", icon: <IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} /> },
                     { label: "This Week", key: "week", recentKey: "recentWeek", color: "#1A3C5E", bg: "rgba(26,60,94,0.06)", icon: <TrendingUp className="w-4 h-4" style={{ color: "#1A3C5E" }} /> },
                     { label: "This Month", key: "month", recentKey: "recentMonth", color: "#F5A623", bg: "rgba(245,166,35,0.08)", icon: <TrendingUp className="w-4 h-4" style={{ color: "#F5A623" }} /> },
-                    { label: "This Year", key: "year", recentKey: "recentYear", color: "#E53E3E", bg: "rgba(229,62,62,0.08)", icon: <DollarSign className="w-4 h-4" style={{ color: "#E53E3E" }} /> },
+                    { label: "This Year", key: "year", recentKey: "recentYear", color: "#E53E3E", bg: "rgba(229,62,62,0.08)", icon: <IndianRupee className="w-4 h-4" style={{ color: "#E53E3E" }} /> },
                   ].map(item => {
                     const val = (overview?.revenue as any)?.[item.key] ?? 0;
                     const drillItems = (overview as any)?.revenue?.[item.recentKey] || (overview as any)?.revenue?.recent || [];
