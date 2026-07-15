@@ -288,16 +288,16 @@ export default function FrontDeskPage() {
                       }}
                     >
                       <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-extrabold text-base tracking-tight" style={{ color: s.text }}>{room.unit_label}</span>
+                        <div className="flex items-center justify-between mb-2 gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="font-extrabold text-base tracking-tight truncate" style={{ color: s.text }}>{room.unit_label}</span>
                             {isAc !== undefined && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase" style={{ background: isAc ? "rgba(16,185,129,0.18)" : "rgba(100,116,139,0.15)", color: isAc ? "#047857" : "#475569" }}>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: isAc ? "rgba(16,185,129,0.18)" : "rgba(100,116,139,0.15)", color: isAc ? "#047857" : "#475569" }}>
                                 {isAc ? "AC" : "Non-AC"}
                               </span>
                             )}
                           </div>
-                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs" style={{ background: s.pillBg, color: s.pillText }}>
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs flex-shrink-0" style={{ background: s.pillBg, color: s.pillText }}>
                             <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.dot }} />
                             {s.label}
                           </span>

@@ -27,6 +27,11 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
     mutate
   } = usePropertyInventory(propertyId);
 
+  const isApartmentVertical = property?.vertical_type === "service_apartment" || property?.vertical_type === "rental_apartment";
+  const defaultCategories = isApartmentVertical
+    ? ["1BHK Apartment", "2BHK Apartment", "3BHK Apartment", "Studio Apartment", "Standard Room (Attached Bath)", "Standard Room (Common Bath)"]
+    : ["Standard Room", "Deluxe Room", "Super Deluxe Room", "Suite", "Family Room"];
+
   const [selectedBuildingId, setSelectedBuildingId] = useState<string>("all");
   const [selectedFloorId, setSelectedFloorId] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -298,26 +303,28 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
     }
   }
 
-  function openAddUnitModal(defaultFloorId?: string) {
+  function openAddUnitModal(defaultFloorId?: string, parentUnit?: any) {
     const firstBuilding = buildings.length > 0 ? buildings[0].id : "";
-    const firstFloor = defaultFloorId || (floors.length > 0 ? floors[0].id : "");
+    const firstFloor = defaultFloorId || (parentUnit?.floor_id || (floors.length > 0 ? floors[0].id : ""));
+    const bldId = parentUnit ? (floors.find(f => f.id === parentUnit.floor_id)?.building_id || firstBuilding) : firstBuilding;
     const firstCat = roomCategories.length > 0 ? roomCategories[0] : null;
+    const defaultCatName = defaultCategories[0];
 
     setUnitForm({
       id: null,
-      building_id: firstBuilding,
+      building_id: bldId,
       floor_id: firstFloor,
-      unit_label: "",
-      unit_type: "room",
-      layout_type: firstCat ? firstCat.name : "Deluxe Room",
+      unit_label: parentUnit ? `${parentUnit.unit_label}-` : "",
+      unit_type: parentUnit ? "room" : (isApartmentVertical ? "apartment" : "room"),
+      layout_type: firstCat ? firstCat.name : defaultCatName,
       sq_ft: 350,
       max_occupancy: 2,
       base_rate: firstCat ? firstCat.base_price || 4500 : 4500,
       status: "vacant",
-      parent_unit_id: "",
+      parent_unit_id: parentUnit ? parentUnit.id : "",
       attributes: {
         ac: firstCat?.name?.toLowerCase().includes("non-ac") ? false : true,
-        category_name: firstCat ? firstCat.name : "Deluxe Room",
+        category_name: firstCat ? firstCat.name : defaultCatName,
         bed_type: "King",
         features: ["WiFi", "TV", "Air Conditioning", "Ensuite Bathroom"],
         smoking: false
@@ -355,6 +362,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
     const firstBuilding = buildings.length > 0 ? buildings[0].id : "";
     const firstFloor = floors.length > 0 ? floors[0].id : "";
     const firstCat = roomCategories.length > 0 ? roomCategories[0] : null;
+    const defaultCatName = defaultCategories[0];
 
     setBulkForm({
       building_id: firstBuilding,
@@ -362,14 +370,14 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
       prefix: "1",
       start_num: 1,
       end_num: 10,
-      unit_type: "room",
-      layout_type: firstCat ? firstCat.name : "Deluxe Room",
+      unit_type: isApartmentVertical ? "apartment" : "room",
+      layout_type: firstCat ? firstCat.name : defaultCatName,
       sq_ft: 350,
       max_occupancy: 2,
       base_rate: firstCat ? firstCat.base_price || 4500 : 4500,
       attributes: {
         ac: firstCat?.name?.toLowerCase().includes("non-ac") ? false : true,
-        category_name: firstCat ? firstCat.name : "Deluxe Room",
+        category_name: firstCat ? firstCat.name : defaultCatName,
         bed_type: "King",
         features: ["WiFi", "TV", "Air Conditioning", "Room Service"],
         smoking: false
@@ -424,8 +432,6 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
       }));
     }
   }
-
-  const isApartmentVertical = property?.vertical_type === "service_apartment" || property?.vertical_type === "rental_apartment";
 
   if (isLoading) {
     return (
@@ -576,7 +582,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                   {/* Building Header */}
                   <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-[#1A3C5E]/10 flex items-center justify-center text-[#1A3C5E] font-bold text-sm">
+                      <div className="min-w-9 px-2 h-9 rounded-lg bg-[#1A3C5E]/10 flex items-center justify-center text-[#1A3C5E] font-bold text-xs whitespace-nowrap overflow-hidden text-ellipsis">
                         {b.code}
                       </div>
                       <div>
@@ -644,6 +650,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                             ) : (
                               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                                 {flrUnits.map(unit => {
+                                  const childUnits = units.filter(c => c.parent_unit_id === unit.id);
                                   const isAc = unit.attributes?.ac !== false;
                                   const catName = unit.attributes?.category_name || unit.layout_type || "Deluxe Room";
                                   const rate = unit.base_rate || 0;
@@ -659,10 +666,17 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                                       <div>
                                         {/* Top row: Number & AC badge */}
                                         <div className="flex items-center justify-between mb-2">
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-base font-extrabold text-[#1A3C5E] tracking-tight">
-                                              Room {unit.unit_label}
-                                            </span>
+                                          <div className="flex flex-col">
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-base font-extrabold text-[#1A3C5E] tracking-tight truncate max-w-[150px]" title={unit.unit_label}>
+                                                {unit.unit_type === "apartment" ? "Flat" : (unit.unit_type === "suite" ? "Suite" : "Room")} {unit.unit_label}
+                                              </span>
+                                            </div>
+                                            {unit.parent_unit_id && (
+                                              <div className="text-[10px] font-semibold text-slate-500 -mt-0.5">
+                                                Part of Flat {units.find(u => u.id === unit.parent_unit_id)?.unit_label || ''}
+                                              </div>
+                                            )}
                                           </div>
                                           <div className="flex items-center gap-1">
                                             <Badge variant={isAc ? "teal" : "amber"}>
@@ -705,7 +719,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                                       </div>
 
                                       {/* Bottom row: Rate & Actions */}
-                                      <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                                      <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between mb-3">
                                         <div>
                                           <span className="text-xs font-bold text-[#1A3C5E]">₹{rate.toLocaleString()}</span>
                                           <span className="text-[10px] text-slate-400"> / night</span>
@@ -725,6 +739,17 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                                           </button>
                                         </div>
                                       </div>
+
+                                      {/* Child Rooms Mini Grid / Add Button */}
+                                      {unit.unit_type === "apartment" && (
+                                        <div className="mt-auto pt-3 border-t border-dashed border-slate-200">
+                                          <button
+                                            onClick={() => openAddUnitModal(unit.floor_id, unit)}
+                                            className="w-full py-1.5 border border-dashed border-[#2BAE8E] text-[#2BAE8E] hover:bg-[#2BAE8E] hover:text-white rounded text-xs font-bold flex items-center justify-center gap-1 transition-colors">
+                                            <Plus className="w-3.5 h-3.5" /> Add Room to Flat {childUnits.length > 0 ? `(${childUnits.length} rooms added)` : ""}
+                                          </button>
+                                        </div>
+                                      )}
                                     </div>
                                   );
                                 })}
@@ -919,7 +944,9 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                       onChange={e => handleCategoryChange(e.target.value, false)}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white font-medium">
                       {roomCategories.length === 0 ? (
-                        <option value="Deluxe Room">Deluxe Room</option>
+                        defaultCategories.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))
                       ) : (
                         roomCategories.map(cat => (
                           <option key={cat.id} value={cat.name}>
@@ -1083,6 +1110,21 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                 Create multiple consecutive room numbers on a floor in one click with identical AC / Non-AC specifications and pricing.
               </div>
 
+              {/* Unit Type Selection */}
+              {isApartmentVertical && (
+                <div className="mb-4 p-4 rounded-xl bg-blue-50/50 border border-blue-100/60">
+                  <label className="block text-xs font-semibold text-[#1A3C5E] uppercase mb-1">Unit / Configuration Type <span className="text-red-500">*</span></label>
+                  <select
+                    value={bulkForm.unit_type}
+                    onChange={e => setBulkForm({ ...bulkForm, unit_type: e.target.value })}
+                    className="w-full sm:w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white font-medium">
+                    <option value="room">Room (Private Bedroom)</option>
+                    <option value="suite">Suite (Premium Room)</option>
+                    <option value="apartment">Apartment (Entire Flat)</option>
+                  </select>
+                </div>
+              )}
+
               {/* Floor Selection & Range */}
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div className="sm:col-span-2">
@@ -1153,7 +1195,9 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                       onChange={e => handleCategoryChange(e.target.value, true)}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#2BAE8E] outline-none bg-white font-medium">
                       {roomCategories.length === 0 ? (
-                        <option value="Deluxe Room">Deluxe Room</option>
+                        defaultCategories.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))
                       ) : (
                         roomCategories.map(cat => (
                           <option key={cat.id} value={cat.name}>
