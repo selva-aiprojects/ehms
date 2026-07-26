@@ -169,6 +169,13 @@ async function run() {
       "020_admin_module.sql",
       "021_accounts_module.sql",
       "022_inventory_module.sql",
+      "030_phase1_core.sql",
+      "031_ota_channel_manager.sql",
+      "032_self_checkin.sql",
+      "033_whatsapp_integration.sql",
+      "034_multi_property.sql",
+      "035_restaurant_pos.sql",
+      "036_revenue_ai.sql",
     ];
 
     for (const file of SQL_FILES) {

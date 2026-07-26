@@ -497,3 +497,238 @@ export function useCreateAdminTicketMessage() {
     isMutating: mutation.isMutating, error: mutation.error,
   };
 }
+
+// ── Phase 1: Move Booking (Calendar Drag-and-Drop) ─────────
+export function useMoveBooking() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/reservations/move", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/reservations"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/dashboard"));
+    },
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+// ── Phase 1: Loyalty ───────────────────────────────────────
+export function useCreateLoyaltyTier() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/loyalty/tiers", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/loyalty")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useAdjustLoyaltyPoints() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/loyalty/transactions", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/loyalty")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+// ── Phase 1: Dynamic Pricing ───────────────────────────────
+export function useCreatePricingRule() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/pricing/rules", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/pricing")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdatePricingRule() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/pricing/rules", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/pricing")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/pricing/rules/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useCreatePricingSeason() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/pricing/seasons", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/pricing")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+// ── Phase 1: Laundry ───────────────────────────────────────
+export function useCreateLaundryOrder() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/laundry", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/laundry"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/dashboard"));
+    },
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateLaundryOrder() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/laundry", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/laundry")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/laundry/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+// ── Phase 2: OTA Channel Manager ───────────────────────────
+export function useCreateOtaMapping() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/ota/mappings", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/ota")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useTriggerOtaSync() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/ota/sync", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/ota")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useProcessOtaBooking() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/ota/bookings", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/ota"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/reservations"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/dashboard"));
+    },
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateSettlement() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/ota/settlements", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/ota")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+// ── Restaurant POS Mutations ──
+export function useUpdateTableStatus() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/restaurant/tables", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/restaurant/tables"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/restaurant/kds"));
+    },
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/restaurant/tables/${id}`, _method: "PATCH" } as any),
+    isMutating: mutation.isMutating,
+    error: mutation.error,
+  };
+}
+
+export function useCreateTableReservation() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/restaurant/reservations", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/restaurant/reservations"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/restaurant/tables"));
+    },
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateSplitBill() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/restaurant/split-bills", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/restaurant/split-bills")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateKdsTicket() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/restaurant/kds", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/restaurant/kds"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/restaurant/tables"));
+    },
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/restaurant/kds/${id}`, _method: "PATCH" } as any),
+    isMutating: mutation.isMutating,
+    error: mutation.error,
+  };
+}
+
+export function useCreateKdsTicket() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/restaurant/kds", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/restaurant/kds")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useUpdateMenuItem() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/dashboard/f-and-b/menu", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/dashboard/f-and-b/menu")),
+  });
+  return {
+    trigger: async (id: string, body: Record<string, unknown>) => mutation.trigger({ ...body, _url: `/api/dashboard/f-and-b/menu/${id}`, _method: "PUT" } as any),
+    isMutating: mutation.isMutating,
+    error: mutation.error,
+  };
+}
+
+export function useDeleteMenuItem() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/dashboard/f-and-b/menu", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/dashboard/f-and-b/menu")),
+  });
+  return {
+    trigger: async (id: string) => mutation.trigger({ _url: `/api/dashboard/f-and-b/menu/${id}`, _method: "DELETE" } as any),
+    isMutating: mutation.isMutating,
+    error: mutation.error,
+  };
+}
+
+// ── Phase 4: Revenue AI ─────────────────────────────────────
+export function useApplyAiRecommendation() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/revenue-ai/recommendations", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/revenue-ai"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/pricing"));
+    },
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useGenerateForecast() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/revenue-ai/forecast", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/revenue-ai")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateCompetitorRate() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/revenue-ai/competitors", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/revenue-ai")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}
+
+export function useCreateAiRule() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/revenue-ai/rules", jsonFetcher, {
+    onSuccess: () => mutate((k) => typeof k === "string" && k.startsWith("/api/revenue-ai")),
+  });
+  return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
+}

@@ -9,7 +9,8 @@ import {
   UserCog, Home, Hotel, ChevronLeft, Shield, Coffee, ClipboardList, Wallet, Star, BadgePercent,
   Settings, DollarSign, Layers, CheckCircle, Ticket, Package, FileText, Database,
   BookOpen, Receipt, Landmark, BarChart3, PiggyBank, ScrollText, Calculator, FolderOpen, Globe,
-  ChevronDown, Palette,
+  ChevronDown, Palette, GanttChart, Trophy, Tag, Shirt, QrCode, LogOut, MessageSquare,
+  UtensilsCrossed, Monitor, Brain,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
@@ -95,10 +96,24 @@ const ALL_NAV_ITEMS = [
   { label: "Memberships",      icon: Briefcase,     href: "/dashboard/workplace/memberships", roles: ["super_admin","executive","property_manager","workplace_facility_manager"] },
   { label: "Visitors",         icon: Users,         href: "/dashboard/workplace/visitors", roles: ["super_admin","executive","property_manager","workplace_facility_manager","security_staff"] },
   { label: "Reconciliation",   icon: DollarSign,    href: "/dashboard/finance/reconciliation", roles: ["super_admin","executive","property_manager","finance_manager","finance_executive"] },
+  { label: "Calendar",         icon: GanttChart,    href: "/dashboard/front-desk/calendar", roles: ["super_admin","executive","property_manager","front_desk"] },
+  { label: "Revenue Dashboard",icon: BarChart3,     href: "/dashboard/revenue", roles: ["super_admin","executive","property_manager","finance_manager"] },
+  { label: "Revenue AI",       icon: Brain,          href: "/dashboard/revenue/ai", roles: ["super_admin","executive","property_manager"] },
+  { label: "Pricing",          icon: Tag,           href: "/dashboard/pricing", roles: ["super_admin","executive","property_manager"] },
+  { label: "Loyalty",          icon: Trophy,        href: "/dashboard/loyalty", roles: ["super_admin","executive","property_manager","front_desk"] },
+  { label: "Laundry",          icon: Shirt,         href: "/dashboard/laundry", roles: ["super_admin","executive","property_manager","housekeeping_supervisor","housekeeping_staff","front_desk"] },
+  { label: "OTA Channels",     icon: Globe,          href: "/dashboard/ota", roles: ["super_admin","executive","property_manager"] },
+  { label: "Self Check-in",    icon: QrCode,         href: "/dashboard/front-desk/checkin", roles: ["super_admin","executive","property_manager","front_desk"] },
+  { label: "Self Check-out",   icon: LogOut,         href: "/dashboard/front-desk/checkout", roles: ["super_admin","executive","property_manager","front_desk"] },
+  { label: "WhatsApp",         icon: MessageSquare,  href: "/dashboard/whatsapp", roles: ["super_admin","executive","property_manager","front_desk"] },
+  { label: "Multi-Property",   icon: Building2,       href: "/dashboard/multi-property", roles: ["super_admin","executive"] },
+  { label: "Restaurant POS",   icon: UtensilsCrossed, href: "/dashboard/restaurant", roles: ["super_admin","executive","property_manager","front_desk"] },
+  { label: "KDS",              icon: Monitor,         href: "/dashboard/restaurant/kds", roles: ["super_admin","executive","property_manager","front_desk"] },
+  { label: "Menu Mgmt",        icon: BookOpen,        href: "/dashboard/restaurant/menu", roles: ["super_admin","executive","property_manager"] },
 ];
 
 const NAV_GROUPS = [
-  { label: "Front Desk & Guests",   icon: CalendarCheck, items: ["Dashboard","Command Center","Guest Profiles","Check-Ins","Billing & Folio","F&B / Pantry","Requests","Feedbacks"] },
+  { label: "Front Desk & Guests",   icon: CalendarCheck, items: ["Dashboard","Command Center","Calendar","Guest Profiles","Check-Ins","Billing & Folio","F&B / Pantry","Restaurant POS","KDS","Requests","Feedbacks","Laundry","Self Check-in","Self Check-out"] },
   { label: "Properties & Verticals", icon: Building2,    items: ["Hotels","Rooms & Units","Apartments","Rental","Leases","Rent Invoices","Deposits","Workplace","Memberships","Visitors"] },
   { label: "Housekeeping",           icon: Sparkles,     items: ["Housekeeping","HK Tasks","Linen","Inspections","HK Staff"] },
   { label: "Maintenance",            icon: Wrench,       items: ["Maintenance","Tickets","Parts","Assets"] },
@@ -107,12 +122,13 @@ const NAV_GROUPS = [
   { label: "Administration",         icon: Shield,       items: ["Admin","Tenants","Workspaces","Roles","Audit Trail","Backup","Users","Settings","Branding","Master Data","Sessions","Compliance","Support Tickets","Broadcasts","My Tickets"] },
   { label: "Procurement",           icon: ClipboardList, items: ["Procurement","Vendors","Vendor Orders","Vendor Services","Purchase Orders","Goods Receipt"] },
   { label: "Inventory",             icon: Package,       items: ["Inventory","Inv Items","Inv Transactions","Warehouses","Inv Categories"] },
+  { label: "Revenue & Loyalty",     icon: BarChart3,     items: ["Revenue Dashboard","Revenue AI","Pricing","Loyalty","OTA Channels","WhatsApp","Multi-Property","Menu Mgmt"] },
 ];
 
 const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
   all: [
-    "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
-    "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Rooms & Units", "Apartments", "Rental",
+    "Dashboard", "Command Center", "Calendar", "Guest Profiles", "Check-Ins", "Billing & Folio",
+    "F&B / Pantry", "Restaurant POS", "KDS", "Menu Mgmt", "Requests", "Feedbacks", "Hotels", "Rooms & Units", "Apartments", "Rental",
     "Leases", "Rent Invoices", "Deposits",
     "Workplace", "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets", "Finance",
@@ -126,11 +142,12 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
     "Memberships", "Visitors", "Reconciliation",
-    "Support Tickets", "Broadcasts", "My Tickets"
+    "Support Tickets", "Broadcasts", "My Tickets",
+    "Revenue Dashboard", "Revenue AI", "Pricing", "Loyalty", "Laundry", "OTA Channels", "Self Check-in", "Self Check-out", "WhatsApp", "Multi-Property"
   ],
   hotels: [
-    "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
-    "F&B / Pantry", "Requests", "Feedbacks", "Hotels", "Rooms & Units",
+    "Dashboard", "Command Center", "Calendar", "Guest Profiles", "Check-Ins", "Billing & Folio",
+    "F&B / Pantry", "Restaurant POS", "KDS", "Menu Mgmt", "Requests", "Feedbacks", "Hotels", "Rooms & Units",
     "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
@@ -141,11 +158,12 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Users", "Tenants", "Settings", "Branding", "Master Data", "Sessions", "Compliance",
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
-    "Support Tickets", "Broadcasts", "My Tickets"
+    "Support Tickets", "Broadcasts", "My Tickets",
+    "Revenue Dashboard", "Revenue AI", "Pricing", "Loyalty", "Laundry", "OTA Channels", "Self Check-in", "Self Check-out", "WhatsApp"
   ],
   apartments: [
-    "Dashboard", "Command Center", "Guest Profiles", "Check-Ins", "Billing & Folio",
-    "F&B / Pantry", "Requests", "Feedbacks", "Apartments", "Rooms & Units",
+    "Dashboard", "Command Center", "Calendar", "Guest Profiles", "Check-Ins", "Billing & Folio",
+    "F&B / Pantry", "Restaurant POS", "KDS", "Menu Mgmt", "Requests", "Feedbacks", "Apartments", "Rooms & Units",
     "Housekeeping", "HK Tasks", "Linen", "Inspections", "HK Staff",
     "Maintenance", "Tickets", "Parts", "Assets",
     "Finance", "Chart of Accts", "Journal", "Ledger", "Receivables", "Payables", "Budget",
@@ -156,7 +174,8 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Users", "Tenants", "Settings", "Branding", "Master Data",
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
-    "Support Tickets", "Broadcasts", "My Tickets"
+    "Support Tickets", "Broadcasts", "My Tickets",
+    "Revenue Dashboard", "Revenue AI", "Pricing", "Loyalty", "Laundry", "OTA Channels", "Self Check-in", "Self Check-out", "WhatsApp"
   ],
   rental: [
     "Dashboard", "Rental", "Rooms & Units", "Leases", "Rent Invoices", "Deposits",
@@ -170,7 +189,8 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Users", "Settings", "Branding", "Master Data",
     "Procurement", "Vendors", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions",
-    "Support Tickets", "Broadcasts", "My Tickets"
+    "Support Tickets", "Broadcasts", "My Tickets",
+    "Revenue Dashboard", "Pricing", "Loyalty", "Laundry", "OTA Channels", "Self Check-in", "Self Check-out", "WhatsApp"
   ],
   workplace: [
     "Dashboard", "Workplace", "Rooms & Units",
@@ -185,7 +205,8 @@ const JOURNEY_ALLOWED_ITEMS: Record<VerticalJourney, string[]> = {
     "Procurement", "Vendors", "Vendor Orders", "Vendor Services", "Purchase Orders", "Goods Receipt",
     "Inventory", "Inv Items", "Inv Transactions", "Warehouses", "Inv Categories",
     "Memberships", "Visitors",
-    "Support Tickets", "Broadcasts", "My Tickets"
+    "Support Tickets", "Broadcasts", "My Tickets",
+    "Revenue Dashboard", "Pricing", "Loyalty", "Laundry", "OTA Channels", "Self Check-in", "Self Check-out", "WhatsApp"
   ]
 };
 

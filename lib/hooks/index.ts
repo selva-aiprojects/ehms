@@ -942,3 +942,205 @@ export function useDutyRoster(filters?: { property_id?: string; shift_id?: strin
   return { roster: data?.data || [], isLoading, isError: !!error, mutate };
 }
 
+// ── Phase 1: Reservation Calendar ──────────────────────────
+export function useReservationCalendar(filters?: {
+  property_id?: string;
+  start_date?: string;
+  days?: number;
+  building_id?: string;
+  floor_id?: string;
+  room_type?: string;
+}) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.start_date) params.set("start_date", filters.start_date);
+  if (filters?.days) params.set("days", String(filters.days));
+  if (filters?.building_id) params.set("building_id", filters.building_id);
+  if (filters?.floor_id) params.set("floor_id", filters.floor_id);
+  if (filters?.room_type) params.set("room_type", filters.room_type);
+  const { data, error, isLoading, mutate } = useSWR(`/api/reservations/calendar?${params}`, fetcher);
+  return {
+    units: (data?.units || []) as any[],
+    bookings: (data?.bookings || []) as any[],
+    dates: (data?.dates || []) as string[],
+    isLoading,
+    isError: !!error,
+    mutate,
+  };
+}
+
+// ── Phase 1: Loyalty Tiers ─────────────────────────────────
+export function useLoyaltyTiers(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/loyalty/tiers${params}`, fetcher);
+  return { tiers: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useLoyaltyTransactions(guestId?: string) {
+  const params = guestId ? `?guest_id=${guestId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(guestId ? `/api/loyalty/transactions${params}` : null, fetcher);
+  return { transactions: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+// ── Phase 1: Dynamic Pricing ───────────────────────────────
+export function usePricingRules(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/pricing/rules${params}`, fetcher);
+  return { rules: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function usePricingSeasons(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/pricing/seasons${params}`, fetcher);
+  return { seasons: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+// ── Phase 1: Laundry ───────────────────────────────────────
+export function useLaundryOrders(filters?: { property_id?: string; status?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.property_id) params.set("property_id", filters.property_id);
+  if (filters?.status) params.set("status", filters.status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/laundry?${params.toString()}`, fetcher, { refreshInterval: 15000 });
+  return { orders: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useLaundryPriceList(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/laundry/price-list${params}`, fetcher);
+  return { priceList: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+// ── Phase 1: Revenue Dashboard ─────────────────────────────
+export function useRevenueDashboard(propertyId?: string, period?: string) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (period) params.set("period", period);
+  const { data, error, isLoading, mutate } = useSWR(`/api/dashboard/revenue?${params.toString()}`, fetcher, { refreshInterval: 30000 });
+  return { revenue: data, isLoading, isError: !!error, mutate };
+}
+
+// ── Phase 2: OTA Channel Manager ───────────────────────────
+export function useOtaMappings(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/ota/mappings${params}`, fetcher);
+  return { mappings: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useOtaSyncLogs(propertyId?: string, channel?: string) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (channel) params.set("channel", channel);
+  const { data, error, isLoading, mutate } = useSWR(`/api/ota/sync?${params.toString()}`, fetcher);
+  return { logs: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useOtaBookings(propertyId?: string, status?: string) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (status) params.set("status", status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/ota/bookings?${params.toString()}`, fetcher, { refreshInterval: 15000 });
+  return { bookings: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useOtaSettlements(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/ota/settlements${params}`, fetcher);
+  return { settlements: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useChannelPartners() {
+  const { data, error, isLoading, mutate } = useSWR("/api/masters/channels", fetcher);
+  return { channels: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+// ── Restaurant POS ──
+export function useRestaurantTables(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/restaurant/tables${params}`, fetcher, { refreshInterval: 5000 });
+  return { tables: (data?.data || []) as any[], isLoading, isError: !!error, mutate };
+}
+
+export function useTableLayout(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/restaurant/tables/layout${params}`, fetcher);
+  return { layout: (data?.data || []) as any[], isLoading, isError: !!error, mutate };
+}
+
+export function useTableReservations(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/restaurant/reservations${params}`, fetcher);
+  return { reservations: (data?.data || []) as any[], isLoading, isError: !!error, mutate };
+}
+
+export function useSplitBills(propertyId?: string, orderId?: string) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (orderId) params.set("order_id", orderId);
+  const qs = params.toString();
+  const { data, error, isLoading, mutate } = useSWR(`/api/restaurant/split-bills${qs ? `?${qs}` : ""}`, fetcher);
+  return { splitBills: (data?.data || []) as any[], isLoading, isError: !!error, mutate };
+}
+
+export function useKdsTickets(propertyId?: string, station?: string, status?: string) {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("property_id", propertyId);
+  if (station) params.set("station", station);
+  if (status) params.set("status", status);
+  const { data, error, isLoading, mutate } = useSWR(`/api/restaurant/kds?${params.toString()}`, fetcher, { refreshInterval: 3000 });
+  return { tickets: (data?.data || []) as any[], isLoading, isError: !!error, mutate };
+}
+
+export function useKdsStations(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/restaurant/kds/stations${params}`, fetcher);
+  return { stations: (data?.data || []) as any[], isLoading, isError: !!error, mutate };
+}
+
+export function useFnBMenuAll() {
+  const { data, error, isLoading, mutate } = useSWR("/api/dashboard/f-and-b/menu", fetcher);
+  return { menu: (data?.data || []) as any[], isLoading, isError: !!error, mutate };
+}
+
+export function useFnBMenuCategories() {
+  const { data, error, isLoading, mutate } = useSWR("/api/dashboard/f-and-b/menu", fetcher);
+  const categories = [...new Set((data?.data || []).map((m: any) => m.category))];
+  return { categories, isLoading, isError: !!error, mutate };
+}
+
+// ── Phase 4: Revenue AI ─────────────────────────────────────
+export function useAiRecommendations(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/revenue-ai/recommendations${params}`, fetcher, { refreshInterval: 30000 });
+  return { recommendations: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useAiForecasts(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/revenue-ai/forecast${params}`, fetcher);
+  return { forecasts: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useAiActions(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/revenue-ai/actions${params}`, fetcher);
+  return { actions: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useCompetitorRates(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/revenue-ai/competitors${params}`, fetcher);
+  return { competitors: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useAiAuditTrail(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/revenue-ai/audit${params}`, fetcher);
+  return { auditTrail: data?.data || [], isLoading, isError: !!error, mutate };
+}
+
+export function useAiRules(propertyId?: string) {
+  const params = propertyId ? `?property_id=${propertyId}` : "";
+  const { data, error, isLoading, mutate } = useSWR(`/api/revenue-ai/rules${params}`, fetcher);
+  return { aiRules: data?.data || [], isLoading, isError: !!error, mutate };
+}
+

@@ -48,8 +48,12 @@ CREATE INDEX IF NOT EXISTS idx_fnb_orders_status ON f_and_b_orders(status);
 ALTER TABLE f_and_b_menu ADD COLUMN IF NOT EXISTS is_veg BOOLEAN DEFAULT true;
 ALTER TABLE f_and_b_menu ADD COLUMN IF NOT EXISTS prep_time_mins INT DEFAULT 15;
 ALTER TABLE f_and_b_menu ADD COLUMN IF NOT EXISTS photo_url TEXT;
+ALTER TABLE f_and_b_menu ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
 ALTER TABLE f_and_b_orders ADD COLUMN IF NOT EXISTS is_complimentary BOOLEAN DEFAULT false;
 ALTER TABLE f_and_b_orders ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE f_and_b_orders ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();
+ALTER TABLE f_and_b_order_items ADD COLUMN IF NOT EXISTS item_name VARCHAR(255) NOT NULL DEFAULT 'Item';
+ALTER TABLE f_and_b_order_items ADD COLUMN IF NOT EXISTS line_total DECIMAL(12,2) GENERATED ALWAYS AS (quantity * unit_price) STORED;
 ALTER TABLE f_and_b_order_items ADD COLUMN IF NOT EXISTS special_request TEXT;
 
 -- Seed sample menu items (common hotel items, no property filter needed for demo)
