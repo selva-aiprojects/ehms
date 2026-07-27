@@ -54,6 +54,9 @@ test.describe("Serviced Apartments - Complete Guest Journey", () => {
     test("TC-SA-FD-001: Command center works for apartments", async ({
       page,
     }) => {
+      await page.goto("/dashboard/front-desk", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(1000);
+
       await expect(
         page.locator("main").getByText("Front Desk Command Center").first()
       ).toBeVisible({ timeout: 15000 });

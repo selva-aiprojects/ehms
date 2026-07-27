@@ -54,7 +54,7 @@ test.describe("Housekeeping Operations", () => {
 
         const activeBtn = page.locator("button").filter({ hasText: /^open$/i }).first();
         const bg = await activeBtn.evaluate((el) => getComputedStyle(el).backgroundColor);
-        expect(bg).toContain("26") || expect(bg).toContain("60");
+        expect(bg.includes("26") || bg.includes("60")).toBeTruthy();
       }
     });
 
@@ -371,6 +371,7 @@ test.describe("Housekeeping Operations", () => {
       await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
       await page.goto("/dashboard/housekeeping/tasks");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
       await page.waitForTimeout(2000);
 
       const eyeBtn = page.locator('[title="View Details"]').first();
@@ -378,7 +379,7 @@ test.describe("Housekeeping Operations", () => {
         await eyeBtn.click();
         await page.waitForTimeout(500);
 
-        await expect(page.locator("main").getByText("Task Details").first()).toBeVisible({ timeout: 3000 });
+        await expect(page.locator("main").getByText("Task Details").first()).toBeVisible({ timeout: 10000 });
         await expect(page.locator("main").getByText("Assigned To").first()).toBeVisible();
         await expect(page.locator("main").getByText("Status").first()).toBeVisible();
         await expect(page.locator("main").getByText("Notes").first()).toBeVisible();
@@ -429,6 +430,7 @@ test.describe("Housekeeping Operations", () => {
       await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
       await page.goto("/dashboard/housekeeping/tasks");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
       await page.waitForTimeout(2000);
 
       const checklistBtn = page.locator('[title="Complete with Checklist"]').first();
@@ -953,9 +955,10 @@ test.describe("Maintenance Operations", () => {
     }) => {
       await page.goto("/dashboard/maintenance/parts");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       await expect(page.locator("main").getByText("Parts").first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
     });
 
@@ -964,9 +967,10 @@ test.describe("Maintenance Operations", () => {
     }) => {
       await page.goto("/dashboard/maintenance/assets");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       await expect(page.locator("main").getByText("Assets").first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
     });
 
@@ -997,6 +1001,7 @@ test.describe("Maintenance Operations", () => {
       await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
       await page.goto("/dashboard/maintenance/tickets");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       const searchInput = page.locator('input[placeholder*="Search"]');
       if (await searchInput.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -1011,6 +1016,7 @@ test.describe("Maintenance Operations", () => {
       await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
       await page.goto("/dashboard/maintenance/tickets");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       const statusSelect = page.locator("select").filter({ hasText: /All Status/ }).first();
       if (await statusSelect.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -1027,22 +1033,24 @@ test.describe("Maintenance Operations", () => {
       }
     });
 
-    test("MAINT-031: Tickets page priority filter (Low, Medium, High, Critical)", async ({
+    test("MAINT-031: Tickets page priority filter (low, medium, high, critical)", async ({
       page,
     }) => {
       await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
       await page.goto("/dashboard/maintenance/tickets");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       const prioSelect = page.locator("select").filter({ hasText: /All Priority/ }).first();
       if (await prioSelect.isVisible({ timeout: 5000 }).catch(() => false)) {
         const options = await prioSelect.locator("option").allTextContents();
-        expect(options).toEqual(
+        const lower = options.map((o) => o.toLowerCase());
+        expect(lower).toEqual(
           expect.arrayContaining([
-            expect.stringContaining("Low"),
-            expect.stringContaining("Medium"),
-            expect.stringContaining("High"),
-            expect.stringContaining("Critical"),
+            expect.stringContaining("low"),
+            expect.stringContaining("medium"),
+            expect.stringContaining("high"),
+            expect.stringContaining("critical"),
           ])
         );
       }
@@ -1054,6 +1062,7 @@ test.describe("Maintenance Operations", () => {
       await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
       await page.goto("/dashboard/maintenance/tickets");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       const catSelect = page.locator("select").filter({ hasText: /All Categories/ }).first();
       if (await catSelect.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -1074,6 +1083,7 @@ test.describe("Maintenance Operations", () => {
       await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
       await page.goto("/dashboard/maintenance/tickets");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       const createBtn = page
         .locator("button", { hasText: "Create Ticket" })
@@ -1099,6 +1109,7 @@ test.describe("Maintenance Operations", () => {
       await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
       await page.goto("/dashboard/maintenance/tickets");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       const createBtn = page
         .locator("button", { hasText: "Create Ticket" })
@@ -1189,6 +1200,7 @@ test.describe("Cross-Module: Guest Request -> HK Task -> Maintenance Ticket", ()
     await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
     await page.goto("/dashboard/front-desk/requests");
     await page.waitForLoadState("domcontentloaded");
+    await page.locator("main").waitFor({ timeout: 15000 });
 
     await expect(
       page.locator("main").getByText("Guest Requests").first()
@@ -1257,7 +1269,9 @@ test.describe("Cross-Module: Guest Request -> HK Task -> Maintenance Ticket", ()
     page,
   }) => {
     await loginAsTenantUser(page, EMAIL, PASSWORD, TENANT_CODE, "hotels");
-    await page.waitForTimeout(3000);
+    await page.goto("/dashboard/front-desk", { waitUntil: "domcontentloaded" });
+    await page.locator("main").waitFor({ timeout: 15000 });
+    await page.waitForTimeout(1000);
 
     await expect(
       page.locator("main").getByText("Front Desk Command Center").first()

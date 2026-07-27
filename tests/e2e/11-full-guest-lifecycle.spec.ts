@@ -24,6 +24,8 @@ test.describe("Full Guest Lifecycle - End-to-End Demo Flow", () => {
         TENANT_CODE,
         "hotels"
       );
+      await page.goto("/dashboard/front-desk", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(1000);
     });
 
     test("LIFECYCLE-001: Walk-in guest sees room availability on command center", async ({
@@ -148,6 +150,7 @@ test.describe("Full Guest Lifecycle - End-to-End Demo Flow", () => {
     }) => {
       await page.goto("/dashboard/front-desk/check-ins");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
       await page.waitForTimeout(2000);
 
       const filter = page.locator("select").first();
@@ -582,6 +585,8 @@ test.describe("Full Guest Lifecycle - End-to-End Demo Flow", () => {
         TENANT_CODE,
         "hotels"
       );
+      await page.goto("/dashboard/front-desk", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(1000);
     });
 
     test("LIFECYCLE-026: Room status changes tracked in activity feed", async ({

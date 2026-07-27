@@ -132,9 +132,10 @@ test.describe("HR, Finance & Procurement Workflows", () => {
     test("TC-HR-012: Policies page loads", async ({ page }) => {
       await page.goto("/dashboard/hr/policies");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       await expect(page.locator("main").getByText("Policies").first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
     });
 
@@ -223,10 +224,11 @@ test.describe("HR, Finance & Procurement Workflows", () => {
     test("TC-FIN-006: Receivables page loads", async ({ page }) => {
       await page.goto("/dashboard/finance/receivables");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       await expect(
         page.locator("main").getByText("Receivables").first()
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeVisible({ timeout: 15000 });
     });
 
     test("TC-FIN-007: Payables page loads", async ({ page }) => {

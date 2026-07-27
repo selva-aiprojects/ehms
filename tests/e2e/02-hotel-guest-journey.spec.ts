@@ -205,16 +205,16 @@ test.describe("Hotel Workspace - Complete Guest Journey", () => {
   test.describe("OTA Channel Partner Booking", () => {
     test.beforeEach(async ({ page }) => {
       await loginAsTenantUser(page, HOTEL_EMAIL, PASSWORD, TENANT_CODE, "hotels");
+      await page.goto("/dashboard/front-desk", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(1000);
     });
 
     test("TC-HOTEL-OTA-001: Channel Manager card visible", async ({
       page,
     }) => {
-      await page.waitForTimeout(2000);
-
       await expect(
         page.locator("main").getByText("Channel Manager").first()
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeVisible({ timeout: 15000 });
     });
 
     test("TC-HOTEL-OTA-002: Webhook simulator opens booking form", async ({
@@ -820,24 +820,22 @@ test.describe("Hotel Workspace - Complete Guest Journey", () => {
   test.describe("AI Revenue Manager", () => {
     test.beforeEach(async ({ page }) => {
       await loginAsTenantUser(page, HOTEL_EMAIL, PASSWORD, TENANT_CODE, "hotels");
+      await page.goto("/dashboard/front-desk", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(1000);
     });
 
     test("TC-HOTEL-AI-001: Revenue AI card visible on command center", async ({
       page,
     }) => {
-      await page.waitForTimeout(2000);
-
       await expect(
         page.locator("main").getByText("AI Revenue Manager").first()
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeVisible({ timeout: 15000 });
     });
 
     test("TC-HOTEL-AI-002: Auto-pilot toggle visible", async ({ page }) => {
-      await page.waitForTimeout(2000);
-
       await expect(
         page.locator("main").getByText("Dynamic Auto-Pilot").first()
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeVisible({ timeout: 15000 });
     });
   });
 

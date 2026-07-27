@@ -59,7 +59,14 @@ export async function loginAsTenantUser(
   // If a specific journey was requested, navigate to its dashboard
   if (journey !== "all") {
     await page.goto(`/dashboard/${journey}`, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1000);
+  }
+
+  // Wait for AuthProvider to finish loading and render main content
+  try {
+    await page.locator("main").waitFor({ timeout: 20000 });
+  } catch {
+    // Fallback: just wait a bit if main doesn't appear
+    await page.waitForTimeout(3000);
   }
 }
 
@@ -158,7 +165,11 @@ export async function navigateSidebar(page: Page, label: string): Promise<void> 
 
 export async function waitForPageReady(page: Page): Promise<void> {
   await page.waitForLoadState("domcontentloaded");
-  await page.waitForTimeout(1000);
+  try {
+    await page.locator("main").waitFor({ timeout: 15000 });
+  } catch {
+    await page.waitForTimeout(2000);
+  }
 }
 
 export function generateRandomCode(length: number = 6): string {

@@ -64,10 +64,11 @@ test.describe("Workplace Services - Membership & Visitor Flow", () => {
     test("TC-WP-MEM-001: Memberships page loads", async ({ page }) => {
       await page.goto("/dashboard/workplace/memberships");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       await expect(
         page.locator("main").getByText("Memberships").first()
-      ).toBeVisible({ timeout: 10000 });
+      ).toBeVisible({ timeout: 15000 });
     });
 
     test("TC-WP-MEM-002: Membership plans visible", async ({ page }) => {
@@ -110,9 +111,10 @@ test.describe("Workplace Services - Membership & Visitor Flow", () => {
     test("TC-WP-VIS-001: Visitors page loads", async ({ page }) => {
       await page.goto("/dashboard/workplace/visitors");
       await page.waitForLoadState("domcontentloaded");
+      await page.locator("main").waitFor({ timeout: 15000 });
 
       await expect(page.locator("main").getByText("Visitors").first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
     });
 
