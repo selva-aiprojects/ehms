@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
 
     let query = `
-      SELECT tf.*, u.name as filed_by_name
+      SELECT tf.*, CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) as filed_by_name
       FROM tax_filings tf
       LEFT JOIN users u ON u.id = tf.filed_by
       WHERE 1=1

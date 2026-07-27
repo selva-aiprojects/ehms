@@ -34,10 +34,10 @@ export async function POST(req: NextRequest) {
     const historicalData = await sql`
       SELECT 
         DATE(created_at) as date,
-        COALESCE(AVG(CASE WHEN status = 'occupied' THEN 100.0 ELSE 0.0 END), 50) as occupancy,
+        COALESCE(AVG(CASE WHEN status = 'checked_in' THEN 100.0 ELSE 0.0 END), 50) as occupancy,
         COALESCE(AVG(total_amount), 3500) as adr,
         COALESCE(SUM(total_amount), 0) as revenue
-      FROM reservations
+      FROM bookings
       WHERE created_at >= NOW() - INTERVAL '60 days'
         ${body.property_id ? sql`AND property_id = ${body.property_id}` : sql``}
       GROUP BY DATE(created_at)

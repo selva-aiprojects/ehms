@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
         COUNT(*)::int AS total_tasks,
         COALESCE(SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END))::int AS open_tasks,
         COALESCE(SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END))::int AS in_progress,
-        COALESCE(SUM(CASE WHEN status = 'completed' AND completed_at::date = CURRENT_DATE THEN 1 ELSE 0 END))::int AS completed_today
+        COALESCE(SUM(CASE WHEN status = 'resolved' AND completed_at::date = CURRENT_DATE THEN 1 ELSE 0 END))::int AS completed_today
       FROM housekeeping_tasks
       WHERE 1=1 ${propertyFilter}
     ` as [{ total_tasks: number; open_tasks: number; in_progress: number; completed_today: number }];
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
         f.name AS floor_name,
         f.floor_number,
         COUNT(ht.id)::int AS task_count,
-        COALESCE(SUM(CASE WHEN ht.status = 'completed' THEN 1 ELSE 0 END))::int AS completed_count
+        COALESCE(SUM(CASE WHEN ht.status = 'resolved' THEN 1 ELSE 0 END))::int AS completed_count
       FROM floors f
       JOIN buildings b ON b.id = f.building_id
       JOIN units u ON u.floor_id = f.id

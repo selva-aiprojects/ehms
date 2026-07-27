@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, UserPlus, LogIn, LogOut, RefreshCw, AlertCircle, Loader2, Users, Calendar, DoorOpen, BedDouble, Phone, Mail, MapPin, Clock, Star, MessageSquare, Bell, Settings, ClipboardList, ArrowRight, MoreHorizontal, Home, Wifi, Coffee, ChevronRight, BarChart3, Download, Utensils, Trash2, RotateCcw, Send } from "lucide-react";
+import { Search, UserPlus, LogIn, LogOut, RefreshCw, AlertCircle, Loader2, Users, Calendar, DoorOpen, BedDouble, Phone, Mail, MapPin, Clock, Star, MessageSquare, Bell, Settings, ClipboardList, ArrowRight, MoreHorizontal, Home, Wifi, Coffee, ChevronRight, BarChart3, Download, Utensils, Trash2, RotateCcw, Send, ChevronDown, ChevronUp, Building2 } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
@@ -63,6 +63,7 @@ export default function FrontDeskPage() {
   const [applyingAction, setApplyingAction] = useState<string | null>(null);
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   const [logRequestModalData, setLogRequestModalData] = useState<{ isOpen: boolean, roomId?: string, unitLabel?: string } | null>(null);
+  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set());
   const router = useRouter();
 
   const today = new Date().toISOString().split("T")[0];
@@ -93,13 +94,42 @@ export default function FrontDeskPage() {
   const buildingRooms = rooms.filter((r: any) => (r.building_code || "A") === activeBuilding);
   const distinctFloors = Array.from(new Set(buildingRooms.map((r: any) => r.floor_number))).sort((a: any, b: any) => a - b) as number[];
   const activeFloor = distinctFloors.includes(floor) ? floor : (distinctFloors[0] || 1);
-  const filtered = buildingRooms.filter((r: any) => {
-    if (r.floor_number !== activeFloor) return false;
+
+  const floorRooms = buildingRooms.filter((r: any) => r.floor_number === activeFloor);
+  const parentUnits = floorRooms.filter((r: any) => r.unit_type === 'apartment' && !r.parent_unit_id);
+  const standaloneUnits = floorRooms.filter((r: any) => !r.parent_unit_id && r.unit_type !== 'apartment');
+  const childUnitIds = new Set(floorRooms.filter((r: any) => r.parent_unit_id).map((r: any) => r.id));
+
+  function computeFlatStatus(parent: any): string {
+    if (!parent.children || parent.children.length === 0) return parent.status || 'vacant';
+    const occ = parent.occupied_children || 0;
+    const dirty = parent.dirty_children || 0;
+    const maint = parent.maint_children || 0;
+    const total = parent.child_count || parent.children.length;
+    if (occ === total) return 'occupied';
+    if (occ > 0) return 'occupied';
+    if (maint > 0) return 'maintenance';
+    if (dirty > 0) return 'dirty';
+    return 'vacant';
+  }
+
+  function toggleParentExpand(parentId: string) {
+    setExpandedParents(prev => {
+      const next = new Set(prev);
+      if (next.has(parentId)) next.delete(parentId);
+      else next.add(parentId);
+      return next;
+    });
+  }
+
+  const filtered = floorRooms.filter((r: any) => {
+    if (childUnitIds.has(r.id) && !parentUnits.some((p: any) => p.id === r.parent_unit_id && expandedParents.has(p.id))) return false;
     if (statusFilter === "all") return true;
-    if (statusFilter === "vacant") return r.status === "vacant";
-    if (statusFilter === "occupied") return r.status === "occupied";
-    if (statusFilter === "dirty") return r.status === "dirty" || r.status === "cleaning";
-    if (statusFilter === "maintenance") return r.status === "maintenance";
+    const st = r.unit_type === 'apartment' && !r.parent_unit_id ? computeFlatStatus(r) : r.status;
+    if (statusFilter === "vacant") return st === "vacant";
+    if (statusFilter === "occupied") return st === "occupied";
+    if (statusFilter === "dirty") return st === "dirty" || st === "cleaning";
+    if (statusFilter === "maintenance") return st === "maintenance";
     return true;
   });
   const selected = rooms.find((r: any) => r.id === selectedRoom);
@@ -255,11 +285,11 @@ export default function FrontDeskPage() {
                 Status Filter:
               </span>
               {[
-                { id: "all", label: `All (${buildingRooms.filter((r: any) => r.floor_number === activeFloor).length})`, bg: statusFilter === "all" ? "#1A3C5E" : "#FFFFFF", color: statusFilter === "all" ? "#FFFFFF" : "#475569", border: statusFilter === "all" ? "#1A3C5E" : "#CBD5E1" },
-                { id: "vacant", label: `🟢 Available (${buildingRooms.filter((r: any) => r.floor_number === activeFloor && r.status === "vacant").length})`, bg: statusFilter === "vacant" ? "#10B981" : "#ECFDF5", color: statusFilter === "vacant" ? "#FFFFFF" : "#065F46", border: "#6EE7B7" },
-                { id: "occupied", label: `🔵 Occupied (${buildingRooms.filter((r: any) => r.floor_number === activeFloor && r.status === "occupied").length})`, bg: statusFilter === "occupied" ? "#3B82F6" : "#EFF6FF", color: statusFilter === "occupied" ? "#FFFFFF" : "#1E40AF", border: "#93C5FD" },
-                { id: "dirty", label: `🟡 Dirty/Cleaning (${buildingRooms.filter((r: any) => r.floor_number === activeFloor && (r.status === "dirty" || r.status === "cleaning")).length})`, bg: statusFilter === "dirty" ? "#F59E0B" : "#FFFBEB", color: statusFilter === "dirty" ? "#FFFFFF" : "#92400E", border: "#FCD34D" },
-                { id: "maintenance", label: `🔴 Maint. (${buildingRooms.filter((r: any) => r.floor_number === activeFloor && r.status === "maintenance").length})`, bg: statusFilter === "maintenance" ? "#EF4444" : "#FEF2F2", color: statusFilter === "maintenance" ? "#FFFFFF" : "#991B1B", border: "#FCA5A5" },
+                { id: "all", label: `All (${parentUnits.length + standaloneUnits.length})`, bg: statusFilter === "all" ? "#1A3C5E" : "#FFFFFF", color: statusFilter === "all" ? "#FFFFFF" : "#475569", border: statusFilter === "all" ? "#1A3C5E" : "#CBD5E1" },
+                { id: "vacant", label: `Available (${parentUnits.filter((r: any) => computeFlatStatus(r) === "vacant").length + standaloneUnits.filter((r: any) => r.status === "vacant").length})`, bg: statusFilter === "vacant" ? "#10B981" : "#ECFDF5", color: statusFilter === "vacant" ? "#FFFFFF" : "#065F46", border: "#6EE7B7" },
+                { id: "occupied", label: `Occupied (${parentUnits.filter((r: any) => computeFlatStatus(r) === "occupied").length + standaloneUnits.filter((r: any) => r.status === "occupied").length})`, bg: statusFilter === "occupied" ? "#3B82F6" : "#EFF6FF", color: statusFilter === "occupied" ? "#FFFFFF" : "#1E40AF", border: "#93C5FD" },
+                { id: "dirty", label: `Dirty/Cleaning (${parentUnits.filter((r: any) => { const s = computeFlatStatus(r); return s === "dirty" || s === "cleaning"; }).length + standaloneUnits.filter((r: any) => r.status === "dirty" || r.status === "cleaning").length})`, bg: statusFilter === "dirty" ? "#F59E0B" : "#FFFBEB", color: statusFilter === "dirty" ? "#FFFFFF" : "#92400E", border: "#FCD34D" },
+                { id: "maintenance", label: `Maint. (${parentUnits.filter((r: any) => computeFlatStatus(r) === "maintenance").length + standaloneUnits.filter((r: any) => r.status === "maintenance").length})`, bg: statusFilter === "maintenance" ? "#EF4444" : "#FEF2F2", color: statusFilter === "maintenance" ? "#FFFFFF" : "#991B1B", border: "#FCA5A5" },
               ].map((f) => (
                 <button key={f.id} onClick={() => { setStatusFilter(f.id); setSelectedRoom(null); }}
                   className="px-2.5 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 shadow-2xs hover:scale-[1.02]"
@@ -275,9 +305,80 @@ export default function FrontDeskPage() {
             {loadingRes
               ? Array.from({ length: 4 }).map((_, i) => <SkeletonRoomCard key={i} />)
               : filtered.map((room: any) => {
-                  const s = ROOM_STATUS_STYLES[room.status] || ROOM_STATUS_STYLES.vacant;
+                  const isParent = room.unit_type === 'apartment' && !room.parent_unit_id;
+                  const flatStatus = isParent ? computeFlatStatus(room) : null;
+                  const s = ROOM_STATUS_STYLES[flatStatus || room.status] || ROOM_STATUS_STYLES.vacant;
                   const isSelected = selectedRoom === room.id;
+                  const isExpanded = expandedParents.has(room.id);
+                  const children = room.children || [];
+                  const childCount = room.child_count || children.length;
                   const isAc = room.attributes?.ac;
+
+                  if (isParent) {
+                    return (
+                      <div key={room.id}
+                        className={`rounded-xl p-3.5 text-left transition-all border-2 flex flex-col justify-between shadow-2xs relative overflow-hidden group hover:shadow-md col-span-1 sm:col-span-2 md:col-span-2`}
+                        style={{
+                          background: s.bg,
+                          borderColor: isSelected ? "#1A3C5E" : s.border,
+                          boxShadow: isSelected ? "0 0 0 3px rgba(26,60,94,0.25)" : "none"
+                        }}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-2 gap-2">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <Building2 className="w-4 h-4 flex-shrink-0" style={{ color: s.text }} />
+                              <span className="font-extrabold text-base tracking-tight truncate" style={{ color: s.text }}>{room.unit_label}</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: "rgba(42,157,143,0.18)", color: "#047857" }}>
+                                {room.layout_type || 'Apartment'}
+                              </span>
+                              {isAc !== undefined && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: isAc ? "rgba(16,185,129,0.18)" : "rgba(100,116,139,0.15)", color: isAc ? "#047857" : "#475569" }}>
+                                  {isAc ? "AC" : "Non-AC"}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs flex-shrink-0" style={{ background: s.pillBg, color: s.pillText }}>
+                                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.dot }} />
+                                {s.label}
+                              </span>
+                              <button onClick={(e) => { e.stopPropagation(); toggleParentExpand(room.id); }}
+                                className="w-6 h-6 flex items-center justify-center rounded-md transition-all hover:bg-black/5"
+                              >
+                                {isExpanded ? <ChevronUp className="w-4 h-4" style={{ color: s.text }} /> : <ChevronDown className="w-4 h-4" style={{ color: s.text }} />}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs font-semibold mb-2" style={{ color: "#334155" }}>
+                            <span>{childCount} room{childCount !== 1 ? 's' : ''}</span>
+                            <span>·</span>
+                            <span>{room.occupied_children || 0} occupied</span>
+                            <span>·</span>
+                            <span className="font-bold" style={{ color: s.text }}>₹{room.base_rate}/night (total)</span>
+                          </div>
+                          {children.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              {children.map((child: any) => {
+                                const cs = ROOM_STATUS_STYLES[child.status] || ROOM_STATUS_STYLES.vacant;
+                                return (
+                                  <button key={child.id}
+                                    onClick={(e) => { e.stopPropagation(); setSelectedRoom(child.id); }}
+                                    className="text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 transition-all hover:scale-[1.03] shadow-2xs"
+                                    style={{ background: cs.pillBg, color: cs.pillText, border: `1.5px solid ${cs.border}` }}
+                                  >
+                                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cs.dot }} />
+                                    {child.unit_label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <button key={room.id} onClick={() => setSelectedRoom(isSelected ? null : room.id)}
                       className="rounded-xl p-3.5 text-left transition-all border-2 flex flex-col justify-between h-full shadow-2xs relative overflow-hidden group hover:shadow-md"
@@ -320,7 +421,7 @@ export default function FrontDeskPage() {
                           </span>
                         ) : room.status === "dirty" || room.status === "cleaning" ? (
                           <span className="text-[11px] font-bold px-2 py-1 rounded-md bg-white/90 text-amber-700 border border-amber-300 shadow-2xs">
-                            🧹 Dirty
+                            Dirty
                           </span>
                         ) : null}
                       </div>
@@ -534,19 +635,39 @@ export default function FrontDeskPage() {
         <CardHeader title="Today's Overview" subtitle="Quick stats at a glance" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-            <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{rooms.filter(r => r.status === "occupied").length}</div>
+            <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>
+              {rooms.filter((r: any) => {
+                if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'occupied';
+                return r.status === "occupied";
+              }).length}
+            </div>
             <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Occupied Rooms</div>
           </div>
           <div className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-            <div className="text-lg font-bold" style={{ color: "#2BAE8E" }}>{rooms.filter(r => r.status === "vacant").length}</div>
+            <div className="text-lg font-bold" style={{ color: "#2BAE8E" }}>
+              {rooms.filter((r: any) => {
+                if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'vacant';
+                return r.status === "vacant";
+              }).length}
+            </div>
             <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Vacant Rooms</div>
           </div>
           <div className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-            <div className="text-lg font-bold" style={{ color: "#F5A623" }}>{rooms.filter(r => r.status === "dirty" || r.status === "cleaning").length}</div>
+            <div className="text-lg font-bold" style={{ color: "#F5A623" }}>
+              {rooms.filter((r: any) => {
+                if (r.unit_type === 'apartment' && !r.parent_unit_id) { const s = computeFlatStatus(r); return s === 'dirty' || s === 'cleaning'; }
+                return r.status === "dirty" || r.status === "cleaning";
+              }).length}
+            </div>
             <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Dirty / Cleaning</div>
           </div>
           <div className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-            <div className="text-lg font-bold" style={{ color: "#E53E3E" }}>{rooms.filter(r => r.status === "maintenance").length}</div>
+            <div className="text-lg font-bold" style={{ color: "#E53E3E" }}>
+              {rooms.filter((r: any) => {
+                if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'maintenance';
+                return r.status === "maintenance";
+              }).length}
+            </div>
             <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Maintenance</div>
           </div>
         </div>

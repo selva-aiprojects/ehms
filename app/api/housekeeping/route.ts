@@ -46,6 +46,43 @@ export async function POST(req: NextRequest) {
     const accessErr = validateMutationPropertyAccess(req, body.property_id);
     if (accessErr) return accessErr;
 
+    if (body.flat_mode && body.unit_id) {
+      const childRooms = await sql`
+        SELECT id FROM units WHERE parent_unit_id = ${body.unit_id}
+      ` as any[];
+
+      if (childRooms.length === 0) {
+        const singleRow = await sql`
+          INSERT INTO housekeeping_tasks (unit_id, property_id, assigned_to, task_type, priority, status, scheduled_at, notes)
+          VALUES (
+            ${body.unit_id}, ${body.property_id}, ${body.assigned_to || null},
+            ${body.task_type}, ${body.priority || "medium"}, 'open',
+            ${body.scheduled_at || null}, ${body.notes || null}
+          )
+          RETURNING *
+        `;
+        await sql`UPDATE units SET status = 'cleaning' WHERE id = ${body.unit_id}`;
+        return NextResponse.json({ data: [singleRow[0]], count: 1 }, { status: 201 });
+      }
+
+      const tasks: any[] = [];
+      for (const child of childRooms) {
+        const row = await sql`
+          INSERT INTO housekeeping_tasks (unit_id, property_id, assigned_to, task_type, priority, status, scheduled_at, notes)
+          VALUES (
+            ${child.id}, ${body.property_id}, ${body.assigned_to || null},
+            ${body.task_type}, ${body.priority || "medium"}, 'open',
+            ${body.scheduled_at || null}, ${body.notes || null}
+          )
+          RETURNING *
+        `;
+        tasks.push(row[0]);
+        await sql`UPDATE units SET status = 'cleaning' WHERE id = ${child.id}`;
+      }
+
+      return NextResponse.json({ data: tasks, count: tasks.length }, { status: 201 });
+    }
+
     const rows = await sql`
       INSERT INTO housekeeping_tasks (unit_id, property_id, assigned_to, task_type, priority, status, scheduled_at, notes)
       VALUES (
@@ -59,6 +96,13 @@ export async function POST(req: NextRequest) {
     if (body.unit_id) {
       await sql`UPDATE units SET status = 'cleaning' WHERE id = ${body.unit_id}`;
     }
+
+    return NextResponse.json({ data: rows[0] }, { status: 201 });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Failed to create task";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
 
     return NextResponse.json({ data: rows[0] }, { status: 201 });
   } catch (error: unknown) {

@@ -57,9 +57,22 @@ export async function POST(req: NextRequest) {
 
     // Check for overlapping bookings (+30 min turnaround buffer)
     if (body.unit_id && body.check_in && body.check_out) {
+      const unitCheck = await sql`SELECT unit_type, parent_unit_id FROM units WHERE id = ${body.unit_id} LIMIT 1` as any[];
+      const checkUnitIds = [body.unit_id];
+
+      if (unitCheck.length > 0 && unitCheck[0].unit_type === "apartment" && !unitCheck[0].parent_unit_id) {
+        const childIds = await sql`SELECT id FROM units WHERE parent_unit_id = ${body.unit_id}` as any[];
+        checkUnitIds.push(...childIds.map((c: any) => c.id));
+      }
+
+      if (unitCheck.length > 0 && unitCheck[0].parent_unit_id) {
+        checkUnitIds.push(unitCheck[0].parent_unit_id);
+      }
+
+      const uniqueUnitIds = [...new Set(checkUnitIds)];
       const conflicts = await sql`
         SELECT id FROM bookings
-        WHERE unit_id = ${body.unit_id}
+        WHERE unit_id = ANY(${uniqueUnitIds})
           AND status IN ('confirmed', 'checked_in')
           AND check_in < (${body.check_out}::timestamptz + interval '30 minutes')
           AND check_out > ${body.check_in}::timestamptz
@@ -67,7 +80,7 @@ export async function POST(req: NextRequest) {
       ` as any[];
       if (conflicts.length > 0) {
         return NextResponse.json(
-          { error: "The selected room has an overlapping reservation during this time window." },
+          { error: "The selected room (or a room in the same apartment) has an overlapping reservation during this time window." },
           { status: 400 }
         );
       }

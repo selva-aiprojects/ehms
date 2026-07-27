@@ -29,10 +29,10 @@ export async function GET(req: NextRequest) {
       : 50;
 
     const avgLOSData = await sql`
-      SELECT COALESCE(AVG(EXTRACT(DAY FROM COALESCE(check_out_date, check_in_date + INTERVAL '1 day') - check_in_date)), 3)::numeric as avg_los
-      FROM reservations
+      SELECT COALESCE(AVG(EXTRACT(DAY FROM COALESCE(check_out, check_in + INTERVAL '1 day') - check_in)), 3)::numeric as avg_los
+      FROM bookings
       WHERE status IN ('confirmed', 'checked_in')
-        AND check_in_date >= CURRENT_DATE - INTERVAL '30 days'
+        AND check_in >= CURRENT_DATE - INTERVAL '30 days'
     `;
     const avgLOS = Number(avgLOSData[0]?.avg_los) || 3;
 
@@ -40,8 +40,8 @@ export async function GET(req: NextRequest) {
       SELECT 
         COALESCE(COUNT(*)::int, 0) as total,
         COALESCE(COUNT(*) FILTER (WHERE status = 'cancelled')::int, 0) as cancelled
-      FROM reservations
-      WHERE check_in_date >= CURRENT_DATE - INTERVAL '60 days'
+      FROM bookings
+      WHERE check_in >= CURRENT_DATE - INTERVAL '60 days'
     `;
     const cancellationRate = cancelData[0] && Number(cancelData[0].total) > 0
       ? (Number(cancelData[0].cancelled) / Number(cancelData[0].total)) * 100

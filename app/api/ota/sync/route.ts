@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       WHERE 1=1
         ${propertyId ? sql`AND cs.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND cs.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
         ${channel ? sql`AND cs.channel = ${channel}` : sql``}
-      ORDER BY cs.created_at DESC
+      ORDER BY cs.synced_at DESC
       LIMIT ${limit}
     `;
     return NextResponse.json({ data: rows });

@@ -209,7 +209,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // 6. Create Bulk Units / Rooms
     if (action === "create_bulk_units") {
-      const { floor_id, prefix, start_num, end_num, unit_type, layout_type, sq_ft, max_occupancy, base_rate, attributes } = body;
+      const { floor_id, prefix, start_num, end_num, unit_type, layout_type, sq_ft, max_occupancy, base_rate, attributes, parent_unit_id } = body;
       if (!floor_id || start_num === undefined || end_num === undefined) {
         return NextResponse.json({ error: "floor_id, start_num, and end_num are required" }, { status: 400 });
       }
@@ -221,14 +221,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
 
       const attrJson = JSON.stringify(attributes || {});
+      const pUnitId = parent_unit_id && parent_unit_id !== "" ? parent_unit_id : null;
+
+      let parentLabel = "";
+      if (pUnitId) {
+        const parentRows = await sql.query(`SELECT unit_label FROM units WHERE id = $1 LIMIT 1`, [pUnitId]);
+        if (parentRows && (parentRows as any[]).length > 0) {
+          parentLabel = (parentRows as any[])[0].unit_label;
+        }
+      }
+
       const created: any[] = [];
 
       for (let num = sNum; num <= eNum; num++) {
         const pfx = prefix || "";
-        const label = pfx ? `${pfx}${String(num).padStart(2, "0")}` : String(num);
+        const label = parentLabel
+          ? `${parentLabel}-${pfx}${String(num - sNum + 1).padStart(2, "0")}`
+          : pfx ? `${pfx}${String(num).padStart(2, "0")}` : String(num);
         const row = await sql.query(
-          `INSERT INTO units (floor_id, unit_type, unit_label, layout_type, sq_ft, max_occupancy, base_rate, status, attributes)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, 'vacant', $8::jsonb)
+          `INSERT INTO units (floor_id, unit_type, unit_label, layout_type, sq_ft, max_occupancy, base_rate, status, attributes, parent_unit_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, 'vacant', $8::jsonb, $9)
            ON CONFLICT (floor_id, unit_label) DO UPDATE SET
              unit_type = EXCLUDED.unit_type,
              layout_type = EXCLUDED.layout_type,
@@ -236,6 +248,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
              max_occupancy = EXCLUDED.max_occupancy,
              base_rate = EXCLUDED.base_rate,
              attributes = EXCLUDED.attributes,
+             parent_unit_id = EXCLUDED.parent_unit_id,
              updated_at = now()
            RETURNING *`,
           [
@@ -246,7 +259,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             sq_ft ? parseFloat(sq_ft) : null,
             max_occupancy ? parseInt(max_occupancy) : 2,
             base_rate ? parseFloat(base_rate) : 0,
-            attrJson
+            attrJson,
+            pUnitId
           ]
         );
         if (row && (row as any[]).length > 0) {

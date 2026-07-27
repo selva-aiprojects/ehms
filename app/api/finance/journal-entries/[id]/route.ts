@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const sql = getDb();
     const { id } = await params;
     const entries = await sql`
-      SELECT je.*, u.name as created_by_name
+      SELECT je.*, CONCAT(u.first_name, ' ', COALESCE(u.last_name, '')) as created_by_name
       FROM journal_entries je
       LEFT JOIN users u ON u.id = je.created_by
       WHERE je.id = ${id}`;

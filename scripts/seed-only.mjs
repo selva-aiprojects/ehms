@@ -118,12 +118,15 @@ async function runSeedFile(filePath, label) {
     let ok = 0, skip = 0;
     for (const stmt of statements) {
       try {
+        await client.query("SAVEPOINT sp");
         const result = await client.query(stmt + ";");
+        await client.query("RELEASE SAVEPOINT sp");
         if (result && result.rows && result.rows[0]) {
           console.log("  \u2713", JSON.stringify(result.rows[0]).slice(0, 120));
         }
         ok++;
       } catch (err) {
+        await client.query("ROLLBACK TO SAVEPOINT sp").catch(() => {});
         if (err.message?.includes("duplicate key") || err.message?.includes("already exists")) {
           skip++;
         } else {
@@ -181,6 +184,7 @@ async function main() {
   await runSeedFile(join(DATABASE_DIR, "seed_v6_platform_and_workflows.sql"), "seed_v6_platform_and_workflows.sql (Platform Broadcasts & Workflow data)");
   await runSeedFile(join(DATABASE_DIR, "seed_v7_payments_backfill.sql"), "seed_v7_payments_backfill.sql (Payments backfill + live activity data)");
   await runSeedFile(join(DATABASE_DIR, "seed_v8_workflow_certification.sql"), "seed_v8_workflow_certification.sql (Workflow Certification — 50 Rooms, 25 Bookings, All Personas)");
+  await runSeedFile(join(DATABASE_DIR, "seed_v9_complete_gaps.sql"), "seed_v9_complete_gaps.sql (Fill remaining data gaps: rate_plans, HR, revenue-ai, promotions, etc.)");
 
   // Final verification
   console.log("\n\uD83D\uDCC8 Final counts:");
@@ -197,6 +201,19 @@ async function main() {
       ["units",            "SELECT COUNT(*) AS cnt FROM units"],
       ["housekeeping_tasks","SELECT COUNT(*) AS cnt FROM housekeeping_tasks"],
       ["maintenance_tickets","SELECT COUNT(*) AS cnt FROM maintenance_tickets"],
+      ["rate_plans",        "SELECT COUNT(*) AS cnt FROM rate_plans"],
+      ["employee_bands",    "SELECT COUNT(*) AS cnt FROM employee_bands"],
+      ["policy_documents",  "SELECT COUNT(*) AS cnt FROM policy_documents"],
+      ["competitor_rates",  "SELECT COUNT(*) AS cnt FROM competitor_rates"],
+      ["revenue_ai_rules",  "SELECT COUNT(*) AS cnt FROM revenue_ai_rules"],
+      ["revenue_ai_forecasts","SELECT COUNT(*) AS cnt FROM revenue_ai_forecasts"],
+      ["promotions",        "SELECT COUNT(*) AS cnt FROM promotions"],
+      ["channel_sync_log",  "SELECT COUNT(*) AS cnt FROM channel_sync_log"],
+      ["visitor_logs",      "SELECT COUNT(*) AS cnt FROM visitor_logs"],
+      ["checkin_sessions",  "SELECT COUNT(*) AS cnt FROM checkin_sessions"],
+      ["checkout_sessions", "SELECT COUNT(*) AS cnt FROM checkout_sessions"],
+      ["tax_filings",       "SELECT COUNT(*) AS cnt FROM tax_filings"],
+      ["bank_reconciliation","SELECT COUNT(*) AS cnt FROM bank_reconciliation"],
     ];
 
     for (const [label, q] of checks) {

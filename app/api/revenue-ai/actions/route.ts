@@ -23,9 +23,9 @@ export async function GET(req: NextRequest) {
 
     const bookingData = await sql`
       SELECT COALESCE(COUNT(*)::int, 0) as upcoming
-      FROM reservations
+      FROM bookings
       WHERE status IN ('confirmed')
-        AND check_in_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '14 days'
+        AND check_in BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '14 days'
     `;
     const upcomingBookings = Number(bookingData[0]?.upcoming) || 5;
 
@@ -55,8 +55,8 @@ export async function GET(req: NextRequest) {
       SELECT
         COALESCE(COUNT(*)::int, 0) as total,
         COALESCE(COUNT(*) FILTER (WHERE status = 'cancelled')::int, 0) as cancelled
-      FROM reservations
-      WHERE check_in_date >= CURRENT_DATE - INTERVAL '60 days'
+      FROM bookings
+      WHERE check_in >= CURRENT_DATE - INTERVAL '60 days'
     `;
     const historicalCancellationRate = cancelData[0] && Number(cancelData[0].total) > 0
       ? (Number(cancelData[0].cancelled) / Number(cancelData[0].total)) * 100

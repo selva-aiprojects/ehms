@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
     const rows = await sql`
       SELECT br.*, 
-        json_build_object('id', p.id, 'amount', p.amount, 'payment_date', p.payment_date, 'payment_mode', p.payment_mode) AS payment
+        json_build_object('id', p.id, 'amount', p.amount, 'payment_date', p.payment_date, 'payment_method', p.payment_method) AS payment
       FROM bank_reconciliation br
       LEFT JOIN payments p ON p.id = br.matched_payment_id
       WHERE 1=1

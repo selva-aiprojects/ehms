@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     `;
 
     const upcomingPm = await sql`
-      SELECT id, title, next_due
+      SELECT id, task_template AS title, next_due
       FROM preventive_schedules
       WHERE is_active = true
         AND next_due BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
