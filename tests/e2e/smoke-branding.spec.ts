@@ -8,7 +8,7 @@ import {
 } from "@playwright/test";
 import { loginAsTenantUser, DEMO_USERS, TENANT_CODE } from "./helpers/auth";
 
-const BRAND_NAVY_RGB = "rgb(6, 42, 84)";      // #062A54
+const BRAND_NAVY_RGB = "rgb(37, 82, 48)";      // #255230
 const SIDEBAR_DARK_RGB = "rgb(15, 23, 42)";    // #0F172A
 const LEGACY_HEXES = [
   "#2bae8e", "#4db88a", "#d4a853", "#f5a623", "#e53e3e",

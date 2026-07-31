@@ -3,10 +3,10 @@ import { getPublicDb } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 
 const DEFAULT_BRANDING = {
-  primary_color: "#D4AF37",
-  secondary_color: "#0F172A",
-  accent_color: "#F3E5AB",
-  sidebar_color: "#0F172A",
+  primary_color: "#7BB347",
+  secondary_color: "#255230",
+  accent_color: "#A5D375",
+  sidebar_color: "#255230",
   logo_url: "/hostsphere-logo.png",
   company_name: "HostSphere",
 };

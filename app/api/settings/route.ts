@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
         data: {
           company_name: 'HostSphere',
           logo_url: '/hostsphere-logo.png',
-          primary_color: '#D4AF37',
-          secondary_color: '#0F172A',
+          primary_color: '#7BB347',
+          secondary_color: '#255230',
           currency_symbol: '₹',
           timezone: 'Asia/Kolkata'
         }
@@ -68,8 +68,8 @@ export async function PUT(req: NextRequest) {
         ) VALUES (
           ${company_name || 'HostSphere'},
           ${logo_url || '/hostsphere-logo.png'},
-          ${primary_color || '#D4AF37'},
-          ${secondary_color || '#0F172A'},
+          ${primary_color || '#7BB347'},
+          ${secondary_color || '#255230'},
           ${currency_symbol || '₹'},
           ${timezone || 'Asia/Kolkata'}
         )

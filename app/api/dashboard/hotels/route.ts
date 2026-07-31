@@ -192,11 +192,11 @@ export async function GET(req: Request) {
 
     // 8. Guest Satisfaction (Mocked)
     const guestSatisfaction = [
-      { category: "Cleanliness", rating: 4.7, color: "#D4AF37" },
-      { category: "Staff Service", rating: 4.5, color: "#D4AF37" },
-      { category: "Room Comfort", rating: 4.3, color: "#062A54" },
-      { category: "Food & Dining", rating: 4.1, color: "#062A54" },
-      { category: "Amenities", rating: 4.4, color: "#D4AF37" },
+      { category: "Cleanliness", rating: 4.7, color: "#7BB347" },
+      { category: "Staff Service", rating: 4.5, color: "#7BB347" },
+      { category: "Room Comfort", rating: 4.3, color: "#255230" },
+      { category: "Food & Dining", rating: 4.1, color: "#255230" },
+      { category: "Amenities", rating: 4.4, color: "#7BB347" },
       { category: "Value for Money", rating: 4.0, color: "#64748B" }
     ];
 

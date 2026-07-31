@@ -2,21 +2,21 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    HostSphere Design System — Single Source of Truth for Colors
-   Brand: Navy (#062A54 from hostsphere-logo.png) + Gold (#D4AF37)
+   Brand: Deep Green (#255230 from Branding Kit) + Fresh Green (#7BB347)
    ═══════════════════════════════════════════════════════════════════ */
 :root {
   /* ─── Brand Palette (literal) ─── */
-  --hs-navy:           #062A54;
-  --hs-navy-rgb:       6, 42, 84;
-  --hs-navy-dark:      #041B38;
-  --hs-navy-dark-rgb:  4, 27, 56;
+  --hs-navy:           #255230;
+  --hs-navy-rgb:       37, 82, 48;
+  --hs-navy-dark:      #1A3D24;
+  --hs-navy-dark-rgb:  26, 61, 36;
 
-  --hs-gold:           #D4AF37;
-  --hs-gold-rgb:       212, 175, 55;
-  --hs-gold-light:     #E6C46A;
-  --hs-gold-light-rgb: 230, 196, 106;
-  --hs-gold-dark:      #C9A24B;
-  --hs-gold-dark-rgb:  201, 162, 75;
+  --hs-gold:           #7BB347;
+  --hs-gold-rgb:       123, 179, 71;
+  --hs-gold-light:     #A5D375;
+  --hs-gold-light-rgb: 165, 211, 117;
+  --hs-gold-dark:      #5C9138;
+  --hs-gold-dark-rgb:  92, 145, 56;
 
   --hs-bg-light:       #F8F9FA;
   --hs-bg-light-rgb:   248, 249, 250;
@@ -39,9 +39,9 @@
   --hs-font-serif: var(--font-playfair), Georgia, serif;
 
   /* ─── Shadows & Layout Elements ─── */
-  --hs-shadow-sm: 0 2px 4px rgba(6, 42, 84, 0.05);
-  --hs-shadow-md: 0 10px 15px -3px rgba(6, 42, 84, 0.08), 0 4px 6px -2px rgba(6, 42, 84, 0.04);
-  --hs-shadow-lg: 0 20px 25px -5px rgba(6, 42, 84, 0.1), 0 10px 10px -5px rgba(6, 42, 84, 0.04);
+  --hs-shadow-sm: 0 2px 4px rgba(37, 82, 48, 0.05);
+  --hs-shadow-md: 0 10px 15px -3px rgba(37, 82, 48, 0.08), 0 4px 6px -2px rgba(37, 82, 48, 0.04);
+  --hs-shadow-lg: 0 20px 25px -5px rgba(37, 82, 48, 0.1), 0 10px 10px -5px rgba(37, 82, 48, 0.04);
   --hs-radius-sm: 6px;
   --hs-radius-md: 12px;
   --hs-radius-lg: 24px;

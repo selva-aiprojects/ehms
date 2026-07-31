@@ -29,11 +29,11 @@ function baseEmailHtml(
 <body style="margin:0;padding:0;background:#F5F7FA;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:40px 16px;">
     <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
-      <tr><td style="padding:32px 32px 16px;background:linear-gradient(135deg,#062A54,#D4AF37);text-align:center;">
+      <tr><td style="padding:32px 32px 16px;background:linear-gradient(135deg,#255230,#7BB347);text-align:center;">
         <h1 style="margin:0;font-size:20px;color:#FFFFFF;letter-spacing:-0.3px;">${title}</h1>
         <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">Ticket #${ticketId.slice(0,8)} · ${tenantCode}</p>
       </td></tr>
-      <tr><td style="padding:24px 32px 16px;color:#062A54;font-size:14px;line-height:1.6;">
+      <tr><td style="padding:24px 32px 16px;color:#255230;font-size:14px;line-height:1.6;">
         ${bodyHtml}
       </td></tr>
       <tr><td style="padding:16px 32px 24px;border-top:1px solid #E2E8F0;text-align:center;">
@@ -57,10 +57,10 @@ export async function sendTicketCreatedEmail(
     "New Support Ticket Created",
     `<p style="margin:0 0 12px;">A new support ticket has been created by <strong>${createdByName}</strong> on behalf of your organization.</p>
      <table width="100%" cellpadding="8" cellspacing="0" style="background:#F5F7FA;border-radius:8px;font-size:13px;">
-       <tr><td style="color:#64748B;width:80px;">Subject</td><td style="color:#062A54;font-weight:600;">${ticket.subject}</td></tr>
-       ${ticket.description ? `<tr><td style="color:#64748B;">Description</td><td style="color:#062A54;">${ticket.description}</td></tr>` : ""}
-       <tr><td style="color:#64748B;">Priority</td><td style="color:#062A54;">${ticket.priority}</td></tr>
-       <tr><td style="color:#64748B;">Category</td><td style="color:#062A54;">${ticket.category}</td></tr>
+       <tr><td style="color:#64748B;width:80px;">Subject</td><td style="color:#255230;font-weight:600;">${ticket.subject}</td></tr>
+       ${ticket.description ? `<tr><td style="color:#64748B;">Description</td><td style="color:#255230;">${ticket.description}</td></tr>` : ""}
+       <tr><td style="color:#64748B;">Priority</td><td style="color:#255230;">${ticket.priority}</td></tr>
+       <tr><td style="color:#64748B;">Category</td><td style="color:#255230;">${ticket.category}</td></tr>
      </table>`,
     ticket.id,
     ticket.tenant_code
@@ -89,7 +89,7 @@ export async function sendTicketReplyEmail(
   const html = baseEmailHtml(
     "New Reply on Support Ticket",
     `<p style="margin:0 0 12px;"><strong>${senderName}</strong> has replied to ticket <strong>${ticket.subject}</strong>.</p>
-     <div style="background:#F5F7FA;border-radius:8px;padding:12px 16px;font-size:13px;color:#062A54;border-left:3px solid #D4AF37;">
+     <div style="background:#F5F7FA;border-radius:8px;padding:12px 16px;font-size:13px;color:#255230;border-left:3px solid #7BB347;">
        ${messageText.replace(/\n/g, "<br>")}
      </div>`,
     ticket.id,
@@ -135,14 +135,14 @@ export async function sendWelcomeEmail(
         : `<span style="background:#F1F5F9;color:#475569;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500;">Active</span>`;
       return `
         <tr style="border-bottom:1px solid #E2E8F0;">
-          <td style="padding:12px 16px;color:#062A54;font-weight:600;text-align:left;">${w.name}</td>
+          <td style="padding:12px 16px;color:#255230;font-weight:600;text-align:left;">${w.name}</td>
           <td style="padding:12px 16px;color:#475569;text-align:left;">${typeLabel}</td>
           <td style="padding:12px 16px;text-align:right;">${statusBadge}</td>
         </tr>`;
     }).join("");
 
     workspacesTable = `
-      <h3 style="margin:28px 0 12px;font-size:16px;color:#062A54;font-weight:600;font-family:'Playfair Display SC',Georgia,serif;letter-spacing:0.5px;">Registered Properties & Workspaces</h3>
+      <h3 style="margin:28px 0 12px;font-size:16px;color:#255230;font-weight:600;font-family:'Playfair Display SC',Georgia,serif;letter-spacing:0.5px;">Registered Properties & Workspaces</h3>
       <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E2E8F0;border-radius:8px;overflow:hidden;font-size:13px;border-collapse:collapse;margin-bottom:20px;box-shadow:0 1px 2px rgba(0,0,0,0.02);">
         <thead>
           <tr style="background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
@@ -170,17 +170,17 @@ export async function sendWelcomeEmail(
   <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td align="center" style="padding:40px 16px;">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(30,58,138,0.06), 0 1px 3px rgba(30,58,138,0.04);border:1px solid #E2E8F0;">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(37,82,48,0.06), 0 1px 3px rgba(37,82,48,0.04);border:1px solid #E2E8F0;">
           <!-- Top Header Gradient -->
           <tr>
-            <td style="padding:48px 40px 36px;background:linear-gradient(135deg,#062A54 0%,#0F3F77 100%);text-align:center;">
+            <td style="padding:48px 40px 36px;background:linear-gradient(135deg,#255230 0%,#1A3D24 100%);text-align:center;">
               <h1 style="margin:0;font-size:28px;color:#FFFFFF;letter-spacing:-0.5px;font-weight:700;font-family:'Playfair Display SC',Georgia,serif;">Welcome to HostSphere</h1>
               <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.85);letter-spacing:0.5px;text-transform:uppercase;">Enterprise Hospitality & Facilities Platform</p>
             </td>
           </tr>
           <!-- Bottom Border Accent -->
           <tr>
-            <td height="4" style="background:#D4AF37;line-height:4px;font-size:4px;">&nbsp;</td>
+            <td height="4" style="background:#7BB347;line-height:4px;font-size:4px;">&nbsp;</td>
           </tr>
           <!-- Main Content -->
           <tr>
@@ -191,15 +191,15 @@ export async function sendWelcomeEmail(
               </p>
 
               <!-- Credentials Box -->
-              <h3 style="margin:28px 0 12px;font-size:16px;color:#062A54;font-weight:600;font-family:'Playfair Display SC',Georgia,serif;letter-spacing:0.5px;">Your Administrator Credentials</h3>
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#EFF6FF;border-left:4px solid #D4AF37;border-radius:0 8px 8px 0;font-size:13px;margin-bottom:24px;border-collapse:collapse;">
+              <h3 style="margin:28px 0 12px;font-size:16px;color:#255230;font-weight:600;font-family:'Playfair Display SC',Georgia,serif;letter-spacing:0.5px;">Your Administrator Credentials</h3>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#EDF5E3;border-left:4px solid #7BB347;border-radius:0 8px 8px 0;font-size:13px;margin-bottom:24px;border-collapse:collapse;">
                 <tr>
-                  <td style="padding:14px 16px;color:#475569;width:120px;border-bottom:1px solid rgba(30,58,138,0.06);">Organization</td>
-                  <td style="padding:14px 16px;color:#062A54;font-weight:600;border-bottom:1px solid rgba(30,58,138,0.06);">${tenantName}</td>
+                  <td style="padding:14px 16px;color:#475569;width:120px;border-bottom:1px solid rgba(37,82,48,0.06);">Organization</td>
+                  <td style="padding:14px 16px;color:#255230;font-weight:600;border-bottom:1px solid rgba(37,82,48,0.06);">${tenantName}</td>
                 </tr>
                 <tr>
-                  <td style="padding:14px 16px;color:#475569;border-bottom:1px solid rgba(30,58,138,0.06);">Admin Username</td>
-                  <td style="padding:14px 16px;color:#062A54;font-weight:600;border-bottom:1px solid rgba(30,58,138,0.06);">${adminEmail}</td>
+                  <td style="padding:14px 16px;color:#475569;border-bottom:1px solid rgba(37,82,48,0.06);">Admin Username</td>
+                  <td style="padding:14px 16px;color:#255230;font-weight:600;border-bottom:1px solid rgba(37,82,48,0.06);">${adminEmail}</td>
                 </tr>
                 <tr>
                   <td style="padding:14px 16px;color:#475569;">Temp Password</td>
@@ -213,7 +213,7 @@ export async function sendWelcomeEmail(
 
               <!-- Access Button -->
               <div style="text-align:center;margin:32px 0 32px;">
-                <a href="${loginUrl}" style="display:inline-block;padding:14px 44px;background:#D4AF37;color:#FFFFFF;text-decoration:none;border-radius:8px;font-size:15px;font-weight:600;box-shadow:0 4px 6px rgba(212,175,55,0.15);transition:all 0.2s ease;">
+                <a href="${loginUrl}" style="display:inline-block;padding:14px 44px;background:#7BB347;color:#FFFFFF;text-decoration:none;border-radius:8px;font-size:15px;font-weight:600;box-shadow:0 4px 6px rgba(123,179,71,0.15);transition:all 0.2s ease;">
                   Access HostSphere Portal
                 </a>
               </div>
@@ -222,22 +222,22 @@ export async function sendWelcomeEmail(
               ${workspacesTable}
 
               <!-- Next Steps Instructions -->
-              <h3 style="margin:28px 0 12px;font-size:16px;color:#062A54;font-weight:600;font-family:'Playfair Display SC',Georgia,serif;letter-spacing:0.5px;">Getting Started Checklist</h3>
+              <h3 style="margin:28px 0 12px;font-size:16px;color:#255230;font-weight:600;font-family:'Playfair Display SC',Georgia,serif;letter-spacing:0.5px;">Getting Started Checklist</h3>
               <table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#475569;">
                 <tr>
-                  <td valign="top" style="padding:6px 0;width:24px;color:#D4AF37;font-weight:bold;">1.</td>
+                  <td valign="top" style="padding:6px 0;width:24px;color:#7BB347;font-weight:bold;">1.</td>
                   <td style="padding:6px 0;">Log in to the dashboard using the workspace URL and temporary password.</td>
                 </tr>
                 <tr>
-                  <td valign="top" style="padding:6px 0;width:24px;color:#D4AF37;font-weight:bold;">2.</td>
+                  <td valign="top" style="padding:6px 0;width:24px;color:#7BB347;font-weight:bold;">2.</td>
                   <td style="padding:6px 0;">Navigate to <strong>Settings</strong> to update your business profile, upload corporate logos, and verify currencies or timezones.</td>
                 </tr>
                 <tr>
-                  <td valign="top" style="padding:6px 0;width:24px;color:#D4AF37;font-weight:bold;">3.</td>
+                  <td valign="top" style="padding:6px 0;width:24px;color:#7BB347;font-weight:bold;">3.</td>
                   <td style="padding:6px 0;">Go to the <strong>Properties</strong> module to configure buildings, floor layout rooms, and customize property feature toggles.</td>
                 </tr>
                 <tr>
-                  <td valign="top" style="padding:6px 0;width:24px;color:#D4AF37;font-weight:bold;">4.</td>
+                  <td valign="top" style="padding:6px 0;width:24px;color:#7BB347;font-weight:bold;">4.</td>
                   <td style="padding:6px 0;">Navigate to <strong>User Management</strong> (Admin panel) to add team members and allocate their role-based scopes.</td>
                 </tr>
               </table>
@@ -286,8 +286,8 @@ export async function sendTicketStatusEmail(
     "Support Ticket Status Updated",
     `<p style="margin:0 0 12px;"><strong>${changedByName}</strong> updated the status of ticket <strong>${ticket.subject}</strong>.</p>
      <table width="100%" cellpadding="8" cellspacing="0" style="background:#F5F7FA;border-radius:8px;font-size:13px;">
-       <tr><td style="color:#64748B;width:80px;">Previous</td><td style="color:#062A54;">${oldStatus.replace("_", " ")}</td></tr>
-       <tr><td style="color:#64748B;">Current</td><td style="color:#062A54;font-weight:600;">${ticket.status.replace("_", " ")}</td></tr>
+       <tr><td style="color:#64748B;width:80px;">Previous</td><td style="color:#255230;">${oldStatus.replace("_", " ")}</td></tr>
+       <tr><td style="color:#64748B;">Current</td><td style="color:#255230;font-weight:600;">${ticket.status.replace("_", " ")}</td></tr>
      </table>`,
     ticket.id,
     ticket.tenant_code
