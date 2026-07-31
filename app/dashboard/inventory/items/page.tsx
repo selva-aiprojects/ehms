@@ -146,14 +146,14 @@ export default function InventoryItemsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Inventory Items</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Manage all stock items across warehouses</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Inventory Items</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Manage all stock items across warehouses</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={() => { setEditItem(null); resetForm(); setShowAddModal(true); }}>
             <Plus className="w-3.5 h-3.5" /> Add Item
           </Button>
-          <button onClick={() => mutateItems()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }}>
+          <button onClick={() => mutateItems()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }}>
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -161,7 +161,7 @@ export default function InventoryItemsPage() {
 
       {actionFeedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
-          style={{ background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)", color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E", border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}` }}>
+          style={{ background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)", color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)", border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}` }}>
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {actionFeedback.message}
         </div>
@@ -169,32 +169,32 @@ export default function InventoryItemsPage() {
 
       {/* Stats Bar */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <div className="rounded-lg px-4 py-3 flex items-center gap-3" style={{ background: "#F5F7FA" }}>
-          <Package className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+        <div className="rounded-lg px-4 py-3 flex items-center gap-3" style={{ background: "var(--color-light)" }}>
+          <Package className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
           <div>
-            <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{statsLoading ? "..." : stats.total_items || 0}</div>
-            <div className="text-[10px]" style={{ color: "#64748B" }}>Total Items</div>
+            <div className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>{statsLoading ? "..." : stats.total_items || 0}</div>
+            <div className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>Total Items</div>
           </div>
         </div>
-        <div className="rounded-lg px-4 py-3 flex items-center gap-3" style={{ background: "#F5F7FA" }}>
-          <TrendingUp className="w-5 h-5" style={{ color: "#1A3C5E" }} />
+        <div className="rounded-lg px-4 py-3 flex items-center gap-3" style={{ background: "var(--color-light)" }}>
+          <TrendingUp className="w-5 h-5" style={{ color: "var(--color-navy)" }} />
           <div>
-            <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>${statsLoading ? "..." : parseFloat(stats.total_value || 0).toLocaleString()}</div>
-            <div className="text-[10px]" style={{ color: "#64748B" }}>Total Value</div>
+            <div className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>${statsLoading ? "..." : parseFloat(stats.total_value || 0).toLocaleString()}</div>
+            <div className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>Total Value</div>
           </div>
         </div>
-        <div className="rounded-lg px-4 py-3 flex items-center gap-3" style={{ background: "#F5F7FA" }}>
-          <TrendingDown className="w-5 h-5" style={{ color: "#E53E3E" }} />
+        <div className="rounded-lg px-4 py-3 flex items-center gap-3" style={{ background: "var(--color-light)" }}>
+          <TrendingDown className="w-5 h-5" style={{ color: "var(--color-danger)" }} />
           <div>
-            <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{statsLoading ? "..." : stats.low_stock_count || 0}</div>
-            <div className="text-[10px]" style={{ color: "#64748B" }}>Low Stock</div>
+            <div className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>{statsLoading ? "..." : stats.low_stock_count || 0}</div>
+            <div className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>Low Stock</div>
           </div>
         </div>
-        <div className="rounded-lg px-4 py-3 flex items-center gap-3" style={{ background: "#F5F7FA" }}>
+        <div className="rounded-lg px-4 py-3 flex items-center gap-3" style={{ background: "var(--color-light)" }}>
           <Package className="w-5 h-5" style={{ color: "#6366F1" }} />
           <div>
-            <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{statsLoading ? "..." : stats.total_categories || 0}</div>
-            <div className="text-[10px]" style={{ color: "#64748B" }}>Categories</div>
+            <div className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>{statsLoading ? "..." : stats.total_categories || 0}</div>
+            <div className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>Categories</div>
           </div>
         </div>
       </div>
@@ -202,18 +202,18 @@ export default function InventoryItemsPage() {
       {/* Filters */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "#94A3B8" }} />
+          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-faint)" }} />
           <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name or SKU..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
+            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
         </div>
         <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}
-          className="px-3 py-1.5 text-xs rounded-lg border outline-none bg-white" style={{ borderColor: "#E2E8F0", color: "#1A2E44" }}>
+          className="px-3 py-1.5 text-xs rounded-lg border outline-none bg-white" style={{ borderColor: "var(--color-border)", color: "var(--color-text)" }}>
           <option value="">All Categories</option>
           {(categories || []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
         <select value={filterWarehouse} onChange={(e) => setFilterWarehouse(e.target.value)}
-          className="px-3 py-1.5 text-xs rounded-lg border outline-none bg-white" style={{ borderColor: "#E2E8F0", color: "#1A2E44" }}>
+          className="px-3 py-1.5 text-xs rounded-lg border outline-none bg-white" style={{ borderColor: "var(--color-border)", color: "var(--color-text)" }}>
           <option value="">All Warehouses</option>
           {(warehouses || []).map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}
         </select>
@@ -223,11 +223,11 @@ export default function InventoryItemsPage() {
       <Card>
         <CardHeader title="All Items" subtitle={`${filteredItems.length} items`} />
         {isLoading && !inventoryItems.length ? (
-          <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "#94A3B8" }} /></div>
+          <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-text-faint)" }} /></div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-8">
-            <Package className="w-8 h-8 mx-auto mb-2" style={{ color: "#94A3B8" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No items found.</p>
+            <Package className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-text-faint)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No items found.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -236,35 +236,35 @@ export default function InventoryItemsPage() {
                 <tr>
                   {["SKU", "Name", "Category", "Warehouse", "Unit", "Qty On Hand", "Reserved", "Reorder", "Unit Cost", "Total Value", "Status", "Actions"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                      style={{ color: "#FFFFFF", background: "#1A3C5E" }}>{h}</th>
+                      style={{ color: "var(--color-white)", background: "var(--color-navy)" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filteredItems.map((item: any, idx: number) => (
                   <tr key={item.id}
-                    style={{ background: idx % 2 === 0 ? "#FFFFFF" : "#F5F7FA", borderBottom: "1px solid #E2E8F0" }}>
-                    <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: "#64748B" }}>{item.sku || "—"}</td>
-                    <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: "#1A2E44" }}>{item.name}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748B" }}>{item.category?.name || "—"}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748B" }}>{item.warehouse?.name || "—"}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#94A3B8" }}>{item.unit || "pcs"}</td>
+                    style={{ background: idx % 2 === 0 ? "var(--color-white)" : "var(--color-light)", borderBottom: "1px solid var(--color-border)" }}>
+                    <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>{item.sku || "—"}</td>
+                    <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: "var(--color-text)" }}>{item.name}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>{item.category?.name || "—"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>{item.warehouse?.name || "—"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-text-faint)" }}>{item.unit || "pcs"}</td>
                     <td className="px-4 py-3 font-semibold whitespace-nowrap">{item.quantity_on_hand}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#F5A623" }}>{item.quantity_reserved || 0}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748B" }}>{item.reorder_level}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748B" }}>${parseFloat(item.unit_cost || 0).toFixed(2)}</td>
-                    <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: "#1A3C5E" }}>${parseFloat(item.total_value || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-warning)" }}>{item.quantity_reserved || 0}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>{item.reorder_level}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>${parseFloat(item.unit_cost || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: "var(--color-navy)" }}>${parseFloat(item.total_value || 0).toFixed(2)}</td>
                     <td className="px-4 py-3"><Badge variant={stockBadge(item)}>{stockLabel(item)}</Badge></td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <button onClick={() => handleAdjust(item)}
                           className="p-1.5 rounded hover:bg-slate-100 transition-colors" title="Adjust Stock"
-                          style={{ color: "#2BAE8E" }}>
+                          style={{ color: "var(--color-primary)" }}>
                           <TrendingUp className="w-3.5 h-3.5" />
                         </button>
                         <button onClick={() => handleEdit(item)}
                           className="p-1.5 rounded hover:bg-slate-100 transition-colors" title="Edit"
-                          style={{ color: "#64748B" }}>
+                          style={{ color: "var(--color-text-muted)" }}>
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -281,35 +281,35 @@ export default function InventoryItemsPage() {
       {(showAddModal || showEditModal) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>
+            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>
                 {editItem ? "Edit Item" : "Add New Item"}
               </h3>
               <button onClick={() => { setShowAddModal(false); setShowEditModal(false); setEditItem(null); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Item Name *</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Item Name *</label>
                 <input type="text" required value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                   placeholder="Item name" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Category</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Category</label>
                   <select value={formData.category_id}
                     onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                     <option value="">Select</option>
                     {(categories || []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Unit</label>
                   <select value={formData.unit}
                     onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                     {["pcs", "kg", "g", "l", "ml", "box", "pack", "roll", "bottle", "bag"].map((u) => (
                       <option key={u} value={u}>{u}</option>
                     ))}
@@ -317,61 +317,61 @@ export default function InventoryItemsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Description</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Description</label>
                 <textarea value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                   rows={2} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Quantity On Hand</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Quantity On Hand</label>
                   <input type="number" min="0" step="0.01" value={formData.quantity_on_hand}
                     onChange={(e) => setFormData({ ...formData, quantity_on_hand: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit Cost (₹)</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Unit Cost (₹)</label>
                   <input type="number" min="0" step="0.01" value={formData.unit_cost}
                     onChange={(e) => setFormData({ ...formData, unit_cost: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Reorder Level</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Reorder Level</label>
                   <input type="number" min="0" step="0.01" value={formData.reorder_level}
                     onChange={(e) => setFormData({ ...formData, reorder_level: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Reorder Quantity</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Reorder Quantity</label>
                   <input type="number" min="0" step="0.01" value={formData.reorder_quantity}
                     onChange={(e) => setFormData({ ...formData, reorder_quantity: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Warehouse</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Warehouse</label>
                   <select value={formData.warehouse_id}
                     onChange={(e) => setFormData({ ...formData, warehouse_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                     <option value="">Select</option>
                     {(warehouses || []).map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Property</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Property</label>
                   <select value={formData.property_id}
                     onChange={(e) => setFormData({ ...formData, property_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                     <option value="">Select</option>
                     {(properties || []).map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
               </div>
-              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                 <Button type="button" variant="outline" size="sm" onClick={() => { setShowAddModal(false); setShowEditModal(false); setEditItem(null); }}>Cancel</Button>
                 <Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>
                   {isSubmitting ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Saving</> : editItem ? "Update Item" : "Create Item"}
@@ -386,20 +386,20 @@ export default function InventoryItemsPage() {
       {showAdjustModal && adjustItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>Adjust Stock: {adjustItem.name}</h3>
+            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>Adjust Stock: {adjustItem.name}</h3>
               <button onClick={() => { setShowAdjustModal(false); setAdjustItem(null); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
-            <div className="px-6 py-3" style={{ background: "#F5F7FA", borderBottom: "1px solid #E2E8F0" }}>
-              <div className="text-xs" style={{ color: "#64748B" }}>Current Stock: <strong style={{ color: "#1A3C5E" }}>{adjustItem.quantity_on_hand}</strong> {adjustItem.unit}</div>
-              <div className="text-xs" style={{ color: "#64748B" }}>SKU: {adjustItem.sku || "—"}</div>
+            <div className="px-6 py-3" style={{ background: "var(--color-light)", borderBottom: "1px solid var(--color-border)" }}>
+              <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Current Stock: <strong style={{ color: "var(--color-navy)" }}>{adjustItem.quantity_on_hand}</strong> {adjustItem.unit}</div>
+              <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>SKU: {adjustItem.sku || "—"}</div>
             </div>
             <form onSubmit={handleAdjustSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Transaction Type *</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Transaction Type *</label>
                 <select required value={adjustForm.type}
                   onChange={(e) => setAdjustForm({ ...adjustForm, type: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                   <optgroup label="Inbound (adds stock)">
                     <option value="purchase_receipt">Purchase Receipt</option>
                     <option value="return">Return</option>
@@ -416,26 +416,26 @@ export default function InventoryItemsPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Quantity *</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Quantity *</label>
                   <input type="number" required min="0.01" step="0.01" value={adjustForm.quantity || ""}
                     onChange={(e) => setAdjustForm({ ...adjustForm, quantity: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit Cost (₹)</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Unit Cost (₹)</label>
                   <input type="number" min="0" step="0.01" value={adjustForm.unit_cost}
                     onChange={(e) => setAdjustForm({ ...adjustForm, unit_cost: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Notes</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Notes</label>
                 <textarea value={adjustForm.notes}
                   onChange={(e) => setAdjustForm({ ...adjustForm, notes: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                   rows={2} placeholder="Reason for adjustment" />
               </div>
-              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                 <Button type="button" variant="outline" size="sm" onClick={() => { setShowAdjustModal(false); setAdjustItem(null); }}>Cancel</Button>
                 <Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>
                   {isSubmitting ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Processing</> : "Submit Adjustment"}

@@ -120,14 +120,14 @@ export default function GrnPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Goods Received Notes</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Record goods received against purchase orders</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Goods Received Notes</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Record goods received against purchase orders</p>
         </div>
         <div className="flex items-center gap-2">
           <Button size="sm" onClick={() => { resetForm(); setShowModal(true); }}>
             <Plus className="w-3.5 h-3.5" /> New GRN
           </Button>
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }}>
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }}>
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -136,9 +136,9 @@ export default function GrnPage() {
       {actionFeedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
           style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
           }}>
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {actionFeedback.message}
@@ -148,34 +148,34 @@ export default function GrnPage() {
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,60,94,0.1)" }}>
-              <ClipboardList className="w-5 h-5" style={{ color: "#1A3C5E" }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-navy-rgb),0.1)" }}>
+              <ClipboardList className="w-5 h-5" style={{ color: "var(--color-navy)" }} />
             </div>
             <div>
-              <p className="text-xs font-medium" style={{ color: "#64748B" }}>Total GRNs</p>
-              <p className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{totalGrns}</p>
+              <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Total GRNs</p>
+              <p className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>{totalGrns}</p>
             </div>
           </div>
         </Card>
         <Card>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(43,174,142,0.1)" }}>
-              <Package className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-primary-rgb),0.1)" }}>
+              <Package className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
             </div>
             <div>
-              <p className="text-xs font-medium" style={{ color: "#64748B" }}>Approved POs Ready</p>
-              <p className="text-lg font-bold" style={{ color: "#2BAE8E" }}>{purchaseOrders.length}</p>
+              <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Approved POs Ready</p>
+              <p className="text-lg font-bold" style={{ color: "var(--color-primary)" }}>{purchaseOrders.length}</p>
             </div>
           </div>
         </Card>
       </div>
 
       {isLoading && !grns.length ? (
-        <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#94A3B8" }} /></div>
+        <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--color-text-faint)" }} /></div>
       ) : grns.length === 0 ? (
         <div className="text-center py-12">
-          <ClipboardList className="w-10 h-10 mx-auto mb-3" style={{ color: "#94A3B8" }} />
-          <p className="text-sm" style={{ color: "#64748B" }}>No goods received notes yet. Create your first GRN.</p>
+          <ClipboardList className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--color-text-faint)" }} />
+          <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No goods received notes yet. Create your first GRN.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -187,18 +187,18 @@ export default function GrnPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <button onClick={() => setExpandedGrn(isExpanded ? null : grn.id)}
-                        className="p-0.5 rounded hover:bg-slate-100 transition-colors" style={{ color: "#94A3B8" }}>
+                        className="p-0.5 rounded hover:bg-slate-100 transition-colors" style={{ color: "var(--color-text-faint)" }}>
                         {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                       </button>
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,60,94,0.08)" }}>
-                        <ClipboardList className="w-4.5 h-4.5" style={{ color: "#1A3C5E" }} />
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-navy-rgb),0.08)" }}>
+                        <ClipboardList className="w-4.5 h-4.5" style={{ color: "var(--color-navy)" }} />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm" style={{ color: "#1A2E44" }}>{grn.grn_number}</span>
+                          <span className="font-semibold text-sm" style={{ color: "var(--color-text)" }}>{grn.grn_number}</span>
                           <Badge variant="teal">Received</Badge>
                         </div>
-                        <div className="flex items-center gap-3 mt-1 text-xs" style={{ color: "#64748B" }}>
+                        <div className="flex items-center gap-3 mt-1 text-xs" style={{ color: "var(--color-text-muted)" }}>
                           <span>PO: {grn.po_number || "—"}</span>
                           <span>{grn.vendor_name || "—"}</span>
                           <span>{grn.received_date ? new Date(grn.received_date).toLocaleDateString() : "—"}</span>
@@ -209,31 +209,31 @@ export default function GrnPage() {
                 </div>
 
                 {isExpanded && (
-                  <div className="border-t px-4 py-3" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }}>
-                    <h4 className="text-xs font-semibold mb-2" style={{ color: "#1A3C5E" }}>Received Items ({grn.lines?.length || 0})</h4>
+                  <div className="border-t px-4 py-3" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }}>
+                    <h4 className="text-xs font-semibold mb-2" style={{ color: "var(--color-navy)" }}>Received Items ({grn.lines?.length || 0})</h4>
                     {grn.lines?.length > 0 ? (
                       <div className="space-y-1">
                         {grn.lines.map((line: any) => (
                           <div key={line.id} className="flex items-center justify-between text-xs py-1.5 px-3 rounded"
-                            style={{ background: "#FFFFFF" }}>
+                            style={{ background: "var(--color-white)" }}>
                             <div className="flex items-center gap-4 flex-1">
-                              <span className="font-medium" style={{ color: "#1A2E44" }}>{line.item_description}</span>
-                              <span style={{ color: "#64748B" }}>Rcvd: {line.received_qty}</span>
+                              <span className="font-medium" style={{ color: "var(--color-text)" }}>{line.item_description}</span>
+                              <span style={{ color: "var(--color-text-muted)" }}>Rcvd: {line.received_qty}</span>
                               {line.accepted_qty != null && (
-                                <span style={{ color: "#2BAE8E" }}>Accepted: {line.accepted_qty}</span>
+                                <span style={{ color: "var(--color-primary)" }}>Accepted: {line.accepted_qty}</span>
                               )}
                               {line.rejected_qty > 0 && (
-                                <span style={{ color: "#E53E3E" }}>Rejected: {line.rejected_qty}</span>
+                                <span style={{ color: "var(--color-danger)" }}>Rejected: {line.rejected_qty}</span>
                               )}
                             </div>
                             {line.rejection_reason && (
-                              <span className="text-xs" style={{ color: "#94A3B8" }}>{line.rejection_reason}</span>
+                              <span className="text-xs" style={{ color: "var(--color-text-faint)" }}>{line.rejection_reason}</span>
                             )}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-xs" style={{ color: "#94A3B8" }}>No line details</p>
+                      <p className="text-xs" style={{ color: "var(--color-text-faint)" }}>No line details</p>
                     )}
                   </div>
                 )}
@@ -246,17 +246,17 @@ export default function GrnPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>New Goods Received Note</h3>
+            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>New Goods Received Note</h3>
               <button onClick={() => { setShowModal(false); resetForm(); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Purchase Order *</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Purchase Order *</label>
                   <select required value={formData.po_id}
                     onChange={(e) => handlePoSelect(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                     <option value="">Select Approved PO</option>
                     {purchaseOrders.map((po: any) => (
                       <option key={po.id} value={po.id}>{po.po_number} — {po.vendor_name || "No vendor"}</option>
@@ -264,63 +264,63 @@ export default function GrnPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Received Date</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Received Date</label>
                   <input type="date" value={formData.received_date}
                     onChange={(e) => setFormData({ ...formData, received_date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Notes</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Notes</label>
                 <textarea value={formData.notes} rows={2}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none resize-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none resize-none" style={{ borderColor: "var(--color-border)" }}
                   placeholder="Optional notes..." />
               </div>
 
               {selectedPo && (
                 <div>
-                  <h4 className="text-xs font-semibold mb-2" style={{ color: "#1A2E44" }}>
+                  <h4 className="text-xs font-semibold mb-2" style={{ color: "var(--color-text)" }}>
                     Line Items — {selectedPo.po_number}
                   </h4>
                   <div className="space-y-2">
                     {grnLines.map((line, idx) => (
-                      <div key={idx} className="p-3 rounded-lg border" style={{ borderColor: "#E2E8F0" }}>
+                      <div key={idx} className="p-3 rounded-lg border" style={{ borderColor: "var(--color-border)" }}>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-medium" style={{ color: "#1A2E44" }}>{line.item_description}</span>
-                          <span className="text-xs" style={{ color: "#64748B" }}>
+                          <span className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{line.item_description}</span>
+                          <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
                             Ordered: {line.ordered_qty} | Previously received: {line.previously_received}
                           </span>
                         </div>
                         <div className="grid grid-cols-4 gap-2">
                           <div>
-                            <label className="block text-[10px] font-medium mb-0.5" style={{ color: "#64748B" }}>Received</label>
+                            <label className="block text-[10px] font-medium mb-0.5" style={{ color: "var(--color-text-muted)" }}>Received</label>
                             <input type="number" value={line.received_qty} min={0}
                               onChange={(e) => updateGrnLine(idx, "received_qty", e.target.value)}
-                              className="w-full px-2 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
+                              className="w-full px-2 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
                           </div>
                           <div>
-                            <label className="block text-[10px] font-medium mb-0.5" style={{ color: "#64748B" }}>Accepted</label>
+                            <label className="block text-[10px] font-medium mb-0.5" style={{ color: "var(--color-text-muted)" }}>Accepted</label>
                             <input type="number" value={line.accepted_qty} min={0}
                               onChange={(e) => updateGrnLine(idx, "accepted_qty", e.target.value)}
-                              className="w-full px-2 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
+                              className="w-full px-2 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
                           </div>
                           <div>
-                            <label className="block text-[10px] font-medium mb-0.5" style={{ color: "#64748B" }}>Rejected</label>
+                            <label className="block text-[10px] font-medium mb-0.5" style={{ color: "var(--color-text-muted)" }}>Rejected</label>
                             <input type="number" value={line.rejected_qty} min={0}
                               onChange={(e) => updateGrnLine(idx, "rejected_qty", e.target.value)}
-                              className="w-full px-2 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
+                              className="w-full px-2 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
                           </div>
                           <div>
-                            <label className="block text-[10px] font-medium mb-0.5" style={{ color: "#64748B" }}>Reason (if rejected)</label>
+                            <label className="block text-[10px] font-medium mb-0.5" style={{ color: "var(--color-text-muted)" }}>Reason (if rejected)</label>
                             <input type="text" value={line.rejection_reason}
                               onChange={(e) => {
                                 const updated = [...grnLines];
                                 updated[idx].rejection_reason = e.target.value;
                                 setGrnLines(updated);
                               }}
-                              className="w-full px-2 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
+                              className="w-full px-2 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
                           </div>
                         </div>
                       </div>
@@ -329,7 +329,7 @@ export default function GrnPage() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                 <Button type="button" variant="outline" size="sm" onClick={() => { setShowModal(false); resetForm(); }}>Cancel</Button>
                 <Button type="submit" size="sm" disabled={isCreating || !formData.po_id}>
                   {isCreating ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Saving</> : "Create GRN"}

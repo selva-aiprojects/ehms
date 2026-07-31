@@ -16,10 +16,10 @@ export default function GuestProfilesPage() {
     <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "#1A3C5E" }}>
-            <Users className="w-6 h-6 text-[#2BAE8E]" /> Guest Profiles
+          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "var(--color-navy)" }}>
+            <Users className="w-6 h-6 text-[var(--color-primary)]" /> Guest Profiles
           </h1>
-          <p className="text-[#64748B] mt-1 text-sm">Manage guest CRM, view history, and VIP status.</p>
+          <p className="text-[var(--color-text-muted)] mt-1 text-sm">Manage guest CRM, view history, and VIP status.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -29,8 +29,8 @@ export default function GuestProfilesPage() {
               placeholder="Search guests..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 border rounded-full text-sm w-64 focus:outline-none focus:ring-2 focus:ring-[#2BAE8E]/20"
-              style={{ borderColor: "#E2E8F0" }}
+              className="pl-9 pr-4 py-2 border rounded-full text-sm w-64 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)]/20"
+              style={{ borderColor: "var(--color-border)" }}
             />
           </div>
         </div>
@@ -39,13 +39,13 @@ export default function GuestProfilesPage() {
       <Card>
         <CardHeader title="All Guests" subtitle={`${guests?.length || 0} profiles found`} />
         {isLoading ? (
-          <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[#64748B]" /></div>
+          <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[var(--color-text-muted)]" /></div>
         ) : !guests || guests.length === 0 ? (
-          <div className="text-center py-12 text-[#64748B]">No guests found.</div>
+          <div className="text-center py-12 text-[var(--color-text-muted)]">No guests found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-[#F5F7FA] text-[#64748B] uppercase text-xs">
+              <thead className="bg-[var(--color-light)] text-[var(--color-text-muted)] uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3 rounded-tl-lg">Guest Name</th>
                   <th className="px-4 py-3">Contact</th>
@@ -53,28 +53,28 @@ export default function GuestProfilesPage() {
                   <th className="px-4 py-3 text-right rounded-tr-lg">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E2E8F0]">
+              <tbody className="divide-y divide-[var(--color-border)]">
                 {guests.map((g: any) => (
-                  <tr key={g.id} className="hover:bg-[#F5F7FA]/50 transition-colors">
+                  <tr key={g.id} className="hover:bg-[color:var(--color-light)]/50 transition-colors">
                     <td className="px-4 py-4">
-                      <div className="font-semibold text-[#1A3C5E]">{g.first_name} {g.last_name}</div>
-                      <div className="text-xs text-[#64748B]">ID: {g.id_number || "Not provided"}</div>
+                      <div className="font-semibold text-[var(--color-navy)]">{g.first_name} {g.last_name}</div>
+                      <div className="text-xs text-[var(--color-text-muted)]">ID: {g.id_number || "Not provided"}</div>
                     </td>
                     <td className="px-4 py-4 space-y-1">
-                      {g.email && <div className="flex items-center gap-1.5 text-[#64748B]"><Mail className="w-3.5 h-3.5" /> {g.email}</div>}
-                      {g.phone && <div className="flex items-center gap-1.5 text-[#64748B]"><Phone className="w-3.5 h-3.5" /> {g.phone}</div>}
+                      {g.email && <div className="flex items-center gap-1.5 text-[var(--color-text-muted)]"><Mail className="w-3.5 h-3.5" /> {g.email}</div>}
+                      {g.phone && <div className="flex items-center gap-1.5 text-[var(--color-text-muted)]"><Phone className="w-3.5 h-3.5" /> {g.phone}</div>}
                     </td>
                     <td className="px-4 py-4">
                       {g.total_stays > 3 ? (
                         <Badge variant="amber" className="flex items-center w-fit gap-1"><Star className="w-3 h-3" /> VIP Guest</Badge>
                       ) : (
-                        <span className="text-[#64748B]">Standard</span>
+                        <span className="text-[var(--color-text-muted)]">Standard</span>
                       )}
                     </td>
                     <td className="px-4 py-4 text-right">
                       <button
                         onClick={() => setSelectedGuestId(g.id)}
-                        className="text-[#2BAE8E] hover:text-[#2BAE8E]/80 font-medium inline-flex items-center transition-colors"
+                        className="text-[var(--color-primary)] hover:text-[color:var(--color-primary)]/80 font-medium inline-flex items-center transition-colors"
                       >
                         View <ChevronRight className="w-4 h-4 ml-1" />
                       </button>
@@ -94,3 +94,4 @@ export default function GuestProfilesPage() {
     </div>
   );
 }
+

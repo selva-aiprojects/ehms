@@ -25,7 +25,7 @@ export default function MastersHubPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Settings className="w-6 h-6 text-[#1A3C5E]" />
+            <Settings className="w-6 h-6 text-[var(--color-navy)]" />
             Master Data Hub
           </h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -43,7 +43,7 @@ export default function MastersHubPage() {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
-                isActive ? "border-[#1A3C5E] text-[#1A3C5E]" : "border-transparent text-slate-500 hover:text-slate-700"
+                isActive ? "border-[var(--color-navy)] text-[var(--color-navy)]" : "border-transparent text-slate-500 hover:text-slate-700"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -364,7 +364,7 @@ function PaymentsTab() {
             <button
               onClick={openAdd}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors"
-              style={{ background: "#2BAE8E" }}
+              style={{ background: "var(--color-primary)" }}
             >
               <Plus className="w-3.5 h-3.5" /> Add Rate Plan
             </button>
@@ -373,8 +373,8 @@ function PaymentsTab() {
 
         {feedback && (
           <div className="mx-4 my-2 p-2.5 rounded-lg text-xs flex items-center gap-2" style={{
-            background: feedback.type === "success" ? "rgba(43,174,142,0.1)" : "rgba(229,62,62,0.1)",
-            color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
+            background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.1)",
+            color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
           }}>
             {feedback.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
             {feedback.message}
@@ -404,7 +404,7 @@ function PaymentsTab() {
                   <tr key={rp.id} className="border-b border-slate-100 hover:bg-slate-50">
                     <td className="py-2.5 px-3 font-medium text-slate-800">{rp.name}</td>
                     <td className="py-2.5 px-3 text-slate-600 text-xs">{rp.unit_type || "Standard Room"}</td>
-                    <td className="py-2.5 px-3 font-semibold text-[#1A3C5E]">{rp.currency || "INR"} {Number(rp.base_rate || rp.base_price || 0).toLocaleString()}</td>
+                    <td className="py-2.5 px-3 font-semibold text-[var(--color-navy)]">{rp.currency || "INR"} {Number(rp.base_rate || rp.base_price || 0).toLocaleString()}</td>
                     <td className="py-2.5 px-3">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${rp.is_dynamic ? "bg-amber-100 text-amber-800" : "bg-slate-100 text-slate-600"}`}>
                         {rp.is_dynamic ? "Yes (Dynamic)" : "Fixed"}
@@ -442,7 +442,7 @@ function PaymentsTab() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-md border overflow-hidden">
               <div className="px-5 py-3.5 border-b flex items-center justify-between bg-slate-50">
-                <h3 className="font-semibold text-sm text-[#1A3C5E]">{editingPlan ? "Edit Rate Plan" : "Create Rate Plan"}</h3>
+                <h3 className="font-semibold text-sm text-[var(--color-navy)]">{editingPlan ? "Edit Rate Plan" : "Create Rate Plan"}</h3>
                 <button onClick={() => setShowForm(false)} className="p-1 rounded hover:bg-gray-200 text-slate-500"><X className="w-4 h-4" /></button>
               </div>
               <div className="p-5 space-y-3 text-xs">
@@ -479,7 +479,7 @@ function PaymentsTab() {
                       type="number"
                       value={formData.base_rate}
                       onChange={(e) => setFormData({ ...formData, base_rate: Number(e.target.value) })}
-                      className="w-full px-3 py-1.5 rounded border outline-none focus:border-teal-600 text-sm font-semibold text-[#1A3C5E]"
+                      className="w-full px-3 py-1.5 rounded border outline-none focus:border-teal-600 text-sm font-semibold text-[var(--color-navy)]"
                     />
                   </div>
                 </div>
@@ -520,7 +520,7 @@ function PaymentsTab() {
                 <button
                   onClick={handleSaveRatePlan}
                   disabled={saving || !formData.name}
-                  className="px-4 py-1.5 rounded bg-[#2BAE8E] text-white text-xs font-medium flex items-center gap-1.5 hover:bg-[#239075] transition-colors"
+                  className="px-4 py-1.5 rounded bg-[var(--color-primary)] text-white text-xs font-medium flex items-center gap-1.5 hover:bg-[var(--color-primary-dark)] transition-colors"
                 >
                   {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   {saving ? "Saving..." : "Save Rate Plan"}
@@ -633,3 +633,4 @@ function InlineTable({
     </div>
   );
 }
+

@@ -35,20 +35,20 @@ function demandBadge(level: "High" | "Normal" | "Low") {
 }
 
 function confidenceColor(score: number) {
-  if (score >= 90) return "#10B981";
-  if (score >= 75) return "#F59E0B";
-  return "#EF4444";
+  if (score >= 90) return "var(--color-success)";
+  if (score >= 75) return "var(--color-warning)";
+  return "var(--color-danger)";
 }
 
 function actionTypeIcon(type: string) {
   switch (type) {
-    case "rate_increase": return <TrendingUp className="w-4 h-4" style={{ color: "#10B981" }} />;
-    case "rate_decrease": return <TrendingDown className="w-4 h-4" style={{ color: "#EF4444" }} />;
-    case "stop_sell": return <ShieldAlert className="w-4 h-4" style={{ color: "#DC2626" }} />;
+    case "rate_increase": return <TrendingUp className="w-4 h-4" style={{ color: "var(--color-success)" }} />;
+    case "rate_decrease": return <TrendingDown className="w-4 h-4" style={{ color: "var(--color-danger)" }} />;
+    case "stop_sell": return <ShieldAlert className="w-4 h-4" style={{ color: "var(--color-danger)" }} />;
     case "min_length_of_stay": return <Clock className="w-4 h-4" style={{ color: "#8B5CF6" }} />;
-    case "promotion": return <Zap className="w-4 h-4" style={{ color: "#F59E0B" }} />;
+    case "promotion": return <Zap className="w-4 h-4" style={{ color: "var(--color-warning)" }} />;
     case "close_group": return <Target className="w-4 h-4" style={{ color: "#6366F1" }} />;
-    default: return <AlertTriangle className="w-4 h-4" style={{ color: "#64748B" }} />;
+    default: return <AlertTriangle className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} />;
   }
 }
 
@@ -65,9 +65,9 @@ function impactBadge(impact: string) {
 }
 
 function occRowColor(occ: number) {
-  if (occ >= 85) return "rgba(239,68,68,0.06)";
-  if (occ >= 65) return "rgba(245,158,11,0.06)";
-  return "rgba(16,185,129,0.06)";
+  if (occ >= 85) return "rgba(var(--color-danger-rgb),0.06)";
+  if (occ >= 65) return "rgba(var(--color-warning-rgb),0.06)";
+  return "rgba(var(--color-success-rgb),0.06)";
 }
 
 export default function RevenueAiPage() {
@@ -123,8 +123,8 @@ export default function RevenueAiPage() {
   if (isLoading) {
     return (
       <div className="p-6 flex items-center justify-center" style={{ minHeight: "60vh" }}>
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#2BAE8E" }} />
-        <span className="ml-2 text-sm" style={{ color: "#64748B" }}>Loading AI Revenue Manager...</span>
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-primary)" }} />
+        <span className="ml-2 text-sm" style={{ color: "var(--color-text-muted)" }}>Loading AI Revenue Manager...</span>
       </div>
     );
   }
@@ -133,12 +133,12 @@ export default function RevenueAiPage() {
     <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(43,174,142,0.12)" }}>
-            <Brain className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(var(--color-primary-rgb),0.12)" }}>
+            <Brain className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
           </div>
           <div>
-            <h1 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>AI Revenue Manager</h1>
-            <p className="text-xs" style={{ color: "#64748B" }}>Smart rate optimization & revenue intelligence</p>
+            <h1 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>AI Revenue Manager</h1>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Smart rate optimization & revenue intelligence</p>
           </div>
         </div>
         <Button
@@ -165,8 +165,8 @@ export default function RevenueAiPage() {
         />
         {recommendations.length === 0 ? (
           <div className="text-center py-10">
-            <Brain className="w-10 h-10 mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No rate plans configured. Add rate plans to get AI recommendations.</p>
+            <Brain className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--color-border-strong)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No rate plans configured. Add rate plans to get AI recommendations.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -177,25 +177,25 @@ export default function RevenueAiPage() {
                 <div
                   key={rec.ratePlanId}
                   className="rounded-xl p-4 transition-all hover:shadow-md"
-                  style={{ border: "1px solid #E2E8F0", background: "#FAFBFC" }}
+                  style={{ border: "1px solid var(--color-border)", background: "var(--color-light)" }}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <p className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>{rec.name}</p>
-                      <p className="text-[11px] uppercase tracking-wider" style={{ color: "#94A3B8" }}>{rec.unitType}</p>
+                      <p className="text-sm font-semibold" style={{ color: "var(--color-navy)" }}>{rec.name}</p>
+                      <p className="text-[11px] uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>{rec.unitType}</p>
                     </div>
                     {demandBadge(rec.demandLevel)}
                   </div>
 
                   <div className="flex items-baseline gap-3 mb-3">
                     <div>
-                      <p className="text-[10px] uppercase" style={{ color: "#94A3B8" }}>Current</p>
-                      <p className="text-lg font-bold" style={{ color: "#64748B" }}>{formatCurrency(rec.baseRate)}</p>
+                      <p className="text-[10px] uppercase" style={{ color: "var(--color-text-faint)" }}>Current</p>
+                      <p className="text-lg font-bold" style={{ color: "var(--color-text-muted)" }}>{formatCurrency(rec.baseRate)}</p>
                     </div>
-                    <ChevronRight className="w-4 h-4 mt-4" style={{ color: "#94A3B8" }} />
+                    <ChevronRight className="w-4 h-4 mt-4" style={{ color: "var(--color-text-faint)" }} />
                     <div>
-                      <p className="text-[10px] uppercase" style={{ color: "#94A3B8" }}>Recommended</p>
-                      <p className="text-lg font-bold" style={{ color: rec.recommendedRate > rec.baseRate ? "#10B981" : rec.recommendedRate < rec.baseRate ? "#EF4444" : "#1A3C5E" }}>
+                      <p className="text-[10px] uppercase" style={{ color: "var(--color-text-faint)" }}>Recommended</p>
+                      <p className="text-lg font-bold" style={{ color: rec.recommendedRate > rec.baseRate ? "var(--color-success)" : rec.recommendedRate < rec.baseRate ? "var(--color-danger)" : "var(--color-navy)" }}>
                         {formatCurrency(rec.recommendedRate)}
                       </p>
                     </div>
@@ -211,11 +211,11 @@ export default function RevenueAiPage() {
                         {rec.confidenceScore}% confidence
                       </span>
                     </div>
-                    <span className="text-[11px]" style={{ color: lift >= 0 ? "#10B981" : "#EF4444" }}>
+                    <span className="text-[11px]" style={{ color: lift >= 0 ? "var(--color-success)" : "var(--color-danger)" }}>
                       {lift >= 0 ? "+" : ""}{formatCurrency(lift)} / room
                     </span>
                     {rec.projectedRevenueLiftDaily > 0 && (
-                      <span className="text-[11px] font-medium" style={{ color: "#2BAE8E" }}>
+                      <span className="text-[11px] font-medium" style={{ color: "var(--color-primary)" }}>
                         +{formatCurrency(rec.projectedRevenueLiftDaily)}/day
                       </span>
                     )}
@@ -224,17 +224,17 @@ export default function RevenueAiPage() {
                   <button
                     onClick={() => setExpandedBreakdown(isExpanded ? null : rec.ratePlanId)}
                     className="text-[11px] font-medium mb-2 underline"
-                    style={{ color: "#3B82F6" }}
+                    style={{ color: "var(--color-info)" }}
                   >
                     {isExpanded ? "Hide breakdown" : "View factors"}
                   </button>
 
                   {isExpanded && (
-                    <div className="space-y-1.5 mb-3 p-2 rounded-lg" style={{ background: "#F1F5F9" }}>
+                    <div className="space-y-1.5 mb-3 p-2 rounded-lg" style={{ background: "var(--color-light)" }}>
                       {rec.breakdown.map((b: any, i: number) => (
                         <div key={i} className="flex items-center justify-between text-[11px]">
-                          <span style={{ color: "#475569" }}>{b.factor}</span>
-                          <span className="font-medium" style={{ color: b.multiplier > 0 ? "#10B981" : b.multiplier < 0 ? "#EF4444" : "#64748B" }}>
+                          <span style={{ color: "var(--color-text)" }}>{b.factor}</span>
+                          <span className="font-medium" style={{ color: b.multiplier > 0 ? "var(--color-success)" : b.multiplier < 0 ? "var(--color-danger)" : "var(--color-text-muted)" }}>
                             {b.impact}
                           </span>
                         </div>
@@ -267,15 +267,15 @@ export default function RevenueAiPage() {
             title="Revenue Forecast"
             subtitle="14-day predictive outlook"
             action={
-              <span className="text-[11px]" style={{ color: "#64748B" }}>
+              <span className="text-[11px]" style={{ color: "var(--color-text-muted)" }}>
                 {forecasts.length} days
               </span>
             }
           />
           {forecasts.length === 0 ? (
             <div className="text-center py-10">
-              <BarChart3 className="w-10 h-10 mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-              <p className="text-sm mb-2" style={{ color: "#64748B" }}>No forecast data yet</p>
+              <BarChart3 className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--color-border-strong)" }} />
+              <p className="text-sm mb-2" style={{ color: "var(--color-text-muted)" }}>No forecast data yet</p>
               <Button variant="outline" size="sm" onClick={handleGenerateForecast} disabled={generatingForecast}>
                 Generate Forecast
               </Button>
@@ -284,12 +284,12 @@ export default function RevenueAiPage() {
             <div className="overflow-x-auto max-h-80 overflow-y-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid #E2E8F0" }}>
-                    <th className="text-left py-2 px-2 font-medium" style={{ color: "#64748B" }}>Date</th>
-                    <th className="text-right py-2 px-2 font-medium" style={{ color: "#64748B" }}>Occupancy</th>
-                    <th className="text-right py-2 px-2 font-medium" style={{ color: "#64748B" }}>ADR</th>
-                    <th className="text-right py-2 px-2 font-medium" style={{ color: "#64748B" }}>RevPAR</th>
-                    <th className="text-right py-2 px-2 font-medium" style={{ color: "#64748B" }}>Conf</th>
+                  <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
+                    <th className="text-left py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>Date</th>
+                    <th className="text-right py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>Occupancy</th>
+                    <th className="text-right py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>ADR</th>
+                    <th className="text-right py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>RevPAR</th>
+                    <th className="text-right py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>Conf</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -297,20 +297,20 @@ export default function RevenueAiPage() {
                     <tr
                       key={f.date}
                       style={{
-                        borderBottom: "1px solid #F1F5F9",
+                        borderBottom: "1px solid var(--color-light)",
                         background: occRowColor(f.predictedOccupancy),
                       }}
                     >
-                      <td className="py-2 px-2 font-medium" style={{ color: "#1A3C5E" }}>
+                      <td className="py-2 px-2 font-medium" style={{ color: "var(--color-navy)" }}>
                         {new Date(f.date).toLocaleDateString("en-IN", { weekday: "short", month: "short", day: "numeric" })}
                       </td>
-                      <td className="text-right py-2 px-2" style={{ color: "#1A2E44" }}>
+                      <td className="text-right py-2 px-2" style={{ color: "var(--color-text)" }}>
                         {Number(f.predictedOccupancy).toFixed(1)}%
                       </td>
-                      <td className="text-right py-2 px-2" style={{ color: "#1A2E44" }}>
+                      <td className="text-right py-2 px-2" style={{ color: "var(--color-text)" }}>
                         {formatCurrency(Number(f.predictedADR))}
                       </td>
-                      <td className="text-right py-2 px-2 font-medium" style={{ color: "#1A3C5E" }}>
+                      <td className="text-right py-2 px-2 font-medium" style={{ color: "var(--color-navy)" }}>
                         {formatCurrency(Number(f.predictedRevPAR))}
                       </td>
                       <td className="text-right py-2 px-2">
@@ -343,8 +343,8 @@ export default function RevenueAiPage() {
           />
           {actions.length === 0 ? (
             <div className="text-center py-10">
-              <CheckCircle2 className="w-10 h-10 mx-auto mb-3" style={{ color: "#10B981" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>All clear! No urgent actions needed.</p>
+              <CheckCircle2 className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--color-success)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>All clear! No urgent actions needed.</p>
             </div>
           ) : (
             <div className="space-y-3 max-h-80 overflow-y-auto">
@@ -352,26 +352,26 @@ export default function RevenueAiPage() {
                 <div
                   key={action.id}
                   className="rounded-lg p-3 transition-all hover:shadow-sm"
-                  style={{ border: "1px solid #E2E8F0", background: "#FAFBFC" }}
+                  style={{ border: "1px solid var(--color-border)", background: "var(--color-light)" }}
                 >
                   <div className="flex items-start gap-2.5">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#F1F5F9" }}>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "var(--color-light)" }}>
                       {actionTypeIcon(action.type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <p className="text-xs font-semibold" style={{ color: "#1A3C5E" }}>{action.title}</p>
+                        <p className="text-xs font-semibold" style={{ color: "var(--color-navy)" }}>{action.title}</p>
                         {urgencyBadge(action.urgency)}
                         {impactBadge(action.impact)}
                       </div>
-                      <p className="text-[11px] mb-1.5" style={{ color: "#64748B" }}>{action.description}</p>
+                      <p className="text-[11px] mb-1.5" style={{ color: "var(--color-text-muted)" }}>{action.description}</p>
                       <div className="flex items-center gap-3">
                         {action.estimatedImpact > 0 && (
-                          <span className="text-[11px] font-medium" style={{ color: "#10B981" }}>
+                          <span className="text-[11px] font-medium" style={{ color: "var(--color-success)" }}>
                             Est. +{formatCurrency(action.estimatedImpact)}
                           </span>
                         )}
-                        <span className="text-[10px]" style={{ color: "#94A3B8" }}>
+                        <span className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>
                           Target: {action.targetDate}
                         </span>
                       </div>
@@ -397,38 +397,38 @@ export default function RevenueAiPage() {
           />
           {competitors.length === 0 ? (
             <div className="text-center py-10">
-              <Eye className="w-10 h-10 mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No competitor data. Add competitors to track market rates.</p>
+              <Eye className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--color-border-strong)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No competitor data. Add competitors to track market rates.</p>
             </div>
           ) : (
             <div className="overflow-x-auto max-h-64 overflow-y-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr style={{ borderBottom: "1px solid #E2E8F0" }}>
-                    <th className="text-left py-2 px-2 font-medium" style={{ color: "#64748B" }}>Competitor</th>
-                    <th className="text-center py-2 px-2 font-medium" style={{ color: "#64748B" }}>Rating</th>
-                    <th className="text-right py-2 px-2 font-medium" style={{ color: "#64748B" }}>Distance</th>
-                    <th className="text-right py-2 px-2 font-medium" style={{ color: "#64748B" }}>Rate</th>
-                    <th className="text-left py-2 px-2 font-medium" style={{ color: "#64748B" }}>Source</th>
+                  <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
+                    <th className="text-left py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>Competitor</th>
+                    <th className="text-center py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>Rating</th>
+                    <th className="text-right py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>Distance</th>
+                    <th className="text-right py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>Rate</th>
+                    <th className="text-left py-2 px-2 font-medium" style={{ color: "var(--color-text-muted)" }}>Source</th>
                   </tr>
                 </thead>
                 <tbody>
                   {competitors.map((c: any) => (
-                    <tr key={c.id} style={{ borderBottom: "1px solid #F1F5F9" }}>
-                      <td className="py-2 px-2 font-medium" style={{ color: "#1A3C5E" }}>{c.competitor_name}</td>
+                    <tr key={c.id} style={{ borderBottom: "1px solid var(--color-light)" }}>
+                      <td className="py-2 px-2 font-medium" style={{ color: "var(--color-navy)" }}>{c.competitor_name}</td>
                       <td className="text-center py-2 px-2">
-                        <span className="inline-flex items-center gap-0.5" style={{ color: "#F59E0B" }}>
+                        <span className="inline-flex items-center gap-0.5" style={{ color: "var(--color-warning)" }}>
                           <Star className="w-3 h-3 fill-current" />
                           {c.competitor_rating || "N/A"}
                         </span>
                       </td>
-                      <td className="text-right py-2 px-2" style={{ color: "#64748B" }}>
+                      <td className="text-right py-2 px-2" style={{ color: "var(--color-text-muted)" }}>
                         {c.distance_km ? `${c.distance_km} km` : "-"}
                       </td>
-                      <td className="text-right py-2 px-2 font-medium" style={{ color: "#1A3C5E" }}>
+                      <td className="text-right py-2 px-2 font-medium" style={{ color: "var(--color-navy)" }}>
                         {formatCurrency(Number(c.rate))}
                       </td>
-                      <td className="py-2 px-2" style={{ color: "#94A3B8" }}>{c.source || "manual"}</td>
+                      <td className="py-2 px-2" style={{ color: "var(--color-text-faint)" }}>{c.source || "manual"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -445,8 +445,8 @@ export default function RevenueAiPage() {
           />
           {auditTrail.length === 0 ? (
             <div className="text-center py-10">
-              <Clock className="w-10 h-10 mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No rate changes applied yet. Apply a recommendation to see history.</p>
+              <Clock className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--color-border-strong)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No rate changes applied yet. Apply a recommendation to see history.</p>
             </div>
           ) : (
             <div className="space-y-2.5 max-h-64 overflow-y-auto">
@@ -454,33 +454,33 @@ export default function RevenueAiPage() {
                 <div
                   key={entry.id}
                   className="flex items-center gap-3 p-2.5 rounded-lg"
-                  style={{ background: "#F8FAFC", border: "1px solid #F1F5F9" }}
+                  style={{ background: "var(--color-light)", border: "1px solid var(--color-light)" }}
                 >
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                    style={{ background: "rgba(43,174,142,0.12)" }}
+                    style={{ background: "rgba(var(--color-primary-rgb),0.12)" }}
                   >
-                    <DollarSign className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+                    <DollarSign className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium" style={{ color: "#1A3C5E" }}>
+                      <span className="text-xs font-medium" style={{ color: "var(--color-navy)" }}>
                         {formatCurrency(Number(entry.original_rate))} &rarr; {formatCurrency(Number(entry.applied_rate))}
                       </span>
                       <span
                         className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
                         style={{
                           background: Number(entry.applied_rate) > Number(entry.original_rate)
-                            ? "rgba(16,185,129,0.12)"
-                            : "rgba(239,68,68,0.10)",
-                          color: Number(entry.applied_rate) > Number(entry.original_rate) ? "#10B981" : "#EF4444",
+                            ? "rgba(var(--color-success-rgb),0.12)"
+                            : "rgba(var(--color-danger-rgb),0.10)",
+                          color: Number(entry.applied_rate) > Number(entry.original_rate) ? "var(--color-success)" : "var(--color-danger)",
                         }}
                       >
                         {Number(entry.applied_rate) > Number(entry.original_rate) ? "+" : ""}
                         {((Number(entry.applied_rate) - Number(entry.original_rate)) / Number(entry.original_rate) * 100).toFixed(1)}%
                       </span>
                     </div>
-                    <p className="text-[10px]" style={{ color: "#94A3B8" }}>
+                    <p className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>
                       {entry.applied_by} &middot; {new Date(entry.applied_at).toLocaleString("en-IN")}
                     </p>
                   </div>

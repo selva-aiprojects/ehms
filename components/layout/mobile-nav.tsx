@@ -18,7 +18,7 @@ export default function MobileNav() {
   return (
     <nav
       className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-16 bg-white border-t px-2"
-      style={{ borderColor: "#E2E8F0" }}
+      style={{ borderColor: "var(--color-border)" }}
     >
       {mobileItems.map((item) => {
         const active = pathname === item.href;
@@ -30,11 +30,11 @@ export default function MobileNav() {
           >
             <item.icon
               className="w-5 h-5"
-              style={{ color: active ? "#2BAE8E" : "#64748B" }}
+              style={{ color: active ? "var(--color-primary)" : "var(--color-text-muted)" }}
             />
             <span
               className="text-[10px] font-medium truncate max-w-full"
-              style={{ color: active ? "#2BAE8E" : "#64748B" }}
+              style={{ color: active ? "var(--color-primary)" : "var(--color-text-muted)" }}
             >
               {item.label}
             </span>

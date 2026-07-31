@@ -16,7 +16,7 @@ function SkeletonBlock() {
   return (
     <div className="space-y-2 animate-pulse">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-6 rounded" style={{ background: "#F5F7FA" }} />
+        <div key={i} className="h-6 rounded" style={{ background: "var(--color-light)" }} />
       ))}
     </div>
   );
@@ -33,14 +33,14 @@ function SectionTitle({ label, total, color }: { label: string; total: string; c
 
 function TotalCheckRow({ label, left, right, equal }: { label: string; left: string; right: string; equal: boolean }) {
   return (
-    <div className="flex items-center justify-between py-3 px-3 rounded-lg text-sm font-bold mt-3" style={{ background: "#F5F7FA", color: "#1A3C5E", border: `1px solid ${equal ? "#2BAE8E" : "#E53E3E"}` }}>
+    <div className="flex items-center justify-between py-3 px-3 rounded-lg text-sm font-bold mt-3" style={{ background: "var(--color-light)", color: "var(--color-navy)", border: `1px solid ${equal ? "var(--color-primary)" : "var(--color-danger)"}` }}>
       <div className="flex items-center gap-2">
-        {equal ? <CheckCircle className="w-4 h-4" style={{ color: "#2BAE8E" }} /> : <XCircle className="w-4 h-4" style={{ color: "#E53E3E" }} />}
+        {equal ? <CheckCircle className="w-4 h-4" style={{ color: "var(--color-primary)" }} /> : <XCircle className="w-4 h-4" style={{ color: "var(--color-danger)" }} />}
         <span>{label}</span>
       </div>
       <div className="flex gap-4 text-xs">
-        <span style={{ color: "#64748B" }}>{left}</span>
-        <span style={{ color: "#1A2E44" }}>{right}</span>
+        <span style={{ color: "var(--color-text-muted)" }}>{left}</span>
+        <span style={{ color: "var(--color-text)" }}>{right}</span>
       </div>
     </div>
   );
@@ -48,13 +48,13 @@ function TotalCheckRow({ label, left, right, equal }: { label: string; left: str
 
 function Row({ code, name, debit, credit, balance, type }: { code?: string; name: string; debit?: number; credit?: number; balance?: number; type?: string }) {
   return (
-    <div className="flex items-center text-xs py-1.5 px-3" style={{ borderBottom: "1px solid #F5F7FA" }}>
-      {code && <span className="w-24 font-mono" style={{ color: "#64748B" }}>{code}</span>}
-      <span className="flex-1" style={{ color: "#1A2E44" }}>{name}</span>
-      {debit !== undefined && <span className="w-28 text-right" style={{ color: "#64748B" }}>{formatCurrency(debit)}</span>}
-      {credit !== undefined && <span className="w-28 text-right" style={{ color: "#64748B" }}>{formatCurrency(credit)}</span>}
+    <div className="flex items-center text-xs py-1.5 px-3" style={{ borderBottom: "1px solid var(--color-light)" }}>
+      {code && <span className="w-24 font-mono" style={{ color: "var(--color-text-muted)" }}>{code}</span>}
+      <span className="flex-1" style={{ color: "var(--color-text)" }}>{name}</span>
+      {debit !== undefined && <span className="w-28 text-right" style={{ color: "var(--color-text-muted)" }}>{formatCurrency(debit)}</span>}
+      {credit !== undefined && <span className="w-28 text-right" style={{ color: "var(--color-text-muted)" }}>{formatCurrency(credit)}</span>}
       {balance !== undefined && (
-        <span className="w-28 text-right font-medium" style={{ color: type === "Dr" ? "#E53E3E" : "#2BAE8E" }}>
+        <span className="w-28 text-right font-medium" style={{ color: type === "Dr" ? "var(--color-danger)" : "var(--color-primary)" }}>
           {formatCurrency(balance)} {type}
         </span>
       )}
@@ -78,16 +78,16 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Financial Reports</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Trial balance, profit & loss, and balance sheet</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Financial Reports</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Trial balance, profit & loss, and balance sheet</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs" style={{ color: "#64748B" }}>As at</span>
-          <input type="date" value={asAtDate} onChange={(e) => setAsAtDate(e.target.value)} className="px-3 py-1.5 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44", background: "#FFFFFF" }} />
+          <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>As at</span>
+          <input type="date" value={asAtDate} onChange={(e) => setAsAtDate(e.target.value)} className="px-3 py-1.5 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)", background: "var(--color-white)" }} />
         </div>
       </div>
 
-      <div className="flex gap-1.5 p-1 rounded-xl" style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}>
+      <div className="flex gap-1.5 p-1 rounded-xl" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -96,7 +96,7 @@ export default function ReportsPage() {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-colors"
-              style={{ background: isActive ? "#FFFFFF" : "transparent", color: isActive ? "#1A3C5E" : "#64748B", boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.08)" : "none" }}
+              style={{ background: isActive ? "var(--color-white)" : "transparent", color: isActive ? "var(--color-navy)" : "var(--color-text-muted)", boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.08)" : "none" }}
             >
               <Icon className="w-3.5 h-3.5" /> {tab.label}
             </button>
@@ -108,10 +108,10 @@ export default function ReportsPage() {
         <Card>
           <CardHeader title="Trial Balance" subtitle={`As at ${asAtDate}`} />
           {tbLoading ? <SkeletonBlock /> : !tb ? (
-            <div className="text-center py-8 text-sm" style={{ color: "#64748B" }}>No trial balance data available</div>
+            <div className="text-center py-8 text-sm" style={{ color: "var(--color-text-muted)" }}>No trial balance data available</div>
           ) : (
             <>
-              <div className="flex items-center text-xs font-semibold py-2 px-3 rounded-t-lg" style={{ background: "#1A3C5E", color: "#FFFFFF" }}>
+              <div className="flex items-center text-xs font-semibold py-2 px-3 rounded-t-lg" style={{ background: "var(--color-navy)", color: "var(--color-white)" }}>
                 <span className="w-24">Code</span>
                 <span className="flex-1">Account</span>
                 <span className="w-28 text-right">Debit</span>
@@ -121,7 +121,7 @@ export default function ReportsPage() {
               {(tb.rows || []).map((r: any, i: number) => (
                 <Row key={i} code={r.account_code} name={r.account_name} debit={r.debit} credit={r.credit} balance={r.balance} type={r.balance_type} />
               ))}
-              <div className="flex items-center text-xs font-bold py-2 px-3 mt-2 rounded-lg" style={{ background: "#F5F7FA", color: "#1A3C5E" }}>
+              <div className="flex items-center text-xs font-bold py-2 px-3 mt-2 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-navy)" }}>
                 <span className="w-24" />
                 <span className="flex-1">Total</span>
                 <span className="w-28 text-right">{formatCurrency(tb.total_debits ?? 0)}</span>
@@ -143,46 +143,46 @@ export default function ReportsPage() {
         <Card>
           <CardHeader title="Profit & Loss Statement" subtitle={`Period ending ${asAtDate}`} />
           {plLoading ? <SkeletonBlock /> : !pl ? (
-            <div className="text-center py-8 text-sm" style={{ color: "#64748B" }}>No P&L data available</div>
+            <div className="text-center py-8 text-sm" style={{ color: "var(--color-text-muted)" }}>No P&L data available</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <SectionTitle label="Income / Revenue" total={formatCurrency(pl.total_income ?? 0)} color="#2BAE8E" />
+                <SectionTitle label="Income / Revenue" total={formatCurrency(pl.total_income ?? 0)} color="var(--color-primary)" />
                 <div className="space-y-0.5">
                   {(pl.income || []).map((r: any, i: number) => (
-                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid #F5F7FA" }}>
-                      <span style={{ color: "#1A2E44" }}>{r.account_name}</span>
-                      <span style={{ color: "#2BAE8E" }}>{formatCurrency(r.amount)}</span>
+                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid var(--color-light)" }}>
+                      <span style={{ color: "var(--color-text)" }}>{r.account_name}</span>
+                      <span style={{ color: "var(--color-primary)" }}>{formatCurrency(r.amount)}</span>
                     </div>
                   ))}
                 </div>
-                {(!pl.income || pl.income.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "#94A3B8" }}>No income entries</div>}
+                {(!pl.income || pl.income.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "var(--color-text-faint)" }}>No income entries</div>}
               </div>
               <div>
-                <SectionTitle label="Expenses" total={formatCurrency(pl.total_expenses ?? 0)} color="#E53E3E" />
+                <SectionTitle label="Expenses" total={formatCurrency(pl.total_expenses ?? 0)} color="var(--color-danger)" />
                 <div className="space-y-0.5">
                   {(pl.expenses || []).map((r: any, i: number) => (
-                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid #F5F7FA" }}>
-                      <span style={{ color: "#1A2E44" }}>{r.account_name}</span>
-                      <span style={{ color: "#E53E3E" }}>{formatCurrency(r.amount)}</span>
+                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid var(--color-light)" }}>
+                      <span style={{ color: "var(--color-text)" }}>{r.account_name}</span>
+                      <span style={{ color: "var(--color-danger)" }}>{formatCurrency(r.amount)}</span>
                     </div>
                   ))}
                 </div>
-                {(!pl.expenses || pl.expenses.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "#94A3B8" }}>No expense entries</div>}
+                {(!pl.expenses || pl.expenses.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "var(--color-text-faint)" }}>No expense entries</div>}
               </div>
-              <div className="md:col-span-2 flex items-center justify-between p-4 rounded-lg" style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}>
+              <div className="md:col-span-2 flex items-center justify-between p-4 rounded-lg" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
                 <div>
-                  <div className="text-xs font-medium" style={{ color: "#64748B" }}>Net {pl.net_profit >= 0 ? "Profit" : "Loss"}</div>
-                  <div className="text-xl font-bold mt-0.5" style={{ color: pl.net_profit >= 0 ? "#2BAE8E" : "#E53E3E" }}>
+                  <div className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Net {pl.net_profit >= 0 ? "Profit" : "Loss"}</div>
+                  <div className="text-xl font-bold mt-0.5" style={{ color: pl.net_profit >= 0 ? "var(--color-primary)" : "var(--color-danger)" }}>
                     {pl.net_profit >= 0 ? "+" : ""}{formatCurrency(Math.abs(pl.net_profit ?? 0))}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {pl.net_profit >= 0 ? <TrendingUp className="w-5 h-5" style={{ color: "#2BAE8E" }} /> : <TrendingDown className="w-5 h-5" style={{ color: "#E53E3E" }} />}
-                  <span className="text-lg font-bold" style={{ color: pl.net_profit >= 0 ? "#2BAE8E" : "#E53E3E" }}>
+                  {pl.net_profit >= 0 ? <TrendingUp className="w-5 h-5" style={{ color: "var(--color-primary)" }} /> : <TrendingDown className="w-5 h-5" style={{ color: "var(--color-danger)" }} />}
+                  <span className="text-lg font-bold" style={{ color: pl.net_profit >= 0 ? "var(--color-primary)" : "var(--color-danger)" }}>
                     {Math.abs(pl.profit_margin ?? 0).toFixed(1)}%
                   </span>
-                  <span className="text-xs" style={{ color: "#64748B" }}>margin</span>
+                  <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>margin</span>
                 </div>
               </div>
             </div>
@@ -194,44 +194,44 @@ export default function ReportsPage() {
         <Card>
           <CardHeader title="Balance Sheet" subtitle={`As at ${asAtDate}`} />
           {bsLoading ? <SkeletonBlock /> : !bs ? (
-            <div className="text-center py-8 text-sm" style={{ color: "#64748B" }}>No balance sheet data available</div>
+            <div className="text-center py-8 text-sm" style={{ color: "var(--color-text-muted)" }}>No balance sheet data available</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <SectionTitle label="Assets" total={formatCurrency(bs.total_assets ?? 0)} color="#2BAE8E" />
+                <SectionTitle label="Assets" total={formatCurrency(bs.total_assets ?? 0)} color="var(--color-primary)" />
                 <div className="space-y-0.5">
                   {(bs.assets || []).map((r: any, i: number) => (
-                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid #F5F7FA" }}>
-                      <span><span style={{ color: "#1A2E44" }}>{r.account_name}</span>{r.sub_type ? <span className="ml-1 text-[10px]" style={{ color: "#94A3B8" }}>({r.sub_type})</span> : null}</span>
-                      <span style={{ color: "#2BAE8E" }}>{formatCurrency(r.balance)}</span>
+                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid var(--color-light)" }}>
+                      <span><span style={{ color: "var(--color-text)" }}>{r.account_name}</span>{r.sub_type ? <span className="ml-1 text-[10px]" style={{ color: "var(--color-text-faint)" }}>({r.sub_type})</span> : null}</span>
+                      <span style={{ color: "var(--color-primary)" }}>{formatCurrency(r.balance)}</span>
                     </div>
                   ))}
                 </div>
-                {(!bs.assets || bs.assets.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "#94A3B8" }}>No asset entries</div>}
+                {(!bs.assets || bs.assets.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "var(--color-text-faint)" }}>No asset entries</div>}
               </div>
               <div>
-                <SectionTitle label="Liabilities" total={formatCurrency(bs.total_liabilities ?? 0)} color="#E53E3E" />
+                <SectionTitle label="Liabilities" total={formatCurrency(bs.total_liabilities ?? 0)} color="var(--color-danger)" />
                 <div className="space-y-0.5">
                   {(bs.liabilities || []).map((r: any, i: number) => (
-                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid #F5F7FA" }}>
-                      <span><span style={{ color: "#1A2E44" }}>{r.account_name}</span>{r.sub_type ? <span className="ml-1 text-[10px]" style={{ color: "#94A3B8" }}>({r.sub_type})</span> : null}</span>
-                      <span style={{ color: "#E53E3E" }}>{formatCurrency(r.balance)}</span>
+                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid var(--color-light)" }}>
+                      <span><span style={{ color: "var(--color-text)" }}>{r.account_name}</span>{r.sub_type ? <span className="ml-1 text-[10px]" style={{ color: "var(--color-text-faint)" }}>({r.sub_type})</span> : null}</span>
+                      <span style={{ color: "var(--color-danger)" }}>{formatCurrency(r.balance)}</span>
                     </div>
                   ))}
                 </div>
-                {(!bs.liabilities || bs.liabilities.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "#94A3B8" }}>No liability entries</div>}
+                {(!bs.liabilities || bs.liabilities.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "var(--color-text-faint)" }}>No liability entries</div>}
               </div>
               <div>
-                <SectionTitle label="Equity" total={formatCurrency(bs.total_equity ?? 0)} color="#F5A623" />
+                <SectionTitle label="Equity" total={formatCurrency(bs.total_equity ?? 0)} color="var(--color-warning)" />
                 <div className="space-y-0.5">
                   {(bs.equity || []).map((r: any, i: number) => (
-                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid #F5F7FA" }}>
-                      <span style={{ color: "#1A2E44" }}>{r.account_name}</span>
-                      <span style={{ color: "#F5A623" }}>{formatCurrency(r.balance)}</span>
+                    <div key={i} className="flex justify-between text-xs py-1.5 px-3" style={{ borderBottom: "1px solid var(--color-light)" }}>
+                      <span style={{ color: "var(--color-text)" }}>{r.account_name}</span>
+                      <span style={{ color: "var(--color-warning)" }}>{formatCurrency(r.balance)}</span>
                     </div>
                   ))}
                 </div>
-                {(!bs.equity || bs.equity.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "#94A3B8" }}>No equity entries</div>}
+                {(!bs.equity || bs.equity.length === 0) && <div className="text-xs px-3 py-4 text-center" style={{ color: "var(--color-text-faint)" }}>No equity entries</div>}
               </div>
               <div className="md:col-span-3">
                 <TotalCheckRow

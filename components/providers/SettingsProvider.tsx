@@ -12,10 +12,10 @@ interface Settings {
 }
 
 const defaultSettings: Settings = {
-  company_name: "CybeHMS",
-  logo_url: "/CybeHMS_logo.png",
-  primary_color: "#1A3C5E",
-  secondary_color: "#2BAE8E",
+  company_name: "HostSphere",
+  logo_url: "/hostsphere-logo.png",
+  primary_color: "var(--color-gold)",
+  secondary_color: "var(--color-navy)",
   currency_symbol: "₹",
   timezone: "Asia/Kolkata"
 };
@@ -43,3 +43,4 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     </SettingsContext.Provider>
   );
 }
+

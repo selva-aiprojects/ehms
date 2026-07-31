@@ -86,9 +86,9 @@ export default function FinanceSettingsPage() {
     "cost-centers": {
       loading: ccLoading, error: ccError, empty: ccData.length === 0, data: ccData,
       columns: [
-        { key: "code", header: "Code", render: (c: any) => <span className="font-mono text-xs font-medium" style={{ color: "#1A2E44" }}>{c.code}</span> },
-        { key: "name", header: "Name", render: (c: any) => <span className="text-sm" style={{ color: "#1A2E44" }}>{c.name}</span> },
-        { key: "department_name", header: "Department", render: (c: any) => <span className="text-xs" style={{ color: "#64748B" }}>{c.department_name || "—"}</span> },
+        { key: "code", header: "Code", render: (c: any) => <span className="font-mono text-xs font-medium" style={{ color: "var(--color-text)" }}>{c.code}</span> },
+        { key: "name", header: "Name", render: (c: any) => <span className="text-sm" style={{ color: "var(--color-text)" }}>{c.name}</span> },
+        { key: "department_name", header: "Department", render: (c: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{c.department_name || "—"}</span> },
         { key: "is_active", header: "Status", render: (c: any) => <Badge variant={c.is_active ? "teal" : "red"}>{c.is_active ? "Active" : "Inactive"}</Badge> },
       ],
       addLabel: "Add Cost Center",
@@ -99,15 +99,15 @@ export default function FinanceSettingsPage() {
             { label: "Name *", value: formCC.name, key: "name", placeholder: "e.g. Front Office" },
           ].map((f) => (
             <div key={f.key}>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>{f.label}</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>{f.label}</label>
               <input type="text" value={f.value} onChange={(e) => setFormCC({ ...formCC, [f.key]: e.target.value })}
-                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} placeholder={f.placeholder} />
+                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} placeholder={f.placeholder} />
             </div>
           ))}
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Department ID</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Department ID</label>
             <input type="text" value={formCC.department_id} onChange={(e) => setFormCC({ ...formCC, department_id: e.target.value })}
-              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} placeholder="Optional" />
+              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} placeholder="Optional" />
           </div>
         </div>
       ),
@@ -115,29 +115,29 @@ export default function FinanceSettingsPage() {
     "fiscal-years": {
       loading: fyLoading, error: fyError, empty: fyData.length === 0, data: fyData,
       columns: [
-        { key: "name", header: "Name", render: (f: any) => <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>{f.name}</span> },
-        { key: "start_date", header: "Start Date", render: (f: any) => <span className="text-xs" style={{ color: "#64748B" }}>{formatDate(f.start_date)}</span> },
-        { key: "end_date", header: "End Date", render: (f: any) => <span className="text-xs" style={{ color: "#64748B" }}>{formatDate(f.end_date)}</span> },
+        { key: "name", header: "Name", render: (f: any) => <span className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{f.name}</span> },
+        { key: "start_date", header: "Start Date", render: (f: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{formatDate(f.start_date)}</span> },
+        { key: "end_date", header: "End Date", render: (f: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{formatDate(f.end_date)}</span> },
         { key: "is_closed", header: "Status", render: (f: any) => <Badge variant={f.is_closed ? "gray" : "teal"}>{f.is_closed ? "Closed" : "Open"}</Badge> },
       ],
       addLabel: "Add Fiscal Year",
       modal: (
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Name *</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Name *</label>
             <input type="text" value={formFY.name} onChange={(e) => setFormFY({ ...formFY, name: e.target.value })}
-              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} placeholder="e.g. FY 2026-27" />
+              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} placeholder="e.g. FY 2026-27" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Start Date *</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Start Date *</label>
               <input type="date" value={formFY.start_date} onChange={(e) => setFormFY({ ...formFY, start_date: e.target.value })}
-                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} />
+                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>End Date *</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>End Date *</label>
               <input type="date" value={formFY.end_date} onChange={(e) => setFormFY({ ...formFY, end_date: e.target.value })}
-                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} />
+                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} />
             </div>
           </div>
         </div>
@@ -146,29 +146,29 @@ export default function FinanceSettingsPage() {
     "budget-heads": {
       loading: bhLoading, error: bhError, empty: bhData.length === 0, data: bhData,
       columns: [
-        { key: "code", header: "Code", render: (b: any) => <span className="font-mono text-xs font-medium" style={{ color: "#1A2E44" }}>{b.code}</span> },
-        { key: "name", header: "Name", render: (b: any) => <span className="text-sm" style={{ color: "#1A2E44" }}>{b.name}</span> },
-        { key: "account_code", header: "Linked Account", render: (b: any) => <span className="text-xs" style={{ color: "#64748B" }}>{b.account_name || b.account_code || "—"}</span> },
+        { key: "code", header: "Code", render: (b: any) => <span className="font-mono text-xs font-medium" style={{ color: "var(--color-text)" }}>{b.code}</span> },
+        { key: "name", header: "Name", render: (b: any) => <span className="text-sm" style={{ color: "var(--color-text)" }}>{b.name}</span> },
+        { key: "account_code", header: "Linked Account", render: (b: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{b.account_name || b.account_code || "—"}</span> },
       ],
       addLabel: "Add Budget Head",
       modal: (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Code *</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Code *</label>
               <input type="text" value={formBH.code} onChange={(e) => setFormBH({ ...formBH, code: e.target.value })}
-                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} placeholder="e.g. BH-001" />
+                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} placeholder="e.g. BH-001" />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Name *</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Name *</label>
               <input type="text" value={formBH.name} onChange={(e) => setFormBH({ ...formBH, name: e.target.value })}
-                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} placeholder="e.g. Utilities" />
+                className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} placeholder="e.g. Utilities" />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Linked Account *</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Linked Account *</label>
             <select value={formBH.account_id} onChange={(e) => setFormBH({ ...formBH, account_id: e.target.value })}
-              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }}>
+              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }}>
               <option value="">— Select Account —</option>
               {accountList.map((a: any) => (
                 <option key={a.id} value={a.id}>{a.account_code} — {a.account_name}</option>
@@ -187,16 +187,16 @@ export default function FinanceSettingsPage() {
         <CardHeader title={tabs.find((t) => t.key === tab)?.label || ""}
           action={<Button size="sm" onClick={() => openModal(tab)}><Plus className="w-3.5 h-3.5" /> {tc.addLabel}</Button>} />
         {tc.loading ? (
-          <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "#94A3B8" }} /></div>
+          <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-text-faint)" }} /></div>
         ) : tc.error ? (
           <div className="text-center py-8">
-            <AlertCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "#E53E3E" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>Failed to load data. Please try again.</p>
+            <AlertCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-danger)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Failed to load data. Please try again.</p>
           </div>
         ) : tc.empty ? (
           <div className="text-center py-8">
-            <Ban className="w-8 h-8 mx-auto mb-2" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No {tabs.find((t) => t.key === tab)?.label.toLowerCase()} found</p>
+            <Ban className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-border-strong)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No {tabs.find((t) => t.key === tab)?.label.toLowerCase()} found</p>
           </div>
         ) : (
           <Table data={tc.data} keyExtractor={(item: any) => item.id} columns={tc.columns as any} />
@@ -209,11 +209,11 @@ export default function FinanceSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Finance Settings</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Manage cost centers, fiscal years, and budget heads</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Finance Settings</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Manage cost centers, fiscal years, and budget heads</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => { ccMutate(); fyMutate(); bhMutate(); }} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => { ccMutate(); fyMutate(); bhMutate(); }} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -221,17 +221,17 @@ export default function FinanceSettingsPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
-          style={{ background: feedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)", color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E", border: `1px solid ${feedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}` }}>
+          style={{ background: feedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)", color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)", border: `1px solid ${feedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}` }}>
           {feedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
         </div>
       )}
 
-      <div className="flex gap-1 p-1 rounded-xl" style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}>
+      <div className="flex gap-1 p-1 rounded-xl" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
         {tabs.map((tab) => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className="flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all"
-            style={{ background: activeTab === tab.key ? "#FFFFFF" : "transparent", color: activeTab === tab.key ? "#1A3C5E" : "#64748B", boxShadow: activeTab === tab.key ? "0 1px 3px rgba(0,0,0,0.08)" : "none" }}>
+            style={{ background: activeTab === tab.key ? "var(--color-white)" : "transparent", color: activeTab === tab.key ? "var(--color-navy)" : "var(--color-text-muted)", boxShadow: activeTab === tab.key ? "0 1px 3px rgba(0,0,0,0.08)" : "none" }}>
             {tab.label}
           </button>
         ))}
@@ -242,12 +242,12 @@ export default function FinanceSettingsPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
-            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>{tabContent[modalType!].addLabel}</h3>
+            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>{tabContent[modalType!].addLabel}</h3>
               <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
             <div className="p-6">{tabContent[modalType!].modal}</div>
-            <div className="px-6 py-4 border-t flex justify-end gap-2" style={{ borderColor: "#E2E8F0" }}>
+            <div className="px-6 py-4 border-t flex justify-end gap-2" style={{ borderColor: "var(--color-border)" }}>
               <Button variant="outline" size="sm" onClick={closeModal}>Cancel</Button>
               <Button size="sm" onClick={handleCreate} disabled={isCreating()}>
                 {isCreating() ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}

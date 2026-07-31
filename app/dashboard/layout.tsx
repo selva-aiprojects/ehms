@@ -18,7 +18,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Sidebar mobileOpen={mobileSidebarOpen} onMobileClose={() => setMobileSidebarOpen(false)} />
         <div className="flex-1 flex flex-col min-w-0">
           <Header onMenuClick={() => setMobileSidebarOpen(true)} />
-          <main className="flex-1 overflow-y-auto p-6 pb-20 md:pb-6" style={{ background: "#F5F7FA" }}>
+          <main className="flex-1 overflow-y-auto p-6 pb-20 md:pb-6" style={{ background: "var(--hs-bg-cream)" }}>
             <PlatformBroadcastBanner />
             {children}
           </main>

@@ -52,13 +52,13 @@ export default function RoomsInventoryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4 border-b pb-4" style={{ borderColor: "#E2E8F0" }}>
+      <div className="flex items-center justify-between flex-wrap gap-4 border-b pb-4" style={{ borderColor: "var(--color-border)" }}>
         <div>
-          <h1 className="text-xl font-bold flex items-center gap-2" style={{ color: "#1A3C5E" }}>
-            <DoorOpen className="w-6 h-6 text-[#2BAE8E]" />
+          <h1 className="text-xl font-bold flex items-center gap-2" style={{ color: "var(--color-navy)" }}>
+            <DoorOpen className="w-6 h-6 text-[var(--color-primary)]" />
             Property Rooms & Units Management
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>
             Manage buildings, floors, room matrix, AC/Non-AC status, and unit attributes across your properties.
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function RoomsInventoryPage() {
               setJourneyPropertyId(e.target.value);
             }}
             className="px-3 py-1.5 rounded-lg border text-sm font-medium outline-none bg-white shadow-sm"
-            style={{ borderColor: "#CBD5E1", color: "#1E293B" }}
+            style={{ borderColor: "var(--color-border-strong)", color: "var(--color-text)" }}
           >
             {filteredProperties.map((p: any) => (
               <option key={p.id} value={p.id}>

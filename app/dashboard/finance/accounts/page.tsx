@@ -68,19 +68,19 @@ export default function ChartOfAccountsPage() {
 
   const columns = [
     { key: "account_code", header: "Code", render: (a: any) => (
-      <span className="font-mono text-xs font-medium" style={{ color: "#1A2E44" }}>{a.account_code}</span>
+      <span className="font-mono text-xs font-medium" style={{ color: "var(--color-text)" }}>{a.account_code}</span>
     )},
     { key: "account_name", header: "Account Name", render: (a: any) => (
-      <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>{a.account_name}</span>
+      <span className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{a.account_name}</span>
     )},
     { key: "account_type", header: "Type", render: (a: any) => (
       <Badge variant={TYPE_BADGE[a.account_type] || "gray"}>{a.account_type.replace(/_/g, " ")}</Badge>
     )},
     { key: "sub_type", header: "Sub Type", render: (a: any) => (
-      <span className="text-xs capitalize" style={{ color: "#64748B" }}>{a.sub_type?.replace(/_/g, " ") || "—"}</span>
+      <span className="text-xs capitalize" style={{ color: "var(--color-text-muted)" }}>{a.sub_type?.replace(/_/g, " ") || "—"}</span>
     )},
     { key: "opening_balance", header: "Opening Balance", render: (a: any) => (
-      <span className="text-sm font-mono" style={{ color: a.opening_balance >= 0 ? "#1A2E44" : "#E53E3E" }}>
+      <span className="text-sm font-mono" style={{ color: a.opening_balance >= 0 ? "var(--color-text)" : "var(--color-danger)" }}>
         {formatCurrency(a.opening_balance || 0)}
       </span>
     )},
@@ -100,11 +100,11 @@ export default function ChartOfAccountsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Chart of Accounts</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Manage your financial account hierarchy</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Chart of Accounts</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Manage your financial account hierarchy</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
           <Button size="sm" onClick={() => setShowModal(true)}>
@@ -115,7 +115,7 @@ export default function ChartOfAccountsPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
-          style={{ background: feedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)", color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E", border: `1px solid ${feedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}` }}>
+          style={{ background: feedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)", color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)", border: `1px solid ${feedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}` }}>
           {feedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
         </div>
@@ -128,26 +128,26 @@ export default function ChartOfAccountsPage() {
               {["", ...ACCOUNT_TYPES].map((t) => (
                 <button key={t || "all"} onClick={() => setTypeFilter(t)}
                   className="px-2.5 py-1 text-[10px] font-medium rounded transition-all capitalize"
-                  style={{ background: typeFilter === t ? "#1A3C5E" : "#F5F7FA", color: typeFilter === t ? "#FFFFFF" : "#64748B" }}>
+                  style={{ background: typeFilter === t ? "var(--color-navy)" : "var(--color-light)", color: typeFilter === t ? "var(--color-white)" : "var(--color-text-muted)" }}>
                   {t || "All"}
                 </button>
               ))}
             </div>
           } />
         {isLoading ? (
-          <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "#94A3B8" }} /></div>
+          <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-text-faint)" }} /></div>
         ) : isError ? (
           <div className="text-center py-8">
-            <AlertCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "#E53E3E" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>Failed to load accounts. Please try again.</p>
+            <AlertCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-danger)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Failed to load accounts. Please try again.</p>
           </div>
         ) : displayedAccounts.length === 0 ? (
           <div className="text-center py-8">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center" style={{ background: "rgba(43,174,142,0.1)" }}>
-              <Ban className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+            <div className="w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center" style={{ background: "rgba(var(--color-primary-rgb),0.1)" }}>
+              <Ban className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
             </div>
-            <p className="text-sm font-medium" style={{ color: "#1A2E44" }}>No accounts found</p>
-            <p className="text-xs mt-1" style={{ color: "#64748B" }}>Click "Add Account" to create your first account</p>
+            <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>No accounts found</p>
+            <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>Click "Add Account" to create your first account</p>
           </div>
         ) : (
           <Table data={displayedAccounts} keyExtractor={(a: any) => a.id} columns={columns} />
@@ -157,52 +157,52 @@ export default function ChartOfAccountsPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
-            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>Add Account</h3>
+            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>Add Account</h3>
               <button onClick={() => { setShowModal(false); setForm(initialForm); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Account Code *</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Account Code *</label>
                   <input type="text" value={form.account_code} onChange={(e) => setForm({ ...form, account_code: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} placeholder="e.g. 1010" />
+                    className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} placeholder="e.g. 1010" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Account Name *</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Account Name *</label>
                   <input type="text" value={form.account_name} onChange={(e) => setForm({ ...form, account_name: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} placeholder="e.g. Cash in Hand" />
+                    className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} placeholder="e.g. Cash in Hand" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Account Type</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Account Type</label>
                   <select value={form.account_type} onChange={(e) => setForm({ ...form, account_type: e.target.value, sub_type: "" })}
-                    className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }}>
+                    className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }}>
                     {ACCOUNT_TYPES.map((t) => <option key={t} value={t}>{t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Sub Type</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Sub Type</label>
                   <select value={form.sub_type} onChange={(e) => setForm({ ...form, sub_type: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }}>
+                    className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }}>
                     <option value="">— Select —</option>
                     {(SUB_TYPES[form.account_type] || []).map((st) => <option key={st} value={st}>{st.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Opening Balance</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Opening Balance</label>
                 <input type="number" value={form.opening_balance} onChange={(e) => setForm({ ...form, opening_balance: e.target.value })}
-                  className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} placeholder="0" />
+                  className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} placeholder="0" />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Description</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Description</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full px-3 py-2 text-sm rounded-lg outline-none resize-none" style={{ border: "1px solid #E2E8F0" }} rows={2} placeholder="Optional description" />
+                  className="w-full px-3 py-2 text-sm rounded-lg outline-none resize-none" style={{ border: "1px solid var(--color-border)" }} rows={2} placeholder="Optional description" />
               </div>
             </div>
-            <div className="px-6 py-4 border-t flex justify-end gap-2" style={{ borderColor: "#E2E8F0" }}>
+            <div className="px-6 py-4 border-t flex justify-end gap-2" style={{ borderColor: "var(--color-border)" }}>
               <Button variant="outline" size="sm" onClick={() => { setShowModal(false); setForm(initialForm); }}>Cancel</Button>
               <Button size="sm" onClick={handleCreate} disabled={creating}>
                 {creating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}

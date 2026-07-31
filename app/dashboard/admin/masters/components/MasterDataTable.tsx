@@ -129,7 +129,7 @@ export default function MasterDataTable({ category, title, columns }: MasterData
                         type="checkbox" 
                         checked={!!formData[c.key]}
                         onChange={e => setFormData({ ...formData, [c.key]: e.target.checked })}
-                        className="rounded border-slate-300 text-[#1A3C5E] focus:ring-[#1A3C5E]"
+                        className="rounded border-slate-300 text-[var(--color-navy)] focus:ring-[var(--color-navy)]"
                       />
                       <span className="text-sm">Active</span>
                     </label>
@@ -137,7 +137,7 @@ export default function MasterDataTable({ category, title, columns }: MasterData
                     <textarea 
                       value={formData[c.key] || ""}
                       onChange={e => setFormData({ ...formData, [c.key]: e.target.value })}
-                      className="w-full rounded-lg border-slate-200 p-2 text-sm focus:ring-[#1A3C5E]"
+                      className="w-full rounded-lg border-slate-200 p-2 text-sm focus:ring-[var(--color-navy)]"
                       rows={3}
                     />
                   ) : (
@@ -145,7 +145,7 @@ export default function MasterDataTable({ category, title, columns }: MasterData
                       type={c.type}
                       value={formData[c.key] || ""}
                       onChange={e => setFormData({ ...formData, [c.key]: c.type === "number" ? parseFloat(e.target.value) : e.target.value })}
-                      className="w-full rounded-lg border-slate-200 p-2 text-sm focus:ring-[#1A3C5E]"
+                      className="w-full rounded-lg border-slate-200 p-2 text-sm focus:ring-[var(--color-navy)]"
                     />
                   )}
                 </div>
@@ -163,3 +163,4 @@ export default function MasterDataTable({ category, title, columns }: MasterData
     </div>
   );
 }
+

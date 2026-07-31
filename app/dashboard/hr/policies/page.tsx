@@ -12,7 +12,7 @@ import Table from "@/components/ui/table";
 import { usePolicyDocuments } from "@/lib/hooks";
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 interface PolicyDocument {
@@ -34,10 +34,10 @@ interface PolicyDocument {
 const CATEGORIES = ["all", "policy", "form", "handbook", "compliance", "training"];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  policy: "#1A3C5E",
-  form: "#2BAE8E",
-  handbook: "#F5A623",
-  compliance: "#E53E3E",
+  policy: "var(--color-navy)",
+  form: "var(--color-primary)",
+  handbook: "var(--color-warning)",
+  compliance: "var(--color-danger)",
   training: "#8B5CF6",
 };
 
@@ -126,7 +126,7 @@ export default function PolicyDocumentsPage() {
   };
 
   const categoryBadge = (cat: string) => {
-    const color = CATEGORY_COLORS[cat] || "#64748B";
+    const color = CATEGORY_COLORS[cat] || "var(--color-text-muted)";
     return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold leading-4" style={{ background: `${color}15`, color, border: `1px solid ${color}30` }}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</span>;
   };
 
@@ -134,17 +134,17 @@ export default function PolicyDocumentsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Policy Documents</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Upload, browse, and download HR policy documents</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Policy Documents</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Upload, browse, and download HR policy documents</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
           <button
             onClick={() => setShowForm(!showForm)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors"
-            style={{ background: "#2BAE8E" }}
+            style={{ background: "var(--color-primary)" }}
           >
             {showForm ? <X className="w-3.5 h-3.5" /> : <Upload className="w-3.5 h-3.5" />}
             {showForm ? "Cancel" : "Upload Document"}
@@ -154,9 +154,9 @@ export default function PolicyDocumentsPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: feedback.type === "success" ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)",
-          color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: feedback.type === "success" ? "1px solid rgba(43,174,142,0.2)" : "1px solid rgba(229,62,62,0.2)",
+          background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: feedback.type === "success" ? "1px solid rgba(var(--color-primary-rgb),0.2)" : "1px solid rgba(var(--color-danger-rgb),0.2)",
         }}>
           {feedback.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -164,7 +164,7 @@ export default function PolicyDocumentsPage() {
       )}
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" />
           Failed to load documents.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
@@ -177,17 +177,17 @@ export default function PolicyDocumentsPage() {
           <div className="p-6 space-y-4 text-sm">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Title *</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Title *</label>
                 <input
                   type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }}
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }}
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Category</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Category</label>
                 <select
                   value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "#1A2E44" }}
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "var(--color-text)" }}
                 >
                   {CATEGORIES.filter((c) => c !== "all").map((c) => (
                     <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
@@ -195,40 +195,40 @@ export default function PolicyDocumentsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Department</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Department</label>
                 <input
                   type="text" value={formData.department} onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }}
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }}
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Version</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Version</label>
                 <input
                   type="text" value={formData.version} onChange={(e) => setFormData({ ...formData, version: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }}
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }}
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Effective Date</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Effective Date</label>
                 <input
                   type="date" value={formData.effective_date} onChange={(e) => setFormData({ ...formData, effective_date: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }}
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Description</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Description</label>
               <textarea
                 rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", resize: "vertical" }}
+                style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", resize: "vertical" }}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>File *</label>
-              <div style={{ border: "1px dashed #D1D5DB", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>File *</label>
+              <div style={{ border: "1px dashed var(--color-border-strong)", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
                 <input type="file" onChange={handleFileChange} />
                 {fileData && (
-                  <p className="text-xs mt-2" style={{ color: "#2BAE8E" }}>{fileData.name} ({(fileData.size / 1024).toFixed(1)} KB)</p>
+                  <p className="text-xs mt-2" style={{ color: "var(--color-primary)" }}>{fileData.name} ({(fileData.size / 1024).toFixed(1)} KB)</p>
                 )}
               </div>
             </div>
@@ -236,14 +236,14 @@ export default function PolicyDocumentsPage() {
               <button
                 onClick={() => { setShowForm(false); setFileData(null); }}
                 className="px-4 py-1.5 rounded-lg text-xs font-medium"
-                style={{ color: "#64748B", background: "#F5F7FA" }}
+                style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleUpload} disabled={saving}
                 className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors"
-                style={{ background: "#2BAE8E" }}
+                style={{ background: "var(--color-primary)" }}
               >
                 {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                 {saving ? "Uploading..." : "Upload"}
@@ -260,11 +260,11 @@ export default function PolicyDocumentsPage() {
           action={
             <div className="flex items-center gap-2">
               <div className="relative">
-                <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#64748B" }} />
+                <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
                 <select
                   value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
                   className="pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none border"
-                  style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}
+                  style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c} value={c}>{c === "all" ? "All Categories" : c.charAt(0).toUpperCase() + c.slice(1)}</option>
@@ -280,8 +280,8 @@ export default function PolicyDocumentsPage() {
           </div>
         ) : documents.length === 0 ? (
           <div className="text-center py-8">
-            <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No documents found</p>
+            <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No documents found</p>
           </div>
         ) : (
           <Table
@@ -290,27 +290,27 @@ export default function PolicyDocumentsPage() {
             columns={[
               { key: "title", header: "Title", render: (d: any) => (
                 <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4" style={{ color: "#1A3C5E" }} />
+                  <FileText className="w-4 h-4" style={{ color: "var(--color-navy)" }} />
                   <span className="font-medium text-sm">{d.title}</span>
                 </div>
               )},
               { key: "category", header: "Category", render: (d: any) => categoryBadge(d.category) },
               { key: "department", header: "Department", render: (d: any) => (
-                <span className="text-xs" style={{ color: "#667085" }}>{d.department || "—"}</span>
+                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{d.department || "—"}</span>
               )},
               { key: "version", header: "Version", render: (d: any) => (
-                <span className="text-xs font-mono" style={{ color: "#667085" }}>v{d.version || "1.0"}</span>
+                <span className="text-xs font-mono" style={{ color: "var(--color-text-muted)" }}>v{d.version || "1.0"}</span>
               )},
               { key: "effective_date", header: "Effective Date", render: (d: any) => (
-                <span className="text-xs" style={{ color: "#667085" }}>{d.effective_date ? new Date(d.effective_date).toLocaleDateString() : "—"}</span>
+                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{d.effective_date ? new Date(d.effective_date).toLocaleDateString() : "—"}</span>
               )},
               { key: "uploaded_by", header: "Uploaded By", render: (d: any) => (
-                <span className="text-xs" style={{ color: "#667085" }}>{d.uploaded_by || "—"}</span>
+                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{d.uploaded_by || "—"}</span>
               )},
               { key: "actions", header: "Actions", render: (d: any) => (
                 <div className="flex items-center gap-1" onClick={(ev) => ev.stopPropagation()}>
                   <button onClick={() => handleDownload(d)} className="p-1 rounded hover:bg-gray-100" title="Download">
-                    <Download className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+                    <Download className="w-3.5 h-3.5" style={{ color: "var(--color-primary)" }} />
                   </button>
                 </div>
               )},
@@ -321,3 +321,4 @@ export default function PolicyDocumentsPage() {
     </div>
   );
 }
+

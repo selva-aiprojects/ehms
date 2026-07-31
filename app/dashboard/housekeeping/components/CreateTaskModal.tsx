@@ -66,24 +66,24 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between p-4 border-b border-[#E2E8F0]">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(42,157,143,0.1)" }}>
-              <Sparkles className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(var(--color-primary-dark-rgb),0.1)" }}>
+              <Sparkles className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
             </div>
             <div>
-              <h2 className="font-semibold text-[#1A3C5E]">Assign Housekeeping Task</h2>
-              <p className="text-xs text-[#64748B]">Create a new task for the team</p>
+              <h2 className="font-semibold text-[var(--color-navy)]">Assign Housekeeping Task</h2>
+              <p className="text-xs text-[var(--color-text-muted)]">Create a new task for the team</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-[#64748B] hover:bg-[#F5F7FA] rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-light)] rounded-full transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-4 overflow-y-auto">
           {error && (
-            <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.1)", color: "#E53E3E" }}>
+            <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.1)", color: "var(--color-danger)" }}>
               <AlertCircle className="w-4 h-4 shrink-0" />
               {error}
             </div>
@@ -91,13 +91,13 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
 
           <form id="create-task-form" onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#1A2E44] mb-1.5">Target Room / Unit</label>
+              <label className="block text-sm font-medium text-[var(--color-text)] mb-1.5">Target Room / Unit</label>
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#64748B]" />
+                <Search className="w-4 h-4 absolute left-3 top-2.5 text-[var(--color-text-muted)]" />
                 <select
                   value={unitId}
                   onChange={(e) => setUnitId(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-[#E2E8F0] focus:outline-none focus:border-[#2BAE8E] focus:ring-1 focus:ring-[#2BAE8E] bg-[#F5F7FA] appearance-none"
+                  className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-[var(--color-border)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] bg-[var(--color-light)] appearance-none"
                   disabled={loadingRooms}
                 >
                   <option value="">Select a room...</option>
@@ -105,17 +105,17 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
                     <option key={r.id} value={r.id}>{r.unit_label} - {r.unit_type} ({r.status.replace("_", " ")})</option>
                   ))}
                 </select>
-                {loadingRooms && <Loader2 className="w-4 h-4 absolute right-3 top-2.5 text-[#64748B] animate-spin" />}
+                {loadingRooms && <Loader2 className="w-4 h-4 absolute right-3 top-2.5 text-[var(--color-text-muted)] animate-spin" />}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[#1A2E44] mb-1.5">Task Type</label>
+                <label className="block text-sm font-medium text-[var(--color-text)] mb-1.5">Task Type</label>
                 <select
                   value={taskType}
                   onChange={(e) => setTaskType(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-[#E2E8F0] focus:outline-none focus:border-[#2BAE8E] bg-[#F5F7FA]"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-border)] focus:outline-none focus:border-[var(--color-primary)] bg-[var(--color-light)]"
                 >
                   <option value="deep_clean">Deep Clean</option>
                   <option value="stayover_tidy">Stayover Tidy</option>
@@ -126,11 +126,11 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1A2E44] mb-1.5">Priority</label>
+                <label className="block text-sm font-medium text-[var(--color-text)] mb-1.5">Priority</label>
                 <select
                   value={priority}
                   onChange={(e) => setPriority(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-[#E2E8F0] focus:outline-none focus:border-[#2BAE8E] bg-[#F5F7FA]"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-border)] focus:outline-none focus:border-[var(--color-primary)] bg-[var(--color-light)]"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -141,11 +141,11 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1A2E44] mb-1.5">Assign To (Live Staff Availability Check)</label>
+              <label className="block text-sm font-medium text-[var(--color-text)] mb-1.5">Assign To (Live Staff Availability Check)</label>
               <select
                 value={assignedTo}
                 onChange={(e) => setAssignedTo(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-[#E2E8F0] focus:outline-none focus:border-[#2BAE8E] bg-[#F5F7FA]"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-border)] focus:outline-none focus:border-[var(--color-primary)] bg-[var(--color-light)]"
                 disabled={loadingUsers}
               >
                 <option value="">Unassigned (Any available staff)</option>
@@ -162,23 +162,23 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1A2E44] mb-1.5">Special Instructions</label>
+              <label className="block text-sm font-medium text-[var(--color-text)] mb-1.5">Special Instructions</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 placeholder="E.g., Extra towels, allergic to feathers..."
-                className="w-full px-3 py-2 text-sm rounded-lg border border-[#E2E8F0] focus:outline-none focus:border-[#2BAE8E] bg-[#F5F7FA] resize-none"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--color-border)] focus:outline-none focus:border-[var(--color-primary)] bg-[var(--color-light)] resize-none"
               />
             </div>
           </form>
         </div>
 
-        <div className="p-4 border-t border-[#E2E8F0] flex justify-end gap-3 bg-[#F8FAFC]">
+        <div className="p-4 border-t border-[var(--color-border)] flex justify-end gap-3 bg-[var(--color-light)]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-[#64748B] bg-white border border-[#E2E8F0] rounded-lg hover:bg-[#F5F7FA] transition-colors"
+            className="px-4 py-2 text-sm font-medium text-[var(--color-text-muted)] bg-white border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-light)] transition-colors"
             disabled={isSubmitting}
           >
             Cancel
@@ -186,7 +186,7 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
           <button
             type="submit"
             form="create-task-form"
-            className="px-4 py-2 text-sm font-medium text-white bg-[#1A3C5E] rounded-lg hover:bg-[#1A2E44] transition-colors flex items-center gap-2"
+            className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-navy)] rounded-lg hover:bg-[var(--color-text)] transition-colors flex items-center gap-2"
             disabled={isSubmitting || loadingRooms}
           >
             {isSubmitting ? (
@@ -200,3 +200,4 @@ export default function CreateTaskModal({ isOpen, onClose, onSubmit, defaultUnit
     </div>
   );
 }
+

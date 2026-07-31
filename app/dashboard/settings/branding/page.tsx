@@ -6,9 +6,9 @@ import { Check, RotateCcw, Image, Palette, Eye, Save, Loader2, Upload } from "lu
 import toast from "react-hot-toast";
 
 const COLOR_PRESETS = [
-  "#2BAE8E", "#1A3C5E", "#D4A853", "#4DB88A", "#0B1A2E",
-  "#E53E3E", "#F5A623", "#6366F1", "#8B5CF6", "#EC4899",
-  "#06B6D4", "#10B981", "#F59E0B", "#6B7280", "#374151",
+  "var(--color-primary)", "var(--color-navy)", "var(--color-gold)", "var(--color-primary-dark)", "var(--color-dark-navy)",
+  "var(--color-danger)", "var(--color-warning)", "#6366F1", "#8B5CF6", "#EC4899",
+  "#06B6D4", "var(--color-success)", "var(--color-warning)", "var(--color-text-muted)", "var(--color-text)",
 ];
 
 function isValidHex(c: string) {
@@ -27,7 +27,7 @@ function luminance(hex: string) {
 }
 
 function contrastColor(hex: string) {
-  return luminance(hex) > 0.5 ? "#1A2E44" : "#FFFFFF";
+  return luminance(hex) > 0.5 ? "var(--color-text)" : "var(--color-white)";
 }
 
 interface BrandingForm {
@@ -106,7 +106,7 @@ export default function BrandingSettingsPage() {
 
   async function handleSave() {
     if (!isValidHex(form.primary_color) || !isValidHex(form.sidebar_color) || !isValidHex(form.accent_color)) {
-      toast.error("All colors must be valid hex values (e.g. #2BAE8E)");
+      toast.error("All colors must be valid hex values (e.g. var(--color-primary))");
       return;
     }
 
@@ -134,9 +134,9 @@ export default function BrandingSettingsPage() {
   function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
     return (
       <div className="space-y-1.5">
-        <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: "#64748B" }}>{label}</label>
+        <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-muted)" }}>{label}</label>
         <div className="flex items-center gap-2">
-          <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0" style={{ border: "2px solid #E2E8F0" }}>
+          <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0" style={{ border: "2px solid var(--color-border)" }}>
             <input
               type="color"
               value={value}
@@ -150,7 +150,7 @@ export default function BrandingSettingsPage() {
             value={value}
             onChange={(e) => onChange(e.target.value)}
             className="flex-1 px-3 py-2 rounded-lg text-sm font-mono outline-none transition-colors"
-            style={{ background: "#F5F7FA", border: "1px solid #E2E8F0", color: "#1A2E44" }}
+            style={{ background: "var(--color-light)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}
             placeholder="#000000"
           />
           <div className="flex gap-1">
@@ -159,7 +159,7 @@ export default function BrandingSettingsPage() {
                 key={c}
                 onClick={() => onChange(c)}
                 className="w-5 h-5 rounded-full border transition-transform hover:scale-125"
-                style={{ background: c, borderColor: c === value ? "#1A2E44" : "#E2E8F0" }}
+                style={{ background: c, borderColor: c === value ? "var(--color-text)" : "var(--color-border)" }}
                 title={c}
               />
             ))}
@@ -172,7 +172,7 @@ export default function BrandingSettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#64748B" }} />
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-text-muted)" }} />
       </div>
     );
   }
@@ -181,8 +181,8 @@ export default function BrandingSettingsPage() {
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: "#1A2E44" }}>Branding & Theme</h1>
-        <p className="text-sm mt-1" style={{ color: "#64748B" }}>
+        <h1 className="text-2xl font-bold" style={{ color: "var(--color-text)" }}>Branding & Theme</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--color-text-muted)" }}>
           Customize the look and feel of your tenant workspace. Changes are instantly applied as a preview.
         </p>
       </div>
@@ -191,14 +191,14 @@ export default function BrandingSettingsPage() {
         {/* Settings form */}
         <div className="lg:col-span-2 space-y-6">
           {/* Brand Identity */}
-          <div className="rounded-xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
+          <div className="rounded-xl p-6" style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}>
             <div className="flex items-center gap-2 mb-4">
-              <Image className="w-4 h-4" style={{ color: "#2BAE8E" }} />
-              <h2 className="text-base font-semibold" style={{ color: "#1A2E44" }}>Brand Identity</h2>
+              <Image className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
+              <h2 className="text-base font-semibold" style={{ color: "var(--color-text)" }}>Brand Identity</h2>
             </div>
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: "#64748B" }}>
+                <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-muted)" }}>
                   Company Name
                 </label>
                 <input
@@ -206,12 +206,12 @@ export default function BrandingSettingsPage() {
                   value={form.company_name}
                   onChange={(e) => update("company_name", e.target.value)}
                   className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-colors"
-                  style={{ background: "#F5F7FA", border: "1px solid #E2E8F0", color: "#1A2E44" }}
+                  style={{ background: "var(--color-light)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}
                   placeholder="Your Company"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: "#64748B" }}>
+                <label className="block text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-muted)" }}>
                   Logo URL
                 </label>
                 <div className="flex items-center gap-2">
@@ -220,11 +220,11 @@ export default function BrandingSettingsPage() {
                     value={form.logo_url}
                     onChange={(e) => update("logo_url", e.target.value)}
                     className="flex-1 px-3 py-2 rounded-lg text-sm outline-none transition-colors"
-                    style={{ background: "#F5F7FA", border: "1px solid #E2E8F0", color: "#1A2E44" }}
-                    placeholder="/CybeHMS_logo.png"
+                    style={{ background: "var(--color-light)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}
+                    placeholder="/hostsphere-logo.png"
                   />
                   {form.logo_url && (
-                    <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 flex items-center justify-center" style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}>
+                    <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 flex items-center justify-center" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={form.logo_url} alt="logo preview" className="max-w-full max-h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     </div>
@@ -235,10 +235,10 @@ export default function BrandingSettingsPage() {
           </div>
 
           {/* Color Palette */}
-          <div className="rounded-xl p-6" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
+          <div className="rounded-xl p-6" style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}>
             <div className="flex items-center gap-2 mb-4">
-              <Palette className="w-4 h-4" style={{ color: "#2BAE8E" }} />
-              <h2 className="text-base font-semibold" style={{ color: "#1A2E44" }}>Color Palette</h2>
+              <Palette className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
+              <h2 className="text-base font-semibold" style={{ color: "var(--color-text)" }}>Color Palette</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ColorField label="Primary Accent" value={form.primary_color} onChange={(v) => update("primary_color", v)} />
@@ -253,7 +253,7 @@ export default function BrandingSettingsPage() {
               onClick={handleSave}
               disabled={!dirty || saving}
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-40"
-              style={{ background: dirty ? "#2BAE8E" : "#94A3B8" }}
+              style={{ background: dirty ? "var(--color-primary)" : "var(--color-text-faint)" }}
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saving ? "Saving..." : "Save Changes"}
@@ -262,7 +262,7 @@ export default function BrandingSettingsPage() {
               onClick={resetPreview}
               disabled={!dirty}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all disabled:opacity-40"
-              style={{ color: "#64748B", border: "1px solid #E2E8F0" }}
+              style={{ color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }}
             >
               <RotateCcw className="w-4 h-4" />
               Reset
@@ -270,7 +270,7 @@ export default function BrandingSettingsPage() {
             <button
               onClick={applyPreview}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ml-auto"
-              style={{ color: "#1A3C5E", border: "1px solid #E2E8F0" }}
+              style={{ color: "var(--color-navy)", border: "1px solid var(--color-border)" }}
             >
               <Eye className="w-4 h-4" />
               Apply Preview
@@ -280,8 +280,8 @@ export default function BrandingSettingsPage() {
 
         {/* Live Preview */}
         <div className="lg:col-span-1">
-          <div className="rounded-xl overflow-hidden sticky top-6" style={{ border: "1px solid #E2E8F0" }}>
-            <div className="px-4 py-3 text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style={{ background: "#F5F7FA", color: "#64748B", borderBottom: "1px solid #E2E8F0" }}>
+          <div className="rounded-xl overflow-hidden sticky top-6" style={{ border: "1px solid var(--color-border)" }}>
+            <div className="px-4 py-3 text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style={{ background: "var(--color-light)", color: "var(--color-text-muted)", borderBottom: "1px solid var(--color-border)" }}>
               <Eye className="w-3.5 h-3.5" />
               Live Preview
             </div>
@@ -289,52 +289,52 @@ export default function BrandingSettingsPage() {
               {/* Mini sidebar preview */}
               <div className="p-3 space-y-2">
                 {/* Logo area */}
-                <div className="flex items-center justify-center py-4 px-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="flex items-center justify-center py-4 px-2" style={{ borderBottom: "1px solid rgba(var(--color-white-rgb),0.08)" }}>
                   <div className="flex items-center gap-2">
                     {form.logo_url && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={form.logo_url} alt="" className="h-8 w-auto object-contain" style={{ filter: "brightness(1.05)" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     )}
                     {!form.logo_url && (
-                      <span className="font-bold text-sm" style={{ color: "rgba(255,255,255,0.8)" }}>{form.company_name || "eHMS"}</span>
+                      <span className="font-bold text-sm" style={{ color: "rgba(var(--color-white-rgb),0.8)" }}>{form.company_name || "eHMS"}</span>
                     )}
                   </div>
                 </div>
                 {/* Nav items */}
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: activeItemBg, color: "#FFFFFF", borderLeft: `3px solid ${form.primary_color}` }}>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: activeItemBg, color: "var(--color-white)", borderLeft: `3px solid ${form.primary_color}` }}>
                   <LayoutDashboard className="w-4 h-4" />
                   <span>Dashboard</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: "transparent", color: "rgba(255,255,255,0.6)" }}>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: "transparent", color: "rgba(var(--color-white-rgb),0.6)" }}>
                   <Users className="w-4 h-4" />
                   <span>Users</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: "transparent", color: "rgba(255,255,255,0.6)" }}>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: "transparent", color: "rgba(var(--color-white-rgb),0.6)" }}>
                   <Settings className="w-4 h-4" />
                   <span>Settings</span>
                 </div>
               </div>
               {/* Bottom user area */}
-              <div className="p-3" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="p-3" style={{ borderTop: "1px solid rgba(var(--color-white-rgb),0.08)" }}>
                 <div className="flex items-center gap-2 px-2 py-1.5">
                   <Shield className="w-3 h-3" style={{ color: form.primary_color }} />
-                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>admin@company.com</span>
+                  <span className="text-xs" style={{ color: "rgba(var(--color-white-rgb),0.5)" }}>admin@company.com</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Quick swatches */}
-          <div className="rounded-xl p-4 mt-4" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
-            <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#64748B" }}>Quick Palettes</p>
+          <div className="rounded-xl p-4 mt-4" style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}>
+            <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--color-text-muted)" }}>Quick Palettes</p>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { primary: "#2BAE8E", sidebar: "#2C3547", accent: "#D4A853", name: "eHMS Default" },
-                { primary: "#6366F1", sidebar: "#1E1B4B", accent: "#F59E0B", name: "Indigo" },
+                { primary: "var(--color-primary)", sidebar: "var(--color-sidebar)", accent: "var(--color-gold)", name: "eHMS Default" },
+                { primary: "#6366F1", sidebar: "#1E1B4B", accent: "var(--color-warning)", name: "Indigo" },
                 { primary: "#EC4899", sidebar: "#2D1B2E", accent: "#06B6D4", name: "Pink" },
-                { primary: "#10B981", sidebar: "#064E3B", accent: "#F59E0B", name: "Emerald" },
-                { primary: "#F59E0B", sidebar: "#1C1917", accent: "#EC4899", name: "Amber" },
-                { primary: "#06B6D4", sidebar: "#0F172A", accent: "#F43F5E", name: "Cyan" },
+                { primary: "var(--color-success)", sidebar: "var(--color-success-dark)", accent: "var(--color-warning)", name: "Emerald" },
+                { primary: "var(--color-warning)", sidebar: "#1C1917", accent: "#EC4899", name: "Amber" },
+                { primary: "#06B6D4", sidebar: "var(--color-dark-navy)", accent: "#F43F5E", name: "Cyan" },
               ].map((p) => (
                 <button
                   key={p.name}
@@ -344,7 +344,7 @@ export default function BrandingSettingsPage() {
                     update("accent_color", p.accent);
                   }}
                   className="p-2 rounded-lg transition-all hover:scale-105 text-[10px] font-medium text-center"
-                  style={{ background: p.sidebar, color: "#fff", border: "1px solid rgba(255,255,255,0.1)" }}
+                  style={{ background: p.sidebar, color: "var(--color-white)", border: "1px solid rgba(var(--color-white-rgb),0.1)" }}
                   title={p.name}
                 >
                   <div className="flex gap-0.5 justify-center mb-1">

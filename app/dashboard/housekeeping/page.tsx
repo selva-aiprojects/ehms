@@ -16,25 +16,25 @@ const PRIORITY_BADGE: Record<string, "red" | "amber" | "gray" | "teal"> = {
 };
 
 const STATUS_DOT: Record<string, string> = {
-  open: "#64748B", assigned: "#1A3C5E", in_progress: "#F5A623", resolved: "#2BAE8E", completed: "#2BAE8E", closed: "#64748B",
+  open: "var(--color-text-muted)", assigned: "var(--color-navy)", in_progress: "var(--color-warning)", resolved: "var(--color-primary)", completed: "var(--color-primary)", closed: "var(--color-text-muted)",
 };
 
 function StatusDot({ status }: { status: string }) {
-  return <span className="w-2 h-2 rounded-full inline-block shrink-0" style={{ background: STATUS_DOT[status] || "#64748B" }} />;
+  return <span className="w-2 h-2 rounded-full inline-block shrink-0" style={{ background: STATUS_DOT[status] || "var(--color-text-muted)" }} />;
 }
 
 function SkeletonStatBox() {
-  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}><div className="w-12 h-8 rounded mb-2" style={{ background: "#CBD5E1" }} /><div className="w-20 h-3 rounded" style={{ background: "#CBD5E1" }} /></div>;
+  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}><div className="w-12 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} /><div className="w-20 h-3 rounded" style={{ background: "var(--color-border-strong)" }} /></div>;
 }
 
 function SkeletonTaskRow() {
   return (
-    <div className="flex items-center justify-between p-3 rounded-lg animate-pulse" style={{ background: "#F5F7FA" }}>
+    <div className="flex items-center justify-between p-3 rounded-lg animate-pulse" style={{ background: "var(--color-light)" }}>
       <div className="flex items-center gap-3">
-        <div className="w-2 h-2 rounded-full" style={{ background: "#E2E8F0" }} />
-        <div><div className="w-24 h-4 rounded mb-1" style={{ background: "#E2E8F0" }} /><div className="w-32 h-3 rounded" style={{ background: "#E2E8F0" }} /></div>
+        <div className="w-2 h-2 rounded-full" style={{ background: "var(--color-border)" }} />
+        <div><div className="w-24 h-4 rounded mb-1" style={{ background: "var(--color-border)" }} /><div className="w-32 h-3 rounded" style={{ background: "var(--color-border)" }} /></div>
       </div>
-      <div className="w-12 h-6 rounded" style={{ background: "#E2E8F0" }} />
+      <div className="w-12 h-6 rounded" style={{ background: "var(--color-border)" }} />
     </div>
   );
 }
@@ -64,8 +64,8 @@ export default function HousekeepingPage() {
     return (
       <div className="flex h-[80vh] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-[#64748B] text-sm font-medium">Loading Housekeeping Operations...</p>
+          <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[var(--color-text-muted)] text-sm font-medium">Loading Housekeeping Operations...</p>
         </div>
       </div>
     );
@@ -122,28 +122,28 @@ export default function HousekeepingPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Housekeeping Operations</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Oceanview Hotel · {new Date().toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Housekeeping Operations</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Oceanview Hotel · {new Date().toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}</p>
         </div>
         <div className="flex items-center gap-2">
           {isLoading && (
-            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
+            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
               <Loader2 className="w-3 h-3 animate-spin" /> Syncing
             </div>
           )}
           {isError && (
-            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E" }}>
+            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)" }}>
               <AlertCircle className="w-3 h-3" /> Offline
             </div>
           )}
-          <div className="flex items-center gap-2 text-sm" style={{ color: "#64748B" }}>
-            <Sparkles className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+          <div className="flex items-center gap-2 text-sm" style={{ color: "var(--color-text-muted)" }}>
+            <Sparkles className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
             <span><strong>{displayTasks.length}</strong> tasks · <strong>8</strong> staff</span>
           </div>
           <Button variant="secondary" size="sm" onClick={handleCreateTask}>
             <Plus className="w-3.5 h-3.5" /> New Task
           </Button>
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -153,9 +153,9 @@ export default function HousekeepingPage() {
         <div
           className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
           style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
           }}
         >
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -168,19 +168,19 @@ export default function HousekeepingPage() {
           Array.from({ length: 4 }).map((_, i) => <SkeletonStatBox key={i} />)
         ) : (
           <>
-            <div className="rounded-xl p-4" style={{ background: "#F5A623" }}>
-              <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>{openTasks}</div>
+            <div className="rounded-xl p-4" style={{ background: "var(--color-warning)" }}>
+              <div className="text-2xl font-bold" style={{ color: "var(--color-text)" }}>{openTasks}</div>
               <div className="text-xs mt-1" style={{ color: "rgba(0,0,0,0.6)" }}>Open Tasks</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
               <div className="text-2xl font-bold">{inProgressTasks}</div>
               <div className="text-xs mt-1 opacity-80">In Progress</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
               <div className="text-2xl font-bold">{resolvedTasks}</div>
               <div className="text-xs mt-1 opacity-80">Completed Today</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: criticalCount > 0 ? "#E53E3E" : "#2BAE8E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: criticalCount > 0 ? "var(--color-danger)" : "var(--color-primary)" }}>
               <div className="text-2xl font-bold">{criticalCount}</div>
               <div className="text-xs mt-1 opacity-80">Critical Priority</div>
             </div>
@@ -193,8 +193,8 @@ export default function HousekeepingPage() {
           <button key={s} onClick={() => setStatusFilter(s === "all" ? undefined : s)}
             className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
             style={{
-              background: (s === "all" && !statusFilter) || statusFilter === s ? "#1A3C5E" : "#F5F7FA",
-              color: (s === "all" && !statusFilter) || statusFilter === s ? "#FFFFFF" : "#64748B",
+              background: (s === "all" && !statusFilter) || statusFilter === s ? "var(--color-navy)" : "var(--color-light)",
+              color: (s === "all" && !statusFilter) || statusFilter === s ? "var(--color-white)" : "var(--color-text-muted)",
             }}
           >
             {s === "all" ? "All" : s.replace("_", " ")}
@@ -210,25 +210,25 @@ export default function HousekeepingPage() {
               Array.from({ length: 4 }).map((_, i) => <SkeletonTaskRow key={i} />)
             ) : myTasks.length === 0 ? (
               <div className="text-center py-8">
-                <ClipboardList className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-                <p className="text-sm" style={{ color: "#64748B" }}>No tasks assigned to you</p>
+                <ClipboardList className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+                <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No tasks assigned to you</p>
               </div>
             ) : (
               myTasks.map((task: any, i: number) => (
-                <div key={task.id || i} className="flex items-center justify-between p-3 rounded-lg transition-all" style={{ background: i % 2 === 0 ? "#F5F7FA" : "transparent" }}>
+                <div key={task.id || i} className="flex items-center justify-between p-3 rounded-lg transition-all" style={{ background: i % 2 === 0 ? "var(--color-light)" : "transparent" }}>
                   <div className="flex items-center gap-3">
                     <StatusDot status={task.status} />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>Room {task.unit?.unit_label || task.unit_label}</span>
+                        <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>Room {task.unit?.unit_label || task.unit_label}</span>
                         <Badge variant={PRIORITY_BADGE[task.priority] || "gray"}>{task.priority}</Badge>
                         {task.task_type && (
-                          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(42,157,143,0.1)", color: "#2BAE8E" }}>
+                          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(var(--color-primary-dark-rgb),0.1)", color: "var(--color-primary)" }}>
                             {task.task_type.replace("_", " ")}
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs mt-0.5" style={{ color: "#64748B" }}>
+                      <div className="flex items-center gap-3 text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
                         {(task.unit?.floor || task.unit?.floor_number || task.floor || task.floor_number) && (
                           <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> Floor {task.unit?.floor || task.unit?.floor_number || task.floor || task.floor_number}</span>
                         )}
@@ -267,15 +267,15 @@ export default function HousekeepingPage() {
           <div className="space-y-3">
             {isLoadingDisplay ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg animate-pulse" style={{ background: "#F5F7FA" }}>
-                  <div><div className="w-16 h-4 rounded mb-1" style={{ background: "#E2E8F0" }} /><div className="w-24 h-3 rounded" style={{ background: "#E2E8F0" }} /></div>
-                  <div className="w-10 h-5 rounded" style={{ background: "#E2E8F0" }} />
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg animate-pulse" style={{ background: "var(--color-light)" }}>
+                  <div><div className="w-16 h-4 rounded mb-1" style={{ background: "var(--color-border)" }} /><div className="w-24 h-3 rounded" style={{ background: "var(--color-border)" }} /></div>
+                  <div className="w-10 h-5 rounded" style={{ background: "var(--color-border)" }} />
                 </div>
               ))
             ) : floorSummary.length === 0 ? (
               <div className="text-center py-8">
-                <Layers className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-                <p className="text-sm" style={{ color: "#64748B" }}>No floor data available</p>
+                <Layers className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+                <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No floor data available</p>
               </div>
             ) : (
               (floorSummary as any[]).map((fl) => {
@@ -283,10 +283,10 @@ export default function HousekeepingPage() {
                 const pending = floorTasks.filter((t: any) => t.status !== "resolved" && t.status !== "completed").length;
                 const total = floorTasks.length;
                 return (
-                  <div key={fl} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                  <div key={fl} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                     <div>
-                      <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>Floor {fl}</div>
-                      <div className="text-xs" style={{ color: "#64748B" }}>
+                      <div className="font-medium text-sm" style={{ color: "var(--color-text)" }}>Floor {fl}</div>
+                      <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
                         {floorTasks.some((t: any) => t.priority === "critical") ? "⚠ Has critical tasks" : `${pending} pending · ${total} total`}
                       </div>
                     </div>
@@ -303,15 +303,15 @@ export default function HousekeepingPage() {
         <CardHeader title="Linen Lifecycle Ledger" subtitle={`Batch: L-${new Date().toISOString().split("T")[0]}`} />
         <div className="flex items-center justify-between text-sm flex-wrap">
           {[
-            { stage: "In Use", count: "450", color: "#2BAE8E" },
-            { stage: "Soiled", count: "120", color: "#F5A623" },
-            { stage: "Dispatched", count: "200", color: "#1A3C5E" },
-            { stage: "Received", count: "180", color: "#2BAE8E" },
-            { stage: "Scrapped", count: "12", color: "#E53E3E" },
+            { stage: "In Use", count: "450", color: "var(--color-primary)" },
+            { stage: "Soiled", count: "120", color: "var(--color-warning)" },
+            { stage: "Dispatched", count: "200", color: "var(--color-navy)" },
+            { stage: "Received", count: "180", color: "var(--color-primary)" },
+            { stage: "Scrapped", count: "12", color: "var(--color-danger)" },
           ].map((s, i) => (
-            <div key={s.stage} className="text-center flex-1 min-w-[80px] py-2" style={{ borderRight: i < 4 ? "1px solid #E2E8F0" : "none" }}>
+            <div key={s.stage} className="text-center flex-1 min-w-[80px] py-2" style={{ borderRight: i < 4 ? "1px solid var(--color-border)" : "none" }}>
               <div className="text-lg font-bold" style={{ color: s.color }}>{s.count}</div>
-              <div className="text-xs" style={{ color: "#64748B" }}>{s.stage}</div>
+              <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{s.stage}</div>
             </div>
           ))}
         </div>
@@ -349,38 +349,38 @@ export default function HousekeepingPage() {
             { name: "Deepak", rooms: 3, rating: 4.4, completed: 2, efficiency: 82 },
             { name: "Meera", rooms: 4, rating: 4.8, completed: 3, efficiency: 91 },
           ].map((staff, i) => (
-            <div key={staff.name} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: i % 2 === 0 ? "#F5F7FA" : "transparent" }}>
+            <div key={staff.name} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: i % 2 === 0 ? "var(--color-light)" : "transparent" }}>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium" style={{ background: staff.name === "You" ? "#2BAE8E" : "#1A3C5E" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium" style={{ background: staff.name === "You" ? "var(--color-primary)" : "var(--color-navy)" }}>
                   {staff.name[0]}
                 </div>
                 <div>
-                  <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>
+                  <div className="font-medium text-sm" style={{ color: "var(--color-text)" }}>
                     {staff.name}
                     {staff.name === "You" && <span className="ml-1.5"><Badge variant="teal">Me</Badge></span>}
                   </div>
-                  <div className="text-xs" style={{ color: "#64748B" }}>
+                  <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
                     {staff.completed} done, {staff.rooms} assigned
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1 text-xs" style={{ color: "#64748B" }}>
-                  <Star className="w-3 h-3" style={{ color: "#F5A623" }} />
+                <div className="flex items-center gap-1 text-xs" style={{ color: "var(--color-text-muted)" }}>
+                  <Star className="w-3 h-3" style={{ color: "var(--color-warning)" }} />
                   {staff.rating}
                 </div>
-                <div className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: staff.efficiency >= 90 ? "rgba(42,157,143,0.1)" : staff.efficiency >= 80 ? "rgba(245,166,35,0.1)" : "rgba(229,62,62,0.1)", color: staff.efficiency >= 90 ? "#2BAE8E" : staff.efficiency >= 80 ? "#D69E2E" : "#E53E3E" }}>
+                <div className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: staff.efficiency >= 90 ? "rgba(var(--color-primary-dark-rgb),0.1)" : staff.efficiency >= 80 ? "rgba(var(--color-warning-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.1)", color: staff.efficiency >= 90 ? "var(--color-primary)" : staff.efficiency >= 80 ? "var(--color-gold-dark)" : "var(--color-danger)" }}>
                   {staff.efficiency}%
                 </div>
               </div>
             </div>
           ))}
-          <div className="flex items-center justify-between p-2.5 mt-2 rounded-lg" style={{ background: "rgba(42,157,143,0.08)" }}>
-            <span className="text-xs font-medium" style={{ color: "#2BAE8E" }}>Team Total</span>
+          <div className="flex items-center justify-between p-2.5 mt-2 rounded-lg" style={{ background: "rgba(var(--color-primary-dark-rgb),0.08)" }}>
+            <span className="text-xs font-medium" style={{ color: "var(--color-primary)" }}>Team Total</span>
             <div className="flex items-center gap-3 text-xs">
-              <span style={{ color: "#64748B" }}>28 rooms assigned</span>
-              <span className="font-medium" style={{ color: "#1A3C5E" }}>20 completed</span>
-              <span style={{ color: "#64748B" }}>Avg 4.6 rating</span>
+              <span style={{ color: "var(--color-text-muted)" }}>28 rooms assigned</span>
+              <span className="font-medium" style={{ color: "var(--color-navy)" }}>20 completed</span>
+              <span style={{ color: "var(--color-text-muted)" }}>Avg 4.6 rating</span>
             </div>
           </div>
         </div>
@@ -404,16 +404,16 @@ export default function HousekeepingPage() {
             { time: "05:00 PM", event: "End of Day Report", location: "Housekeeping Office" },
           ].map((item, i) => (
             <div key={i} className="flex gap-3 pb-3 relative">
-              {i < 10 && <div className="absolute left-[7px] top-4 bottom-0 w-0.5" style={{ background: "#E2E8F0" }} />}
-              <div className="shrink-0 mt-1 w-4 h-4 rounded-full border-2 flex items-center justify-center" style={{ borderColor: i < 6 ? "#2BAE8E" : "#1A3C5E", background: i < 6 ? "rgba(42,157,143,0.15)" : "rgba(26,60,94,0.15)" }}>
-                <div className="w-1.5 h-1.5 rounded-full" style={{ background: i < 6 ? "#2BAE8E" : "#1A3C5E" }} />
+              {i < 10 && <div className="absolute left-[7px] top-4 bottom-0 w-0.5" style={{ background: "var(--color-border)" }} />}
+              <div className="shrink-0 mt-1 w-4 h-4 rounded-full border-2 flex items-center justify-center" style={{ borderColor: i < 6 ? "var(--color-primary)" : "var(--color-navy)", background: i < 6 ? "rgba(var(--color-primary-dark-rgb),0.15)" : "rgba(var(--color-navy-rgb),0.15)" }}>
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: i < 6 ? "var(--color-primary)" : "var(--color-navy)" }} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium shrink-0" style={{ color: "#64748B", width: "60px" }}>{item.time}</span>
-                  <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>{item.event}</span>
+                  <span className="text-xs font-medium shrink-0" style={{ color: "var(--color-text-muted)", width: "60px" }}>{item.time}</span>
+                  <span className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{item.event}</span>
                 </div>
-                <div className="text-xs mt-0.5" style={{ color: "#64748B", marginLeft: "68px" }}>
+                <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)", marginLeft: "68px" }}>
                   <MapPin className="w-3 h-3 inline mr-0.5" /> {item.location}
                 </div>
               </div>
@@ -458,15 +458,15 @@ export default function HousekeepingPage() {
             ]},
           ].map((section) => (
             <div key={section.category}>
-              <div className="text-sm font-medium mb-2 flex items-center gap-2" style={{ color: "#1A3C5E" }}>
-                <CheckCircle className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+              <div className="text-sm font-medium mb-2 flex items-center gap-2" style={{ color: "var(--color-navy)" }}>
+                <CheckCircle className="w-3.5 h-3.5" style={{ color: "var(--color-primary)" }} />
                 {section.category}
               </div>
               <div className="space-y-1.5">
                 {section.items.map((item) => (
-                  <label key={item.label} className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-colors hover:bg-gray-50" style={{ background: item.checked ? "rgba(42,157,143,0.04)" : "#F5F7FA" }}>
+                  <label key={item.label} className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-colors hover:bg-gray-50" style={{ background: item.checked ? "rgba(var(--color-primary-dark-rgb),0.04)" : "var(--color-light)" }}>
                     <input type="checkbox" checked={item.checked} readOnly className="w-4 h-4 rounded accent-teal-600" />
-                    <span className="text-sm" style={{ color: item.checked ? "#1A2E44" : "#64748B", textDecoration: item.checked ? "line-through" : "none" }}>
+                    <span className="text-sm" style={{ color: item.checked ? "var(--color-text)" : "var(--color-text-muted)", textDecoration: item.checked ? "line-through" : "none" }}>
                       {item.label}
                     </span>
                   </label>
@@ -491,32 +491,32 @@ export default function HousekeepingPage() {
             { name: "Pressure Washers", total: 2, operational: 1, maintenance: 0, broken: 1 },
             { name: "Air Purifiers", total: 5, operational: 4, maintenance: 1, broken: 0 },
           ].map((eq) => (
-            <div key={eq.name} className="p-3.5 rounded-lg" style={{ background: "#F5F7FA" }}>
+            <div key={eq.name} className="p-3.5 rounded-lg" style={{ background: "var(--color-light)" }}>
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,60,94,0.1)" }}>
-                    <Wrench className="w-4 h-4" style={{ color: "#1A3C5E" }} />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-navy-rgb),0.1)" }}>
+                    <Wrench className="w-4 h-4" style={{ color: "var(--color-navy)" }} />
                   </div>
                   <div>
-                    <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>{eq.name}</div>
-                    <div className="text-xs" style={{ color: "#64748B" }}>Total: {eq.total}</div>
+                    <div className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{eq.name}</div>
+                    <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Total: {eq.total}</div>
                   </div>
                 </div>
-                <div className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: eq.broken > 0 ? "rgba(229,62,62,0.1)" : eq.maintenance > 0 ? "rgba(245,166,35,0.1)" : "rgba(42,157,143,0.1)", color: eq.broken > 0 ? "#E53E3E" : eq.maintenance > 0 ? "#D69E2E" : "#2BAE8E" }}>
+                <div className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: eq.broken > 0 ? "rgba(var(--color-danger-rgb),0.1)" : eq.maintenance > 0 ? "rgba(var(--color-warning-rgb),0.1)" : "rgba(var(--color-primary-dark-rgb),0.1)", color: eq.broken > 0 ? "var(--color-danger)" : eq.maintenance > 0 ? "var(--color-gold-dark)" : "var(--color-primary)" }}>
                   {eq.broken > 0 ? `${eq.broken} Broken` : eq.maintenance > 0 ? `${eq.maintenance} Maint` : "Operational"}
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+              <div className="flex items-center gap-2 text-xs" style={{ color: "var(--color-text-muted)" }}>
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full" style={{ background: "#2BAE8E" }} />
+                  <div className="w-2 h-2 rounded-full" style={{ background: "var(--color-primary)" }} />
                   <span>{eq.operational} operational</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full" style={{ background: "#F5A623" }} />
+                  <div className="w-2 h-2 rounded-full" style={{ background: "var(--color-warning)" }} />
                   <span>{eq.maintenance} maintenance</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full" style={{ background: "#E53E3E" }} />
+                  <div className="w-2 h-2 rounded-full" style={{ background: "var(--color-danger)" }} />
                   <span>{eq.broken} broken</span>
                 </div>
               </div>
@@ -544,3 +544,4 @@ export default function HousekeepingPage() {
     </div>
   );
 }
+

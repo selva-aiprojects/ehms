@@ -14,7 +14,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useJourney } from "@/components/providers/JourneyProvider";
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 function getWeekDates(): { start: string; end: string } {
@@ -218,17 +218,17 @@ export default function TimesheetPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Timesheet</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Track and manage employee time entries</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Timesheet</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Track and manage employee time entries</p>
         </div>
         <div className="flex items-center gap-2">
           {isHrOrManager && (
-            <div className="flex items-center rounded-lg text-xs font-medium overflow-hidden" style={{ border: "1px solid #E2E8F0" }}>
-              <button onClick={() => setView("my")} className="px-3 py-1.5 transition-colors" style={{ background: view === "my" ? "#1A3C5E" : "#F5F7FA", color: view === "my" ? "#FFF" : "#64748B" }}>My Timesheet</button>
-              <button onClick={() => setView("team")} className="px-3 py-1.5 transition-colors" style={{ background: view === "team" ? "#1A3C5E" : "#F5F7FA", color: view === "team" ? "#FFF" : "#64748B" }}>Team View</button>
+            <div className="flex items-center rounded-lg text-xs font-medium overflow-hidden" style={{ border: "1px solid var(--color-border)" }}>
+              <button onClick={() => setView("my")} className="px-3 py-1.5 transition-colors" style={{ background: view === "my" ? "var(--color-navy)" : "var(--color-light)", color: view === "my" ? "var(--color-white)" : "var(--color-text-muted)" }}>My Timesheet</button>
+              <button onClick={() => setView("team")} className="px-3 py-1.5 transition-colors" style={{ background: view === "team" ? "var(--color-navy)" : "var(--color-light)", color: view === "team" ? "var(--color-white)" : "var(--color-text-muted)" }}>Team View</button>
             </div>
           )}
-          <button onClick={() => fetchEntries()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => fetchEntries()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -236,9 +236,9 @@ export default function TimesheetPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: feedback.type === "success" ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)",
-          color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: feedback.type === "success" ? "1px solid rgba(43,174,142,0.2)" : "1px solid rgba(229,62,62,0.2)",
+          background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: feedback.type === "success" ? "1px solid rgba(var(--color-primary-rgb),0.2)" : "1px solid rgba(var(--color-danger-rgb),0.2)",
         }}>
           {feedback.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -247,23 +247,23 @@ export default function TimesheetPage() {
 
       {/* Quick Clock In/Out */}
       {view === "my" && (
-        <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}>
-          <Clock className="w-5 h-5" style={{ color: isClockedIn ? "#2BAE8E" : "#64748B" }} />
+        <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
+          <Clock className="w-5 h-5" style={{ color: isClockedIn ? "var(--color-primary)" : "var(--color-text-muted)" }} />
           <div className="flex-1">
-            <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>
+            <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
               {isClockedIn ? "You are clocked in" : "Ready to start your shift?"}
             </div>
-            <div className="text-xs" style={{ color: "#64748B" }}>
+            <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
               {new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
             </div>
           </div>
           {isClockedIn ? (
-            <button onClick={handleClockOut} disabled={clocking} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#E53E3E" }}>
+            <button onClick={handleClockOut} disabled={clocking} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-danger)" }}>
               {clocking ? <Loader2 className="w-3 h-3 animate-spin" /> : <Square className="w-3 h-3" />}
               Clock Out
             </button>
           ) : (
-            <button onClick={handleClockIn} disabled={clocking} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+            <button onClick={handleClockIn} disabled={clocking} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
               {clocking ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
               Clock In
             </button>
@@ -273,25 +273,25 @@ export default function TimesheetPage() {
 
       {/* Filters */}
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+        <div className="flex items-center gap-2 text-xs" style={{ color: "var(--color-text-muted)" }}>
           <Calendar className="w-3.5 h-3.5" />
           <input type="date" value={dateRange.start} onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-            className="px-2 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+            className="px-2 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
           <span>to</span>
           <input type="date" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-            className="px-2 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+            className="px-2 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
         </div>
         {view === "team" && (
           <>
             <select value={selectedEmployee} onChange={(e) => setSelectedEmployee(e.target.value)}
-              className="px-2 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+              className="px-2 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
               <option value="">All Employees</option>
               {employees.map((e: any) => (
                 <option key={e.id} value={e.id}>{e.user ? `${e.user.first_name} ${e.user.last_name || ""}` : e.employee_code}</option>
               ))}
             </select>
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-2 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+              className="px-2 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
               <option value="">All Status</option>
               <option value="draft">Draft</option>
               <option value="submitted">Submitted</option>
@@ -302,7 +302,7 @@ export default function TimesheetPage() {
         )}
         {view === "my" && (
           <button onClick={() => { setEntryForm({ ...EMPTY_ENTRY, date: new Date().toISOString().split("T")[0] }); setShowAddModal(true); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
             <Plus className="w-3.5 h-3.5" /> Add Entry
           </button>
         )}
@@ -317,8 +317,8 @@ export default function TimesheetPage() {
           </div>
         ) : entries.length === 0 ? (
           <div className="text-center py-8">
-            <Clock className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No time entries found</p>
+            <Clock className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No time entries found</p>
           </div>
         ) : (
           <Table
@@ -340,8 +340,8 @@ export default function TimesheetPage() {
                 const hrs = calcHours(e.clock_in, e.clock_out, Number(e.break_hours || 0));
                 return <span className="text-xs font-medium">{hrs}</span>;
               }},
-              { key: "project", header: "Project", render: (e: any) => <span className="text-xs" style={{ color: "#64748B" }}>{e.project || "—"}</span> },
-              { key: "task", header: "Task", render: (e: any) => <span className="text-xs" style={{ color: "#64748B" }}>{e.task || "—"}</span> },
+              { key: "project", header: "Project", render: (e: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{e.project || "—"}</span> },
+              { key: "task", header: "Task", render: (e: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{e.task || "—"}</span> },
               { key: "status", header: "Status", render: (e: any) => {
                 const v = e.status === "approved" ? "teal" as const : e.status === "rejected" ? "red" as const : e.status === "submitted" ? "amber" as const : "gray" as const;
                 return <Badge variant={v}>{(e.status || "draft").charAt(0).toUpperCase() + (e.status || "draft").slice(1)}</Badge>;
@@ -351,10 +351,10 @@ export default function TimesheetPage() {
                   (e.status === "draft" || e.status === "submitted") ? (
                     <div className="flex items-center gap-1">
                       <button onClick={() => handleApproveReject(e.id, "approved")} className="p-1 rounded hover:bg-gray-100" title="Approve">
-                        <ThumbsUp className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+                        <ThumbsUp className="w-3.5 h-3.5" style={{ color: "var(--color-primary)" }} />
                       </button>
                       <button onClick={() => handleApproveReject(e.id, "rejected")} className="p-1 rounded hover:bg-gray-100" title="Reject">
-                        <ThumbsDown className="w-3.5 h-3.5" style={{ color: "#E53E3E" }} />
+                        <ThumbsDown className="w-3.5 h-3.5" style={{ color: "var(--color-danger)" }} />
                       </button>
                     </div>
                   ) : null
@@ -369,53 +369,53 @@ export default function TimesheetPage() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/20" onClick={() => setShowAddModal(false)} />
-          <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl" style={{ border: "1px solid #E2E8F0" }}>
-            <div className="px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid #E2E8F0" }}>
-              <h2 className="text-base font-semibold" style={{ color: "#1A3C5E" }}>Add Time Entry</h2>
-              <button onClick={() => setShowAddModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#64748B" }} /></button>
+          <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl" style={{ border: "1px solid var(--color-border)" }}>
+            <div className="px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
+              <h2 className="text-base font-semibold" style={{ color: "var(--color-navy)" }}>Add Time Entry</h2>
+              <button onClick={() => setShowAddModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>
             </div>
             <div className="p-6 space-y-4 text-sm">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Date *</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Date *</label>
                 <input type="date" value={entryForm.date} onChange={(e) => setEntryForm({ ...entryForm, date: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Clock In</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Clock In</label>
                   <input type="time" value={entryForm.clock_in} onChange={(e) => setEntryForm({ ...entryForm, clock_in: e.target.value })}
-                    className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                    className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Clock Out</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Clock Out</label>
                   <input type="time" value={entryForm.clock_out} onChange={(e) => setEntryForm({ ...entryForm, clock_out: e.target.value })}
-                    className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                    className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Break Hours</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Break Hours</label>
                 <input type="number" step="0.5" min="0" value={entryForm.break_hours} onChange={(e) => setEntryForm({ ...entryForm, break_hours: Number(e.target.value) })}
-                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Project</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Project</label>
                 <input type="text" value={entryForm.project} onChange={(e) => setEntryForm({ ...entryForm, project: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Task</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Task</label>
                 <input type="text" value={entryForm.task} onChange={(e) => setEntryForm({ ...entryForm, task: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Notes</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Notes</label>
                 <textarea value={entryForm.notes} onChange={(e) => setEntryForm({ ...entryForm, notes: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA", minHeight: 60 }} />
+                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)", minHeight: 60 }} />
               </div>
             </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <button onClick={() => setShowAddModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#64748B", background: "#F5F7FA" }}>Cancel</button>
-              <button onClick={handleSaveEntry} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button onClick={() => setShowAddModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+              <button onClick={handleSaveEntry} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
                 {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
                 {saving ? "Saving..." : "Save"}
               </button>
@@ -426,3 +426,4 @@ export default function TimesheetPage() {
     </div>
   );
 }
+

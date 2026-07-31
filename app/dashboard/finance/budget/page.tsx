@@ -11,9 +11,9 @@ import { formatCurrency } from "@/lib/reference-constants";
 
 function SkeletonRow() {
   return (
-    <div className="flex gap-4 p-4 animate-pulse rounded-lg" style={{ background: "#F5F7FA" }}>
+    <div className="flex gap-4 p-4 animate-pulse rounded-lg" style={{ background: "var(--color-light)" }}>
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex-1 h-5 rounded" style={{ background: "#E2E8F0" }} />
+        <div key={i} className="flex-1 h-5 rounded" style={{ background: "var(--color-border)" }} />
       ))}
     </div>
   );
@@ -66,8 +66,8 @@ export default function BudgetPage() {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-56 rounded animate-pulse" style={{ background: "#E2E8F0" }} />
-          <div className="h-5 w-32 rounded animate-pulse" style={{ background: "#E2E8F0" }} />
+          <div className="h-8 w-56 rounded animate-pulse" style={{ background: "var(--color-border)" }} />
+          <div className="h-5 w-32 rounded animate-pulse" style={{ background: "var(--color-border)" }} />
         </div>
         <div className="grid grid-cols-3 gap-4">{Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)}</div>
         <SkeletonRow /><SkeletonRow /><SkeletonRow />
@@ -79,14 +79,14 @@ export default function BudgetPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Budget Planning & Control</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Monitor budget vs actual across all heads</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Budget Planning & Control</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Monitor budget vs actual across all heads</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleRefresh} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={handleRefresh} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#1A3C5E" }}>
+          <button onClick={() => setShowModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-navy)" }}>
             <Plus className="w-3.5 h-3.5" /> Add Budget Entry
           </button>
         </div>
@@ -94,9 +94,9 @@ export default function BudgetPage() {
 
       {actionFeedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-          color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+          background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
         }}>
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {actionFeedback.message}
@@ -104,14 +104,14 @@ export default function BudgetPage() {
       )}
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" /> Failed to load budget data.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-lg font-bold">{formatCurrency(totalBudget)}</div>
             <DollarSign className="w-5 h-5 opacity-60" />
@@ -119,7 +119,7 @@ export default function BudgetPage() {
           <div className="text-xs opacity-80">Total Budget</div>
           <div className="text-[10px] mt-0.5 opacity-60">{entries.length} entries</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-lg font-bold">{formatCurrency(totalActual)}</div>
             <TrendingUp className="w-5 h-5 opacity-60" />
@@ -127,7 +127,7 @@ export default function BudgetPage() {
           <div className="text-xs opacity-80">Total Actual</div>
           <div className="text-[10px] mt-0.5 opacity-60">Spent so far</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: variancePct >= 0 ? "#2BAE8E" : "#E53E3E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: variancePct >= 0 ? "var(--color-primary)" : "var(--color-danger)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-lg font-bold">{variancePct >= 0 ? "+" : ""}{variancePct.toFixed(1)}%</div>
             {variancePct >= 0 ? <TrendingUp className="w-5 h-5 opacity-60" /> : <TrendingDown className="w-5 h-5 opacity-60" />}
@@ -147,7 +147,7 @@ export default function BudgetPage() {
                 value={fiscalYearId}
                 onChange={(e) => setFiscalYearId(e.target.value)}
                 className="px-3 py-1.5 rounded-lg text-xs"
-                style={{ border: "1px solid #E2E8F0", color: "#1A2E44", background: "#FFFFFF" }}
+                style={{ border: "1px solid var(--color-border)", color: "var(--color-text)", background: "var(--color-white)" }}
               >
                 <option value="">All Fiscal Years</option>
                 {years.map((y: any) => (
@@ -158,7 +158,7 @@ export default function BudgetPage() {
                 value={budgetHeadId}
                 onChange={(e) => setBudgetHeadId(e.target.value)}
                 className="px-3 py-1.5 rounded-lg text-xs"
-                style={{ border: "1px solid #E2E8F0", color: "#1A2E44", background: "#FFFFFF" }}
+                style={{ border: "1px solid var(--color-border)", color: "var(--color-text)", background: "var(--color-white)" }}
               >
                 <option value="">All Heads</option>
                 {heads.map((h: any) => (
@@ -170,20 +170,20 @@ export default function BudgetPage() {
         />
         {entries.length === 0 ? (
           <div className="text-center py-12">
-            <FileText className="w-8 h-8 mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm font-medium" style={{ color: "#64748B" }}>No budget entries found</p>
-            <p className="text-xs mt-1" style={{ color: "#94A3B8" }}>Add a budget entry to get started</p>
+            <FileText className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--color-border-strong)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--color-text-muted)" }}>No budget entries found</p>
+            <p className="text-xs mt-1" style={{ color: "var(--color-text-faint)" }}>Add a budget entry to get started</p>
           </div>
         ) : (
           <Table
             data={entries}
             keyExtractor={(item: any, i) => item.id || String(i)}
             columns={[
-              { key: "head_code", header: "Head Code", render: (e: any) => <span className="font-mono text-xs" style={{ color: "#1A3C5E" }}>{e.head_code || "—"}</span> },
+              { key: "head_code", header: "Head Code", render: (e: any) => <span className="font-mono text-xs" style={{ color: "var(--color-navy)" }}>{e.head_code || "—"}</span> },
               { key: "head_name", header: "Head Name", render: (e: any) => <span className="text-sm">{e.head_name || "—"}</span> },
               { key: "period_month", header: "Period", render: (e: any) => {
                 const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-                return <span className="text-xs" style={{ color: "#64748B" }}>{months[(e.period_month ?? 1) - 1]} {e.fiscal_year_name || ""}</span>;
+                return <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{months[(e.period_month ?? 1) - 1]} {e.fiscal_year_name || ""}</span>;
               }},
               { key: "budget_amount", header: "Budget", render: (e: any) => <span className="font-medium">{formatCurrency(e.budget_amount ?? 0)}</span> },
               { key: "actual_amount", header: "Actual", render: (e: any) => <span className="font-medium">{formatCurrency(e.actual_amount ?? 0)}</span> },
@@ -203,10 +203,10 @@ export default function BudgetPage() {
                 const u = b > 0 ? (a / b) * 100 : 0;
                 return (
                   <div className="flex items-center gap-2">
-                    <div className="w-16 h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                      <div className="h-full rounded-full" style={{ width: Math.min(u, 100) + "%", background: u > 100 ? "#E53E3E" : "#2BAE8E" }} />
+                    <div className="w-16 h-1.5 rounded-full" style={{ background: "var(--color-border)" }}>
+                      <div className="h-full rounded-full" style={{ width: Math.min(u, 100) + "%", background: u > 100 ? "var(--color-danger)" : "var(--color-primary)" }} />
                     </div>
-                    <span className="text-xs" style={{ color: u > 100 ? "#E53E3E" : "#64748B" }}>{u.toFixed(0)}%</span>
+                    <span className="text-xs" style={{ color: u > 100 ? "var(--color-danger)" : "var(--color-text-muted)" }}>{u.toFixed(0)}%</span>
                   </div>
                 );
               }},
@@ -218,11 +218,11 @@ export default function BudgetPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
           <div className="bg-white rounded-xl w-full max-w-lg mx-4 p-6" style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}>
-            <h2 className="text-base font-bold mb-4" style={{ color: "#1A3C5E" }}>Add Budget Entry</h2>
+            <h2 className="text-base font-bold mb-4" style={{ color: "var(--color-navy)" }}>Add Budget Entry</h2>
             <div className="space-y-3 text-sm">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Budget Head</label>
-                <select value={form.budget_head_id} onChange={(e) => setForm({ ...form, budget_head_id: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44", background: "#FFFFFF" }}>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Budget Head</label>
+                <select value={form.budget_head_id} onChange={(e) => setForm({ ...form, budget_head_id: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)", background: "var(--color-white)" }}>
                   <option value="">Select head</option>
                   {heads.map((h: any) => (
                     <option key={h.id} value={h.id}>{h.head_name} ({h.head_code})</option>
@@ -230,8 +230,8 @@ export default function BudgetPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Fiscal Year</label>
-                <select value={form.fiscal_year_id} onChange={(e) => setForm({ ...form, fiscal_year_id: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44", background: "#FFFFFF" }}>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Fiscal Year</label>
+                <select value={form.fiscal_year_id} onChange={(e) => setForm({ ...form, fiscal_year_id: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)", background: "var(--color-white)" }}>
                   <option value="">Select year</option>
                   {years.map((y: any) => (
                     <option key={y.id} value={y.id}>{y.name}</option>
@@ -239,21 +239,21 @@ export default function BudgetPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Period Month (1-12)</label>
-                <input type="number" min={1} max={12} value={form.period_month} onChange={(e) => setForm({ ...form, period_month: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} />
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Period Month (1-12)</label>
+                <input type="number" min={1} max={12} value={form.period_month} onChange={(e) => setForm({ ...form, period_month: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Budget Amount</label>
-                <input type="number" value={form.budget_amount || ""} onChange={(e) => setForm({ ...form, budget_amount: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} />
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Budget Amount</label>
+                <input type="number" value={form.budget_amount || ""} onChange={(e) => setForm({ ...form, budget_amount: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Notes</label>
-                <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} rows={2} />
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Notes</label>
+                <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} rows={2} />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
-              <button onClick={() => setShowModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#64748B", background: "#F5F7FA" }}>Cancel</button>
-              <button onClick={handleCreateEntry} className="px-4 py-1.5 rounded-lg text-xs font-medium text-white" style={{ background: "#1A3C5E" }}>{createEntry.isMutating ? "Saving..." : "Save Entry"}</button>
+              <button onClick={() => setShowModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+              <button onClick={handleCreateEntry} className="px-4 py-1.5 rounded-lg text-xs font-medium text-white" style={{ background: "var(--color-navy)" }}>{createEntry.isMutating ? "Saving..." : "Save Entry"}</button>
             </div>
           </div>
         </div>

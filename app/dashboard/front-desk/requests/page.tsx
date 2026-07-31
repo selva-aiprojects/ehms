@@ -59,15 +59,15 @@ export default function RequestsPage() {
     <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "#1A3C5E" }}>
-            <Wrench className="w-6 h-6 text-[#2BAE8E]" /> Guest Requests & Complaints
+          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "var(--color-navy)" }}>
+            <Wrench className="w-6 h-6 text-[var(--color-primary)]" /> Guest Requests & Complaints
           </h1>
-          <p className="text-[#64748B] mt-1 text-sm">Monitor all incoming requests and their assignment status.</p>
+          <p className="text-[var(--color-text-muted)] mt-1 text-sm">Monitor all incoming requests and their assignment status.</p>
         </div>
         <div className="flex items-center gap-3">
           <select 
-            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2BAE8E]/20"
-            style={{ borderColor: "#E2E8F0" }}
+            className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)]/20"
+            style={{ borderColor: "var(--color-border)" }}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
@@ -78,7 +78,7 @@ export default function RequestsPage() {
           </select>
           <button 
             onClick={() => setShowForm(true)}
-            className="bg-[#2BAE8E] hover:bg-[#239B7E] text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm shadow-sm"
+            className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm shadow-sm"
           >
             <Plus className="w-4 h-4" /> New Request
           </button>
@@ -89,11 +89,11 @@ export default function RequestsPage() {
         <Card className="bg-white">
           <div className="p-5 flex flex-col h-full justify-between">
             <div className="flex items-center justify-between mb-4">
-              <span className="font-medium text-[#64748B]">Pending Action</span>
+              <span className="font-medium text-[var(--color-text-muted)]">Pending Action</span>
               <div className="p-2 bg-amber-100 rounded-lg"><AlertTriangle className="w-5 h-5 text-amber-600" /></div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-[#1A3C5E]">
+              <div className="text-3xl font-bold text-[var(--color-navy)]">
                 {requests.filter((r: any) => r.status === 'pending').length}
               </div>
             </div>
@@ -104,13 +104,13 @@ export default function RequestsPage() {
       <Card>
         <CardHeader title="Requests Log" subtitle={`${filtered.length} tickets`} />
         {isLoading ? (
-          <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[#64748B]" /></div>
+          <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[var(--color-text-muted)]" /></div>
         ) : !filtered || filtered.length === 0 ? (
-          <div className="text-center py-12 text-[#64748B]">No requests found.</div>
+          <div className="text-center py-12 text-[var(--color-text-muted)]">No requests found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-[#F5F7FA] text-[#64748B] uppercase text-xs">
+              <thead className="bg-[var(--color-light)] text-[var(--color-text-muted)] uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3 rounded-tl-lg">Request</th>
                   <th className="px-4 py-3">Unit</th>
@@ -119,21 +119,21 @@ export default function RequestsPage() {
                   <th className="px-4 py-3 text-right rounded-tr-lg">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E2E8F0]">
+              <tbody className="divide-y divide-[var(--color-border)]">
                 {filtered.map((r: any) => (
-                  <tr key={r.id} className="hover:bg-[#F5F7FA]/50 transition-colors">
+                  <tr key={r.id} className="hover:bg-[color:var(--color-light)]/50 transition-colors">
                     <td className="px-4 py-4">
-                      <div className="font-semibold text-[#1A3C5E] capitalize">{r.request_type.replace('_', ' ')}</div>
-                      <div className="text-xs text-[#64748B] mt-0.5 max-w-xs truncate" title={r.description}>{r.description}</div>
+                      <div className="font-semibold text-[var(--color-navy)] capitalize">{r.request_type.replace('_', ' ')}</div>
+                      <div className="text-xs text-[var(--color-text-muted)] mt-0.5 max-w-xs truncate" title={r.description}>{r.description}</div>
                       <div className="text-xs text-gray-400 mt-1 flex items-center gap-1">
                         <Clock className="w-3 h-3" /> {new Date(r.created_at).toLocaleString()}
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="font-medium text-[#1A2E44]">{r.unit_label ? `Unit ${r.unit_label}` : "N/A"}</div>
+                      <div className="font-medium text-[var(--color-text)]">{r.unit_label ? `Unit ${r.unit_label}` : "N/A"}</div>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="capitalize text-[#64748B]">{r.assigned_to_dept || "Unassigned"}</span>
+                      <span className="capitalize text-[var(--color-text-muted)]">{r.assigned_to_dept || "Unassigned"}</span>
                     </td>
                     <td className="px-4 py-4">
                       <Badge variant={r.status === 'resolved' ? 'teal' : r.status === 'pending' ? 'amber' : 'navy'} className="capitalize">
@@ -141,7 +141,7 @@ export default function RequestsPage() {
                       </Badge>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <button className="text-[#2BAE8E] hover:text-[#2BAE8E]/80 font-medium inline-flex items-center">
+                      <button className="text-[var(--color-primary)] hover:text-[color:var(--color-primary)]/80 font-medium inline-flex items-center">
                         Update <ChevronRight className="w-4 h-4 ml-1" />
                       </button>
                     </td>
@@ -159,7 +159,7 @@ export default function RequestsPage() {
           <div className="fixed inset-0 bg-black/20 z-40" onClick={() => setShowForm(false)} />
           <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 animate-in slide-in-from-right duration-300 flex flex-col">
             <div className="px-6 py-4 border-b flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#1A3C5E]">Log Guest Request</h2>
+              <h2 className="text-lg font-semibold text-[var(--color-navy)]">Log Guest Request</h2>
               <button onClick={() => setShowForm(false)} className="text-gray-500 hover:bg-gray-100 p-2 rounded-full transition-colors">
                 <X className="w-5 h-5" />
               </button>
@@ -168,7 +168,7 @@ export default function RequestsPage() {
             <div className="p-6 flex-1 overflow-y-auto">
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-[#1A3C5E] mb-1">Select Guest / Room</label>
+                  <label className="block text-sm font-medium text-[var(--color-navy)] mb-1">Select Guest / Room</label>
                   <ActiveBookingSelector 
                     value={formData.booking_id} 
                     onChange={(bId, _) => setFormData({...formData, booking_id: bId})} 
@@ -176,12 +176,12 @@ export default function RequestsPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-[#1A3C5E] mb-1">Request Type</label>
+                  <label className="block text-sm font-medium text-[var(--color-navy)] mb-1">Request Type</label>
                   <select 
                     required
                     value={formData.request_type}
                     onChange={(e) => setFormData({...formData, request_type: e.target.value})}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2BAE8E]/20"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)]/20"
                   >
                     <option value="housekeeping">Housekeeping (Cleaning/Towels)</option>
                     <option value="maintenance">Maintenance (Repairs/Issues)</option>
@@ -191,12 +191,12 @@ export default function RequestsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#1A3C5E] mb-1">Assigned Department</label>
+                  <label className="block text-sm font-medium text-[var(--color-navy)] mb-1">Assigned Department</label>
                   <select 
                     required
                     value={formData.assigned_to_dept}
                     onChange={(e) => setFormData({...formData, assigned_to_dept: e.target.value})}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2BAE8E]/20"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)]/20"
                   >
                     <option value="housekeeping">Housekeeping</option>
                     <option value="maintenance">Maintenance</option>
@@ -206,14 +206,14 @@ export default function RequestsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#1A3C5E] mb-1">Description</label>
+                  <label className="block text-sm font-medium text-[var(--color-navy)] mb-1">Description</label>
                   <textarea 
                     required
                     rows={4}
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     placeholder="Describe the guest's request..."
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2BAE8E]/20 resize-none"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)]/20 resize-none"
                   ></textarea>
                 </div>
 
@@ -221,7 +221,7 @@ export default function RequestsPage() {
                   <button 
                     type="submit" 
                     disabled={isSubmitting || !formData.booking_id}
-                    className="w-full bg-[#1A3C5E] hover:bg-[#132d47] text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-[var(--color-navy)] hover:bg-[var(--color-dark-navy)] text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Submit Request"}
                   </button>
@@ -234,3 +234,4 @@ export default function RequestsPage() {
     </div>
   );
 }
+

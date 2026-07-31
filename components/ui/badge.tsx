@@ -5,11 +5,11 @@ interface BadgeProps {
 }
 
 const variants: Record<string, { bg: string; text: string }> = {
-  teal:  { bg: "rgba(43,174,142,0.12)", text: "#2BAE8E" },
-  amber: { bg: "rgba(245,166,35,0.12)",  text: "#D4850A" },
-  red:   { bg: "rgba(229,62,62,0.10)",   text: "#C53030" },
-  gray:  { bg: "#F5F7FA",                text: "#64748B" },
-  navy:  { bg: "rgba(26,60,94,0.10)",    text: "#1A3C5E" },
+  teal:  { bg: "rgba(var(--color-primary-rgb), 0.12)", text: "var(--color-primary)" },
+  amber: { bg: "rgba(var(--color-warning-rgb), 0.12)", text: "var(--color-warning)" },
+  red:   { bg: "rgba(var(--color-danger-rgb), 0.10)",  text: "var(--color-danger)" },
+  gray:  { bg: "var(--color-light)",                   text: "var(--color-text-muted)" },
+  navy:  { bg: "rgba(var(--color-navy-rgb), 0.10)",    text: "var(--color-navy)" },
 };
 
 export default function Badge({ children, variant = "gray", className = "" }: BadgeProps) {

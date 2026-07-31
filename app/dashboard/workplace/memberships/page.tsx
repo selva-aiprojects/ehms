@@ -9,7 +9,7 @@ import Table from "@/components/ui/table";
 import { useMemberships } from "@/lib/hooks";
 
 function SkeletonRow() {
-  return <div className="h-12 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-12 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 export default function WorkplaceMembershipsPage() {
@@ -89,14 +89,14 @@ export default function WorkplaceMembershipsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Corporate Memberships</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Manage corporate membership plans and allocations</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Corporate Memberships</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Manage corporate membership plans and allocations</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={() => setShowModal(true)}>
             <Plus className="w-3.5 h-3.5" /> New Membership
           </Button>
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -105,9 +105,9 @@ export default function WorkplaceMembershipsPage() {
       {actionFeedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
           style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
           }}
         >
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -116,15 +116,15 @@ export default function WorkplaceMembershipsPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl p-4" style={{ background: "#2BAE8E" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-primary)" }}>
           <div className="text-2xl font-bold text-white">{activeMemberships.length}</div>
           <div className="text-xs text-white/80">Active Memberships</div>
         </div>
-        <div className="rounded-xl p-4" style={{ background: "#1A3C5E" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-navy)" }}>
           <div className="text-2xl font-bold text-white">{displayMemberships.reduce((s: number, m: any) => s + (m.seat_allocated || 0), 0)}</div>
           <div className="text-xs text-white/80">Total Seats Allocated</div>
         </div>
-        <div className="rounded-xl p-4" style={{ background: "#F5A623" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-warning)" }}>
           <div className="text-2xl font-bold text-white">{displayMemberships.reduce((s: number, m: any) => s + (m.seat_used || 0), 0)}</div>
           <div className="text-xs text-white/80">Seats Used</div>
         </div>
@@ -136,13 +136,13 @@ export default function WorkplaceMembershipsPage() {
           <div className="space-y-1">{[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}</div>
         ) : isError ? (
           <div className="text-center py-8">
-            <AlertCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "#E53E3E" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>Failed to load memberships</p>
+            <AlertCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-danger)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Failed to load memberships</p>
           </div>
         ) : displayMemberships.length === 0 ? (
           <div className="text-center py-8">
-            <Briefcase className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No memberships yet</p>
+            <Briefcase className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No memberships yet</p>
             <Button variant="secondary" size="sm" className="mt-2" onClick={() => setShowModal(true)}>
               <Plus className="w-3.5 h-3.5" /> Create Membership
             </Button>
@@ -154,7 +154,7 @@ export default function WorkplaceMembershipsPage() {
             columns={[
               { key: "corporate", header: "Corporate", render: (m: any) => (
                 <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4" style={{ color: "#64748B" }} />
+                  <Building2 className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} />
                   <span className="font-medium text-sm">{m.corporate?.name || "—"}</span>
                 </div>
               )},
@@ -165,17 +165,17 @@ export default function WorkplaceMembershipsPage() {
                 const pct = allocated > 0 ? (used / allocated) * 100 : 0;
                 return (
                   <div className="flex items-center gap-1.5">
-                    <div className="w-16 h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: used === allocated ? "#2BAE8E" : "#F5A623" }} />
+                    <div className="w-16 h-1.5 rounded-full" style={{ background: "var(--color-border)" }}>
+                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: used === allocated ? "var(--color-primary)" : "var(--color-warning)" }} />
                     </div>
-                    <span className="text-xs" style={{ color: "#64748B" }}>{used}/{allocated}</span>
+                    <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{used}/{allocated}</span>
                   </div>
                 );
               }},
               { key: "dates", header: "Period", render: (m: any) => {
                 const start = m.start_date ? new Date(m.start_date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : "—";
                 const end = m.end_date ? new Date(m.end_date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : "Open";
-                return <span className="text-xs" style={{ color: "#64748B" }}>{start} — {end}</span>;
+                return <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{start} — {end}</span>;
               }},
               { key: "status", header: "Status", render: (m: any) => (
                 <Badge variant={m.status === "active" ? "teal" : m.status === "expired" ? "red" : "amber"}>{m.status}</Badge>
@@ -188,46 +188,46 @@ export default function WorkplaceMembershipsPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>New Membership</h3>
+            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>New Membership</h3>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
             <form onSubmit={handleCreate} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Corporate Name *</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Corporate Name *</label>
                 <input type="text" required value={form.corporate_name} onChange={(e) => setForm({ ...form, corporate_name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                   placeholder="e.g. Acme Corp" />
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Plan Name *</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Plan Name *</label>
                 <input type="text" required value={form.plan_name} onChange={(e) => setForm({ ...form, plan_name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                   placeholder="e.g. Hot Desk Pool" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Start Date *</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Start Date *</label>
                   <input type="date" required value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>End Date</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>End Date</label>
                   <input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Seats Allocated</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Seats Allocated</label>
                 <input type="number" min="0" value={form.seat_allocated} onChange={(e) => setForm({ ...form, seat_allocated: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Notes</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Notes</label>
                 <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} rows={2} />
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} rows={2} />
               </div>
-              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowModal(false)}>Cancel</Button>
                 <Button type="submit" variant="primary" size="sm" disabled={submitting}>
                   {submitting ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Creating</> : "Create Membership"}

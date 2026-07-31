@@ -8,7 +8,7 @@ import Button from "@/components/ui/button";
 import { useProperties } from "@/lib/hooks";
 
 function SkeletonRow() {
-  return <div className="h-12 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-12 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -97,14 +97,14 @@ export default function ReconciliationPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Bank Reconciliation</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Match bank transactions with system payments</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Bank Reconciliation</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Match bank transactions with system payments</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={() => setShowModal(true)}>
             <Plus className="w-3.5 h-3.5" /> Add Transaction
           </Button>
-          <button onClick={loadRecords} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={loadRecords} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -113,9 +113,9 @@ export default function ReconciliationPage() {
       {actionFeedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
           style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
           }}
         >
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -124,19 +124,19 @@ export default function ReconciliationPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl p-4" style={{ background: "#2BAE8E" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-primary)" }}>
           <div className="text-2xl font-bold text-white">{records.length}</div>
           <div className="text-xs text-white/80">Total Transactions</div>
         </div>
-        <div className="rounded-xl p-4" style={{ background: "#1A3C5E" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-navy)" }}>
           <div className="text-2xl font-bold text-white">{matchedCount}</div>
           <div className="text-xs text-white/80">Matched</div>
         </div>
-        <div className="rounded-xl p-4" style={{ background: "#E53E3E" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-danger)" }}>
           <div className="text-2xl font-bold text-white">{unmatchedCount}</div>
           <div className="text-xs text-white/80">Unmatched</div>
         </div>
-        <div className="rounded-xl p-4" style={{ background: "#F5A623" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-warning)" }}>
           <div className="text-2xl font-bold text-white">₹{totalAmount.toLocaleString()}</div>
           <div className="text-xs text-white/80">Total Amount</div>
         </div>
@@ -148,7 +148,7 @@ export default function ReconciliationPage() {
           action={
             <div className="flex items-center gap-2">
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0", color: "#1A2E44" }}>
+                className="px-3 py-1.5 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)", color: "var(--color-text)" }}>
                 <option value="all">All Status</option>
                 <option value="matched">Matched</option>
                 <option value="unmatched">Unmatched</option>
@@ -160,8 +160,8 @@ export default function ReconciliationPage() {
           <div className="space-y-1">{[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}</div>
         ) : records.length === 0 ? (
           <div className="text-center py-8">
-            <Landmark className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No bank transactions</p>
+            <Landmark className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No bank transactions</p>
             <Button variant="secondary" size="sm" className="mt-2" onClick={() => setShowModal(true)}>
               <Plus className="w-3.5 h-3.5" /> Add Transaction
             </Button>
@@ -172,20 +172,20 @@ export default function ReconciliationPage() {
               const badgeVariant = r.status === "matched" ? "teal" as const : r.status === "unmatched" ? "red" as const : "amber" as const;
               const date = r.transaction_date ? new Date(r.transaction_date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : "—";
               return (
-                <div key={r.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                <div key={r.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: r.status === "matched" ? "rgba(42,157,143,0.15)" : "rgba(229,62,62,0.1)" }}>
-                      <DollarSign className="w-4 h-4" style={{ color: r.status === "matched" ? "#2BAE8E" : "#E53E3E" }} />
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: r.status === "matched" ? "rgba(var(--color-primary-dark-rgb),0.15)" : "rgba(var(--color-danger-rgb),0.1)" }}>
+                      <DollarSign className="w-4 h-4" style={{ color: r.status === "matched" ? "var(--color-primary)" : "var(--color-danger)" }} />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{r.bank_ref}</div>
-                      <div className="text-xs" style={{ color: "#64748B" }}>
+                      <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{r.bank_ref}</div>
+                      <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
                         {r.description || "—"} · {date}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-sm" style={{ color: "#1A2E44" }}>₹{parseFloat(r.amount).toLocaleString()}</span>
+                    <span className="font-semibold text-sm" style={{ color: "var(--color-text)" }}>₹{parseFloat(r.amount).toLocaleString()}</span>
                     {r.payment && (
                       <Badge variant="gray">₹{parseFloat(r.payment.amount).toLocaleString()}</Badge>
                     )}
@@ -206,44 +206,44 @@ export default function ReconciliationPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>Add Bank Transaction</h3>
+            <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>Add Bank Transaction</h3>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
             <form onSubmit={handleCreate} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Property *</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Property *</label>
                 <select required value={form.property_id} onChange={(e) => setForm({ ...form, property_id: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                   <option value="">Select Property</option>
                   {properties.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Bank Reference *</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Bank Reference *</label>
                 <input type="text" required value={form.bank_ref} onChange={(e) => setForm({ ...form, bank_ref: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                   placeholder="e.g. BOB-CHQ-001234" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Transaction Date *</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Transaction Date *</label>
                   <input type="date" required value={form.transaction_date} onChange={(e) => setForm({ ...form, transaction_date: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Amount (₹) *</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Amount (₹) *</label>
                   <input type="number" step="0.01" required value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                     placeholder="0.00" />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Description</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Description</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} rows={2} />
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} rows={2} />
               </div>
-              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowModal(false)}>Cancel</Button>
                 <Button type="submit" variant="primary" size="sm" disabled={submitting}>
                   {submitting ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Saving</> : "Add Transaction"}

@@ -55,7 +55,7 @@ export default function GlobalSettingsPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold" style={{ color: settings?.primary_color || "#1A3C5E" }}>System Configuration</h1>
+        <h1 className="text-2xl font-bold" style={{ color: settings?.primary_color || "var(--color-navy)" }}>System Configuration</h1>
         <p className="text-sm text-gray-500 mt-1">Manage global branding, currency, and localization settings for the entire tenant.</p>
       </div>
 
@@ -80,7 +80,7 @@ export default function GlobalSettingsPage() {
                 onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
                 className="w-full px-3 py-2 border rounded-md"
               />
-              <p className="text-xs text-gray-400 mt-1">Provide a relative path (e.g., /CybeHMS_logo.png) or full URL.</p>
+              <p className="text-xs text-gray-400 mt-1">Provide a relative path (e.g., /hostsphere-logo.png) or full URL.</p>
             </div>
           </div>
           <div className="space-y-4">
@@ -89,7 +89,7 @@ export default function GlobalSettingsPage() {
               <div className="flex items-center gap-2">
                 <input
                   type="color"
-                  value={formData.primary_color || "#1A3C5E"}
+                  value={formData.primary_color || "var(--color-navy)"}
                   onChange={(e) => setFormData({ ...formData, primary_color: e.target.value })}
                   className="w-10 h-10 border rounded cursor-pointer"
                 />
@@ -106,7 +106,7 @@ export default function GlobalSettingsPage() {
               <div className="flex items-center gap-2">
                 <input
                   type="color"
-                  value={formData.secondary_color || "#2BAE8E"}
+                  value={formData.secondary_color || "var(--color-primary)"}
                   onChange={(e) => setFormData({ ...formData, secondary_color: e.target.value })}
                   className="w-10 h-10 border rounded cursor-pointer"
                 />
@@ -174,3 +174,4 @@ export default function GlobalSettingsPage() {
     </div>
   );
 }
+

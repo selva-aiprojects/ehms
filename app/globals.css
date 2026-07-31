@@ -1,73 +1,253 @@
 @import "tailwindcss";
 
-/* ─── CybeHMS Design System ─── */
+/* ═══════════════════════════════════════════════════════════════════
+   HostSphere Design System — Single Source of Truth for Colors
+   Brand: Navy (#062A54 from hostsphere-logo.png) + Gold (#D4AF37)
+   ═══════════════════════════════════════════════════════════════════ */
 :root {
-  /* Tenant theme — set dynamically by TenantThemeProvider, falls back to defaults */
-  --tenant-primary:       #2BAE8E;
-  --tenant-primary-dark:  #229F82;
-  --tenant-secondary:     #4DB88A;
-  --tenant-accent:        #D4A853;
-  --tenant-sidebar:       #2C3547;
-  --tenant-sidebar-hover: rgba(255,255,255,0.07);
-  --tenant-sidebar-active: #2BAE8E;
+  /* ─── Brand Palette (literal) ─── */
+  --hs-navy:           #062A54;
+  --hs-navy-rgb:       6, 42, 84;
+  --hs-navy-dark:      #041B38;
+  --hs-navy-dark-rgb:  4, 27, 56;
 
-  /* Sidebar / Shell */
-  --color-sidebar:        var(--tenant-sidebar);
-  --color-sidebar-hover:  var(--tenant-sidebar-hover);
-  --color-sidebar-active-bg: color-mix(in srgb, var(--tenant-sidebar-active) 18%, transparent);
+  --hs-gold:           #D4AF37;
+  --hs-gold-rgb:       212, 175, 55;
+  --hs-gold-light:     #E6C46A;
+  --hs-gold-light-rgb: 230, 196, 106;
+  --hs-gold-dark:      #C9A24B;
+  --hs-gold-dark-rgb:  201, 162, 75;
+
+  --hs-bg-light:       #F8F9FA;
+  --hs-bg-light-rgb:   248, 249, 250;
+  --hs-bg-cream:       #FBF7EC;
+  --hs-bg-cream-rgb:   251, 247, 236;
+
+  /* ─── Global Surface Fallbacks ─── */
+  --hs-surface-white:  #FFFFFF;
+  --hs-surface-white-rgb: 255, 255, 255;
+  --hs-text-dark:      #1A2E44;
+  --hs-text-dark-rgb:  26, 46, 68;
+  --hs-text-muted:     #64748B;
+  --hs-text-muted-rgb: 100, 116, 139;
+  --hs-text-faint:     #94A3B8;
+  --hs-border-light:   #E2E8F0;
+  --hs-border-strong:  #CBD5E1;
+
+  /* ─── Typography Tokens ─── */
+  --hs-font-sans:  var(--font-plus-jakarta), var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --hs-font-serif: var(--font-playfair), Georgia, serif;
+
+  /* ─── Shadows & Layout Elements ─── */
+  --hs-shadow-sm: 0 2px 4px rgba(6, 42, 84, 0.05);
+  --hs-shadow-md: 0 10px 15px -3px rgba(6, 42, 84, 0.08), 0 4px 6px -2px rgba(6, 42, 84, 0.04);
+  --hs-shadow-lg: 0 20px 25px -5px rgba(6, 42, 84, 0.1), 0 10px 10px -5px rgba(6, 42, 84, 0.04);
+  --hs-radius-sm: 6px;
+  --hs-radius-md: 12px;
+  --hs-radius-lg: 24px;
+  --hs-radius-full: 9999px;
+  --hs-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ─── Mapping Structural Semantic Aliases ─── */
+  --primary:              var(--hs-gold);
+  --primary-dark:         var(--hs-gold-dark);
+  --secondary:            var(--hs-navy);
+  --accent:               var(--hs-gold-light);
+  --success:              #10B981;
+  --warning:              #F59E0B;
+  --danger:               #EF4444;
+  --bg:                   var(--hs-bg-light);
+  --surface:              var(--hs-surface-white);
+  --sidebar:              var(--hs-navy);
+  --sidebar-hover:        rgba(255, 255, 255, 0.07);
+  --text:                 var(--hs-text-dark);
+  --text-light:           var(--hs-text-muted);
+  --text-faint:           var(--hs-text-faint);
+  --border:               var(--hs-border-light);
+  --border-strong:        var(--hs-border-strong);
+  --radius:               var(--hs-radius-md);
+  --shadow:               var(--hs-shadow-md);
+
+  /* ─── Tenant Configuration Sync (set dynamically by TenantThemeProvider) ─── */
+  --tenant-primary:         var(--primary);
+  --tenant-primary-dark:    var(--primary-dark);
+  --tenant-secondary:       var(--secondary);
+  --tenant-accent:          var(--accent);
+  --tenant-sidebar:         var(--sidebar);
+  --tenant-sidebar-hover:   var(--sidebar-hover);
+  --tenant-sidebar-active:  var(--primary);
+
+  /* ─── Shell Configuration Mapping ─── */
+  --color-sidebar:             var(--tenant-sidebar);
+  --color-sidebar-hover:       var(--tenant-sidebar-hover);
+  --color-sidebar-active-bg:   color-mix(in srgb, var(--tenant-sidebar-active) 15%, transparent);
   --color-sidebar-active-text: var(--tenant-sidebar-active);
 
-  /* Brand palette */
-  --color-primary:        var(--tenant-primary);
-  --color-primary-dark:   var(--tenant-primary-dark);
-  --color-secondary:      var(--tenant-secondary);
-  --color-gold:           var(--tenant-accent);
-  --color-navy:           #1A3C5E;
-  --color-dark-navy:      #0B1A2E;
-  --color-bg-surface:     #0F2438;
-  --color-amber:          #F5A623;
+  /* ─── Literal Utility Access Variables ─── */
+  --color-primary:         var(--tenant-primary);
+  --color-primary-dark:    var(--tenant-primary-dark);
+  --color-secondary:       var(--tenant-secondary);
+  --color-gold:            var(--hs-gold);
+  --color-gold-light:      var(--hs-gold-light);
+  --color-gold-dark:       var(--hs-gold-dark);
+  --color-navy:            var(--hs-navy);
+  --color-dark-navy:       #0F172A;
+  --color-bg-surface:      var(--hs-navy);
 
-  /* Surfaces */
-  --color-light:          #F5F7FA;
-  --color-white:          #FFFFFF;
-  --color-border:         #E2E8F0;
+  /* ─── Standard Surfaces & Elements ─── */
+  --color-light:          var(--bg);
+  --color-white:          var(--surface);
+  --color-border:         var(--border);
+  --color-border-strong:  var(--border-strong);
+  --color-text:           var(--text);
+  --color-text-muted:     var(--text-light);
+  --color-text-faint:     var(--text-faint);
 
-  /* Text */
-  --color-text:           #1A2E44;
-  --color-text-muted:     #64748B;
+  /* ─── RGB Variable Sync for Alpha Channels ─── */
+  --color-light-rgb:          var(--hs-bg-light-rgb);
+  --color-primary-rgb:        var(--hs-gold-rgb);
+  --color-primary-dark-rgb:   var(--hs-gold-dark-rgb);
+  --color-navy-rgb:           var(--hs-navy-rgb);
+  --color-dark-navy-rgb:      15, 23, 42;
+  --color-gold-rgb:           var(--hs-gold-rgb);
+  --color-white-rgb:          var(--hs-surface-white-rgb);
+  --color-text-rgb:           var(--hs-text-dark-rgb);
+  --color-text-muted-rgb:     var(--hs-text-muted-rgb);
+  --color-text-faint-rgb:     148, 163, 184;
+  --color-border-rgb:         226, 232, 240;
+  --color-bg-cream-rgb:       var(--hs-bg-cream-rgb);
 
-  /* RGB components for rgba() usage */
-  --color-light-rgb:      245, 247, 250;
-  --color-primary-rgb:    43, 174, 142;
-  --color-gold-rgb:       212, 168, 83;
-  --color-dark-navy-rgb:  11, 26, 46;
+  /* ─── Global Status ─── */
+  --color-danger:          var(--danger);
+  --color-danger-dark:     #991B1B;
+  --color-danger-rgb:      239, 68, 68;
+  --color-danger-soft:     #FEF2F2;
+  --color-success:         var(--success);
+  --color-success-dark:    #065F46;
+  --color-success-rgb:     16, 185, 129;
+  --color-success-soft:    #ECFDF5;
+  --color-warning:         var(--warning);
+  --color-warning-dark:    #92400E;
+  --color-warning-rgb:     245, 158, 11;
+  --color-warning-soft:    #FEF3C7;
+  --color-info:            #3B82F6;
+  --color-info-dark:       #1E40AF;
+  --color-info-rgb:        59, 130, 246;
+  --color-info-soft:       #EFF6FF;
+  --color-border-strong-rgb: 203, 213, 225;
 
-  /* Status */
-  --color-danger:         #E53E3E;
-  --color-success:        var(--tenant-primary);
-  --color-warning:        #F5A623;
+  /* Legacy alias used by components during the migration */
+  --hs-primary-navy:       var(--hs-navy);
+  --hs-secondary-gold:     var(--hs-gold);
+}
+
+/* Component Overrides & Framework Utilities */
+.hs-btn, .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--hs-font-sans);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  border-radius: var(--hs-radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--hs-transition);
+}
+.hs-btn-primary, .btn-primary {
+  background-color: var(--hs-navy);
+  color: var(--hs-surface-white);
+}
+.hs-btn-primary:hover, .btn-primary:hover {
+  background-color: var(--hs-navy-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--hs-shadow-md);
+}
+.hs-btn-secondary {
+  background-color: transparent;
+  border-color: var(--hs-gold);
+  color: var(--hs-navy);
+}
+.hs-btn-secondary:hover {
+  background-color: rgba(var(--hs-gold-rgb), 0.08);
+  transform: translateY(-2px);
+}
+.hs-btn-accent {
+  background-color: var(--hs-gold);
+  color: var(--hs-navy);
+}
+.hs-btn-accent:hover {
+  background-color: var(--hs-gold-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--hs-shadow-md);
+}
+
+.hs-card, .card {
+  background: var(--hs-surface-white);
+  border: 1px solid var(--hs-border-light);
+  border-radius: var(--hs-radius-lg);
+  padding: 2rem;
+  box-shadow: var(--hs-shadow-sm);
+  transition: var(--hs-transition);
+}
+.hs-card:hover, .card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--hs-shadow-lg);
+  border-color: rgba(var(--hs-gold-rgb), 0.25);
+}
+.hs-glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--hs-radius-md);
+}
+.sidebar {
+  background: var(--hs-navy);
+  color: var(--hs-surface-white);
 }
 
 @theme inline {
-  --color-ehms-primary:   #2BAE8E;
-  --color-ehms-secondary: #4DB88A;
-  --color-ehms-gold:      #D4A853;
-  --color-ehms-navy:      #1A3C5E;
-  --color-ehms-dark-navy: #0B1A2E;
-  --color-ehms-bg-surface:#0F2438;
-  --color-ehms-sidebar:   #2C3547;
-  --color-ehms-amber:     #F5A623;
-  --color-ehms-light:     #F5F7FA;
-  --color-ehms-text:      #1A2E44;
-  --color-ehms-muted:     #64748B;
-  --color-ehms-border:    #E2E8F0;
-  --color-ehms-danger:    #E53E3E;
+  --color-ehms-primary:      var(--color-primary);
+  --color-ehms-primary-dark: var(--color-primary-dark);
+  --color-ehms-secondary:    var(--color-secondary);
+  --color-ehms-gold:         var(--color-gold);
+  --color-ehms-gold-light:   var(--color-gold-light);
+  --color-ehms-navy:         var(--color-navy);
+  --color-ehms-dark-navy:    var(--color-dark-navy);
+  --color-ehms-bg-surface:   var(--color-bg-surface);
+  --color-ehms-sidebar:      var(--color-sidebar);
+  --color-ehms-amber:        var(--color-warning);
+  --color-ehms-light:        var(--color-light);
+  --color-ehms-white:        var(--color-white);
+  --color-ehms-text:         var(--color-text);
+  --color-ehms-muted:        var(--color-text-muted);
+  --color-ehms-border:       var(--color-border);
+  --color-ehms-danger:       var(--color-danger);
+  --color-ehms-success:      var(--color-success);
+  --color-ehms-info:         var(--color-info);
 }
 
 body {
-  background: var(--color-light);
-  color: var(--color-text);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  background-color: var(--hs-bg-light);
+  color: var(--hs-text-dark);
+  font-family: var(--hs-font-sans);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, .hs-display {
+  font-family: var(--hs-font-sans);
+  color: var(--hs-navy);
+  font-weight: 700;
+  margin-top: 0;
+}
+p, .hs-body {
+  font-family: var(--hs-font-sans);
+  line-height: 1.6;
+  color: var(--hs-text-muted);
 }
 
 /* ─── Animations ─── */
@@ -136,9 +316,7 @@ body {
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-light); }
-::-webkit-scrollbar-thumb { background: var(--color-text-muted); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+::-webkit-scrollbar-thumb { background: var(--hs-text-muted); border-radius: var(--hs-radius-sm); }
 
 /* ─── Smooth Scroll ─── */
 html { scroll-behavior: smooth; }
-

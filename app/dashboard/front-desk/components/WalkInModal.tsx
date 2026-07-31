@@ -215,22 +215,22 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="px-6 py-4 flex items-center justify-between border-b" style={{ borderColor: "#E2E8F0" }}>
+        <div className="px-6 py-4 flex items-center justify-between border-b" style={{ borderColor: "var(--color-border)" }}>
           <div>
-            <h2 className="text-lg font-semibold text-[#1A3C5E] flex items-center gap-2">
-              <UserPlus className="w-5 h-5 text-[#2BAE8E]" /> Walk-In Check-In
+            <h2 className="text-lg font-semibold text-[var(--color-navy)] flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-[var(--color-primary)]" /> Walk-In Check-In
             </h2>
-            <p className="text-sm text-[#64748B]">Create guest and assign a room instantly.</p>
+            <p className="text-sm text-[var(--color-text-muted)]">Create guest and assign a room instantly.</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4">
           {/* Booking Model Selector */}
-          <div className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] space-y-3">
+          <div className="p-3 bg-[var(--color-light)] rounded-lg border border-[var(--color-border)] space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-[#1A2E44] flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-[#2BAE8E]" /> Booking & Billing Model
+              <label className="text-xs font-semibold text-[var(--color-text)] flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-[var(--color-primary)]" /> Booking & Billing Model
               </label>
               <div className="flex gap-1 bg-gray-200 p-0.5 rounded-md">
                 <button
@@ -238,7 +238,7 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
                   onClick={() => handleBookingModelChange("nightly")}
                   className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
                     formData.booking_model === "nightly"
-                      ? "bg-white text-[#1A2E44] shadow-sm font-semibold"
+                      ? "bg-white text-[var(--color-text)] shadow-sm font-semibold"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
@@ -249,7 +249,7 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
                   onClick={() => handleBookingModelChange("hourly")}
                   className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
                     formData.booking_model === "hourly"
-                      ? "bg-[#2BAE8E] text-white shadow-sm font-semibold"
+                      ? "bg-[var(--color-primary)] text-white shadow-sm font-semibold"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
@@ -259,8 +259,8 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
             </div>
 
             {formData.booking_model === "hourly" && (
-              <div className="space-y-2 pt-2 border-t border-[#E2E8F0]">
-                <label className="block text-xs font-medium text-[#1A2E44]">Select Stay Duration Package</label>
+              <div className="space-y-2 pt-2 border-t border-[var(--color-border)]">
+                <label className="block text-xs font-medium text-[var(--color-text)]">Select Stay Duration Package</label>
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { id: "3h", label: "3 Hours", sub: "30% Rate" },
@@ -274,7 +274,7 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
                       onClick={() => handleHourlyPackageChange(pkg.id as any)}
                       className={`p-2 text-center rounded border text-xs transition-all ${
                         formData.hourly_package === pkg.id
-                          ? "border-[#2BAE8E] bg-[#ECFDF5] text-[#065F46] font-semibold ring-1 ring-[#2BAE8E]"
+                          ? "border-[var(--color-primary)] bg-[var(--color-success-soft)] text-[var(--color-success-dark)] font-semibold ring-1 ring-[var(--color-primary)]"
                           : "border-gray-200 bg-white hover:border-gray-300 text-gray-700"
                       }`}
                     >
@@ -289,28 +289,28 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium mb-1 text-[#1A2E44]">First Name</label>
-              <input required type="text" value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]" />
+              <label className="block text-xs font-medium mb-1 text-[var(--color-text)]">First Name</label>
+              <input required type="text" value={formData.first_name} onChange={e => setFormData({...formData, first_name: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]" />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1 text-[#1A2E44]">Last Name</label>
-              <input required type="text" value={formData.last_name} onChange={e => setFormData({...formData, last_name: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]" />
+              <label className="block text-xs font-medium mb-1 text-[var(--color-text)]">Last Name</label>
+              <input required type="text" value={formData.last_name} onChange={e => setFormData({...formData, last_name: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium mb-1 text-[#1A2E44]">Phone Number</label>
-              <input required type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]" />
+              <label className="block text-xs font-medium mb-1 text-[var(--color-text)]">Phone Number</label>
+              <input required type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]" />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1 text-[#1A2E44]">Email Address</label>
-              <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]" />
+              <label className="block text-xs font-medium mb-1 text-[var(--color-text)]">Email Address</label>
+              <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]" />
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4 pt-1">
             <div>
-              <label className="block text-xs font-medium mb-1 text-[#1A2E44]">
+              <label className="block text-xs font-medium mb-1 text-[var(--color-text)]">
                 {formData.booking_model === "hourly" ? "Check-In Date & Time" : "Check-In Date"}
               </label>
               <input
@@ -329,11 +329,11 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
                     }
                   }
                 }}
-                className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]"
+                className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1 text-[#1A2E44]">
+              <label className="block text-xs font-medium mb-1 text-[var(--color-text)]">
                 {formData.booking_model === "hourly" ? "Check-Out Date & Time" : "Check-Out Date"}
               </label>
               <input
@@ -342,17 +342,17 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
                 value={formData.check_out}
                 min={formData.booking_model === "nightly" ? new Date().toISOString().split("T")[0] : undefined}
                 onChange={e => setFormData({...formData, check_out: e.target.value})}
-                className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]"
+                className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]"
               />
             </div>
           </div>
 
           <div className="pt-2 border-t mt-2">
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-medium text-[#1A2E44]">Assign Available Room</label>
-              {loadingUnits && <span className="text-[11px] text-[#2BAE8E] flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Checking time slot availability...</span>}
+              <label className="block text-xs font-medium text-[var(--color-text)]">Assign Available Room</label>
+              {loadingUnits && <span className="text-[11px] text-[var(--color-primary)] flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Checking time slot availability...</span>}
             </div>
-            <select required value={formData.unit_id} onChange={e => setFormData({...formData, unit_id: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#2BAE8E]">
+            <select required value={formData.unit_id} onChange={e => setFormData({...formData, unit_id: e.target.value})} className="w-full p-2.5 text-sm rounded-lg border focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]">
               <option value="" disabled>
                 {loadingUnits ? "Checking room availability..." : `Select Available Room (${unitsToDisplay.length} available)...`}
               </option>
@@ -365,15 +365,15 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
           </div>
 
           {/* Total Estimated Charges Box */}
-          <div className="p-3 bg-[#ECFDF5] border border-[#A7F3D0] rounded-lg flex items-center justify-between">
+          <div className="p-3 bg-[var(--color-success-soft)] border border-[var(--color-success-soft)] rounded-lg flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold text-[#065F46]">Total Estimated Charges</div>
-              <div className="text-[11px] text-[#047857]">
+              <div className="text-xs font-semibold text-[var(--color-success-dark)]">Total Estimated Charges</div>
+              <div className="text-[11px] text-[var(--color-success-dark)]">
                 {formData.booking_model === "hourly" ? `Hourly Flexi-Stay (${formData.custom_hours} hrs package)` : "Standard Nightly Stay"}
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-sm font-bold text-[#065F46]">₹</span>
+              <span className="text-sm font-bold text-[var(--color-success-dark)]">₹</span>
               <input
                 required
                 readOnly
@@ -381,15 +381,15 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
                 step="0.01"
                 value={formData.total_amount}
                 onChange={e => setFormData({...formData, total_amount: e.target.value})}
-                className="w-28 p-1.5 text-right font-bold text-base text-[#065F46] rounded border bg-white border-[#A7F3D0] focus:outline-none"
+                className="w-28 p-1.5 text-right font-bold text-base text-[var(--color-success-dark)] rounded border bg-white border-[var(--color-success-soft)] focus:outline-none"
               />
             </div>
           </div>
           
           <div className="pt-2 border-t mt-2">
-            <label className="block text-xs font-medium mb-1 text-[#1A2E44]">ID Document (KYC)</label>
+            <label className="block text-xs font-medium mb-1 text-[var(--color-text)]">ID Document (KYC)</label>
             <div className="flex items-center justify-center w-full">
-              <label className="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50" style={{ borderColor: "#E2E8F0" }}>
+              <label className="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50" style={{ borderColor: "var(--color-border)" }}>
                 <div className="flex flex-col items-center justify-center pt-3 pb-3 text-center">
                   <Upload className="w-4 h-4 text-gray-400 mb-1" />
                   <p className="text-[11px] text-gray-500">Click to upload Passport / ID</p>
@@ -401,12 +401,12 @@ export default function WalkInModal({ isOpen, onClose, onSuccess, propertyId: pr
                 }} />
               </label>
             </div>
-            {formData.id_document && <p className="text-xs text-[#2BAE8E] mt-1 text-center">Selected: {formData.id_document}</p>}
+            {formData.id_document && <p className="text-xs text-[var(--color-primary)] mt-1 text-center">Selected: {formData.id_document}</p>}
           </div>
 
           <div className="pt-4 flex justify-end gap-3 border-t mt-4">
             <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>Cancel</Button>
-            <Button type="submit" disabled={submitting} className="bg-[#2BAE8E] hover:bg-[#239B7E] text-white">
+            <Button type="submit" disabled={submitting} className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white">
               {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <DoorOpen className="w-4 h-4 mr-2" />} Complete Walk-In Check-In
             </Button>
           </div>

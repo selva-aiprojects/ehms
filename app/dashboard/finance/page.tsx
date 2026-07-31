@@ -30,7 +30,7 @@ const INVOICE_BADGE: Record<string, "teal" | "red" | "navy" | "amber" | "gray"> 
 };
 
 function SkeletonBox() {
-  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}><div className="w-16 h-8 rounded mb-2" style={{ background: "#CBD5E1" }} /><div className="w-20 h-3 rounded" style={{ background: "#CBD5E1" }} /></div>;
+  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}><div className="w-16 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} /><div className="w-20 h-3 rounded" style={{ background: "var(--color-border-strong)" }} /></div>;
 }
 
 export default function FinancePage() {
@@ -100,7 +100,7 @@ export default function FinancePage() {
         const total = Object.values(finance.byMethod as Record<string, number>).reduce((a, b) => a + Number(b), 0);
         const pct = total > 0 ? Math.round((Number(amount) / total) * 100) : 0;
         const methodLabels: Record<string, string> = { card: "Card Payments", upi: "UPI / Wallet", bank_transfer: "Bank Transfer", cash: "Cash / POS", other: "Other Payments" };
-        const colors = ["#1A3C5E", "#2BAE8E", "#F5A623", "#64748B", "#94A3B8"];
+        const colors = ["var(--color-navy)", "var(--color-primary)", "var(--color-warning)", "var(--color-text-muted)", "var(--color-text-faint)"];
         return {
           method: methodLabels[method] || method.toUpperCase(),
           amount: formatCurrency(Number(amount)),
@@ -148,16 +148,16 @@ export default function FinancePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Finance & General Ledger</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Real-time P&L, invoices & bank reconciliation</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Finance & General Ledger</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Real-time P&L, invoices & bank reconciliation</p>
         </div>
         <div className="flex items-center gap-2">
           {isLoading && (
-            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
+            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
               <Loader2 className="w-3 h-3 animate-spin" /> Syncing
             </div>
           )}
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -179,7 +179,7 @@ export default function FinancePage() {
         ].map((item) => (
           <Link key={item.href} href={item.href}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:opacity-80"
-            style={{ background: "rgba(43,174,142,0.1)", color: "#2BAE8E" }}
+            style={{ background: "rgba(var(--color-primary-rgb),0.1)", color: "var(--color-primary)" }}
           >
             <item.icon className="w-3.5 h-3.5" />
             {item.label}
@@ -188,7 +188,7 @@ export default function FinancePage() {
       </div>
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" />
           Could not load live financial data. Displaying mock data.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
@@ -199,9 +199,9 @@ export default function FinancePage() {
         <div
           className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
           style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
           }}
         >
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -214,7 +214,7 @@ export default function FinancePage() {
           Array.from({ length: 4 }).map((_, i) => <SkeletonBox key={i} />)
         ) : (
           <>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-lg font-bold">{formatCurrency(mtdRevenue)}</div>
                 <TrendingUp className="w-5 h-5 opacity-60" />
@@ -222,7 +222,7 @@ export default function FinancePage() {
               <div className="text-xs opacity-80">Revenue MTD</div>
               <div className="text-[10px] mt-0.5 opacity-60">+12.3% vs last month</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#E53E3E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-danger)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-lg font-bold">{formatCurrency(totalOutstanding)}</div>
                 <TrendingDown className="w-5 h-5 opacity-60" />
@@ -230,7 +230,7 @@ export default function FinancePage() {
               <div className="text-xs opacity-80">Outstanding AR</div>
               <div className="text-[10px] mt-0.5 opacity-60">-2.1% vs last month</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-lg font-bold">{formatCurrency(vendorPayouts)}</div>
                 <Banknote className="w-5 h-5 opacity-60" />
@@ -238,7 +238,7 @@ export default function FinancePage() {
               <div className="text-xs opacity-80">Vendor Payouts</div>
               <div className="text-[10px] mt-0.5 opacity-60">This month</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-lg font-bold">{reconciledPct}%</div>
                 <Percent className="w-5 h-5 opacity-60" />
@@ -256,24 +256,24 @@ export default function FinancePage() {
           {isLoadingDisplay ? (
             <div className="space-y-2">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-10 rounded animate-pulse" style={{ background: "#F5F7FA" }} />
+                <div key={i} className="h-10 rounded animate-pulse" style={{ background: "var(--color-light)" }} />
               ))}
             </div>
           ) : invoices.length === 0 ? (
             <div className="text-center py-8">
-              <Receipt className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No invoices found</p>
+              <Receipt className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No invoices found</p>
             </div>
           ) : (
             <Table
               data={invoices}
               keyExtractor={(_, i) => String(i)}
               columns={[
-                { key: "id", header: "Invoice #", render: (inv) => <span className="font-mono text-xs" style={{ color: "#2BAE8E" }}>{inv.id}</span> },
+                { key: "id", header: "Invoice #", render: (inv) => <span className="font-mono text-xs" style={{ color: "var(--color-primary)" }}>{inv.id}</span> },
                 { key: "guest_name", header: "Guest / Tenant", render: (inv) => <span className="text-sm">{inv.guest_name || inv.guest || "\u2014"}</span> },
-                { key: "property_name", header: "Property", render: (inv) => <span className="text-xs" style={{ color: "#64748B" }}>{inv.property_name || inv.property || "\u2014"}</span> },
+                { key: "property_name", header: "Property", render: (inv) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{inv.property_name || inv.property || "\u2014"}</span> },
                 { key: "grand_total", header: "Amount", render: (inv) => <span className="font-medium">{'\u20B9'}{(inv.grand_total || inv.amount || 0).toLocaleString()}</span> },
-                { key: "due_date", header: "Due Date", render: (inv) => <span className="text-xs" style={{ color: "#64748B" }}>{inv.due_date || "\u2014"}</span> },
+                { key: "due_date", header: "Due Date", render: (inv) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{inv.due_date || "\u2014"}</span> },
                 { key: "status", header: "Status", render: (inv) => (
                   <Badge variant={INVOICE_BADGE[inv.status] || "gray"}>{inv.status}</Badge>
                 )},
@@ -288,16 +288,16 @@ export default function FinancePage() {
               <div className="text-center py-6 text-xs text-slate-400 font-medium">No bank accounts linked yet</div>
             ) : (
               MOCK_BANKS.map((b, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-                  <div className="text-sm" style={{ color: "#1A2E44" }}>{b.bank}</div>
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                  <div className="text-sm" style={{ color: "var(--color-text)" }}>{b.bank}</div>
                   <Badge variant={b.v}>{b.status}</Badge>
                 </div>
               ))
             )}
           </div>
           {invoices.length > 0 && (
-            <div className="mt-4 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+            <div className="mt-4 pt-3 text-center" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button className="text-xs font-medium hover:underline" style={{ color: "var(--color-primary)" }}>
                 Run Reconciliation
               </button>
             </div>
@@ -309,43 +309,43 @@ export default function FinancePage() {
         <CardHeader title="Profit & Loss Summary" subtitle="Oceanview Hotel \u00B7 June 2026" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
           <div>
-            <h4 className="font-semibold mb-2 flex items-center gap-1.5" style={{ color: "#2BAE8E" }}>
+            <h4 className="font-semibold mb-2 flex items-center gap-1.5" style={{ color: "var(--color-primary)" }}>
               <TrendingUp className="w-4 h-4" /> Revenue
             </h4>
             <div className="space-y-1.5">
               {revenueItems.map((r) => (
                 <div key={r.label} className="flex justify-between">
-                  <span style={{ color: "#64748B" }}>{r.label}</span>
-                  <span style={{ color: "#1A2E44" }}>{formatCurrency(r.amount)}</span>
+                  <span style={{ color: "var(--color-text-muted)" }}>{r.label}</span>
+                  <span style={{ color: "var(--color-text)" }}>{formatCurrency(r.amount)}</span>
                 </div>
               ))}
-              <div className="flex justify-between font-semibold pt-1" style={{ borderTop: "1px solid #E2E8F0", color: "#1A3C5E" }}>
+              <div className="flex justify-between font-semibold pt-1" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-navy)" }}>
                 <span>Total Revenue</span><span>{formatCurrency(totalRevenue)}</span>
               </div>
             </div>
           </div>
           <div>
-            <h4 className="font-semibold mb-2 flex items-center gap-1.5" style={{ color: "#E53E3E" }}>
+            <h4 className="font-semibold mb-2 flex items-center gap-1.5" style={{ color: "var(--color-danger)" }}>
               <TrendingDown className="w-4 h-4" /> Expenses
             </h4>
             <div className="space-y-1.5">
               {expenseItems.map((r) => (
                 <div key={r.label} className="flex justify-between">
-                  <span style={{ color: "#64748B" }}>{r.label}</span>
-                  <span style={{ color: "#1A2E44" }}>{formatCurrency(r.amount)}</span>
+                  <span style={{ color: "var(--color-text-muted)" }}>{r.label}</span>
+                  <span style={{ color: "var(--color-text)" }}>{formatCurrency(r.amount)}</span>
                 </div>
               ))}
-              <div className="flex justify-between font-semibold pt-1" style={{ borderTop: "1px solid #E2E8F0", color: "#1A3C5E" }}>
+              <div className="flex justify-between font-semibold pt-1" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-navy)" }}>
                 <span>Total Expenses</span><span>{formatCurrency(totalExpenses)}</span>
               </div>
             </div>
           </div>
-          <div className="flex flex-col justify-center items-center p-6 rounded-xl" style={{ background: "#F5F7FA" }}>
-            <div className="text-xs font-medium mb-1 flex items-center gap-1" style={{ color: "#64748B" }}>
+          <div className="flex flex-col justify-center items-center p-6 rounded-xl" style={{ background: "var(--color-light)" }}>
+            <div className="text-xs font-medium mb-1 flex items-center gap-1" style={{ color: "var(--color-text-muted)" }}>
               <BarChart3 className="w-4 h-4" /> NET PROFIT
             </div>
-            <div className="text-3xl font-bold" style={{ color: "#2BAE8E" }}>{formatCurrency(netProfit)}</div>
-            <div className="text-xs mt-1 flex items-center gap-1" style={{ color: "#2BAE8E" }}>
+            <div className="text-3xl font-bold" style={{ color: "var(--color-primary)" }}>{formatCurrency(netProfit)}</div>
+            <div className="text-xs mt-1 flex items-center gap-1" style={{ color: "var(--color-primary)" }}>
               <TrendingUp className="w-3 h-3" /> {profitMargin}% margin
             </div>
           </div>
@@ -359,9 +359,9 @@ export default function FinancePage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             {methodBreakdown.map((m: any) => (
-              <div key={m.method} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+              <div key={m.method} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                 <div className="text-lg font-bold" style={{ color: m.color }}>{m.amount}</div>
-                <div className="text-xs" style={{ color: "#64748B" }}>{m.method}</div>
+                <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{m.method}</div>
                 <div className="text-[10px] mt-0.5" style={{ color: m.color }}>{m.pct} share</div>
               </div>
             ))}
@@ -381,24 +381,24 @@ export default function FinancePage() {
               return (
                 <div key={m.month} className="text-sm">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium" style={{ color: "#1A2E44" }}>{m.month}</span>
+                    <span className="font-medium" style={{ color: "var(--color-text)" }}>{m.month}</span>
                     <div className="flex items-center gap-3">
-                      <span className="text-xs" style={{ color: "#64748B" }}>B: {formatCurrency(m.budget)}</span>
-                      <span className="text-xs" style={{ color: "#2BAE8E" }}>A: {formatCurrency(m.actual)}</span>
+                      <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>B: {formatCurrency(m.budget)}</span>
+                      <span className="text-xs" style={{ color: "var(--color-primary)" }}>A: {formatCurrency(m.actual)}</span>
                       <span className={`text-xs font-medium ${variance >= 0 ? "text-green-600" : "text-red-500"}`}>
                         {variance >= 0 ? "+" : ""}{variance.toFixed(1)}%
                       </span>
                     </div>
                   </div>
                   <div className="flex gap-1 items-center h-5">
-                    <div className="flex-1 h-2 rounded-full" style={{ background: "#E2E8F0", position: "relative" }}>
-                      <div className="absolute h-full rounded-full" style={{ width: `${(m.budget / maxVal) * 100}%`, background: "#94A3B8", opacity: 0.6 }} />
+                    <div className="flex-1 h-2 rounded-full" style={{ background: "var(--color-border)", position: "relative" }}>
+                      <div className="absolute h-full rounded-full" style={{ width: `${(m.budget / maxVal) * 100}%`, background: "var(--color-text-faint)", opacity: 0.6 }} />
                     </div>
-                    <div className="flex-1 h-2 rounded-full" style={{ background: "#E2E8F0", position: "relative" }}>
-                      <div className="absolute h-full rounded-full" style={{ width: `${(m.actual / maxVal) * 100}%`, background: variance >= 0 ? "#2BAE8E" : "#E53E3E" }} />
+                    <div className="flex-1 h-2 rounded-full" style={{ background: "var(--color-border)", position: "relative" }}>
+                      <div className="absolute h-full rounded-full" style={{ width: `${(m.actual / maxVal) * 100}%`, background: variance >= 0 ? "var(--color-primary)" : "var(--color-danger)" }} />
                     </div>
                   </div>
-                  <div className="flex justify-between text-[10px]" style={{ color: "#94A3B8" }}>
+                  <div className="flex justify-between text-[10px]" style={{ color: "var(--color-text-faint)" }}>
                     <span>Budget</span>
                     <span>Actual</span>
                   </div>
@@ -419,29 +419,29 @@ export default function FinancePage() {
               {cashFlowItems.map((group) => {
                 const total = group.items.reduce((s, i) => s + i.amount, 0);
                 return (
-                  <div key={group.category} className="p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
-                    <h4 className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "#64748B" }}>{group.category}</h4>
+                  <div key={group.category} className="p-4 rounded-lg" style={{ background: "var(--color-light)" }}>
+                    <h4 className="text-xs font-semibold mb-2 uppercase tracking-wider" style={{ color: "var(--color-text-muted)" }}>{group.category}</h4>
                     <div className="space-y-1.5">
                       {group.items.map((item) => (
                         <div key={item.label} className="flex items-center justify-between text-sm">
-                          <span style={{ color: "#1A2E44" }}>{item.label}</span>
-                          <span className={`font-medium`} style={{ color: item.amount >= 0 ? "#2BAE8E" : "#E53E3E" }}>
+                          <span style={{ color: "var(--color-text)" }}>{item.label}</span>
+                          <span className={`font-medium`} style={{ color: item.amount >= 0 ? "var(--color-primary)" : "var(--color-danger)" }}>
                             {item.amount >= 0 ? "+" : ""}{formatCurrency(Math.abs(item.amount))}
                           </span>
                         </div>
                       ))}
                     </div>
-                    <div className="mt-2 pt-2 flex items-center justify-between text-sm font-semibold" style={{ borderTop: "1px solid #E2E8F0", color: "#1A3C5E" }}>
+                    <div className="mt-2 pt-2 flex items-center justify-between text-sm font-semibold" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-navy)" }}>
                       <span>Net</span>
-                      <span style={{ color: total >= 0 ? "#2BAE8E" : "#E53E3E" }}>{total >= 0 ? "+" : ""}{formatCurrency(Math.abs(total))}</span>
+                      <span style={{ color: total >= 0 ? "var(--color-primary)" : "var(--color-danger)" }}>{total >= 0 ? "+" : ""}{formatCurrency(Math.abs(total))}</span>
                     </div>
                   </div>
                 );
               })}
             </div>
-            <div className="mt-4 pt-3 flex items-center justify-between text-sm" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <span className="font-semibold" style={{ color: "#1A3C5E" }}>Net Cash Flow</span>
-              <span className="font-bold text-lg" style={{ color: "#2BAE8E" }}>+{formatCurrency(cashFlowItems.reduce((acc, group) => acc + group.items.reduce((s, i) => s + i.amount, 0), 0))}</span>
+            <div className="mt-4 pt-3 flex items-center justify-between text-sm" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <span className="font-semibold" style={{ color: "var(--color-navy)" }}>Net Cash Flow</span>
+              <span className="font-bold text-lg" style={{ color: "var(--color-primary)" }}>+{formatCurrency(cashFlowItems.reduce((acc, group) => acc + group.items.reduce((s, i) => s + i.amount, 0), 0))}</span>
             </div>
           </>
         )}
@@ -458,30 +458,30 @@ export default function FinancePage() {
                 {taxQuarters.map((q) => {
                   const badgeVariant = q.status === "paid" ? "teal" as const : q.status === "pending" ? "amber" as const : "gray" as const;
                   return (
-                    <div key={q.quarter} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                    <div key={q.quarter} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>{q.quarter}</span>
+                        <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{q.quarter}</span>
                         <Badge variant={badgeVariant}>{q.status}</Badge>
                       </div>
                       <div className="grid grid-cols-2 gap-3 text-xs">
-                        <div className="p-2 rounded" style={{ background: "rgba(42,157,143,0.08)" }}>
-                          <span style={{ color: "#64748B" }}>GST</span>
-                          <div className="font-semibold" style={{ color: "#2BAE8E" }}>{'\u20B9'}{q.gst.toLocaleString()}</div>
+                        <div className="p-2 rounded" style={{ background: "rgba(var(--color-primary-dark-rgb),0.08)" }}>
+                          <span style={{ color: "var(--color-text-muted)" }}>GST</span>
+                          <div className="font-semibold" style={{ color: "var(--color-primary)" }}>{'\u20B9'}{q.gst.toLocaleString()}</div>
                         </div>
-                        <div className="p-2 rounded" style={{ background: "rgba(26,60,94,0.08)" }}>
-                          <span style={{ color: "#64748B" }}>Income Tax</span>
-                          <div className="font-semibold" style={{ color: "#1A3C5E" }}>{'\u20B9'}{q.incomeTax.toLocaleString()}</div>
+                        <div className="p-2 rounded" style={{ background: "rgba(var(--color-navy-rgb),0.08)" }}>
+                          <span style={{ color: "var(--color-text-muted)" }}>Income Tax</span>
+                          <div className="font-semibold" style={{ color: "var(--color-navy)" }}>{'\u20B9'}{q.incomeTax.toLocaleString()}</div>
                         </div>
                       </div>
-                      <div className="mt-1.5 text-[10px] flex items-center gap-1" style={{ color: "#94A3B8" }}>
+                      <div className="mt-1.5 text-[10px] flex items-center gap-1" style={{ color: "var(--color-text-faint)" }}>
                         <CalendarDays className="w-3 h-3" /> Due: {q.deadline}
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-                <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+              <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid var(--color-border)" }}>
+                <button className="text-xs font-medium hover:underline" style={{ color: "var(--color-primary)" }}>
                   View Tax Filing Dashboard
                 </button>
               </div>
@@ -502,7 +502,7 @@ export default function FinancePage() {
                   return (
                     <div key={m.month} className="text-sm">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium" style={{ color: "#1A2E44" }}>{m.month}</span>
+                        <span className="font-medium" style={{ color: "var(--color-text)" }}>{m.month}</span>
                         <div className="flex items-center gap-2">
                           <span className={`text-xs ${growth >= 0 ? "text-green-600" : "text-red-500"}`}>
                             {growth >= 0 ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
@@ -512,21 +512,21 @@ export default function FinancePage() {
                       </div>
                       <div className="flex gap-0.5 items-end h-6">
                         <div className="flex-1 flex flex-col items-center">
-                          <div className="text-[9px]" style={{ color: "#94A3B8" }}>{formatCurrency(m.lastYear)}</div>
-                          <div className="w-full rounded-t-sm" style={{ height: `${(m.lastYear / maxVal) * 100}%`, background: "#CBD5E1", maxHeight: "24px", minHeight: "4px" }} />
+                          <div className="text-[9px]" style={{ color: "var(--color-text-faint)" }}>{formatCurrency(m.lastYear)}</div>
+                          <div className="w-full rounded-t-sm" style={{ height: `${(m.lastYear / maxVal) * 100}%`, background: "var(--color-border-strong)", maxHeight: "24px", minHeight: "4px" }} />
                         </div>
                         <div className="flex-1 flex flex-col items-center">
-                          <div className="text-[9px]" style={{ color: "#2BAE8E" }}>{formatCurrency(m.thisYear)}</div>
-                          <div className="w-full rounded-t-sm" style={{ height: `${(m.thisYear / maxVal) * 100}%`, background: "#2BAE8E", maxHeight: "24px", minHeight: "4px" }} />
+                          <div className="text-[9px]" style={{ color: "var(--color-primary)" }}>{formatCurrency(m.thisYear)}</div>
+                          <div className="w-full rounded-t-sm" style={{ height: `${(m.thisYear / maxVal) * 100}%`, background: "var(--color-primary)", maxHeight: "24px", minHeight: "4px" }} />
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <div className="mt-3 pt-3 flex items-center justify-center gap-4 text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#CBD5E1" }} /> 2025</span>
-                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#2BAE8E" }} /> 2026</span>
+              <div className="mt-3 pt-3 flex items-center justify-center gap-4 text-xs" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "var(--color-border-strong)" }} /> 2025</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "var(--color-primary)" }} /> 2026</span>
               </div>
             </>
           )}
@@ -544,14 +544,14 @@ export default function FinancePage() {
                 const isPositive = Number(txn.amount) >= 0;
                 const timeStr = txn.payment_date ? new Date(txn.payment_date).toLocaleDateString("en-IN") : "—";
                 return (
-                  <div key={txn.id || i} className="flex items-center justify-between py-2.5 text-sm" style={{ borderBottom: i < recentPayments.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                  <div key={txn.id || i} className="flex items-center justify-between py-2.5 text-sm" style={{ borderBottom: i < recentPayments.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: isPositive ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.1)" }}>
-                        {isPositive ? <ArrowUpRight className="w-4 h-4" style={{ color: "#2BAE8E" }} /> : <ArrowDownRight className="w-4 h-4" style={{ color: "#E53E3E" }} />}
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: isPositive ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.1)" }}>
+                        {isPositive ? <ArrowUpRight className="w-4 h-4" style={{ color: "var(--color-primary)" }} /> : <ArrowDownRight className="w-4 h-4" style={{ color: "var(--color-danger)" }} />}
                       </div>
                       <div>
-                        <div className="font-medium" style={{ color: "#1A2E44" }}>Payment for Invoice #{txn.invoice_number || "—"}</div>
-                        <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+                        <div className="font-medium" style={{ color: "var(--color-text)" }}>Payment for Invoice #{txn.invoice_number || "—"}</div>
+                        <div className="flex items-center gap-2 text-xs" style={{ color: "var(--color-text-muted)" }}>
                           <span>{timeStr}</span>
                           <span>&middot;</span>
                           <span>{txn.payment_method || "Other"}</span>
@@ -559,7 +559,7 @@ export default function FinancePage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`font-medium`} style={{ color: isPositive ? "#1A3C5E" : "#E53E3E" }}>
+                      <span className={`font-medium`} style={{ color: isPositive ? "var(--color-navy)" : "var(--color-danger)" }}>
                         {isPositive ? "+" : ""}&#8377;{Math.abs(Number(txn.amount)).toLocaleString()}
                       </span>
                       <Badge variant="teal">{txn.status || "completed"}</Badge>
@@ -568,8 +568,8 @@ export default function FinancePage() {
                 );
               })}
             </div>
-            <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <Link href="/dashboard/finance/receivables" className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+            <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <Link href="/dashboard/finance/receivables" className="text-xs font-medium hover:underline" style={{ color: "var(--color-primary)" }}>
                 View All Transactions
               </Link>
             </div>
@@ -579,3 +579,4 @@ export default function FinancePage() {
     </div>
   );
 }
+

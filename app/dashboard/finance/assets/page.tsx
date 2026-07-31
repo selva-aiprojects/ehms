@@ -19,9 +19,9 @@ const CATEGORIES = ["Furniture", "Electronics", "Vehicles", "Machinery", "IT Equ
 
 function SkeletonRow() {
   return (
-    <div className="flex gap-4 p-4 animate-pulse rounded-lg" style={{ background: "#F5F7FA" }}>
+    <div className="flex gap-4 p-4 animate-pulse rounded-lg" style={{ background: "var(--color-light)" }}>
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="flex-1 h-5 rounded" style={{ background: "#E2E8F0" }} />
+        <div key={i} className="flex-1 h-5 rounded" style={{ background: "var(--color-border)" }} />
       ))}
     </div>
   );
@@ -70,8 +70,8 @@ export default function AssetsPage() {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-52 rounded animate-pulse" style={{ background: "#E2E8F0" }} />
-          <div className="h-5 w-28 rounded animate-pulse" style={{ background: "#E2E8F0" }} />
+          <div className="h-8 w-52 rounded animate-pulse" style={{ background: "var(--color-border)" }} />
+          <div className="h-5 w-28 rounded animate-pulse" style={{ background: "var(--color-border)" }} />
         </div>
         <div className="grid grid-cols-3 gap-4">{Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)}</div>
         <SkeletonRow /><SkeletonRow /><SkeletonRow />
@@ -83,14 +83,14 @@ export default function AssetsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Fixed Assets Register</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Track asset value, depreciation and disposal</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Fixed Assets Register</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Track asset value, depreciation and disposal</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleRefresh} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={handleRefresh} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#1A3C5E" }}>
+          <button onClick={() => setShowModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-navy)" }}>
             <Plus className="w-3.5 h-3.5" /> Add Asset
           </button>
         </div>
@@ -98,9 +98,9 @@ export default function AssetsPage() {
 
       {actionFeedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-          color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+          background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
         }}>
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {actionFeedback.message}
@@ -108,14 +108,14 @@ export default function AssetsPage() {
       )}
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" /> Failed to load assets data.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-lg font-bold">{formatCurrency(totalPurchaseCost)}</div>
             <DollarSign className="w-5 h-5 opacity-60" />
@@ -123,7 +123,7 @@ export default function AssetsPage() {
           <div className="text-xs opacity-80">Total Asset Value</div>
           <div className="text-[10px] mt-0.5 opacity-60">{assets.length} assets</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-lg font-bold">{formatCurrency(totalBookValue)}</div>
             <Building2 className="w-5 h-5 opacity-60" />
@@ -131,7 +131,7 @@ export default function AssetsPage() {
           <div className="text-xs opacity-80">Book Value</div>
           <div className="text-[10px] mt-0.5 opacity-60">Net carrying value</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#F5A623" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-warning)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-lg font-bold">{formatCurrency(totalDepreciation)}</div>
             <Package className="w-5 h-5 opacity-60" />
@@ -153,9 +153,9 @@ export default function AssetsPage() {
                   onClick={() => setStatusFilter(s)}
                   className="px-3 py-1 text-xs font-medium rounded-full capitalize transition-colors"
                   style={{
-                    background: statusFilter === s ? "#1A3C5E" : "#F5F7FA",
-                    color: statusFilter === s ? "#FFFFFF" : "#64748B",
-                    border: statusFilter === s ? "none" : "1px solid #E2E8F0",
+                    background: statusFilter === s ? "var(--color-navy)" : "var(--color-light)",
+                    color: statusFilter === s ? "var(--color-white)" : "var(--color-text-muted)",
+                    border: statusFilter === s ? "none" : "1px solid var(--color-border)",
                   }}
                 >
                   {s === "all" ? "All" : s.replace("_", " ")}
@@ -166,9 +166,9 @@ export default function AssetsPage() {
         />
         {assets.length === 0 ? (
           <div className="text-center py-12">
-            <Package className="w-8 h-8 mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm font-medium" style={{ color: "#64748B" }}>No fixed assets found</p>
-            <p className="text-xs mt-1" style={{ color: "#94A3B8" }}>Add an asset to start the register</p>
+            <Package className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--color-border-strong)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--color-text-muted)" }}>No fixed assets found</p>
+            <p className="text-xs mt-1" style={{ color: "var(--color-text-faint)" }}>Add an asset to start the register</p>
           </div>
         ) : (
           <Table
@@ -176,18 +176,18 @@ export default function AssetsPage() {
             keyExtractor={(item: any, i) => item.id || String(i)}
             onRowClick={(item: any) => setSelectedAsset(item)}
             columns={[
-              { key: "asset_code", header: "Asset Code", render: (a: any) => <span className="font-mono text-xs font-medium" style={{ color: "#1A3C5E" }}>{a.asset_code || "—"}</span> },
+              { key: "asset_code", header: "Asset Code", render: (a: any) => <span className="font-mono text-xs font-medium" style={{ color: "var(--color-navy)" }}>{a.asset_code || "—"}</span> },
               { key: "asset_name", header: "Asset Name", render: (a: any) => <span className="text-sm">{a.asset_name || "—"}</span> },
-              { key: "category", header: "Category", render: (a: any) => <span className="text-xs" style={{ color: "#64748B" }}>{a.category || "—"}</span> },
-              { key: "purchase_date", header: "Purchase Date", render: (a: any) => <span className="text-xs" style={{ color: "#64748B" }}>{a.purchase_date ? formatDate(a.purchase_date) : "—"}</span> },
+              { key: "category", header: "Category", render: (a: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{a.category || "—"}</span> },
+              { key: "purchase_date", header: "Purchase Date", render: (a: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{a.purchase_date ? formatDate(a.purchase_date) : "—"}</span> },
               { key: "purchase_cost", header: "Cost", render: (a: any) => <span className="font-medium">{formatCurrency(a.purchase_cost ?? 0)}</span> },
-              { key: "book_value", header: "Book Value", render: (a: any) => <span className="font-medium" style={{ color: a.book_value ? "#2BAE8E" : "#64748B" }}>{formatCurrency(a.book_value ?? 0)}</span> },
+              { key: "book_value", header: "Book Value", render: (a: any) => <span className="font-medium" style={{ color: a.book_value ? "var(--color-primary)" : "var(--color-text-muted)" }}>{formatCurrency(a.book_value ?? 0)}</span> },
               { key: "depreciation_pct", header: "Depr. %", render: (a: any) => {
                 const pct = a.purchase_cost && a.purchase_cost > 0 ? ((1 - (a.book_value ?? 0) / a.purchase_cost) * 100).toFixed(1) : "0.0";
-                return <span className="text-xs" style={{ color: "#64748B" }}>{pct}%</span>;
+                return <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{pct}%</span>;
               }},
               { key: "status", header: "Status", render: (a: any) => <Badge variant={ASSET_BADGE[a.status] || "gray"}>{a.status ? a.status.replace("_", " ") : "—"}</Badge> },
-              { key: "location", header: "Location", render: (a: any) => <span className="text-xs" style={{ color: "#64748B" }}>{a.location || "—"}</span> },
+              { key: "location", header: "Location", render: (a: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{a.location || "—"}</span> },
             ]}
           />
         )}
@@ -198,7 +198,7 @@ export default function AssetsPage() {
           <CardHeader
             title={selectedAsset.asset_name || "Asset Detail"}
             subtitle={`${selectedAsset.asset_code || ""} · ${selectedAsset.category || ""}`}
-            action={<button onClick={() => setSelectedAsset(null)} className="p-1 rounded text-xs font-medium" style={{ color: "#64748B" }}>Close</button>}
+            action={<button onClick={() => setSelectedAsset(null)} className="p-1 rounded text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Close</button>}
           />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             {[
@@ -211,27 +211,27 @@ export default function AssetsPage() {
               { label: "Assigned To", value: selectedAsset.assigned_to || "—" },
               { label: "Status", value: selectedAsset.status?.replace("_", " ") || "—" },
             ].map((d) => (
-              <div key={d.label} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-                <div className="text-xs" style={{ color: "#64748B" }}>{d.label}</div>
-                <div className="text-sm font-semibold mt-0.5" style={{ color: "#1A2E44" }}>{d.value}</div>
+              <div key={d.label} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{d.label}</div>
+                <div className="text-sm font-semibold mt-0.5" style={{ color: "var(--color-text)" }}>{d.value}</div>
               </div>
             ))}
           </div>
           {selectedAsset.notes && (
-            <p className="text-sm mb-4 p-3 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>{selectedAsset.notes}</p>
+            <p className="text-sm mb-4 p-3 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>{selectedAsset.notes}</p>
           )}
           <div>
-            <h4 className="text-sm font-semibold mb-2" style={{ color: "#1A3C5E" }}>Depreciation Schedule</h4>
+            <h4 className="text-sm font-semibold mb-2" style={{ color: "var(--color-navy)" }}>Depreciation Schedule</h4>
             {!depreciation || depreciation.length === 0 ? (
-              <p className="text-xs py-4 text-center" style={{ color: "#94A3B8" }}>No depreciation entries recorded yet</p>
+              <p className="text-xs py-4 text-center" style={{ color: "var(--color-text-faint)" }}>No depreciation entries recorded yet</p>
             ) : (
               <Table
                 data={depreciation}
                 keyExtractor={(item: any, i) => item.id || String(i)}
                 columns={[
-                  { key: "period", header: "Period", render: (d: any) => <span className="text-xs" style={{ color: "#64748B" }}>{d.period || "—"}</span> },
+                  { key: "period", header: "Period", render: (d: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{d.period || "—"}</span> },
                   { key: "amount", header: "Amount", render: (d: any) => <span className="font-medium">{formatCurrency(d.amount ?? 0)}</span> },
-                  { key: "book_value_after", header: "Book Value", render: (d: any) => <span className="text-xs" style={{ color: "#64748B" }}>{formatCurrency(d.book_value_after ?? 0)}</span> },
+                  { key: "book_value_after", header: "Book Value", render: (d: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{formatCurrency(d.book_value_after ?? 0)}</span> },
                   { key: "is_posted", header: "Status", render: (d: any) => <Badge variant={d.is_posted ? "teal" : "amber"}>{d.is_posted ? "Posted" : "Draft"}</Badge> },
                 ]}
               />
@@ -243,64 +243,64 @@ export default function AssetsPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.4)" }}>
           <div className="bg-white rounded-xl w-full max-w-lg mx-4 p-6" style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}>
-            <h2 className="text-base font-bold mb-4" style={{ color: "#1A3C5E" }}>Add Fixed Asset</h2>
+            <h2 className="text-base font-bold mb-4" style={{ color: "var(--color-navy)" }}>Add Fixed Asset</h2>
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Asset Code</label>
-                  <input value={form.asset_code} onChange={(e) => setForm({ ...form, asset_code: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} placeholder="AST-001" />
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Asset Code</label>
+                  <input value={form.asset_code} onChange={(e) => setForm({ ...form, asset_code: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} placeholder="AST-001" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Asset Name</label>
-                  <input value={form.asset_name} onChange={(e) => setForm({ ...form, asset_name: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} placeholder="Laptop / Desk / AC" />
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Asset Name</label>
+                  <input value={form.asset_name} onChange={(e) => setForm({ ...form, asset_name: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} placeholder="Laptop / Desk / AC" />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Category</label>
-                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44", background: "#FFFFFF" }}>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Category</label>
+                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)", background: "var(--color-white)" }}>
                   <option value="">Select category</option>
                   {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Purchase Date</label>
-                  <input type="date" value={form.purchase_date} onChange={(e) => setForm({ ...form, purchase_date: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} />
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Purchase Date</label>
+                  <input type="date" value={form.purchase_date} onChange={(e) => setForm({ ...form, purchase_date: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Purchase Cost</label>
-                  <input type="number" value={form.purchase_cost || ""} onChange={(e) => setForm({ ...form, purchase_cost: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} />
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Purchase Cost</label>
+                  <input type="number" value={form.purchase_cost || ""} onChange={(e) => setForm({ ...form, purchase_cost: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Salvage Value</label>
-                  <input type="number" value={form.salvage_value || ""} onChange={(e) => setForm({ ...form, salvage_value: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} />
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Salvage Value</label>
+                  <input type="number" value={form.salvage_value || ""} onChange={(e) => setForm({ ...form, salvage_value: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Useful Life (yrs)</label>
-                  <input type="number" value={form.useful_life_yrs || ""} onChange={(e) => setForm({ ...form, useful_life_yrs: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} />
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Useful Life (yrs)</label>
+                  <input type="number" value={form.useful_life_yrs || ""} onChange={(e) => setForm({ ...form, useful_life_yrs: Number(e.target.value) })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Depreciation Method</label>
-                <select value={form.depreciation_method} onChange={(e) => setForm({ ...form, depreciation_method: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44", background: "#FFFFFF" }}>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Depreciation Method</label>
+                <select value={form.depreciation_method} onChange={(e) => setForm({ ...form, depreciation_method: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)", background: "var(--color-white)" }}>
                   <option value="straight_line">Straight Line</option>
                   <option value="declining">Declining Balance</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Location</label>
-                <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} placeholder="Floor 3 / Room 201" />
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Location</label>
+                <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} placeholder="Floor 3 / Room 201" />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Notes</label>
-                <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }} rows={2} />
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Notes</label>
+                <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="w-full px-3 py-2 rounded-lg text-xs" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }} rows={2} />
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
-              <button onClick={() => setShowModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#64748B", background: "#F5F7FA" }}>Cancel</button>
-              <button onClick={handleCreateAsset} className="px-4 py-1.5 rounded-lg text-xs font-medium text-white" style={{ background: "#1A3C5E" }}>{createAsset.isMutating ? "Saving..." : "Save Asset"}</button>
+              <button onClick={() => setShowModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+              <button onClick={handleCreateAsset} className="px-4 py-1.5 rounded-lg text-xs font-medium text-white" style={{ background: "var(--color-navy)" }}>{createAsset.isMutating ? "Saving..." : "Save Asset"}</button>
             </div>
           </div>
         </div>

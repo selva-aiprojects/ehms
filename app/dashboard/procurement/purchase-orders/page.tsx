@@ -147,14 +147,14 @@ export default function PurchaseOrdersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Purchase Orders</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Create and manage purchase orders</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Purchase Orders</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Create and manage purchase orders</p>
         </div>
         <div className="flex items-center gap-2">
           <Button size="sm" onClick={() => { setEditPo(null); setViewingPo(null); resetForm(); setShowModal(true); }}>
             <Plus className="w-3.5 h-3.5" /> New PO
           </Button>
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }}>
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }}>
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -163,9 +163,9 @@ export default function PurchaseOrdersPage() {
       {actionFeedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
           style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
           }}>
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {actionFeedback.message}
@@ -175,34 +175,34 @@ export default function PurchaseOrdersPage() {
       <div className="grid grid-cols-4 gap-4">
         <Card>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,60,94,0.1)" }}>
-              <FileText className="w-5 h-5" style={{ color: "#1A3C5E" }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-navy-rgb),0.1)" }}>
+              <FileText className="w-5 h-5" style={{ color: "var(--color-navy)" }} />
             </div>
             <div>
-              <p className="text-xs font-medium" style={{ color: "#64748B" }}>Total</p>
-              <p className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{totalPos}</p>
+              <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Total</p>
+              <p className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>{totalPos}</p>
             </div>
           </div>
         </Card>
         <Card>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(245,166,35,0.1)" }}>
-              <FileText className="w-5 h-5" style={{ color: "#F5A623" }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-warning-rgb),0.1)" }}>
+              <FileText className="w-5 h-5" style={{ color: "var(--color-warning)" }} />
             </div>
             <div>
-              <p className="text-xs font-medium" style={{ color: "#64748B" }}>Draft</p>
-              <p className="text-lg font-bold" style={{ color: "#F5A623" }}>{draftCount}</p>
+              <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Draft</p>
+              <p className="text-lg font-bold" style={{ color: "var(--color-warning)" }}>{draftCount}</p>
             </div>
           </div>
         </Card>
         <Card>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(43,174,142,0.1)" }}>
-              <CheckCircle className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-primary-rgb),0.1)" }}>
+              <CheckCircle className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
             </div>
             <div>
-              <p className="text-xs font-medium" style={{ color: "#64748B" }}>Active</p>
-              <p className="text-lg font-bold" style={{ color: "#2BAE8E" }}>{approvedCount}</p>
+              <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Active</p>
+              <p className="text-lg font-bold" style={{ color: "var(--color-primary)" }}>{approvedCount}</p>
             </div>
           </div>
         </Card>
@@ -212,7 +212,7 @@ export default function PurchaseOrdersPage() {
               <CheckCircle className="w-5 h-5" style={{ color: "#6366F1" }} />
             </div>
             <div>
-              <p className="text-xs font-medium" style={{ color: "#64748B" }}>Received / Closed</p>
+              <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Received / Closed</p>
               <p className="text-lg font-bold" style={{ color: "#6366F1" }}>{receivedCount}</p>
             </div>
           </div>
@@ -221,16 +221,16 @@ export default function PurchaseOrdersPage() {
 
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "#94A3B8" }} />
+          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-faint)" }} />
           <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search PO number, vendor..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
+            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
         </div>
         <div className="flex items-center gap-1">
           {["", ...STATUS_OPTIONS].map((s) => (
             <button key={s || "all"} onClick={() => setFilterStatus(s)}
               className="px-2.5 py-1 text-[10px] font-medium rounded transition-all"
-              style={{ background: filterStatus === s ? "#1A3C5E" : "#F5F7FA", color: filterStatus === s ? "#FFFFFF" : "#64748B" }}>
+              style={{ background: filterStatus === s ? "var(--color-navy)" : "var(--color-light)", color: filterStatus === s ? "var(--color-white)" : "var(--color-text-muted)" }}>
               {s ? s.charAt(0).toUpperCase() + s.slice(1) : "All"}
             </button>
           ))}
@@ -238,11 +238,11 @@ export default function PurchaseOrdersPage() {
       </div>
 
       {isLoading && !purchaseOrders.length ? (
-        <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "#94A3B8" }} /></div>
+        <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--color-text-faint)" }} /></div>
       ) : purchaseOrders.length === 0 ? (
         <div className="text-center py-12">
-          <FileText className="w-10 h-10 mx-auto mb-3" style={{ color: "#94A3B8" }} />
-          <p className="text-sm" style={{ color: "#64748B" }}>No purchase orders found. Create your first PO.</p>
+          <FileText className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--color-text-faint)" }} />
+          <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No purchase orders found. Create your first PO.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -254,18 +254,18 @@ export default function PurchaseOrdersPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
                       <button onClick={() => setExpandedPo(isExpanded ? null : po.id)}
-                        className="p-0.5 rounded hover:bg-slate-100 transition-colors" style={{ color: "#94A3B8" }}>
+                        className="p-0.5 rounded hover:bg-slate-100 transition-colors" style={{ color: "var(--color-text-faint)" }}>
                         {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                       </button>
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,60,94,0.08)" }}>
-                        <FileText className="w-4.5 h-4.5" style={{ color: "#1A3C5E" }} />
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-navy-rgb),0.08)" }}>
+                        <FileText className="w-4.5 h-4.5" style={{ color: "var(--color-navy)" }} />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm" style={{ color: "#1A2E44" }}>{po.po_number}</span>
+                          <span className="font-semibold text-sm" style={{ color: "var(--color-text)" }}>{po.po_number}</span>
                           <Badge variant={STATUS_BADGE[po.status] || "gray"}>{po.status}</Badge>
                         </div>
-                        <div className="flex items-center gap-3 mt-1 text-xs" style={{ color: "#64748B" }}>
+                        <div className="flex items-center gap-3 mt-1 text-xs" style={{ color: "var(--color-text-muted)" }}>
                           <span>{po.vendor_name || "No vendor"}</span>
                           <span>{po.property_name || "—"}</span>
                           <span>{po.po_date ? new Date(po.po_date).toLocaleDateString() : "—"}</span>
@@ -273,8 +273,8 @@ export default function PurchaseOrdersPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold" style={{ color: "#1A2E44" }}>₹{Number(po.total_amount || 0).toLocaleString()}</span>
-                      <button onClick={() => handleView(po)} className="p-1.5 rounded hover:bg-slate-100 transition-colors" style={{ color: "#64748B" }}>
+                      <span className="text-sm font-bold" style={{ color: "var(--color-text)" }}>₹{Number(po.total_amount || 0).toLocaleString()}</span>
+                      <button onClick={() => handleView(po)} className="p-1.5 rounded hover:bg-slate-100 transition-colors" style={{ color: "var(--color-text-muted)" }}>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -282,9 +282,9 @@ export default function PurchaseOrdersPage() {
                 </div>
 
                 {isExpanded && (
-                  <div className="border-t px-4 py-3" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }}>
+                  <div className="border-t px-4 py-3" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }}>
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-xs font-semibold" style={{ color: "#1A3C5E" }}>Line Items ({po.line_items?.length || 0})</h4>
+                      <h4 className="text-xs font-semibold" style={{ color: "var(--color-navy)" }}>Line Items ({po.line_items?.length || 0})</h4>
                       <div className="flex items-center gap-1">
                         {po.status === "draft" && (
                           <>
@@ -311,21 +311,21 @@ export default function PurchaseOrdersPage() {
                       <div className="space-y-1">
                         {po.line_items.map((li: any) => (
                           <div key={li.id} className="flex items-center justify-between text-xs py-1.5 px-3 rounded"
-                            style={{ background: "#FFFFFF" }}>
+                            style={{ background: "var(--color-white)" }}>
                             <div className="flex items-center gap-4 flex-1">
-                              <span className="font-medium" style={{ color: "#1A2E44" }}>{li.item_description}</span>
-                              <span style={{ color: "#64748B" }}>Qty: {li.quantity}</span>
-                              <span style={{ color: "#64748B" }}>₹{parseFloat(li.unit_price).toLocaleString()}/unit</span>
+                              <span className="font-medium" style={{ color: "var(--color-text)" }}>{li.item_description}</span>
+                              <span style={{ color: "var(--color-text-muted)" }}>Qty: {li.quantity}</span>
+                              <span style={{ color: "var(--color-text-muted)" }}>₹{parseFloat(li.unit_price).toLocaleString()}/unit</span>
                             </div>
-                            <span className="font-semibold" style={{ color: "#1A2E44" }}>₹{parseFloat(li.line_total || li.quantity * li.unit_price).toLocaleString()}</span>
+                            <span className="font-semibold" style={{ color: "var(--color-text)" }}>₹{parseFloat(li.line_total || li.quantity * li.unit_price).toLocaleString()}</span>
                           </div>
                         ))}
-                        <div className="flex justify-end pt-2 text-xs font-bold" style={{ color: "#1A2E44" }}>
+                        <div className="flex justify-end pt-2 text-xs font-bold" style={{ color: "var(--color-text)" }}>
                           Total: ₹{Number(po.total_amount || 0).toLocaleString()}
                         </div>
                       </div>
                     ) : (
-                      <p className="text-xs" style={{ color: "#94A3B8" }}>No line items</p>
+                      <p className="text-xs" style={{ color: "var(--color-text-faint)" }}>No line items</p>
                     )}
                   </div>
                 )}
@@ -338,8 +338,8 @@ export default function PurchaseOrdersPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>
+            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>
                 {viewingPo ? `PO: ${viewingPo.po_number}` : editPo ? "Edit Purchase Order" : "New Purchase Order"}
               </h3>
               <button onClick={() => { setShowModal(false); setEditPo(null); setViewingPo(null); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
@@ -349,53 +349,53 @@ export default function PurchaseOrdersPage() {
               <div className="p-6 space-y-5">
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <p className="text-xs font-medium" style={{ color: "#64748B" }}>PO Number</p>
-                    <p className="text-sm font-semibold" style={{ color: "#1A2E44" }}>{viewingPo.po_number}</p>
+                    <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>PO Number</p>
+                    <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>{viewingPo.po_number}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium" style={{ color: "#64748B" }}>Status</p>
+                    <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Status</p>
                     <Badge variant={STATUS_BADGE[viewingPo.status] || "gray"}>{viewingPo.status}</Badge>
                   </div>
                   <div>
-                    <p className="text-xs font-medium" style={{ color: "#64748B" }}>Date</p>
-                    <p className="text-sm" style={{ color: "#1A2E44" }}>{viewingPo.po_date ? new Date(viewingPo.po_date).toLocaleDateString() : "—"}</p>
+                    <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Date</p>
+                    <p className="text-sm" style={{ color: "var(--color-text)" }}>{viewingPo.po_date ? new Date(viewingPo.po_date).toLocaleDateString() : "—"}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium" style={{ color: "#64748B" }}>Vendor</p>
-                    <p className="text-sm" style={{ color: "#1A2E44" }}>{viewingPo.vendor_name || "—"}</p>
+                    <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Vendor</p>
+                    <p className="text-sm" style={{ color: "var(--color-text)" }}>{viewingPo.vendor_name || "—"}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium" style={{ color: "#64748B" }}>Property</p>
-                    <p className="text-sm" style={{ color: "#1A2E44" }}>{viewingPo.property_name || "—"}</p>
+                    <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Property</p>
+                    <p className="text-sm" style={{ color: "var(--color-text)" }}>{viewingPo.property_name || "—"}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium" style={{ color: "#64748B" }}>Total Amount</p>
-                    <p className="text-sm font-bold" style={{ color: "#1A2E44" }}>₹{Number(viewingPo.total_amount || 0).toLocaleString()}</p>
+                    <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Total Amount</p>
+                    <p className="text-sm font-bold" style={{ color: "var(--color-text)" }}>₹{Number(viewingPo.total_amount || 0).toLocaleString()}</p>
                   </div>
                 </div>
                 {viewingPo.notes && (
                   <div>
-                    <p className="text-xs font-medium mb-1" style={{ color: "#64748B" }}>Notes</p>
-                    <p className="text-sm p-3 rounded-lg" style={{ background: "#F5F7FA", color: "#1A2E44" }}>{viewingPo.notes}</p>
+                    <p className="text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Notes</p>
+                    <p className="text-sm p-3 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text)" }}>{viewingPo.notes}</p>
                   </div>
                 )}
                 <div>
-                  <h4 className="text-xs font-semibold mb-2" style={{ color: "#1A3C5E" }}>Line Items</h4>
+                  <h4 className="text-xs font-semibold mb-2" style={{ color: "var(--color-navy)" }}>Line Items</h4>
                   <div className="space-y-1">
                     {viewingPo.line_items?.map((li: any) => (
-                      <div key={li.id} className="flex items-center justify-between text-xs py-2 px-3 rounded" style={{ background: "#F5F7FA" }}>
-                        <span className="font-medium" style={{ color: "#1A2E44" }}>{li.item_description}</span>
+                      <div key={li.id} className="flex items-center justify-between text-xs py-2 px-3 rounded" style={{ background: "var(--color-light)" }}>
+                        <span className="font-medium" style={{ color: "var(--color-text)" }}>{li.item_description}</span>
                         <div className="flex items-center gap-4">
-                          <span style={{ color: "#64748B" }}>Qty: {li.quantity}</span>
-                          <span style={{ color: "#64748B" }}>₹{parseFloat(li.unit_price).toLocaleString()}</span>
-                          <span className="font-semibold" style={{ color: "#1A2E44" }}>₹{parseFloat(li.line_total || li.quantity * li.unit_price).toLocaleString()}</span>
+                          <span style={{ color: "var(--color-text-muted)" }}>Qty: {li.quantity}</span>
+                          <span style={{ color: "var(--color-text-muted)" }}>₹{parseFloat(li.unit_price).toLocaleString()}</span>
+                          <span className="font-semibold" style={{ color: "var(--color-text)" }}>₹{parseFloat(li.line_total || li.quantity * li.unit_price).toLocaleString()}</span>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
                 {viewingPo.status === "draft" && (
-                  <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+                  <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                     <Button size="sm" variant="secondary" onClick={() => handleEdit(viewingPo)}>Edit PO</Button>
                     <Button size="sm" onClick={() => handleStatusChange(viewingPo.id, "sent")} disabled={statusAction === viewingPo.id}>
                       {statusAction === viewingPo.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Send PO"}
@@ -403,7 +403,7 @@ export default function PurchaseOrdersPage() {
                   </div>
                 )}
                 {viewingPo.status === "sent" && (
-                  <div className="flex justify-end pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+                  <div className="flex justify-end pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                     <Button size="sm" onClick={() => handleStatusChange(viewingPo.id, "approved")} disabled={statusAction === viewingPo.id}>
                       {statusAction === viewingPo.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Approve PO"}
                     </Button>
@@ -414,10 +414,10 @@ export default function PurchaseOrdersPage() {
               <form onSubmit={handleSubmit} className="p-6 space-y-5">
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Property *</label>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Property *</label>
                     <select required value={formData.property_id}
                       onChange={(e) => setFormData({ ...formData, property_id: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                       <option value="">Select Property</option>
                       {(properties || []).map((p: any) => (
                         <option key={p.id} value={p.id}>{p.name}</option>
@@ -425,10 +425,10 @@ export default function PurchaseOrdersPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Vendor</label>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Vendor</label>
                     <select value={formData.vendor_id}
                       onChange={(e) => setFormData({ ...formData, vendor_id: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                       <option value="">Select Vendor</option>
                       {(vendors || []).filter((v: any) => v.status === "approved").map((v: any) => (
                         <option key={v.id} value={v.id}>{v.name}</option>
@@ -436,24 +436,24 @@ export default function PurchaseOrdersPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>PO Date</label>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>PO Date</label>
                     <input type="date" value={formData.po_date}
                       onChange={(e) => setFormData({ ...formData, po_date: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Notes</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Notes</label>
                   <textarea value={formData.notes} rows={2}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none resize-none" style={{ borderColor: "#E2E8F0" }}
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none resize-none" style={{ borderColor: "var(--color-border)" }}
                     placeholder="Optional notes..." />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-semibold" style={{ color: "#1A3C5E" }}>Line Items</h4>
+                    <h4 className="text-xs font-semibold" style={{ color: "var(--color-navy)" }}>Line Items</h4>
                     <Button type="button" size="sm" variant="secondary" onClick={addLineItem}>
                       <Plus className="w-3 h-3" /> Add Item
                     </Button>
@@ -464,31 +464,31 @@ export default function PurchaseOrdersPage() {
                         <input type="text" value={item.item_description}
                           onChange={(e) => updateLineItem(idx, "item_description", e.target.value)}
                           placeholder="Item description"
-                          className="flex-1 px-3 py-2 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
+                          className="flex-1 px-3 py-2 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
                         <input type="number" value={item.quantity}
                           onChange={(e) => updateLineItem(idx, "quantity", e.target.value)}
                           placeholder="Qty" min={1}
-                          className="w-20 px-3 py-2 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
+                          className="w-20 px-3 py-2 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
                         <input type="number" value={item.unit_price}
                           onChange={(e) => updateLineItem(idx, "unit_price", e.target.value)}
                           placeholder="Unit price" min={0} step={0.01}
-                          className="w-28 px-3 py-2 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
-                        <span className="text-xs font-medium w-24 text-right" style={{ color: "#1A2E44" }}>
+                          className="w-28 px-3 py-2 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
+                        <span className="text-xs font-medium w-24 text-right" style={{ color: "var(--color-text)" }}>
                           ₹{(item.quantity * item.unit_price).toLocaleString()}
                         </span>
                         <button type="button" onClick={() => removeLineItem(idx)}
-                          className="p-1.5 rounded hover:bg-red-50 transition-colors" style={{ color: "#94A3B8" }}>
+                          className="p-1.5 rounded hover:bg-red-50 transition-colors" style={{ color: "var(--color-text-faint)" }}>
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     ))}
                   </div>
-                  <div className="flex justify-end mt-3 pt-3 border-t" style={{ borderColor: "#E2E8F0" }}>
-                    <span className="text-sm font-bold" style={{ color: "#1A2E44" }}>Total: ₹{calcTotal().toLocaleString()}</span>
+                  <div className="flex justify-end mt-3 pt-3 border-t" style={{ borderColor: "var(--color-border)" }}>
+                    <span className="text-sm font-bold" style={{ color: "var(--color-text)" }}>Total: ₹{calcTotal().toLocaleString()}</span>
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+                <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                   <Button type="button" variant="outline" size="sm" onClick={() => { setShowModal(false); setEditPo(null); }}>Cancel</Button>
                   <Button type="submit" size="sm" disabled={isCreating || isUpdating}>
                     {isCreating || isUpdating ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Saving</> : editPo ? "Update PO" : "Create PO"}

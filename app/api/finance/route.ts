@@ -111,12 +111,19 @@ export async function GET(req: NextRequest) {
     ]);
 
     const totalRevenue = (paymentRows as { amount: string }[]).reduce((s, p) => s + Number(p.amount || 0), 0);
-    
+
+    const payDate = (p: { payment_date?: unknown }): string => {
+      if (!p.payment_date) return "";
+      if (p.payment_date instanceof Date) return p.payment_date.toISOString();
+      return String(p.payment_date);
+    };
+
     // Calculate MTD revenue for current month; if 0 (e.g. demo data is in earlier months), find latest month with payments
     let mtdRevenue = 0;
     const currentMonthStr = startOfMonth.toISOString().slice(0, 7);
     (paymentRows as { payment_date: string; amount: string }[]).forEach(p => {
-      if (p.payment_date && p.payment_date.startsWith(currentMonthStr)) {
+      const pd = payDate(p);
+      if (pd.startsWith(currentMonthStr)) {
         mtdRevenue += Number(p.amount || 0);
       }
     });
@@ -124,14 +131,16 @@ export async function GET(req: NextRequest) {
       // Find latest year-month in payments
       let latestYm = "";
       (paymentRows as { payment_date: string }[]).forEach(p => {
-        if (p.payment_date) {
-          const ym = p.payment_date.slice(0, 7);
+        const pd = payDate(p);
+        if (pd) {
+          const ym = pd.slice(0, 7);
           if (ym > latestYm) latestYm = ym;
         }
       });
       if (latestYm) {
         (paymentRows as { payment_date: string; amount: string }[]).forEach(p => {
-          if (p.payment_date && p.payment_date.startsWith(latestYm)) {
+          const pd = payDate(p);
+          if (pd.startsWith(latestYm)) {
             mtdRevenue += Number(p.amount || 0);
           }
         });

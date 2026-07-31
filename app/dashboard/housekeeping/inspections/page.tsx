@@ -17,7 +17,7 @@ const STATUS_BADGE: Record<string, "teal" | "amber" | "red" | "gray" | "navy"> =
 };
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 export default function HKInspectionsPage() {
@@ -68,14 +68,14 @@ export default function HKInspectionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Quality Inspections</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Inspection records and quality assurance</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Quality Inspections</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Inspection records and quality assurance</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowCreateForm(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+          <button onClick={() => setShowCreateForm(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
             <Plus className="w-3.5 h-3.5" /> Create Inspection
           </button>
         </div>
@@ -83,9 +83,9 @@ export default function HKInspectionsPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: feedback.type === "success" ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)",
-          color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: feedback.type === "success" ? "1px solid rgba(43,174,142,0.2)" : "1px solid rgba(229,62,62,0.2)",
+          background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: feedback.type === "success" ? "1px solid rgba(var(--color-primary-rgb),0.2)" : "1px solid rgba(var(--color-danger-rgb),0.2)",
         }}>
           {feedback.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -93,7 +93,7 @@ export default function HKInspectionsPage() {
       )}
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" />
           Failed to load inspections.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
@@ -101,33 +101,33 @@ export default function HKInspectionsPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-2xl font-bold">{total}</div>
             <ClipboardCheck className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Total Inspections</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-2xl font-bold">{passed}</div>
             <ThumbsUp className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Passed</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#E53E3E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-danger)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-2xl font-bold">{failed}</div>
             <ThumbsDown className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Failed</div>
         </div>
-        <div className="rounded-xl p-4" style={{ background: "#F5F7FA" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-light)" }}>
           <div className="flex items-center justify-between mb-2">
-            <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>{passRate}%</div>
-            <Minus className="w-5 h-5" style={{ color: "#64748B" }} />
+            <div className="text-2xl font-bold" style={{ color: "var(--color-text)" }}>{passRate}%</div>
+            <Minus className="w-5 h-5" style={{ color: "var(--color-text-muted)" }} />
           </div>
-          <div className="text-xs" style={{ color: "#64748B" }}>Pass Rate</div>
+          <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Pass Rate</div>
         </div>
       </div>
 
@@ -139,7 +139,7 @@ export default function HKInspectionsPage() {
             <div className="flex items-center gap-2">
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs outline-none border"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
                 <option value="">All Statuses</option>
                 <option value="pending">Pending</option>
                 <option value="passed">Passed</option>
@@ -147,11 +147,11 @@ export default function HKInspectionsPage() {
                 <option value="conditional_pass">Conditional Pass</option>
               </select>
               <div className="relative">
-                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#64748B" }} />
+                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
                 <input type="text" value={unitFilter} onChange={(e) => setUnitFilter(e.target.value)}
                   placeholder="Filter by unit..."
                   className="pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none border w-40"
-                  style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                  style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
               </div>
             </div>
           }
@@ -160,8 +160,8 @@ export default function HKInspectionsPage() {
           <div className="space-y-1">{Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}</div>
         ) : displayData.length === 0 ? (
           <div className="text-center py-8">
-            <ClipboardCheck className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No inspections found</p>
+            <ClipboardCheck className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No inspections found</p>
           </div>
         ) : (
           <Table
@@ -170,9 +170,9 @@ export default function HKInspectionsPage() {
             onRowClick={(item: any) => setExpandedInspection(expandedInspection === item.id ? null : item.id)}
             columns={[
               { key: "unit", header: "Unit", render: (i: any) => <span className="font-medium text-sm">{i.unit?.unit_label || i.unit_label || "—"}</span> },
-              { key: "task", header: "Task", render: (i: any) => <span className="text-xs" style={{ color: "#64748B" }}>{i.task?.task_type ? i.task.task_type.replace(/_/g, " ") : i.task_id || "—"}</span> },
+              { key: "task", header: "Task", render: (i: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{i.task?.task_type ? i.task.task_type.replace(/_/g, " ") : i.task_id || "—"}</span> },
               { key: "inspector", header: "Inspector", render: (i: any) => (
-                <span className="text-xs" style={{ color: "#64748B" }}>
+                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
                   {i.inspector ? `${i.inspector.first_name || ""} ${i.inspector.last_name || ""}` : i.inspector_name || "—"}
                 </span>
               )},
@@ -181,12 +181,12 @@ export default function HKInspectionsPage() {
               )},
               { key: "status", header: "Status", render: (i: any) => <Badge variant={STATUS_BADGE[i.status] || "gray"}>{(i.status || "").replace(/_/g, " ")}</Badge> },
               { key: "date", header: "Date", render: (i: any) => (
-                <span className="text-xs" style={{ color: "#64748B" }}>{i.inspection_date ? new Date(i.inspection_date).toLocaleDateString() : i.created_at ? new Date(i.created_at).toLocaleDateString() : "—"}</span>
+                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{i.inspection_date ? new Date(i.inspection_date).toLocaleDateString() : i.created_at ? new Date(i.created_at).toLocaleDateString() : "—"}</span>
               )},
               { key: "actions", header: "Actions", render: (i: any) => (
                 <div className="flex items-center gap-1" onClick={(ev) => ev.stopPropagation()}>
                   <button onClick={() => setExpandedInspection(expandedInspection === i.id ? null : i.id)} className="p-1 rounded hover:bg-gray-100" title="View Details">
-                    <Eye className="w-3.5 h-3.5" style={{ color: "#1A3C5E" }} />
+                    <Eye className="w-3.5 h-3.5" style={{ color: "var(--color-navy)" }} />
                   </button>
                 </div>
               )},
@@ -203,24 +203,24 @@ export default function HKInspectionsPage() {
             <CardHeader
               title={`Inspection — ${insp.unit?.unit_label || insp.unit_label || ""}`}
               subtitle={`Score: ${insp.score != null ? `${insp.score}%` : "—"} · ${insp.status || ""}`}
-              action={<button onClick={() => setExpandedInspection(null)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#64748B" }} /></button>}
+              action={<button onClick={() => setExpandedInspection(null)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>}
             />
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-4">
-                <div><span className="text-xs" style={{ color: "#64748B" }}>Inspector</span><p className="font-medium">{insp.inspector ? `${insp.inspector.first_name || ""} ${insp.inspector.last_name || ""}` : insp.inspector_name || "—"}</p></div>
-                <div><span className="text-xs" style={{ color: "#64748B" }}>Date</span><p className="font-medium">{insp.inspection_date ? new Date(insp.inspection_date).toLocaleDateString() : "—"}</p></div>
-                <div className="col-span-2"><span className="text-xs" style={{ color: "#64748B" }}>Notes</span><p className="font-medium">{insp.notes || "—"}</p></div>
+                <div><span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Inspector</span><p className="font-medium">{insp.inspector ? `${insp.inspector.first_name || ""} ${insp.inspector.last_name || ""}` : insp.inspector_name || "—"}</p></div>
+                <div><span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Date</span><p className="font-medium">{insp.inspection_date ? new Date(insp.inspection_date).toLocaleDateString() : "—"}</p></div>
+                <div className="col-span-2"><span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Notes</span><p className="font-medium">{insp.notes || "—"}</p></div>
               </div>
               {insp.checklist_items && Array.isArray(insp.checklist_items) && (
                 <div>
-                  <h4 className="text-xs font-semibold uppercase mb-2" style={{ color: "#64748B" }}>Checklist Items</h4>
+                  <h4 className="text-xs font-semibold uppercase mb-2" style={{ color: "var(--color-text-muted)" }}>Checklist Items</h4>
                   <div className="space-y-1.5">
                     {insp.checklist_items.map((item: any, idx: number) => (
-                      <div key={idx} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "#F5F7FA" }}>
+                      <div key={idx} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: "var(--color-light)" }}>
                         {item.passed ? (
-                          <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "#2BAE8E" }} />
+                          <Check className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--color-primary)" }} />
                         ) : (
-                          <X className="w-3.5 h-3.5 shrink-0" style={{ color: "#E53E3E" }} />
+                          <X className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--color-danger)" }} />
                         )}
                         <span className="text-xs">{item.label || item.name || item.checkpoint || `Item ${idx + 1}`}</span>
                       </div>
@@ -236,31 +236,31 @@ export default function HKInspectionsPage() {
       {showCreateForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/20" onClick={() => setShowCreateForm(false)} />
-          <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl" style={{ border: "1px solid #E2E8F0" }}>
-            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid #E2E8F0" }}>
-              <h2 className="text-base font-semibold" style={{ color: "#1A3C5E" }}>Create Inspection</h2>
-              <button onClick={() => setShowCreateForm(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#64748B" }} /></button>
+          <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl" style={{ border: "1px solid var(--color-border)" }}>
+            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--color-border)" }}>
+              <h2 className="text-base font-semibold" style={{ color: "var(--color-navy)" }}>Create Inspection</h2>
+              <button onClick={() => setShowCreateForm(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>
             </div>
             <div className="p-6 space-y-4 text-sm">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Task ID</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Task ID</label>
                 <input type="text" value={formData.task_id} onChange={(e) => setFormData({ ...formData, task_id: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} placeholder="Task ID" />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} placeholder="Task ID" />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Unit ID</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Unit ID</label>
                 <input type="text" value={formData.unit_id} onChange={(e) => setFormData({ ...formData, unit_id: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} placeholder="Unit ID" />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} placeholder="Unit ID" />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Score (%)</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Score (%)</label>
                 <input type="number" value={formData.score} onChange={(e) => setFormData({ ...formData, score: Number(e.target.value) })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} min={0} max={100} />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} min={0} max={100} />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Status</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Status</label>
                 <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }}>
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }}>
                   <option value="pending">Pending</option>
                   <option value="passed">Passed</option>
                   <option value="failed">Failed</option>
@@ -268,14 +268,14 @@ export default function HKInspectionsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Notes</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Notes</label>
                 <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", minHeight: "60px" }} />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", minHeight: "60px" }} />
               </div>
             </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <button onClick={() => setShowCreateForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#64748B", background: "#F5F7FA" }}>Cancel</button>
-              <button onClick={handleCreateInspection} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button onClick={() => setShowCreateForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+              <button onClick={handleCreateInspection} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
                 {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <ClipboardCheck className="w-3 h-3" />}
                 {saving ? "Creating..." : "Create"}
               </button>
@@ -286,3 +286,4 @@ export default function HKInspectionsPage() {
     </div>
   );
 }
+

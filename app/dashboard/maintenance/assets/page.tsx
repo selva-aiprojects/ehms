@@ -13,7 +13,7 @@ import { useMaintenanceAssets } from "@/lib/hooks";
 import { useProperties } from "@/lib/hooks";
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 const ASSET_TYPES = ["AC", "TV", "Smart Lock", "Geyser", "Refrigerator", "Washing Machine", "Microwave", "Sofa", "Bed", "Table", "Chair", "Fan", "Lighting", "Water Heater", "Other"];
@@ -52,7 +52,7 @@ export default function AssetsPage() {
     purchase_date: "", warranty_months: 0, current_value: 0, status: "active", property_id: "",
   });
   const { assets, isLoading, isError, mutate } = useMaintenanceAssets(propertyFilter || undefined, statusFilter || undefined);
-  const { properties: properties } = useProperties();
+  const { properties = [] } = useProperties();
 
   useEffect(() => {
     if (feedback) {
@@ -109,14 +109,14 @@ export default function AssetsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Asset Register</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Track and manage property assets</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Asset Register</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Track and manage property assets</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={openAdd} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+          <button onClick={openAdd} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
             <Plus className="w-3.5 h-3.5" /> Add Asset
           </button>
         </div>
@@ -124,9 +124,9 @@ export default function AssetsPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: feedback.type === "success" ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)",
-          color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: feedback.type === "success" ? "1px solid rgba(43,174,142,0.2)" : "1px solid rgba(229,62,62,0.2)",
+          background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: feedback.type === "success" ? "1px solid rgba(var(--color-primary-rgb),0.2)" : "1px solid rgba(var(--color-danger-rgb),0.2)",
         }}>
           {feedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -134,7 +134,7 @@ export default function AssetsPage() {
       )}
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" /> Failed to load assets.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
         </div>
@@ -143,41 +143,41 @@ export default function AssetsPage() {
       {isLoading && !assets ? (
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}>
-              <div className="w-12 h-8 rounded mb-2" style={{ background: "#CBD5E1" }} />
-              <div className="w-16 h-3 rounded" style={{ background: "#CBD5E1" }} />
+            <div key={i} className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}>
+              <div className="w-12 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} />
+              <div className="w-16 h-3 rounded" style={{ background: "var(--color-border-strong)" }} />
             </div>
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+          <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-2xl font-bold">{filtered.length}</div>
               <Monitor className="w-5 h-5 opacity-60" />
             </div>
             <div className="text-xs opacity-80">Total Assets</div>
           </div>
-          <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+          <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-2xl font-bold">{activeCount}</div>
               <Shield className="w-5 h-5 opacity-60" />
             </div>
             <div className="text-xs opacity-80">Active</div>
           </div>
-          <div className="rounded-xl p-4 text-white" style={{ background: "#F5A623" }}>
+          <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-warning)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-2xl font-bold">{maintCount}</div>
               <Wrench className="w-5 h-5 opacity-60" />
             </div>
             <div className="text-xs opacity-80">Under Maintenance</div>
           </div>
-          <div className="rounded-xl p-4" style={{ background: "#F5F7FA" }}>
+          <div className="rounded-xl p-4" style={{ background: "var(--color-light)" }}>
             <div className="flex items-center justify-between mb-2">
-              <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>₹{totalValue.toLocaleString()}</div>
-              <DollarSign className="w-5 h-5" style={{ color: "#64748B" }} />
+              <div className="text-2xl font-bold" style={{ color: "var(--color-text)" }}>₹{totalValue.toLocaleString()}</div>
+              <DollarSign className="w-5 h-5" style={{ color: "var(--color-text-muted)" }} />
             </div>
-            <div className="text-xs" style={{ color: "#64748B" }}>Total Value</div>
+            <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Total Value</div>
           </div>
         </div>
       )}
@@ -189,27 +189,27 @@ export default function AssetsPage() {
           action={
             <div className="flex items-center gap-2 flex-wrap">
               <div className="relative">
-                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#64748B" }} />
+                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
                 <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search assets..."
                   className="pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none border w-40"
-                  style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                  style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
               </div>
               <select value={propertyFilter} onChange={(e) => setPropertyFilter(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs outline-none border"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
                 <option value="">All Properties</option>
                 {properties.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs outline-none border"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
                 <option value="">All Status</option>
                 {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
               <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs outline-none border"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
                 <option value="">All Types</option>
                 {ASSET_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
@@ -222,8 +222,8 @@ export default function AssetsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-8">
-            <Monitor className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No assets found</p>
+            <Monitor className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No assets found</p>
           </div>
         ) : (
           <Table
@@ -232,11 +232,11 @@ export default function AssetsPage() {
             columns={[
               { key: "asset_type", header: "Asset Type", render: (a: any) => <Badge variant="gray">{a.asset_type || "—"}</Badge> },
               { key: "brand_model", header: "Brand / Model", render: (a: any) => <span className="text-sm">{a.brand ? `${a.brand} ${a.model || ""}` : "—"}</span> },
-              { key: "serial_number", header: "Serial #", render: (a: any) => <span className="font-mono text-xs" style={{ color: "#667085" }}>{a.serial_number || "—"}</span> },
-              { key: "unit_label", header: "Unit", render: (a: any) => <span className="text-xs" style={{ color: "#667085" }}>{a.unit_label || "—"}</span> },
-              { key: "purchase_date", header: "Purchase Date", render: (a: any) => <span className="text-xs" style={{ color: "#667085" }}>{a.purchase_date ? new Date(a.purchase_date).toLocaleDateString() : "—"}</span> },
+              { key: "serial_number", header: "Serial #", render: (a: any) => <span className="font-mono text-xs" style={{ color: "var(--color-text-muted)" }}>{a.serial_number || "—"}</span> },
+              { key: "unit_label", header: "Unit", render: (a: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{a.unit_label || "—"}</span> },
+              { key: "purchase_date", header: "Purchase Date", render: (a: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{a.purchase_date ? new Date(a.purchase_date).toLocaleDateString() : "—"}</span> },
               { key: "warranty_expiry", header: "Warranty Expiry", render: (a: any) => {
-                if (!a.warranty_months || !a.purchase_date) return <span className="text-xs" style={{ color: "#667085" }}>—</span>;
+                if (!a.warranty_months || !a.purchase_date) return <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>—</span>;
                 const expiry = new Date(a.purchase_date);
                 expiry.setMonth(expiry.getMonth() + a.warranty_months);
                 return <WarrantyBadge expiry={expiry.toISOString()} />;
@@ -244,7 +244,7 @@ export default function AssetsPage() {
               { key: "status", header: "Status", render: (a: any) => <Badge variant={ASSET_STATUS_BADGE[a.status] || "gray"}>{a.status || "—"}</Badge> },
               { key: "actions", header: "Actions", render: (a: any) => (
                 <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                  <button className="p-1 rounded hover:bg-gray-100" title="Edit"><Monitor className="w-3.5 h-3.5" style={{ color: "#2C3547" }} /></button>
+                  <button className="p-1 rounded hover:bg-gray-100" title="Edit"><Monitor className="w-3.5 h-3.5" style={{ color: "var(--color-sidebar)" }} /></button>
                 </div>
               )},
             ]}
@@ -256,76 +256,76 @@ export default function AssetsPage() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/20" onClick={() => setShowAddModal(false)} />
-          <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl max-h-[90vh] overflow-y-auto" style={{ border: "1px solid #E5E7EB" }}>
-            <div className="sticky top-0 bg-white z-10 px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid #E5E7EB" }}>
-              <h2 className="text-base font-semibold" style={{ color: "#2C3547" }}>Add Asset</h2>
-              <button onClick={() => setShowAddModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#667085" }} /></button>
+          <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl max-h-[90vh] overflow-y-auto" style={{ border: "1px solid var(--color-border)" }}>
+            <div className="sticky top-0 bg-white z-10 px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
+              <h2 className="text-base font-semibold" style={{ color: "var(--color-sidebar)" }}>Add Asset</h2>
+              <button onClick={() => setShowAddModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>
             </div>
             <div className="p-6 space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Asset Type *</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Asset Type *</label>
                   <select value={formData.asset_type} onChange={(e) => setFormData({ ...formData, asset_type: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "#1A2E44" }}>
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "var(--color-text)" }}>
                     <option value="">Select Type</option>
                     {ASSET_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Status</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Status</label>
                   <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "#1A2E44" }}>
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "var(--color-text)" }}>
                     {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Brand</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Brand</label>
                   <input type="text" value={formData.brand} onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Model</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Model</label>
                   <input type="text" value={formData.model} onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Serial Number</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Serial Number</label>
                   <input type="text" value={formData.serial_number} onChange={(e) => setFormData({ ...formData, serial_number: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Unit ID</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Unit ID</label>
                   <input type="text" value={formData.unit_id} onChange={(e) => setFormData({ ...formData, unit_id: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Purchase Date</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Purchase Date</label>
                   <input type="date" value={formData.purchase_date} onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Warranty (months)</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Warranty (months)</label>
                   <input type="number" min={0} value={formData.warranty_months} onChange={(e) => setFormData({ ...formData, warranty_months: Number(e.target.value) })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Current Value (₹)</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Current Value (₹)</label>
                   <input type="number" min={0} step="0.01" value={formData.current_value} onChange={(e) => setFormData({ ...formData, current_value: Number(e.target.value) })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Property</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Property</label>
                   <select value={formData.property_id} onChange={(e) => setFormData({ ...formData, property_id: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "#1A2E44" }}>
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "var(--color-text)" }}>
                     <option value="">Select Property</option>
                     {properties.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
               </div>
             </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid #E5E7EB" }}>
-              <button onClick={() => setShowAddModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#667085", background: "#F5F7FA" }}>Cancel</button>
-              <button onClick={handleSave} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button onClick={() => setShowAddModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+              <button onClick={handleSave} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
                 {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                 {saving ? "Saving..." : "Save"}
               </button>
@@ -338,3 +338,4 @@ export default function AssetsPage() {
 }
 
 
+

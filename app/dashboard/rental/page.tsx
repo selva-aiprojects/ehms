@@ -71,7 +71,7 @@ const RENT_FORECAST = [
 ];
 
 function SkeletonStat() {
-  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}><div className="w-12 h-8 rounded mb-2" style={{ background: "#CBD5E1" }} /><div className="w-20 h-3 rounded" style={{ background: "#CBD5E1" }} /></div>;
+  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}><div className="w-12 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} /><div className="w-20 h-3 rounded" style={{ background: "var(--color-border-strong)" }} /></div>;
 }
 
 export default function RentalPage() {
@@ -159,8 +159,8 @@ export default function RentalPage() {
     return (
       <div className="flex h-[80vh] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-[#64748B] text-sm font-medium">Loading Rental Workspace...</p>
+          <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[var(--color-text-muted)] text-sm font-medium">Loading Rental Workspace...</p>
         </div>
       </div>
     );
@@ -170,19 +170,19 @@ export default function RentalPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Apartment Rental & Tenancy</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Lease lifecycle, rent roll & deposit management</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Apartment Rental & Tenancy</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Lease lifecycle, rent roll & deposit management</p>
         </div>
         <div className="flex items-center gap-2">
           {isLoading && (
-            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
+            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
               <Loader2 className="w-3 h-3 animate-spin" /> Syncing
             </div>
           )}
           <Button variant="secondary" size="sm" onClick={() => setShowNewLeaseModal(true)}>
             <FileText className="w-3.5 h-3.5" /> New Lease
           </Button>
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -192,9 +192,9 @@ export default function RentalPage() {
         <div
           className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
           style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
           }}
         >
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -203,7 +203,7 @@ export default function RentalPage() {
       )}
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" />
           Could not load live lease data. Displaying mock data.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
@@ -215,28 +215,28 @@ export default function RentalPage() {
           Array.from({ length: 4 }).map((_, i) => <SkeletonStat key={i} />)
         ) : (
           <>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-2xl font-bold">{activeLeases.length}</div>
                 <Home className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">Active Leases</div>
             </div>
-            <div className="rounded-xl p-4" style={{ background: "#F5A623" }}>
+            <div className="rounded-xl p-4" style={{ background: "var(--color-warning)" }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>{renewalDue.length}</div>
+                <div className="text-2xl font-bold" style={{ color: "var(--color-text)" }}>{renewalDue.length}</div>
                 <Calendar className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs" style={{ color: "rgba(0,0,0,0.6)" }}>Renewal Due (30d)</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-2xl font-bold">{collectionPct}%</div>
                 <TrendingUp className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">Rent Collection</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-2xl font-bold">₹{(depositTotal / 100000).toFixed(1)}L</div>
                 <Shield className="w-5 h-5 opacity-60" />
@@ -252,8 +252,8 @@ export default function RentalPage() {
           <button key={s} onClick={() => setStatusFilter(s === "all" ? undefined : s)}
             className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
             style={{
-              background: (s === "all" && !statusFilter) || statusFilter === s ? "#1A3C5E" : "#F5F7FA",
-              color: (s === "all" && !statusFilter) || statusFilter === s ? "#FFFFFF" : "#64748B",
+              background: (s === "all" && !statusFilter) || statusFilter === s ? "var(--color-navy)" : "var(--color-light)",
+              color: (s === "all" && !statusFilter) || statusFilter === s ? "var(--color-white)" : "var(--color-text-muted)",
             }}
           >{s === "all" ? "All" : s.replace("_", " ")}</button>
         ))}
@@ -263,12 +263,12 @@ export default function RentalPage() {
         <CardHeader title="Lease Agreements" subtitle={`${activeLeases.length} active \u00B7 ${renewalDue.length} renewal due`} />
         {isLoadingDisplay ? (
           <div className="space-y-2">
-            {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: "#F5F7FA" }} />)}
+            {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: "var(--color-light)" }} />)}
           </div>
         ) : displayLeases.length === 0 ? (
           <div className="text-center py-8">
-            <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No lease agreements found</p>
+            <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No lease agreements found</p>
           </div>
         ) : (
           <Table
@@ -277,9 +277,9 @@ export default function RentalPage() {
             columns={[
               { key: "tenant_name", header: "Tenant", render: (l) => <span className="font-medium text-sm">{l.tenant_name || `${l.tenant?.first_name || ""} ${l.tenant?.last_name || ""}`}</span> },
               { key: "unit_label", header: "Unit", render: (l) => <span className="text-xs">{l.unit_label || l.unit?.unit_label || "\u2014"}</span> },
-              { key: "property_name", header: "Property", render: (l) => <span className="text-xs" style={{ color: "#64748B" }}>{l.property_name || l.property?.name || "\u2014"}</span> },
-              { key: "start_date", header: "Start", render: (l) => <span className="text-xs" style={{ color: "#64748B" }}>{l.start_date ? new Date(l.start_date).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' }) : "\u2014"}</span> },
-              { key: "end_date", header: "End", render: (l) => <span className="text-xs" style={{ color: "#64748B" }}>{l.end_date ? new Date(l.end_date).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' }) : "\u2014"}</span> },
+              { key: "property_name", header: "Property", render: (l) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{l.property_name || l.property?.name || "\u2014"}</span> },
+              { key: "start_date", header: "Start", render: (l) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{l.start_date ? new Date(l.start_date).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' }) : "\u2014"}</span> },
+              { key: "end_date", header: "End", render: (l) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{l.end_date ? new Date(l.end_date).toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' }) : "\u2014"}</span> },
               { key: "monthly_rent", header: "Rent", render: (l) => <span className="font-medium">₹{(Number(l.rent_amount) || Number(l.monthly_rent) || 0).toLocaleString()}</span> },
               { key: "status", header: "Status", render: (l) => (
                 <Badge variant={LEASE_BADGE[l.status] || "gray"}>{l.status?.replace("_", " ") || "\u2014"}</Badge>
@@ -294,36 +294,36 @@ export default function RentalPage() {
           <CardHeader title="Rent Roll" subtitle="This month's collection" />
           <div className="space-y-2">
             {MOCK_RENT_ROLL.map((r, i) => (
-              <div key={i} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < MOCK_RENT_ROLL.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+              <div key={i} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < MOCK_RENT_ROLL.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                 <div>
-                  <div className="font-medium" style={{ color: "#1A2E44" }}>{r.tenant}</div>
-                  <div className="text-xs" style={{ color: "#64748B" }}>{r.amount}</div>
+                  <div className="font-medium" style={{ color: "var(--color-text)" }}>{r.tenant}</div>
+                  <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{r.amount}</div>
                 </div>
                 <Badge variant={r.status === "paid" ? "teal" : r.status === "overdue" ? "red" : "amber"}>{r.status}</Badge>
               </div>
             ))}
           </div>
-          <div className="mt-3 pt-3 flex items-center justify-between text-sm" style={{ borderTop: "1px solid #E2E8F0" }}>
-            <span className="font-semibold" style={{ color: "#1A3C5E" }}>Total Collected</span>
-            <span className="font-semibold" style={{ color: "#2BAE8E" }}>₹{rentCollected.toLocaleString()}</span>
+          <div className="mt-3 pt-3 flex items-center justify-between text-sm" style={{ borderTop: "1px solid var(--color-border)" }}>
+            <span className="font-semibold" style={{ color: "var(--color-navy)" }}>Total Collected</span>
+            <span className="font-semibold" style={{ color: "var(--color-primary)" }}>₹{rentCollected.toLocaleString()}</span>
           </div>
         </Card>
         <Card>
           <CardHeader title="Upcoming Renewals" subtitle="Next 30 days" />
           {renewalDue.length === 0 ? (
             <div className="text-center py-8">
-              <BadgeCheck className="w-6 h-6 mx-auto mb-2" style={{ color: "#2BAE8E" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No renewals due</p>
+              <BadgeCheck className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-primary)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No renewals due</p>
             </div>
           ) : (
             renewalDue.slice(0, 5).map((l: any, i: number) => {
               const endStr = l.end_date || "";
               const daysOverdue = -18 + i * 12;
               return (
-                <div key={l.id || i} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(renewalDue.length, 5) - 1 ? "1px solid #E2E8F0" : "none" }}>
+                <div key={l.id || i} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(renewalDue.length, 5) - 1 ? "1px solid var(--color-border)" : "none" }}>
                   <div>
-                    <div className="font-medium" style={{ color: "#1A2E44" }}>{l.tenant_name || l.tenant?.first_name || "Tenant"}</div>
-                    <div className="text-xs" style={{ color: "#64748B" }}>{endStr}</div>
+                    <div className="font-medium" style={{ color: "var(--color-text)" }}>{l.tenant_name || l.tenant?.first_name || "Tenant"}</div>
+                    <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{endStr}</div>
                   </div>
                   <Badge variant={daysOverdue < 0 ? "red" : "amber"}>
                     {daysOverdue > 0 ? `${daysOverdue}d` : `${Math.abs(daysOverdue)}d overdue`}
@@ -336,19 +336,19 @@ export default function RentalPage() {
         <Card>
           <CardHeader title="Deposit Ledger" subtitle="Summary" />
           <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <span style={{ color: "#1A2E44" }}>Total Held</span>
-              <span className="font-semibold" style={{ color: "#1A3C5E" }}>₹{(depositTotal / 100000).toFixed(2)}L</span>
+            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+              <span style={{ color: "var(--color-text)" }}>Total Held</span>
+              <span className="font-semibold" style={{ color: "var(--color-navy)" }}>₹{(depositTotal / 100000).toFixed(2)}L</span>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <span style={{ color: "#1A2E44" }}>Pending Refunds</span>
-              <span style={{ color: "#F5A623" }}>₹{pendingRefunds.toLocaleString()}</span>
+            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+              <span style={{ color: "var(--color-text)" }}>Pending Refunds</span>
+              <span style={{ color: "var(--color-warning)" }}>₹{pendingRefunds.toLocaleString()}</span>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <span style={{ color: "#1A2E44" }}>Deductions This Q</span>
-              <span style={{ color: "#E53E3E" }}>₹{deductionsThisQ.toLocaleString()}</span>
+            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+              <span style={{ color: "var(--color-text)" }}>Deductions This Q</span>
+              <span style={{ color: "var(--color-danger)" }}>₹{deductionsThisQ.toLocaleString()}</span>
             </div>
-            <div className="pt-2 mt-2" style={{ borderTop: "1px solid #E2E8F0" }}>
+            <div className="pt-2 mt-2" style={{ borderTop: "1px solid var(--color-border)" }}>
               <Button variant="secondary" size="sm" className="w-full" onClick={() => setActionFeedback({ type: "success", message: "Refund process initiated" })}>
                 Process Refund
               </Button>
@@ -365,12 +365,12 @@ export default function RentalPage() {
             { name: "Lakeview Apartments", units: "12", occupied: "10", occPct: "83%", rev: "₹3.8L" },
             { name: "Viswa Service Apartments", units: "18", occupied: "15", occPct: "83%", rev: "₹4.2L" },
           ].map((p) => (
-            <div key={p.name} className="p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
-              <div className="font-semibold text-sm mb-2" style={{ color: "#1A3C5E" }}>{p.name}</div>
+            <div key={p.name} className="p-4 rounded-lg" style={{ background: "var(--color-light)" }}>
+              <div className="font-semibold text-sm mb-2" style={{ color: "var(--color-navy)" }}>{p.name}</div>
               <div className="grid grid-cols-3 gap-2 text-xs text-center">
-                <div><div className="font-bold" style={{ color: "#1A2E44" }}>{p.occupied}/{p.units}</div><span style={{ color: "#64748B" }}>Occupied</span></div>
-                <div><div className="font-bold" style={{ color: "#2BAE8E" }}>{p.occPct}</div><span style={{ color: "#64748B" }}>Occ.%</span></div>
-                <div><div className="font-bold" style={{ color: "#1A3C5E" }}>{p.rev}</div><span style={{ color: "#64748B" }}>Revenue</span></div>
+                <div><div className="font-bold" style={{ color: "var(--color-text)" }}>{p.occupied}/{p.units}</div><span style={{ color: "var(--color-text-muted)" }}>Occupied</span></div>
+                <div><div className="font-bold" style={{ color: "var(--color-primary)" }}>{p.occPct}</div><span style={{ color: "var(--color-text-muted)" }}>Occ.%</span></div>
+                <div><div className="font-bold" style={{ color: "var(--color-navy)" }}>{p.rev}</div><span style={{ color: "var(--color-text-muted)" }}>Revenue</span></div>
               </div>
             </div>
           ))}
@@ -385,13 +385,13 @@ export default function RentalPage() {
           />
           <div className="space-y-2">
             {MOCK_MAINTENANCE.map((m, i) => (
-              <div key={m.id} className="flex items-start justify-between p-3 rounded-lg text-sm" style={{ background: "#F5F7FA" }}>
+              <div key={m.id} className="flex items-start justify-between p-3 rounded-lg text-sm" style={{ background: "var(--color-light)" }}>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <Wrench className="w-3.5 h-3.5" style={{ color: m.priority === "high" ? "#E53E3E" : m.priority === "medium" ? "#F5A623" : "#64748B" }} />
-                    <span className="font-medium" style={{ color: "#1A2E44" }}>{m.issue}</span>
+                    <Wrench className="w-3.5 h-3.5" style={{ color: m.priority === "high" ? "var(--color-danger)" : m.priority === "medium" ? "var(--color-warning)" : "var(--color-text-muted)" }} />
+                    <span className="font-medium" style={{ color: "var(--color-text)" }}>{m.issue}</span>
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs" style={{ color: "#64748B" }}>
+                  <div className="flex items-center gap-3 mt-1 text-xs" style={{ color: "var(--color-text-muted)" }}>
                     <span>{m.unit}</span>
                     <span>\u00B7</span>
                     <span>{m.tenant}</span>
@@ -408,8 +408,8 @@ export default function RentalPage() {
               </div>
             ))}
           </div>
-          <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-            <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+          <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid var(--color-border)" }}>
+            <button className="text-xs font-medium hover:underline" style={{ color: "var(--color-primary)" }}>
               View All Maintenance Requests
             </button>
           </div>
@@ -422,26 +422,26 @@ export default function RentalPage() {
           />
           <div className="space-y-1">
             {TENANT_MESSAGES.map((msg, i) => (
-              <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg text-sm transition-colors hover:bg-opacity-50" style={{ background: msg.unread ? "rgba(42,157,143,0.06)" : "transparent" }}>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: msg.unread ? "#2BAE8E" : "#CBD5E1" }}>
+              <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg text-sm transition-colors hover:bg-opacity-50" style={{ background: msg.unread ? "rgba(var(--color-primary-dark-rgb),0.06)" : "transparent" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: msg.unread ? "var(--color-primary)" : "var(--color-border-strong)" }}>
                   {msg.from.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <span className={`font-medium text-xs ${msg.unread ? "" : ""}`} style={{ color: msg.unread ? "#1A2E44" : "#64748B" }}>
+                    <span className={`font-medium text-xs ${msg.unread ? "" : ""}`} style={{ color: msg.unread ? "var(--color-text)" : "var(--color-text-muted)" }}>
                       {msg.from}
                     </span>
-                    <span className="text-[10px]" style={{ color: "#94A3B8" }}>{msg.date}</span>
+                    <span className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>{msg.date}</span>
                   </div>
-                  <div className="text-xs font-medium mt-0.5" style={{ color: "#1A3C5E" }}>{msg.subject}</div>
-                  <div className="text-xs truncate mt-0.5" style={{ color: "#94A3B8" }}>{msg.preview}</div>
+                  <div className="text-xs font-medium mt-0.5" style={{ color: "var(--color-navy)" }}>{msg.subject}</div>
+                  <div className="text-xs truncate mt-0.5" style={{ color: "var(--color-text-faint)" }}>{msg.preview}</div>
                 </div>
-                {msg.unread && <span className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ background: "#2BAE8E" }} />}
+                {msg.unread && <span className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ background: "var(--color-primary)" }} />}
               </div>
             ))}
           </div>
-          <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-            <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+          <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid var(--color-border)" }}>
+            <button className="text-xs font-medium hover:underline" style={{ color: "var(--color-primary)" }}>
               Open Message Center
             </button>
           </div>
@@ -454,7 +454,7 @@ export default function RentalPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs uppercase tracking-wider" style={{ color: "#64748B" }}>
+                <tr className="text-xs uppercase tracking-wider" style={{ color: "var(--color-text-muted)" }}>
                   <th className="text-left py-2 pr-3 font-medium">Property</th>
                   <th className="text-center py-2 px-2 font-medium">Occ.%</th>
                   <th className="text-center py-2 px-2 font-medium">Avg Rent</th>
@@ -465,28 +465,28 @@ export default function RentalPage() {
               </thead>
               <tbody>
                 {PROPERTY_COMPARISON.map((p, i) => (
-                  <tr key={p.name} style={{ borderBottom: i < PROPERTY_COMPARISON.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                  <tr key={p.name} style={{ borderBottom: i < PROPERTY_COMPARISON.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                     <td className="py-2.5 pr-3">
-                      <span className="font-medium" style={{ color: "#1A2E44" }}>{p.name}</span>
+                      <span className="font-medium" style={{ color: "var(--color-text)" }}>{p.name}</span>
                     </td>
                     <td className="text-center py-2.5 px-2">
-                      <span style={{ color: p.occupancy >= 85 ? "#2BAE8E" : "#F5A623" }}>{p.occupancy}%</span>
+                      <span style={{ color: p.occupancy >= 85 ? "var(--color-primary)" : "var(--color-warning)" }}>{p.occupancy}%</span>
                     </td>
                     <td className="text-center py-2.5 px-2">
-                      <span style={{ color: "#1A3C5E" }}>₹{p.avgRent.toLocaleString()}</span>
+                      <span style={{ color: "var(--color-navy)" }}>₹{p.avgRent.toLocaleString()}</span>
                     </td>
                     <td className="text-center py-2.5 px-2">
                       <div className="flex items-center justify-center gap-1">
-                        <div className="w-10 h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                          <div className="h-full rounded-full" style={{ width: `${p.collection}%`, background: p.collection >= 90 ? "#2BAE8E" : "#F5A623" }} />
+                        <div className="w-10 h-1.5 rounded-full" style={{ background: "var(--color-border)" }}>
+                          <div className="h-full rounded-full" style={{ width: `${p.collection}%`, background: p.collection >= 90 ? "var(--color-primary)" : "var(--color-warning)" }} />
                         </div>
                       </div>
                     </td>
                     <td className="text-center py-2.5 px-2">
-                      <span style={{ color: "#1A2E44" }}>{p.satisfaction.toFixed(1)}</span>
+                      <span style={{ color: "var(--color-text)" }}>{p.satisfaction.toFixed(1)}</span>
                     </td>
                     <td className="text-right py-2.5 pl-3">
-                      <span className="font-semibold" style={{ color: "#1A3C5E" }}>₹{(p.revenue / 100000).toFixed(1)}L</span>
+                      <span className="font-semibold" style={{ color: "var(--color-navy)" }}>₹{(p.revenue / 100000).toFixed(1)}L</span>
                     </td>
                   </tr>
                 ))}
@@ -499,13 +499,13 @@ export default function RentalPage() {
           <CardHeader title="Notice Period Tracking" subtitle="Tenants with active notices" />
           <div className="space-y-2">
             {NOTICE_PERIOD_TRACKING.map((n, i) => (
-              <div key={n.tenant} className="flex items-center justify-between p-3 rounded-lg text-sm" style={{ background: n.status === "active" ? "rgba(245,166,35,0.08)" : n.status === "completed" ? "rgba(42,157,143,0.08)" : "#F5F7FA" }}>
+              <div key={n.tenant} className="flex items-center justify-between p-3 rounded-lg text-sm" style={{ background: n.status === "active" ? "rgba(var(--color-warning-rgb),0.08)" : n.status === "completed" ? "rgba(var(--color-primary-dark-rgb),0.08)" : "var(--color-light)" }}>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    {n.status === "active" ? <Timer className="w-3.5 h-3.5" style={{ color: "#F5A623" }} /> : n.status === "completed" ? <CheckCircle className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} /> : <Clock className="w-3.5 h-3.5" style={{ color: "#64748B" }} />}
-                    <span className="font-medium" style={{ color: "#1A2E44" }}>{n.tenant}</span>
+                    {n.status === "active" ? <Timer className="w-3.5 h-3.5" style={{ color: "var(--color-warning)" }} /> : n.status === "completed" ? <CheckCircle className="w-3.5 h-3.5" style={{ color: "var(--color-primary)" }} /> : <Clock className="w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />}
+                    <span className="font-medium" style={{ color: "var(--color-text)" }}>{n.tenant}</span>
                   </div>
-                  <div className="flex items-center gap-2 mt-0.5 text-xs" style={{ color: "#64748B" }}>
+                  <div className="flex items-center gap-2 mt-0.5 text-xs" style={{ color: "var(--color-text-muted)" }}>
                     <span>{n.unit}</span>
                     <span>\u00B7</span>
                     <span>Move-out: {n.moveOutDate}</span>
@@ -514,8 +514,8 @@ export default function RentalPage() {
                 <div className="flex items-center gap-2">
                   {n.status === "active" && (
                     <div className="text-center">
-                      <div className="font-bold text-xs" style={{ color: "#F5A623" }}>{n.daysLeft}d</div>
-                      <div className="text-[9px]" style={{ color: "#94A3B8" }}>left</div>
+                      <div className="font-bold text-xs" style={{ color: "var(--color-warning)" }}>{n.daysLeft}d</div>
+                      <div className="text-[9px]" style={{ color: "var(--color-text-faint)" }}>left</div>
                     </div>
                   )}
                   <Badge variant={n.status === "active" ? "amber" : n.status === "completed" ? "teal" : "gray"}>{n.status}</Badge>
@@ -523,9 +523,9 @@ export default function RentalPage() {
               </div>
             ))}
           </div>
-          <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
+          <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
             <span className="flex items-center gap-1"><Users className="w-3 h-3" /> 2 upcoming vacancies</span>
-            <button className="font-medium hover:underline" style={{ color: "#2BAE8E" }}>Manage Notice Periods</button>
+            <button className="font-medium hover:underline" style={{ color: "var(--color-primary)" }}>Manage Notice Periods</button>
           </div>
         </Card>
       </div>
@@ -537,51 +537,51 @@ export default function RentalPage() {
             const maxVal = Math.max(...RENT_FORECAST.map((x) => x.expected));
             const barH = (f.expected / maxVal) * 100;
             return (
-              <div key={f.month} className="p-4 rounded-lg" style={{ background: i === 0 ? "rgba(42,157,143,0.06)" : "#F5F7FA" }}>
+              <div key={f.month} className="p-4 rounded-lg" style={{ background: i === 0 ? "rgba(var(--color-primary-dark-rgb),0.06)" : "var(--color-light)" }}>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-sm" style={{ color: "#1A3C5E" }}>{f.month}</h4>
+                  <h4 className="font-semibold text-sm" style={{ color: "var(--color-navy)" }}>{f.month}</h4>
                   <Badge variant="teal">Forecast</Badge>
                 </div>
                 <div className="flex items-end gap-2 mb-3">
-                  <div className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>₹{(f.expected / 1000).toFixed(0)}K</div>
-                  <div className="text-xs mb-1" style={{ color: "#64748B" }}>expected</div>
+                  <div className="text-2xl font-bold" style={{ color: "var(--color-navy)" }}>₹{(f.expected / 1000).toFixed(0)}K</div>
+                  <div className="text-xs mb-1" style={{ color: "var(--color-text-muted)" }}>expected</div>
                 </div>
-                <div className="h-2 rounded-full" style={{ background: "#E2E8F0" }}>
-                  <div className="h-full rounded-full transition-all" style={{ width: `${barH}%`, background: i === 0 ? "#2BAE8E" : i === 1 ? "#1A3C5E" : "#64748B" }} />
+                <div className="h-2 rounded-full" style={{ background: "var(--color-border)" }}>
+                  <div className="h-full rounded-full transition-all" style={{ width: `${barH}%`, background: i === 0 ? "var(--color-primary)" : i === 1 ? "var(--color-navy)" : "var(--color-text-muted)" }} />
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
-                  <div className="p-2 rounded text-center" style={{ background: "rgba(42,157,143,0.1)" }}>
-                    <div className="font-semibold" style={{ color: "#2BAE8E" }}>+{f.newLeases}</div>
-                    <span style={{ color: "#64748B" }}>New Leases</span>
+                  <div className="p-2 rounded text-center" style={{ background: "rgba(var(--color-primary-dark-rgb),0.1)" }}>
+                    <div className="font-semibold" style={{ color: "var(--color-primary)" }}>+{f.newLeases}</div>
+                    <span style={{ color: "var(--color-text-muted)" }}>New Leases</span>
                   </div>
-                  <div className="p-2 rounded text-center" style={{ background: "rgba(229,62,62,0.08)" }}>
-                    <div className="font-semibold" style={{ color: "#E53E3E" }}>-{f.expiring}</div>
-                    <span style={{ color: "#64748B" }}>Expiring</span>
+                  <div className="p-2 rounded text-center" style={{ background: "rgba(var(--color-danger-rgb),0.08)" }}>
+                    <div className="font-semibold" style={{ color: "var(--color-danger)" }}>-{f.expiring}</div>
+                    <span style={{ color: "var(--color-text-muted)" }}>Expiring</span>
                   </div>
                 </div>
               </div>
             );
           })}
         </div>
-        <div className="mt-4 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
-          <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" style={{ color: "#2BAE8E" }} /> Projected growth: +8.2% QoQ</span>
-          <button className="font-medium hover:underline" style={{ color: "#2BAE8E" }}>Generate Detailed Forecast</button>
+        <div className="mt-4 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
+          <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" style={{ color: "var(--color-primary)" }} /> Projected growth: +8.2% QoQ</span>
+          <button className="font-medium hover:underline" style={{ color: "var(--color-primary)" }}>Generate Detailed Forecast</button>
         </div>
       </Card>
 
       {/* New Lease Modal Overlay */}
       {showNewLeaseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
-            <div className="flex items-center justify-between mb-4 pb-2" style={{ borderBottom: "1px solid #E2E8F0" }}>
-              <h3 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Create New Lease Agreement</h3>
-              <button onClick={() => setShowNewLeaseModal(false)} className="text-sm font-semibold hover:underline" style={{ color: "#64748B" }}>✕ Close</button>
+          <div className="w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200" style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}>
+            <div className="flex items-center justify-between mb-4 pb-2" style={{ borderBottom: "1px solid var(--color-border)" }}>
+              <h3 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Create New Lease Agreement</h3>
+              <button onClick={() => setShowNewLeaseModal(false)} className="text-sm font-semibold hover:underline" style={{ color: "var(--color-text-muted)" }}>✕ Close</button>
             </div>
 
             <form onSubmit={handleCreateLease} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Tenant / Resident *</label>
-                <select value={selectedTenant} onChange={(e) => setSelectedTenant(e.target.value)} required className="w-full p-2 border rounded-lg text-sm bg-white outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }}>
+                <label className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>Tenant / Resident *</label>
+                <select value={selectedTenant} onChange={(e) => setSelectedTenant(e.target.value)} required className="w-full p-2 border rounded-lg text-sm bg-white outline-none focus:border-[var(--color-primary)]" style={{ borderColor: "var(--color-border)" }}>
                   <option value="">Select Tenant</option>
                   {guests?.map((g: any) => (
                     <option key={g.id} value={g.id}>{g.first_name} {g.last_name} ({g.email})</option>
@@ -591,8 +591,8 @@ export default function RentalPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Rental Property *</label>
-                  <select value={selectedProperty} onChange={(e) => { setSelectedProperty(e.target.value); setSelectedUnit(""); }} required className="w-full p-2 border rounded-lg text-sm bg-white outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }}>
+                  <label className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>Rental Property *</label>
+                  <select value={selectedProperty} onChange={(e) => { setSelectedProperty(e.target.value); setSelectedUnit(""); }} required className="w-full p-2 border rounded-lg text-sm bg-white outline-none focus:border-[var(--color-primary)]" style={{ borderColor: "var(--color-border)" }}>
                     <option value="">Select Property</option>
                     {properties?.map((p: any) => (
                       <option key={p.id} value={p.id}>{p.name}</option>
@@ -601,8 +601,8 @@ export default function RentalPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Vacant Apartment Unit *</label>
-                  <select value={selectedUnit} onChange={(e) => setSelectedUnit(e.target.value)} required disabled={!selectedProperty} className="w-full p-2 border rounded-lg text-sm bg-white outline-none focus:border-[#2BAE8E] disabled:bg-gray-100" style={{ borderColor: "#E2E8F0" }}>
+                  <label className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>Vacant Apartment Unit *</label>
+                  <select value={selectedUnit} onChange={(e) => setSelectedUnit(e.target.value)} required disabled={!selectedProperty} className="w-full p-2 border rounded-lg text-sm bg-white outline-none focus:border-[var(--color-primary)] disabled:bg-gray-100" style={{ borderColor: "var(--color-border)" }}>
                     <option value="">Select Unit</option>
                     {(properties?.find((p: any) => p.id === selectedProperty)?.units?.filter((u: any) => u.status === "vacant" && u.unit_type === "apartment") || []).map((u: any) => (
                       <option key={u.id} value={u.id}>{u.unit_label}</option>
@@ -613,31 +613,31 @@ export default function RentalPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Monthly Rent (₹) *</label>
-                  <input type="number" min="1" value={rentAmount} onChange={(e) => setRentAmount(e.target.value)} required placeholder="25000" className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+                  <label className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>Monthly Rent (₹) *</label>
+                  <input type="number" min="1" value={rentAmount} onChange={(e) => setRentAmount(e.target.value)} required placeholder="25000" className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[var(--color-primary)]" style={{ borderColor: "var(--color-border)" }} />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Security Deposit (₹)</label>
-                  <input type="number" min="0" value={securityDeposit} onChange={(e) => setSecurityDeposit(e.target.value)} placeholder="50000" className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+                  <label className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>Security Deposit (₹)</label>
+                  <input type="number" min="0" value={securityDeposit} onChange={(e) => setSecurityDeposit(e.target.value)} placeholder="50000" className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[var(--color-primary)]" style={{ borderColor: "var(--color-border)" }} />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Lease Start Date *</label>
-                  <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+                  <label className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>Lease Start Date *</label>
+                  <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[var(--color-primary)]" style={{ borderColor: "var(--color-border)" }} />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Lease End Date *</label>
-                  <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+                  <label className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>Lease End Date *</label>
+                  <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[var(--color-primary)]" style={{ borderColor: "var(--color-border)" }} />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold" style={{ color: "#1A2E44" }}>Notice Period (Days) *</label>
-                <input type="number" min="1" value={noticePeriod} onChange={(e) => setNoticePeriod(e.target.value)} required className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[#2BAE8E]" style={{ borderColor: "#E2E8F0" }} />
+                <label className="text-xs font-semibold" style={{ color: "var(--color-text)" }}>Notice Period (Days) *</label>
+                <input type="number" min="1" value={noticePeriod} onChange={(e) => setNoticePeriod(e.target.value)} required className="w-full p-2 border rounded-lg text-sm outline-none focus:border-[var(--color-primary)]" style={{ borderColor: "var(--color-border)" }} />
               </div>
 
               <div className="pt-2 flex justify-end gap-3">
@@ -653,3 +653,4 @@ export default function RentalPage() {
     </div>
   );
 }
+

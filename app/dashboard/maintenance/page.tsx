@@ -35,10 +35,10 @@ const WEEKLY_WORKLOAD = [
 ];
 
 const PRIORITY_CONFIG: Record<string, { badge: "red" | "amber" | "gray" | "teal"; color: string }> = {
-  critical: { badge: "red", color: "#E53E3E" },
-  high: { badge: "amber", color: "#F5A623" },
-  medium: { badge: "gray", color: "#64748B" },
-  low: { badge: "teal", color: "#2BAE8E" },
+  critical: { badge: "red", color: "var(--color-danger)" },
+  high: { badge: "amber", color: "var(--color-warning)" },
+  medium: { badge: "gray", color: "var(--color-text-muted)" },
+  low: { badge: "teal", color: "var(--color-primary)" },
 };
 
 const STATUS_BADGE: Record<string, "red" | "amber" | "teal" | "gray" | "navy"> = {
@@ -46,19 +46,19 @@ const STATUS_BADGE: Record<string, "red" | "amber" | "teal" | "gray" | "navy"> =
 };
 
 const TEAM_STATUS_COLOR: Record<string, string> = {
-  available: "#2BAE8E", busy: "#F5A623", off: "#CBD5E1",
+  available: "var(--color-primary)", busy: "var(--color-warning)", off: "var(--color-border-strong)",
 };
 
 const TEAM_STATUS_BG: Record<string, string> = {
-  available: "rgba(42,157,143,0.1)", busy: "rgba(245,166,35,0.1)", off: "rgba(203,213,225,0.2)",
+  available: "rgba(var(--color-primary-dark-rgb),0.1)", busy: "rgba(var(--color-warning-rgb),0.1)", off: "rgba(var(--color-border-strong-rgb),0.2)",
 };
 
 function StockBar({ current, min, max }: { current: number; min: number; max: number }) {
   const pct = Math.min((current / max) * 100, 100);
   const isLow = current <= min;
-  const color = isLow ? "#E53E3E" : current <= min * 1.5 ? "#F5A623" : "#2BAE8E";
+  const color = isLow ? "var(--color-danger)" : current <= min * 1.5 ? "var(--color-warning)" : "var(--color-primary)";
   return (
-    <div className="w-full h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
+    <div className="w-full h-1.5 rounded-full" style={{ background: "var(--color-border)" }}>
       <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
     </div>
   );
@@ -74,8 +74,8 @@ function StarRating({ rating }: { rating: number }) {
           key={i}
           className="w-3 h-3"
           style={{
-            fill: i < full ? "#F5A623" : hasHalf && i === full ? "#F5A623" : "transparent",
-            color: i < full || (hasHalf && i === full) ? "#F5A623" : "#CBD5E1",
+            fill: i < full ? "var(--color-warning)" : hasHalf && i === full ? "var(--color-warning)" : "transparent",
+            color: i < full || (hasHalf && i === full) ? "var(--color-warning)" : "var(--color-border-strong)",
           }}
         />
       ))}
@@ -84,7 +84,7 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 function SkeletonStat() {
-  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}><div className="w-12 h-8 rounded mb-2" style={{ background: "#CBD5E1" }} /><div className="w-16 h-3 rounded" style={{ background: "#CBD5E1" }} /></div>;
+  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}><div className="w-12 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} /><div className="w-16 h-3 rounded" style={{ background: "var(--color-border-strong)" }} /></div>;
 }
 
 export default function MaintenancePage() {
@@ -210,17 +210,17 @@ export default function MaintenancePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Maintenance & Asset Management</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>All properties · Real-time ticket dashboard</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Maintenance & Asset Management</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>All properties · Real-time ticket dashboard</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {isLoading && (
-            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
+            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
               <Loader2 className="w-3 h-3 animate-spin" /> Syncing
             </div>
           )}
           {criticalCount > 0 && (
-            <div className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: "#E53E3E", color: "#FFFFFF" }}>
+            <div className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: "var(--color-danger)", color: "var(--color-white)" }}>
               <AlertTriangle className="w-3.5 h-3.5" /> {criticalCount} Critical
             </div>
           )}
@@ -228,7 +228,7 @@ export default function MaintenancePage() {
             {showNewTicketForm ? <AlertCircle className="w-3.5 h-3.5" /> : <Wrench className="w-3.5 h-3.5" />}
             {showNewTicketForm ? "Cancel" : "New Ticket"}
           </Button>
-          <button onClick={() => mutateTickets()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutateTickets()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -239,15 +239,15 @@ export default function MaintenancePage() {
           <CardHeader title="Action Required: Guest Feedback Triage" subtitle={`${feedback.length} recent negative reviews`} />
           <div className="space-y-3">
             {feedback.map((f: any) => (
-              <div key={f.id} className="flex items-start justify-between p-3 rounded-lg" style={{ background: "rgba(229,62,62,0.05)", border: "1px solid rgba(229,62,62,0.1)" }}>
+              <div key={f.id} className="flex items-start justify-between p-3 rounded-lg" style={{ background: "rgba(var(--color-danger-rgb),0.05)", border: "1px solid rgba(var(--color-danger-rgb),0.1)" }}>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <StarRating rating={f.rating} />
-                    <span className="text-xs font-bold" style={{ color: "#1A2E44" }}>{f.first_name} {f.last_name}</span>
-                    <span className="text-xs" style={{ color: "#64748B" }}>· {f.unit_label ? `Room ${f.unit_label}` : "General"}</span>
+                    <span className="text-xs font-bold" style={{ color: "var(--color-text)" }}>{f.first_name} {f.last_name}</span>
+                    <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>· {f.unit_label ? `Room ${f.unit_label}` : "General"}</span>
                   </div>
-                  <p className="text-sm" style={{ color: "#1A2E44" }}>"{f.comments || "No comments provided."}"</p>
-                  <p className="text-[10px] mt-1" style={{ color: "#64748B" }}>Reported: {formatDate(f.created_at)} · Department: {f.department}</p>
+                  <p className="text-sm" style={{ color: "var(--color-text)" }}>"{f.comments || "No comments provided."}"</p>
+                  <p className="text-[10px] mt-1" style={{ color: "var(--color-text-muted)" }}>Reported: {formatDate(f.created_at)} · Department: {f.department}</p>
                 </div>
                 <Button variant="primary" size="sm" onClick={() => handleConvertFeedback(f)}>
                   <Plus className="w-3 h-3" /> Raise Ticket
@@ -262,9 +262,9 @@ export default function MaintenancePage() {
         <div
           className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
           style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
           }}
         >
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -273,7 +273,7 @@ export default function MaintenancePage() {
       )}
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" />
           Could not load live data. Displaying limited mock data.
           <button onClick={() => mutateTickets()} className="ml-auto underline text-xs">Retry</button>
@@ -285,30 +285,30 @@ export default function MaintenancePage() {
           <CardHeader title="Create New Ticket" />
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#1A2E44" }}>Title *</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text)" }}>Title *</label>
               <input type="text" value={newTicket.title} onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                 placeholder="Brief description of the issue" />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1" style={{ color: "#1A2E44" }}>Description</label>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text)" }}>Description</label>
               <textarea value={newTicket.description} onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} rows={2}
+                className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} rows={2}
                 placeholder="Detailed description..." />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#1A2E44" }}>Priority</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text)" }}>Priority</label>
                 <select value={newTicket.priority} onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}>
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}>
                   <option value="low">Low</option><option value="medium">Medium</option>
                   <option value="high">High</option><option value="critical">Critical</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#1A2E44" }}>Category</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text)" }}>Category</label>
                 <select value={newTicket.category} onChange={(e) => setNewTicket({ ...newTicket, category: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}>
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}>
                   <option value="">Select</option><option value="HVAC">HVAC</option>
                   <option value="Plumbing">Plumbing</option><option value="Electrical">Electrical</option>
                   <option value="Elevator">Elevator</option><option value="Pool">Pool</option>
@@ -331,18 +331,18 @@ export default function MaintenancePage() {
           <button key={s} onClick={() => setStatusFilter(s === "all" ? undefined : s)}
             className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
             style={{
-              background: (s === "all" && !statusFilter) || statusFilter === s ? "#1A3C5E" : "#F5F7FA",
-              color: (s === "all" && !statusFilter) || statusFilter === s ? "#FFFFFF" : "#64748B",
+              background: (s === "all" && !statusFilter) || statusFilter === s ? "var(--color-navy)" : "var(--color-light)",
+              color: (s === "all" && !statusFilter) || statusFilter === s ? "var(--color-white)" : "var(--color-text-muted)",
             }}
           >{s === "all" ? "All" : s.replace("_", " ")}</button>
         ))}
-        <div style={{ width: 1, height: 20, background: "#E2E8F0", margin: "0 4px" }} />
+        <div style={{ width: 1, height: 20, background: "var(--color-border)", margin: "0 4px" }} />
         {["all_prio", "critical", "high", "medium", "low"].map((p) => (
           <button key={p} onClick={() => setPriorityFilter(p === "all_prio" ? undefined : p)}
             className="px-2 py-1 text-[10px] font-medium rounded-lg transition-all"
             style={{
-              background: (p === "all_prio" && !priorityFilter) || priorityFilter === p ? "rgba(42,157,143,0.15)" : "#F5F7FA",
-              color: (p === "all_prio" && !priorityFilter) || priorityFilter === p ? "#2BAE8E" : "#64748B",
+              background: (p === "all_prio" && !priorityFilter) || priorityFilter === p ? "rgba(var(--color-primary-dark-rgb),0.15)" : "var(--color-light)",
+              color: (p === "all_prio" && !priorityFilter) || priorityFilter === p ? "var(--color-primary)" : "var(--color-text-muted)",
             }}
           >{p === "all_prio" ? "All Priority" : p}</button>
         ))}
@@ -351,19 +351,19 @@ export default function MaintenancePage() {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         {isLoading ? Array.from({ length: 4 }).map((_, i) => <SkeletonStat key={i} />) : (
           <>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#E53E3E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-danger)" }}>
               <div className="text-2xl font-bold">{openCount}</div>
               <div className="text-xs mt-1 opacity-80">Open</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#F5A623" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-warning)" }}>
               <div className="text-2xl font-bold">{inProgressCount}</div>
               <div className="text-xs mt-1 opacity-80">In Progress</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
               <div className="text-2xl font-bold">{resolvedToday}</div>
               <div className="text-xs mt-1 opacity-80">Resolved Today</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
               <div className="text-2xl font-bold">{displayTickets.length > 0 ? "4.2h" : "—"}</div>
               <div className="text-xs mt-1 opacity-80">Avg Resolution</div>
             </div>
@@ -377,23 +377,23 @@ export default function MaintenancePage() {
           {isLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-10 rounded animate-pulse" style={{ background: "#F5F7FA" }} />
+                <div key={i} className="h-10 rounded animate-pulse" style={{ background: "var(--color-light)" }} />
               ))}
             </div>
           ) : displayTickets.length === 0 ? (
             <div className="text-center py-8">
-              <CheckCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "#2BAE8E" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No tickets match your filters</p>
+              <CheckCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-primary)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No tickets match your filters</p>
             </div>
           ) : (
             <Table
               data={displayTickets}
               keyExtractor={(t) => t.id}
               columns={[
-                { key: "id", header: "ID", render: (t) => <span className="font-mono text-xs" style={{ color: "#2BAE8E" }}>{t.id}</span> },
+                { key: "id", header: "ID", render: (t) => <span className="font-mono text-xs" style={{ color: "var(--color-primary)" }}>{t.id}</span> },
                 { key: "title", header: "Issue", render: (t) => <span className="text-sm">{t.title}</span> },
-                { key: "unit_label", header: "Unit", render: (t) => <span className="text-xs" style={{ color: "#64748B" }}>{t.unit_label || "—"}</span> },
-                { key: "category", header: "Category", render: (t) => t.category ? <Badge variant="gray">{t.category}</Badge> : <span style={{ color: "#64748B" }}>—</span> },
+                { key: "unit_label", header: "Unit", render: (t) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{t.unit_label || "—"}</span> },
+                { key: "category", header: "Category", render: (t) => t.category ? <Badge variant="gray">{t.category}</Badge> : <span style={{ color: "var(--color-text-muted)" }}>—</span> },
                 { key: "priority", header: "Priority", render: (t) => <Badge variant={PRIORITY_CONFIG[t.priority]?.badge || "gray"}>{t.priority}</Badge> },
                 { key: "status", header: "Status", render: (t) => <Badge variant={STATUS_BADGE[t.status] || "gray"}>{t.status.replace("_", " ")}</Badge> },
                 { key: "assigned_name", header: "Assigned", render: (t) => <span className="text-xs">{t.assigned_name || "—"}</span> },
@@ -405,14 +405,14 @@ export default function MaintenancePage() {
           <CardHeader title="AMC Monitor" subtitle={`${displayAmcs.filter((a: any) => a.status === "active").length} active · ${displayAmcs.filter((a: any) => a.status === "expired").length} expired`} />
           <div className="space-y-3 max-h-[400px] overflow-y-auto">
             {displayAmcs.map((amc: any, i: number) => (
-              <div key={i} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+              <div key={i} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>{amc.vendor}</span>
+                  <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{amc.vendor}</span>
                   <Badge variant={amc.status === "active" ? "teal" : "red"}>{amc.status}</Badge>
                 </div>
-                <div className="text-xs" style={{ color: "#64748B" }}>
+                <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
                   {amc.asset} · Exp: {amc.expiry}
-                  <span className="ml-1 font-medium" style={{ color: amc.days < 0 ? "#E53E3E" : "#F5A623" }}>
+                  <span className="ml-1 font-medium" style={{ color: amc.days < 0 ? "var(--color-danger)" : "var(--color-warning)" }}>
                     {amc.days > 0 ? `(${amc.days}d left)` : `(${Math.abs(amc.days)}d overdue)`}
                   </span>
                 </div>
@@ -443,24 +443,24 @@ export default function MaintenancePage() {
           <CardHeader title="Parts Inventory" subtitle={`${displayInventory.length} items · ${lowStockCount} low stock`} />
           <div className="space-y-3 max-h-[420px] overflow-y-auto">
             {displayInventory.map((part: any, i: number) => (
-              <div key={i} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+              <div key={i} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                 <div className="flex items-start justify-between mb-1.5">
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <Package className="w-3.5 h-3.5" style={{ color: part.stock <= part.min ? "#E53E3E" : "#2BAE8E" }} />
-                      <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>{part.name}</span>
+                      <Package className="w-3.5 h-3.5" style={{ color: part.stock <= part.min ? "var(--color-danger)" : "var(--color-primary)" }} />
+                      <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{part.name}</span>
                     </div>
-                    <div className="text-[10px] mt-0.5" style={{ color: "#94A3B8" }}>SKU: {part.sku} · {part.category}</div>
+                    <div className="text-[10px] mt-0.5" style={{ color: "var(--color-text-faint)" }}>SKU: {part.sku} · {part.category}</div>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-bold" style={{ color: part.stock <= part.min ? "#E53E3E" : part.stock <= part.min * 1.5 ? "#F5A623" : "#2BAE8E" }}>
+                    <span className="text-sm font-bold" style={{ color: part.stock <= part.min ? "var(--color-danger)" : part.stock <= part.min * 1.5 ? "var(--color-warning)" : "var(--color-primary)" }}>
                       {part.stock}
                     </span>
-                    <span className="text-[10px] ml-0.5" style={{ color: "#94A3B8" }}>{part.unit}</span>
+                    <span className="text-[10px] ml-0.5" style={{ color: "var(--color-text-faint)" }}>{part.unit}</span>
                   </div>
                 </div>
                 <StockBar current={part.stock} min={part.min} max={part.max} />
-                <div className="flex justify-between text-[10px] mt-1" style={{ color: "#94A3B8" }}>
+                <div className="flex justify-between text-[10px] mt-1" style={{ color: "var(--color-text-faint)" }}>
                   <span>Reorder at: {part.min}</span>
                   <span>Max: {part.max}</span>
                 </div>
@@ -473,22 +473,22 @@ export default function MaintenancePage() {
           <CardHeader title="Maintenance Team" subtitle={`${availableStaff}/${totalStaff} available · ${TEAM_MEMBERS.filter(m => m.status === "busy").length} busy`} />
           <div className="space-y-3 max-h-[420px] overflow-y-auto">
             {TEAM_MEMBERS.map((member, i) => (
-              <div key={i} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+              <div key={i} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: member.status === "available" ? "#2BAE8E" : member.status === "busy" ? "#F5A623" : "#CBD5E1" }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: member.status === "available" ? "var(--color-primary)" : member.status === "busy" ? "var(--color-warning)" : "var(--color-border-strong)" }}>
                     {member.avatar}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>{member.name}</span>
+                      <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{member.name}</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ background: TEAM_STATUS_BG[member.status], color: TEAM_STATUS_COLOR[member.status] }}>
                         {member.status}
                       </span>
                     </div>
-                    <div className="text-xs" style={{ color: "#64748B" }}>{member.role} · {member.department}</div>
+                    <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{member.role} · {member.department}</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-[10px]" style={{ color: "#94A3B8" }}>
+                <div className="flex items-center gap-3 text-[10px]" style={{ color: "var(--color-text-faint)" }}>
                   <span className="flex items-center gap-1"><Wrench className="w-3 h-3" /> {member.tickets} tickets</span>
                   <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {member.phone}</span>
                 </div>
@@ -501,31 +501,31 @@ export default function MaintenancePage() {
           <CardHeader title="Vendor Performance" subtitle={`Avg rating: ${avgVendorRating} ⭐ · ${displayVendors.length} vendors`} />
           <div className="space-y-3 max-h-[420px] overflow-y-auto">
             {displayVendors.map((vendor: any, i: number) => (
-              <div key={i} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+              <div key={i} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <Truck className="w-3.5 h-3.5" style={{ color: "#64748B" }} />
-                      <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>{vendor.name}</span>
+                      <Truck className="w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
+                      <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{vendor.name}</span>
                     </div>
-                    <span className="text-[10px]" style={{ color: "#94A3B8" }}>{vendor.category} · {vendor.avg_cost}/visit</span>
+                    <span className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>{vendor.category} · {vendor.avg_cost}/visit</span>
                   </div>
                   <StarRating rating={vendor.rating} />
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="px-2 py-1.5 rounded" style={{ background: "#FFFFFF" }}>
-                    <div className="text-xs font-bold" style={{ color: "#1A3C5E" }}>{vendor.response_time}</div>
-                    <div className="text-[9px]" style={{ color: "#94A3B8" }}>Response</div>
+                  <div className="px-2 py-1.5 rounded" style={{ background: "var(--color-white)" }}>
+                    <div className="text-xs font-bold" style={{ color: "var(--color-navy)" }}>{vendor.response_time}</div>
+                    <div className="text-[9px]" style={{ color: "var(--color-text-faint)" }}>Response</div>
                   </div>
-                  <div className="px-2 py-1.5 rounded" style={{ background: "#FFFFFF" }}>
-                    <div className="text-xs font-bold" style={{ color: "#1A3C5E" }}>{vendor.completed}</div>
-                    <div className="text-[9px]" style={{ color: "#94A3B8" }}>Jobs</div>
+                  <div className="px-2 py-1.5 rounded" style={{ background: "var(--color-white)" }}>
+                    <div className="text-xs font-bold" style={{ color: "var(--color-navy)" }}>{vendor.completed}</div>
+                    <div className="text-[9px]" style={{ color: "var(--color-text-faint)" }}>Jobs</div>
                   </div>
-                  <div className="px-2 py-1.5 rounded" style={{ background: "#FFFFFF" }}>
-                    <div className="text-xs font-bold" style={{ color: vendor.rating >= 4.5 ? "#2BAE8E" : vendor.rating >= 4 ? "#F5A623" : "#E53E3E" }}>
+                  <div className="px-2 py-1.5 rounded" style={{ background: "var(--color-white)" }}>
+                    <div className="text-xs font-bold" style={{ color: vendor.rating >= 4.5 ? "var(--color-primary)" : vendor.rating >= 4 ? "var(--color-warning)" : "var(--color-danger)" }}>
                       {vendor.rating}
                     </div>
-                    <div className="text-[9px]" style={{ color: "#94A3B8" }}>Rating</div>
+                    <div className="text-[9px]" style={{ color: "var(--color-text-faint)" }}>Rating</div>
                   </div>
                 </div>
               </div>
@@ -535,7 +535,7 @@ export default function MaintenancePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
           <div className="flex items-center gap-2 mb-1">
             <Package className="w-4 h-4 opacity-80" />
             <span className="text-xs opacity-80">Total Parts</span>
@@ -543,7 +543,7 @@ export default function MaintenancePage() {
           <div className="text-2xl font-bold">{totalPartsValue}</div>
           <div className="text-xs mt-1 opacity-70">{lowStockCount} items below reorder point</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
           <div className="flex items-center gap-2 mb-1">
             <Users className="w-4 h-4 opacity-80" />
             <span className="text-xs opacity-80">Team Available</span>
@@ -551,7 +551,7 @@ export default function MaintenancePage() {
           <div className="text-2xl font-bold">{availableStaff}/{totalStaff}</div>
           <div className="text-xs mt-1 opacity-70">{TEAM_MEMBERS.filter(m => m.status === "busy").length} currently busy</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#F5A623" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-warning)" }}>
           <div className="flex items-center gap-2 mb-1">
             <Star className="w-4 h-4 opacity-80" />
             <span className="text-xs opacity-80">Avg Vendor Rating</span>
@@ -582,38 +582,38 @@ export default function MaintenancePage() {
               const completedHeight = (day.completed / maxTickets) * 100;
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                  <div className="flex items-center gap-0.5 text-[9px] font-medium" style={{ color: "#64748B" }}>
+                  <div className="flex items-center gap-0.5 text-[9px] font-medium" style={{ color: "var(--color-text-muted)" }}>
                     <span>{day.tickets}</span>
-                    <span style={{ color: "#CBD5E1" }}>/</span>
+                    <span style={{ color: "var(--color-border-strong)" }}>/</span>
                     <span>{day.completed}</span>
                   </div>
                   <div className="relative w-full max-w-[36px] flex gap-0.5 items-end" style={{ height: `${Math.max(ticketHeight, 4)}%` }}>
                     <div
                       className="w-1/2 rounded-t-sm transition-all"
-                      style={{ height: "100%", background: "#1A3C5E", opacity: 0.8 }}
+                      style={{ height: "100%", background: "var(--color-navy)", opacity: 0.8 }}
                     />
                     <div
                       className="w-1/2 rounded-t-sm transition-all"
-                      style={{ height: `${(completedHeight / ticketHeight) * 100}%`, background: "#2BAE8E" }}
+                      style={{ height: `${(completedHeight / ticketHeight) * 100}%`, background: "var(--color-primary)" }}
                     />
                   </div>
-                  <span className="text-[10px] font-medium" style={{ color: "#94A3B8" }}>{day.day}</span>
+                  <span className="text-[10px] font-medium" style={{ color: "var(--color-text-faint)" }}>{day.day}</span>
                 </div>
               );
             })}
           </div>
-          <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t" style={{ borderColor: "#F5F7FA" }}>
+          <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t" style={{ borderColor: "var(--color-light)" }}>
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-sm" style={{ background: "#1A3C5E", opacity: 0.8 }} />
-              <span className="text-xs" style={{ color: "#64748B" }}>Tickets Raised</span>
+              <div className="w-3 h-3 rounded-sm" style={{ background: "var(--color-navy)", opacity: 0.8 }} />
+              <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Tickets Raised</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-sm" style={{ background: "#2BAE8E" }} />
-              <span className="text-xs" style={{ color: "#64748B" }}>Completed</span>
+              <div className="w-3 h-3 rounded-sm" style={{ background: "var(--color-primary)" }} />
+              <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Completed</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5" style={{ color: "#94A3B8" }} />
-              <span className="text-xs" style={{ color: "#64748B" }}>This week</span>
+              <Calendar className="w-3.5 h-3.5" style={{ color: "var(--color-text-faint)" }} />
+              <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>This week</span>
             </div>
           </div>
         </div>
@@ -621,3 +621,4 @@ export default function MaintenancePage() {
     </div>
   );
 }
+

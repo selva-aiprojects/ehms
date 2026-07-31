@@ -12,12 +12,12 @@ export interface TenantBranding {
 }
 
 const DEFAULT_BRANDING: TenantBranding = {
-  primary_color: "#2BAE8E",
-  secondary_color: "#1A3C5E",
-  accent_color: "#D4A853",
-  sidebar_color: "#2C3547",
-  logo_url: "/CybeHMS_logo.png",
-  company_name: "CybeHMS",
+  primary_color: "var(--color-gold)",
+  secondary_color: "var(--color-navy)",
+  accent_color: "var(--color-gold-light)",
+  sidebar_color: "var(--color-navy)",
+  logo_url: "/hostsphere-logo.png",
+  company_name: "HostSphere",
 };
 
 interface TenantThemeContextType {
@@ -38,6 +38,7 @@ export function useTenantTheme() {
 
 function applyVariables(b: TenantBranding) {
   const root = document.documentElement;
+  const primaryRgb = hexToRgb(b.primary_color);
   root.style.setProperty("--tenant-primary", b.primary_color);
   root.style.setProperty("--tenant-primary-dark", darken(b.primary_color, 0.1));
   root.style.setProperty("--tenant-secondary", b.secondary_color);
@@ -48,6 +49,19 @@ function applyVariables(b: TenantBranding) {
   root.style.setProperty("--color-primary", b.primary_color);
   root.style.setProperty("--color-primary-dark", darken(b.primary_color, 0.1));
   root.style.setProperty("--color-sidebar", b.sidebar_color);
+  root.style.setProperty("--color-gold", b.primary_color);
+  root.style.setProperty("--color-navy", b.secondary_color);
+  if (primaryRgb) {
+    root.style.setProperty("--color-primary-rgb", primaryRgb);
+    root.style.setProperty("--color-gold-rgb", primaryRgb);
+  }
+}
+
+function hexToRgb(hex: string): string | null {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return null;
+  const num = parseInt(m[1], 16);
+  return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
 }
 
 function darken(hex: string, amount: number): string {

@@ -19,7 +19,7 @@ const RULE_TYPES = [
   { value: "minimum_stay", label: "Minimum Stay" },
 ];
 
-const SEASON_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
+const SEASON_COLORS = ["var(--color-info)", "var(--color-success)", "var(--color-warning)", "var(--color-danger)", "#8B5CF6", "#EC4899"];
 
 export default function PricingPage() {
   const { selectedPropertyId } = useJourney();
@@ -88,12 +88,12 @@ export default function PricingPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.10)" }}>
-            <Tag className="w-5 h-5" style={{ color: "#F59E0B" }} />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(var(--color-warning-rgb),0.10)" }}>
+            <Tag className="w-5 h-5" style={{ color: "var(--color-warning)" }} />
           </div>
           <div>
-            <h1 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Dynamic Pricing</h1>
-            <p className="text-xs" style={{ color: "#64748B" }}>Manage pricing rules and seasonal rates</p>
+            <h1 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Dynamic Pricing</h1>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Manage pricing rules and seasonal rates</p>
           </div>
         </div>
         <Button onClick={() => setShowForm(true)}>
@@ -103,13 +103,13 @@ export default function PricingPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-lg" style={{ background: "#F1F5F9", width: "fit-content" }}>
+      <div className="flex gap-1 p-1 rounded-lg" style={{ background: "var(--color-light)", width: "fit-content" }}>
         {(["rules", "seasons"] as const).map((t) => (
           <button
             key={t}
             onClick={() => { setTab(t); setShowForm(false); }}
             className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${tab === t ? "bg-white shadow-sm" : ""}`}
-            style={{ color: tab === t ? "#1A3C5E" : "#64748B" }}
+            style={{ color: tab === t ? "var(--color-navy)" : "var(--color-text-muted)" }}
           >
             {t === "rules" ? "Pricing Rules" : "Seasons"}
           </button>
@@ -120,31 +120,31 @@ export default function PricingPage() {
       {showForm && (
         <Card>
           <CardHeader title={tab === "rules" ? "Create Pricing Rule" : "Create Season"} action={
-            <button onClick={() => setShowForm(false)} className="text-xs cursor-pointer" style={{ color: "#64748B" }}>Cancel</button>
+            <button onClick={() => setShowForm(false)} className="text-xs cursor-pointer" style={{ color: "var(--color-text-muted)" }}>Cancel</button>
           } />
           {tab === "rules" ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Rule Name</label>
-                <input value={ruleName} onChange={(e) => setRuleName(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "#E2E8F0" }} placeholder="e.g. Weekend Surge" />
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Rule Name</label>
+                <input value={ruleName} onChange={(e) => setRuleName(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "var(--color-border)" }} placeholder="e.g. Weekend Surge" />
               </div>
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Rule Type</label>
-                <select value={ruleType} onChange={(e) => setRuleType(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "#E2E8F0" }}>
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Rule Type</label>
+                <select value={ruleType} onChange={(e) => setRuleType(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "var(--color-border)" }}>
                   {RULE_TYPES.map((rt) => <option key={rt.value} value={rt.value}>{rt.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Priority</label>
-                <input type="number" value={rulePriority} onChange={(e) => setRulePriority(parseInt(e.target.value))} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "#E2E8F0" }} />
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Priority</label>
+                <input type="number" value={rulePriority} onChange={(e) => setRulePriority(parseInt(e.target.value))} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "var(--color-border)" }} />
               </div>
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Conditions (JSON)</label>
-                <textarea value={ruleConditions} onChange={(e) => setRuleConditions(e.target.value)} className="w-full text-xs font-mono border rounded-lg px-3 py-2" rows={3} style={{ borderColor: "#E2E8F0" }} />
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Conditions (JSON)</label>
+                <textarea value={ruleConditions} onChange={(e) => setRuleConditions(e.target.value)} className="w-full text-xs font-mono border rounded-lg px-3 py-2" rows={3} style={{ borderColor: "var(--color-border)" }} />
               </div>
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Adjustments (JSON)</label>
-                <textarea value={ruleAdjustments} onChange={(e) => setRuleAdjustments(e.target.value)} className="w-full text-xs font-mono border rounded-lg px-3 py-2" rows={3} style={{ borderColor: "#E2E8F0" }} />
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Adjustments (JSON)</label>
+                <textarea value={ruleAdjustments} onChange={(e) => setRuleAdjustments(e.target.value)} className="w-full text-xs font-mono border rounded-lg px-3 py-2" rows={3} style={{ borderColor: "var(--color-border)" }} />
               </div>
               <div className="flex items-end">
                 <Button onClick={handleCreateRule} disabled={creatingRule || !ruleName}>
@@ -155,20 +155,20 @@ export default function PricingPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Season Name</label>
-                <input value={seasonName} onChange={(e) => setSeasonName(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "#E2E8F0" }} placeholder="e.g. Peak Season" />
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Season Name</label>
+                <input value={seasonName} onChange={(e) => setSeasonName(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "var(--color-border)" }} placeholder="e.g. Peak Season" />
               </div>
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Start Date</label>
-                <input type="date" value={seasonStart} onChange={(e) => setSeasonStart(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "#E2E8F0" }} />
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Start Date</label>
+                <input type="date" value={seasonStart} onChange={(e) => setSeasonStart(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "var(--color-border)" }} />
               </div>
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>End Date</label>
-                <input type="date" value={seasonEnd} onChange={(e) => setSeasonEnd(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "#E2E8F0" }} />
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>End Date</label>
+                <input type="date" value={seasonEnd} onChange={(e) => setSeasonEnd(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "var(--color-border)" }} />
               </div>
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Rate Multiplier</label>
-                <input type="number" step="0.1" min="0.5" max="5.0" value={seasonMultiplier} onChange={(e) => setSeasonMultiplier(parseFloat(e.target.value))} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "#E2E8F0" }} />
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Rate Multiplier</label>
+                <input type="number" step="0.1" min="0.5" max="5.0" value={seasonMultiplier} onChange={(e) => setSeasonMultiplier(parseFloat(e.target.value))} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "var(--color-border)" }} />
               </div>
               <div className="flex items-end gap-2">
                 <Button onClick={handleCreateSeason} disabled={creatingSeason || !seasonName}>
@@ -183,35 +183,35 @@ export default function PricingPage() {
       {/* Data */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#3B82F6" }} />
+          <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-info)" }} />
         </div>
       ) : tab === "rules" ? (
         <Card padding={false}>
           {rules.length === 0 ? (
             <div className="py-12 text-center">
-              <Tag className="w-8 h-8 mx-auto mb-2" style={{ color: "#CBD5E1" }} />
-              <p className="text-sm" style={{ color: "#94A3B8" }}>No pricing rules yet. Create your first rule to enable dynamic pricing.</p>
+              <Tag className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-border-strong)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-faint)" }}>No pricing rules yet. Create your first rule to enable dynamic pricing.</p>
             </div>
           ) : (
             <table className="w-full">
               <thead>
-                <tr style={{ background: "#F5F7FA" }}>
-                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Name</th>
-                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Type</th>
-                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Priority</th>
-                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Adjustments</th>
-                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Status</th>
+                <tr style={{ background: "var(--color-light)" }}>
+                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Name</th>
+                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Type</th>
+                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Priority</th>
+                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Adjustments</th>
+                  <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y" style={{ borderColor: "#E2E8F0" }}>
+              <tbody className="divide-y" style={{ borderColor: "var(--color-border)" }}>
                 {rules.map((rule: any) => (
                   <tr key={rule.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-2.5 text-xs font-medium" style={{ color: "#1A3C5E" }}>{rule.name}</td>
+                    <td className="px-4 py-2.5 text-xs font-medium" style={{ color: "var(--color-navy)" }}>{rule.name}</td>
                     <td className="px-4 py-2.5">
                       <Badge variant="navy">{RULE_TYPES.find((r) => r.value === rule.rule_type)?.label || rule.rule_type}</Badge>
                     </td>
-                    <td className="px-4 py-2.5 text-xs" style={{ color: "#64748B" }}>{rule.priority}</td>
-                    <td className="px-4 py-2.5 text-xs font-mono" style={{ color: "#64748B" }}>
+                    <td className="px-4 py-2.5 text-xs" style={{ color: "var(--color-text-muted)" }}>{rule.priority}</td>
+                    <td className="px-4 py-2.5 text-xs font-mono" style={{ color: "var(--color-text-muted)" }}>
                       {JSON.stringify(rule.adjustments)}
                     </td>
                     <td className="px-4 py-2.5">
@@ -227,24 +227,24 @@ export default function PricingPage() {
         <Card padding={false}>
           {seasons.length === 0 ? (
             <div className="py-12 text-center">
-              <Tag className="w-8 h-8 mx-auto mb-2" style={{ color: "#CBD5E1" }} />
-              <p className="text-sm" style={{ color: "#94A3B8" }}>No seasons defined. Create seasons to apply rate multipliers for specific date ranges.</p>
+              <Tag className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-border-strong)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-faint)" }}>No seasons defined. Create seasons to apply rate multipliers for specific date ranges.</p>
             </div>
           ) : (
             <div className="p-4 space-y-2">
               {seasons.map((season: any) => (
-                <div key={season.id} className="flex items-center gap-4 p-3 rounded-lg border" style={{ borderColor: "#E2E8F0" }}>
-                  <div className="w-4 h-4 rounded-full shrink-0" style={{ background: season.color || "#3B82F6" }} />
+                <div key={season.id} className="flex items-center gap-4 p-3 rounded-lg border" style={{ borderColor: "var(--color-border)" }}>
+                  <div className="w-4 h-4 rounded-full shrink-0" style={{ background: season.color || "var(--color-info)" }} />
                   <div className="flex-1">
-                    <p className="text-xs font-medium" style={{ color: "#1A3C5E" }}>{season.name}</p>
-                    <p className="text-[10px]" style={{ color: "#94A3B8" }}>
+                    <p className="text-xs font-medium" style={{ color: "var(--color-navy)" }}>{season.name}</p>
+                    <p className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>
                       {season.start_date} to {season.end_date}
                     </p>
                   </div>
                   <Badge variant={Number(season.multiplier) >= 1 ? "amber" : "teal"}>
                     {Number(season.multiplier) >= 1 ? "+" : ""}{Math.round((Number(season.multiplier) - 1) * 100)}%
                   </Badge>
-                  <span className="text-xs font-medium" style={{ color: "#1A3C5E" }}>
+                  <span className="text-xs font-medium" style={{ color: "var(--color-navy)" }}>
                     {Number(season.multiplier)}x
                   </span>
                 </div>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Monitor, ChevronRight, Clock, AlertTriangle, Filter } from "lucide-react";
@@ -17,9 +17,9 @@ const PRIORITY_BADGE: Record<string, { variant: "red" | "amber" | "navy" | "gray
 };
 
 const STATUS_COLS = [
-  { key: "new", label: "New", headerBg: "#FEE2E2", headerText: "#991B1B" },
-  { key: "in_progress", label: "In Progress", headerBg: "#FEF3C7", headerText: "#92400E" },
-  { key: "ready", label: "Ready", headerBg: "#D1FAE5", headerText: "#065F46" },
+  { key: "new", label: "New", headerBg: "var(--color-danger-soft)", headerText: "var(--color-danger-dark)" },
+  { key: "in_progress", label: "In Progress", headerBg: "var(--color-warning-soft)", headerText: "var(--color-warning-dark)" },
+  { key: "ready", label: "Ready", headerBg: "var(--color-success-soft)", headerText: "var(--color-success-dark)" },
 ] as const;
 
 function timeSince(ts: string | null) {
@@ -64,17 +64,17 @@ export default function KDSPage() {
     <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "#1A3C5E" }}>
-            <Monitor className="w-6 h-6 text-[#2BAE8E]" /> Kitchen Display System
+          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "var(--color-navy)" }}>
+            <Monitor className="w-6 h-6 text-[var(--color-primary)]" /> Kitchen Display System
           </h1>
-          <p className="text-[#64748B] mt-1 text-sm">Live order queue. Click a ticket to advance its status.</p>
+          <p className="text-[var(--color-text-muted)] mt-1 text-sm">Live order queue. Click a ticket to advance its status.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-[#64748B]" />
+          <Filter className="w-4 h-4 text-[var(--color-text-muted)]" />
           <select
             value={stationFilter}
             onChange={(e) => setStationFilter(e.target.value)}
-            className="border border-[#E2E8F0] rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#2BAE8E] focus:outline-none"
+            className="border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
           >
             <option value="all">All Stations</option>
             {(stations as any[]).map((s: any) => (
@@ -94,7 +94,7 @@ export default function KDSPage() {
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: col.headerText, color: col.headerBg }}>{colTickets.length}</span>
               </div>
               {colTickets.length === 0 ? (
-                <Card><div className="p-8 text-center text-[#64748B] text-sm">No tickets</div></Card>
+                <Card><div className="p-8 text-center text-[var(--color-text-muted)] text-sm">No tickets</div></Card>
               ) : (
                 <div className="space-y-3">
                   {colTickets.map((ticket: any) => {
@@ -104,29 +104,29 @@ export default function KDSPage() {
                         <div className="p-4 space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-[#1A3C5E] text-lg">{ticket.table_number || "—"}</span>
+                              <span className="font-bold text-[var(--color-navy)] text-lg">{ticket.table_number || "—"}</span>
                               <Badge variant={pb.variant} className="text-[10px]">{pb.label}</Badge>
                             </div>
-                            <div className="flex items-center gap-1 text-[#64748B] text-xs">
+                            <div className="flex items-center gap-1 text-[var(--color-text-muted)] text-xs">
                               <Clock className="w-3 h-3" />
                               {timeSince(ticket.fired_at)}
                             </div>
                           </div>
-                          <div className="text-sm text-[#1A2E44] space-y-0.5">
+                          <div className="text-sm text-[var(--color-text)] space-y-0.5">
                             {ticket.items?.map((item: any, idx: number) => (
                               <div key={idx}>{item.quantity}x {item.item_name}</div>
                             ))}
                           </div>
                           {ticket.notes && (
-                            <div className="text-xs text-[#D97706] italic bg-[#FFFBEB] rounded px-2 py-1">{ticket.notes}</div>
+                            <div className="text-xs text-[var(--color-warning)] italic bg-[var(--color-warning-soft)] rounded px-2 py-1">{ticket.notes}</div>
                           )}
-                          <div className="text-[10px] text-[#64748B]">Station: {ticket.station}</div>
+                          <div className="text-[10px] text-[var(--color-text-muted)]">Station: {ticket.station}</div>
                         </div>
                         {nextStatus[ticket.status] && (
                           <button
                             onClick={() => handleAdvance(ticket)}
-                            className="w-full border-t border-[#E2E8F0] py-2.5 text-xs font-medium flex items-center justify-center gap-1 hover:bg-[#F5F7FA] transition-colors"
-                            style={{ color: "#2BAE8E" }}>
+                            className="w-full border-t border-[var(--color-border)] py-2.5 text-xs font-medium flex items-center justify-center gap-1 hover:bg-[var(--color-light)] transition-colors"
+                            style={{ color: "var(--color-primary)" }}>
                             Move to {nextStatus[ticket.status].replace(/_/g, " ")}
                             <ChevronRight className="w-3 h-3" />
                           </button>
@@ -143,3 +143,4 @@ export default function KDSPage() {
     </div>
   );
 }
+

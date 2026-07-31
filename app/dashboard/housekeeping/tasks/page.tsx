@@ -18,7 +18,7 @@ const PRIORITY_BADGE: Record<string, "gray" | "amber" | "red" | "teal"> = {
 };
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 export default function HKTasksPage() {
@@ -101,14 +101,14 @@ export default function HKTasksPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Task List</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Manage housekeeping tasks and checklists</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Task List</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Manage housekeeping tasks and checklists</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowCreateForm(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+          <button onClick={() => setShowCreateForm(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
             <Plus className="w-3.5 h-3.5" /> Create Task
           </button>
         </div>
@@ -116,9 +116,9 @@ export default function HKTasksPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: feedback.type === "success" ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)",
-          color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: feedback.type === "success" ? "1px solid rgba(43,174,142,0.2)" : "1px solid rgba(229,62,62,0.2)",
+          background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: feedback.type === "success" ? "1px solid rgba(var(--color-primary-rgb),0.2)" : "1px solid rgba(var(--color-danger-rgb),0.2)",
         }}>
           {feedback.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -126,7 +126,7 @@ export default function HKTasksPage() {
       )}
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" />
           Failed to load tasks.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
@@ -134,33 +134,33 @@ export default function HKTasksPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-2xl font-bold">{hkStats?.open ?? displayData.filter((t: any) => t.status === "open").length}</div>
             <ClipboardList className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Open</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#F5A623" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-warning)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-2xl font-bold">{hkStats?.in_progress ?? displayData.filter((t: any) => t.status === "in_progress").length}</div>
             <Loader2 className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">In Progress</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-2xl font-bold">{hkStats?.completed_today ?? displayData.filter((t: any) => t.status === "resolved" || t.status === "completed").length}</div>
             <Check className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Completed Today</div>
         </div>
-        <div className="rounded-xl p-4" style={{ background: "#F5F7FA" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-light)" }}>
           <div className="flex items-center justify-between mb-2">
-            <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>{properties?.length || 0}</div>
-            <Building className="w-5 h-5" style={{ color: "#64748B" }} />
+            <div className="text-2xl font-bold" style={{ color: "var(--color-text)" }}>{properties?.length || 0}</div>
+            <Building className="w-5 h-5" style={{ color: "var(--color-text-muted)" }} />
           </div>
-          <div className="text-xs" style={{ color: "#64748B" }}>Properties</div>
+          <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Properties</div>
         </div>
       </div>
 
@@ -171,18 +171,18 @@ export default function HKTasksPage() {
           action={
             <div className="flex items-center gap-2">
               <div className="relative">
-                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#64748B" }} />
+                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
                 <input
                   type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search unit/room..."
                   className="pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none border w-40"
-                  style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }}
+                  style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }}
                 />
               </div>
               <select
                 value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs outline-none border"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}
               >
                 <option value="">All Statuses</option>
                 <option value="open">Open</option>
@@ -193,7 +193,7 @@ export default function HKTasksPage() {
               <select
                 value={propertyFilter} onChange={(e) => setPropertyFilter(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs outline-none border"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}
               >
                 <option value="">All Properties</option>
                 {(properties || []).map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -207,8 +207,8 @@ export default function HKTasksPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-8">
-            <ClipboardList className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No tasks found</p>
+            <ClipboardList className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No tasks found</p>
           </div>
         ) : (
           <Table
@@ -219,36 +219,36 @@ export default function HKTasksPage() {
                 <span className="font-medium text-sm">{t.unit?.unit_label || t.unit_label || "—"}</span>
               )},
               { key: "task_type", header: "Task Type", render: (t: any) => (
-                <span className="text-xs capitalize" style={{ color: "#64748B" }}>{(t.task_type || "").replace(/_/g, " ")}</span>
+                <span className="text-xs capitalize" style={{ color: "var(--color-text-muted)" }}>{(t.task_type || "").replace(/_/g, " ")}</span>
               )},
               { key: "priority", header: "Priority", render: (t: any) => (
                 <Badge variant={PRIORITY_BADGE[t.priority] || "gray"}>{t.priority || "—"}</Badge>
               )},
               { key: "assigned_to", header: "Assigned To", render: (t: any) => (
-                <span className="text-xs" style={{ color: "#64748B" }}>{t.assignee ? `${t.assignee.first_name} ${t.assignee.last_name || ""}` : t.assigned_to || "—"}</span>
+                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{t.assignee ? `${t.assignee.first_name} ${t.assignee.last_name || ""}` : t.assigned_to || "—"}</span>
               )},
               { key: "status", header: "Status", render: (t: any) => (
                 <span className="text-xs capitalize px-2 py-0.5 rounded-full" style={{
-                  background: t.status === "open" ? "rgba(100,116,139,0.1)" : t.status === "in_progress" ? "rgba(245,166,35,0.1)" : "rgba(43,174,142,0.1)",
-                  color: t.status === "open" ? "#64748B" : t.status === "in_progress" ? "#D4850A" : "#2BAE8E",
+                  background: t.status === "open" ? "rgba(var(--color-text-muted-rgb),0.1)" : t.status === "in_progress" ? "rgba(var(--color-warning-rgb),0.1)" : "rgba(var(--color-primary-rgb),0.1)",
+                  color: t.status === "open" ? "var(--color-text-muted)" : t.status === "in_progress" ? "var(--color-warning)" : "var(--color-primary)",
                 }}>{(t.status || "").replace(/_/g, " ")}</span>
               )},
               { key: "created_at", header: "Created At", render: (t: any) => (
-                <span className="text-xs" style={{ color: "#64748B" }}>{t.created_at ? new Date(t.created_at).toLocaleDateString() : "—"}</span>
+                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{t.created_at ? new Date(t.created_at).toLocaleDateString() : "—"}</span>
               )},
               { key: "actions", header: "Actions", render: (t: any) => (
                 <div className="flex items-center gap-1" onClick={(ev) => ev.stopPropagation()}>
                   <button onClick={() => setExpandedTask(expandedTask === t.id ? null : t.id)} className="p-1 rounded hover:bg-gray-100" title="View Details">
-                    <Eye className="w-3.5 h-3.5" style={{ color: "#1A3C5E" }} />
+                    <Eye className="w-3.5 h-3.5" style={{ color: "var(--color-navy)" }} />
                   </button>
                   {(t.status === "open" || t.status === "assigned") && (
                     <button onClick={() => handleStartTask(t.id)} className="p-1 rounded hover:bg-gray-100" title="Start Task">
-                      <Play className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+                      <Play className="w-3.5 h-3.5" style={{ color: "var(--color-primary)" }} />
                     </button>
                   )}
                   {t.status === "in_progress" && (
                     <button onClick={() => setChecklistTask(t)} className="p-1 rounded hover:bg-gray-100" title="Complete with Checklist">
-                      <ListChecks className="w-3.5 h-3.5" style={{ color: "#F5A623" }} />
+                      <ListChecks className="w-3.5 h-3.5" style={{ color: "var(--color-warning)" }} />
                     </button>
                   )}
                 </div>
@@ -266,14 +266,14 @@ export default function HKTasksPage() {
             <CardHeader
               title={`Task Details — ${t.unit?.unit_label || t.unit_label || ""}`}
               subtitle={`${t.task_type || ""} · ${t.priority || ""}`}
-              action={<button onClick={() => setExpandedTask(null)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#64748B" }} /></button>}
+              action={<button onClick={() => setExpandedTask(null)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>}
             />
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><span className="text-xs" style={{ color: "#64748B" }}>Assigned To</span><p className="font-medium">{t.assignee ? `${t.assignee.first_name} ${t.assignee.last_name || ""}` : t.assigned_to || "—"}</p></div>
-              <div><span className="text-xs" style={{ color: "#64748B" }}>Status</span><p className="font-medium capitalize">{(t.status || "").replace(/_/g, " ")}</p></div>
-              <div><span className="text-xs" style={{ color: "#64748B" }}>Created</span><p className="font-medium">{t.created_at ? new Date(t.created_at).toLocaleString() : "—"}</p></div>
-              <div><span className="text-xs" style={{ color: "#64748B" }}>Scheduled</span><p className="font-medium">{t.scheduled_at ? new Date(t.scheduled_at).toLocaleString() : "—"}</p></div>
-              <div className="col-span-2"><span className="text-xs" style={{ color: "#64748B" }}>Notes</span><p className="font-medium">{t.notes || "—"}</p></div>
+              <div><span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Assigned To</span><p className="font-medium">{t.assignee ? `${t.assignee.first_name} ${t.assignee.last_name || ""}` : t.assigned_to || "—"}</p></div>
+              <div><span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Status</span><p className="font-medium capitalize">{(t.status || "").replace(/_/g, " ")}</p></div>
+              <div><span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Created</span><p className="font-medium">{t.created_at ? new Date(t.created_at).toLocaleString() : "—"}</p></div>
+              <div><span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Scheduled</span><p className="font-medium">{t.scheduled_at ? new Date(t.scheduled_at).toLocaleString() : "—"}</p></div>
+              <div className="col-span-2"><span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Notes</span><p className="font-medium">{t.notes || "—"}</p></div>
             </div>
           </Card>
         );
@@ -282,26 +282,26 @@ export default function HKTasksPage() {
       {showCreateForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/20" onClick={() => setShowCreateForm(false)} />
-          <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl" style={{ border: "1px solid #E2E8F0" }}>
-            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid #E2E8F0" }}>
-              <h2 className="text-base font-semibold" style={{ color: "#1A3C5E" }}>Create Task</h2>
-              <button onClick={() => setShowCreateForm(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#64748B" }} /></button>
+          <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl" style={{ border: "1px solid var(--color-border)" }}>
+            <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--color-border)" }}>
+              <h2 className="text-base font-semibold" style={{ color: "var(--color-navy)" }}>Create Task</h2>
+              <button onClick={() => setShowCreateForm(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>
             </div>
             <div className="p-6 space-y-4 text-sm">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Task Type</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Task Type</label>
                 <input type="text" value={formData.task_type} onChange={(e) => setFormData({ ...formData, task_type: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} placeholder="e.g. deep_clean" />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} placeholder="e.g. deep_clean" />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Unit ID</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Unit ID</label>
                 <input type="text" value={formData.unit_id} onChange={(e) => setFormData({ ...formData, unit_id: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} placeholder="Unit ID" />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} placeholder="Unit ID" />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Assigned To (Live Availability)</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Assigned To (Live Availability)</label>
                 <select value={formData.assigned_to} onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }}>
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }}>
                   <option value="">Select employee (or leave unassigned)</option>
                   {(employees || []).map((e: any) => {
                     const avail = staffAvailability?.find((s: any) => s.id === e.id || s.user?.id === e.user_id);
@@ -315,9 +315,9 @@ export default function HKTasksPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Priority</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Priority</label>
                 <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }}>
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }}>
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
@@ -325,14 +325,14 @@ export default function HKTasksPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Notes</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Notes</label>
                 <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", minHeight: "60px" }} />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", minHeight: "60px" }} />
               </div>
             </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <button onClick={() => setShowCreateForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#64748B", background: "#F5F7FA" }}>Cancel</button>
-              <button onClick={handleCreateTask} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button onClick={() => setShowCreateForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+              <button onClick={handleCreateTask} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
                 {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
                 {saving ? "Creating..." : "Create"}
               </button>
@@ -344,25 +344,25 @@ export default function HKTasksPage() {
       {checklistTask && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/20" onClick={() => setChecklistTask(null)} />
-          <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl max-h-[80vh] overflow-y-auto" style={{ border: "1px solid #E2E8F0" }}>
-            <div className="sticky top-0 bg-white z-10 px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid #E2E8F0" }}>
-              <h2 className="text-base font-semibold" style={{ color: "#1A3C5E" }}>Checklist — {checklistTask.unit?.unit_label || ""}</h2>
-              <button onClick={() => setChecklistTask(null)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#64748B" }} /></button>
+          <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl max-h-[80vh] overflow-y-auto" style={{ border: "1px solid var(--color-border)" }}>
+            <div className="sticky top-0 bg-white z-10 px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
+              <h2 className="text-base font-semibold" style={{ color: "var(--color-navy)" }}>Checklist — {checklistTask.unit?.unit_label || ""}</h2>
+              <button onClick={() => setChecklistTask(null)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>
             </div>
             <div className="p-6 space-y-3">
               {(checklists || []).length === 0 ? (
-                <p className="text-sm" style={{ color: "#64748B" }}>No checklists available for this task</p>
+                <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No checklists available for this task</p>
               ) : (
                 (checklists || []).map((cl: any) => (
-                  <label key={cl.id} className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer" style={{ background: cl.completed ? "rgba(43,174,142,0.04)" : "#F5F7FA" }}>
+                  <label key={cl.id} className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer" style={{ background: cl.completed ? "rgba(var(--color-primary-rgb),0.04)" : "var(--color-light)" }}>
                     <input type="checkbox" checked={cl.completed || false} readOnly className="w-4 h-4 rounded accent-teal-600" />
-                    <span className="text-sm" style={{ color: cl.completed ? "#1A2E44" : "#64748B" }}>{cl.item || cl.checkpoint || cl.name}</span>
+                    <span className="text-sm" style={{ color: cl.completed ? "var(--color-text)" : "var(--color-text-muted)" }}>{cl.item || cl.checkpoint || cl.name}</span>
                   </label>
                 ))
               )}
             </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <button onClick={() => setChecklistTask(null)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#64748B", background: "#F5F7FA" }}>Close</button>
+            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button onClick={() => setChecklistTask(null)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Close</button>
               <button onClick={async () => {
                 try {
                   await fetch(`/api/housekeeping/${checklistTask.id}`, {
@@ -376,7 +376,7 @@ export default function HKTasksPage() {
                 } catch {
                   setFeedback({ type: "error", message: "Failed to complete task" });
                 }
-              }} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white" style={{ background: "#2BAE8E" }}>
+              }} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white" style={{ background: "var(--color-primary)" }}>
                 <Check className="w-3 h-3" /> Complete Task
               </button>
             </div>
@@ -386,3 +386,4 @@ export default function HKTasksPage() {
     </div>
   );
 }
+

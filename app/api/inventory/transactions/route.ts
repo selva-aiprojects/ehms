@@ -15,7 +15,34 @@ export async function GET(req: NextRequest) {
     const fromDate = searchParams.get("from_date");
     const toDate = searchParams.get("to_date");
 
-    const rows = await sql`
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+    if (itemId) {
+      params.push(itemId);
+      conditions.push(`it.item_id = $${params.length}`);
+    }
+    if (propertyId) {
+      params.push(propertyId);
+      conditions.push(`it.property_id = $${params.length}`);
+    } else if (scope.assignedPropertyIds.length > 0) {
+      params.push(scope.assignedPropertyIds);
+      conditions.push(`it.property_id = ANY($${params.length})`);
+    }
+    if (transactionType) {
+      params.push(transactionType);
+      conditions.push(`it.transaction_type = $${params.length}`);
+    }
+    if (fromDate) {
+      params.push(fromDate);
+      conditions.push(`it.created_at >= $${params.length}`);
+    }
+    if (toDate) {
+      params.push(`${toDate} 23:59:59`);
+      conditions.push(`it.created_at <= $${params.length}`);
+    }
+
+    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+    const query = `
       SELECT
         it.*,
         ii.name AS item_name,
@@ -26,15 +53,11 @@ export async function GET(req: NextRequest) {
       JOIN inventory_items ii ON ii.id = it.item_id
       LEFT JOIN inventory_categories ic ON ic.id = ii.category_id
       LEFT JOIN warehouses w ON w.id = it.warehouse_id
-      WHERE 1=1
-      ${itemId ? sql`AND it.item_id = ${itemId}` : sql``}
-      ${propertyId ? sql`AND it.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND it.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
-      ${transactionType ? sql`AND it.transaction_type = ${transactionType}` : sql``}
-      ${fromDate ? sql`AND it.created_at >= ${fromDate}` : sql``}
-      ${toDate ? sql`AND it.created_at <= ${toDate + " 23:59:59"}` : sql``}
+      ${whereClause}
       ORDER BY it.created_at DESC
       LIMIT 500
     `;
+    const rows = await sql.query(query, params);
 
     return NextResponse.json({ data: rows });
   } catch (error: any) {

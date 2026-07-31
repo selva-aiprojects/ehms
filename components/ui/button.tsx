@@ -18,10 +18,10 @@ export default function Button({
   const base = "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all cursor-pointer disabled:opacity-50";
 
   const styles: Record<string, React.CSSProperties> = {
-    primary:   { background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFFFFF" },
-    secondary: { background: "#1A3C5E", color: "#FFFFFF" },
-    outline:   { background: "transparent", color: "#1A3C5E", border: "1px solid #E2E8F0" },
-    ghost:     { background: "transparent", color: "#64748B" },
+    primary:   { background: "var(--hs-navy)", color: "var(--hs-surface-white)" },
+    secondary: { background: "var(--hs-gold)", color: "var(--hs-navy)" },
+    outline:   { background: "transparent", color: "var(--hs-navy)", border: "1px solid var(--hs-gold)" },
+    ghost:     { background: "transparent", color: "var(--hs-text-muted)" },
   };
 
   const sizes: Record<string, string> = {
@@ -34,7 +34,7 @@ export default function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`${base} ${sizes[size]} ${className}`}
+      className={`${base} hs-btn ${variant === "primary" ? "hs-btn-primary" : ""} ${variant === "secondary" ? "hs-btn-secondary" : ""} ${sizes[size]} ${className}`}
       style={{ ...styles[variant], ...style }}
     >
       {children}

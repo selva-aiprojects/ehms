@@ -105,8 +105,8 @@ export default function InventoryDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Inventory Management</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Track stock, manage categories and warehouses</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Inventory Management</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Track stock, manage categories and warehouses</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => { resetCatForm(); setShowAddCategory(true); }}>
@@ -115,7 +115,7 @@ export default function InventoryDashboard() {
           <Button variant="secondary" size="sm" onClick={() => { resetItemForm(); setShowAddItem(true); }}>
             <Plus className="w-3.5 h-3.5" /> Add Item
           </Button>
-          <button onClick={() => { mutateItems(); }} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }}>
+          <button onClick={() => { mutateItems(); }} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }}>
             <RefreshCw className={`w-4 h-4 ${itemsLoading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -123,7 +123,7 @@ export default function InventoryDashboard() {
 
       {actionFeedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
-          style={{ background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)", color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E", border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}` }}>
+          style={{ background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)", color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)", border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}` }}>
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {actionFeedback.message}
         </div>
@@ -133,36 +133,36 @@ export default function InventoryDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(43,174,142,0.12)" }}>
-              <Package className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-primary-rgb),0.12)" }}>
+              <Package className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
             </div>
             <div>
-              <div className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>{statsLoading ? "..." : stats.total_items || 0}</div>
-              <div className="text-xs" style={{ color: "#64748B" }}>Total Items</div>
+              <div className="text-2xl font-bold" style={{ color: "var(--color-navy)" }}>{statsLoading ? "..." : stats.total_items || 0}</div>
+              <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Total Items</div>
             </div>
           </div>
         </Card>
         <Card>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,60,94,0.10)" }}>
-              <DollarSign className="w-5 h-5" style={{ color: "#1A3C5E" }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-navy-rgb),0.10)" }}>
+              <DollarSign className="w-5 h-5" style={{ color: "var(--color-navy)" }} />
             </div>
             <div>
-              <div className="text-2xl font-bold mt-1" style={{ color: "#1A3C5E" }}>
+              <div className="text-2xl font-bold mt-1" style={{ color: "var(--color-navy)" }}>
                 {statsLoading ? "..." : `₹${parseFloat(stats.total_value || 0).toLocaleString()}`}
               </div>
-              <div className="text-xs" style={{ color: "#64748B" }}>Total Value</div>
+              <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Total Value</div>
             </div>
           </div>
         </Card>
         <Card>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(245,166,35,0.12)" }}>
-              <AlertTriangle className="w-5 h-5" style={{ color: "#F5A623" }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-warning-rgb),0.12)" }}>
+              <AlertTriangle className="w-5 h-5" style={{ color: "var(--color-warning)" }} />
             </div>
             <div>
-              <div className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>{statsLoading ? "..." : stats.low_stock_count || 0}</div>
-              <div className="text-xs" style={{ color: "#64748B" }}>Low Stock Items</div>
+              <div className="text-2xl font-bold" style={{ color: "var(--color-navy)" }}>{statsLoading ? "..." : stats.low_stock_count || 0}</div>
+              <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Low Stock Items</div>
             </div>
           </div>
         </Card>
@@ -172,8 +172,8 @@ export default function InventoryDashboard() {
               <Layers className="w-5 h-5" style={{ color: "#6366F1" }} />
             </div>
             <div>
-              <div className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>{statsLoading ? "..." : stats.total_categories || 0}</div>
-              <div className="text-xs" style={{ color: "#64748B" }}>Categories</div>
+              <div className="text-2xl font-bold" style={{ color: "var(--color-navy)" }}>{statsLoading ? "..." : stats.total_categories || 0}</div>
+              <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Categories</div>
             </div>
           </div>
         </Card>
@@ -182,13 +182,13 @@ export default function InventoryDashboard() {
       {/* Filters */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "#94A3B8" }} />
+          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-faint)" }} />
           <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name or SKU..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "#E2E8F0" }} />
+            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border outline-none" style={{ borderColor: "var(--color-border)" }} />
         </div>
         <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}
-          className="px-3 py-1.5 text-xs rounded-lg border outline-none bg-white" style={{ borderColor: "#E2E8F0", color: "#1A2E44" }}>
+          className="px-3 py-1.5 text-xs rounded-lg border outline-none bg-white" style={{ borderColor: "var(--color-border)", color: "var(--color-text)" }}>
           <option value="">All Categories</option>
           {(categories || []).map((c: any) => (
             <option key={c.id} value={c.id}>{c.name}</option>
@@ -200,11 +200,11 @@ export default function InventoryDashboard() {
       <Card>
         <CardHeader title="Inventory Items" subtitle={`${filteredItems.length} items found`} />
         {itemsLoading && !inventoryItems.length ? (
-          <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "#94A3B8" }} /></div>
+          <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-text-faint)" }} /></div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-8">
-            <Package className="w-8 h-8 mx-auto mb-2" style={{ color: "#94A3B8" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No items found. Add your first inventory item.</p>
+            <Package className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-text-faint)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No items found. Add your first inventory item.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -213,22 +213,22 @@ export default function InventoryDashboard() {
                 <tr>
                   {["SKU", "Name", "Category", "Warehouse", "Qty On Hand", "Reorder Level", "Unit Cost", "Total Value", "Status"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                      style={{ color: "#FFFFFF", background: "#1A3C5E" }}>{h}</th>
+                      style={{ color: "var(--color-white)", background: "var(--color-navy)" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filteredItems.map((item: any, idx: number) => (
                   <tr key={item.id}
-                    style={{ background: idx % 2 === 0 ? "#FFFFFF" : "#F5F7FA", borderBottom: "1px solid #E2E8F0" }}>
-                    <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: "#64748B" }}>{item.sku || "—"}</td>
-                    <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: "#1A2E44" }}>{item.name}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748B" }}>{item.category?.name || "—"}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748B" }}>{item.warehouse?.name || "—"}</td>
+                    style={{ background: idx % 2 === 0 ? "var(--color-white)" : "var(--color-light)", borderBottom: "1px solid var(--color-border)" }}>
+                    <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>{item.sku || "—"}</td>
+                    <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: "var(--color-text)" }}>{item.name}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>{item.category?.name || "—"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>{item.warehouse?.name || "—"}</td>
                     <td className="px-4 py-3 font-medium whitespace-nowrap">{item.quantity_on_hand}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748B" }}>{item.reorder_level}</td>
-                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748B" }}>${parseFloat(item.unit_cost || 0).toFixed(2)}</td>
-                    <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: "#1A3C5E" }}>${parseFloat(item.total_value || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>{item.reorder_level}</td>
+                    <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--color-text-muted)" }}>${parseFloat(item.unit_cost || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: "var(--color-navy)" }}>${parseFloat(item.total_value || 0).toFixed(2)}</td>
                     <td className="px-4 py-3"><Badge variant={stockBadge(item)}>{stockLabel(item)}</Badge></td>
                   </tr>
                 ))}
@@ -242,26 +242,26 @@ export default function InventoryDashboard() {
       {showAddItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>Add Inventory Item</h3>
+            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>Add Inventory Item</h3>
               <button onClick={() => { setShowAddItem(false); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
             <form onSubmit={handleAddItem} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Item Name *</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Item Name *</label>
                   <input type="text" required value={itemForm.name}
                     onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                     placeholder="Toilet Paper" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Category</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Category</label>
                   <select value={itemForm.category_id}
                     onChange={(e) => setItemForm({ ...itemForm, category_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                     <option value="">Select Category</option>
                     {(categories || []).map((c: any) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
@@ -269,10 +269,10 @@ export default function InventoryDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Unit</label>
                   <select value={itemForm.unit}
                     onChange={(e) => setItemForm({ ...itemForm, unit: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                     {["pcs", "kg", "g", "l", "ml", "box", "pack", "roll", "bottle", "bag"].map((u) => (
                       <option key={u} value={u}>{u}</option>
                     ))}
@@ -280,46 +280,46 @@ export default function InventoryDashboard() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Description</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Description</label>
                 <textarea value={itemForm.description}
                   onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                   rows={2} placeholder="Optional description" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Quantity On Hand</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Quantity On Hand</label>
                   <input type="number" min="0" step="0.01" value={itemForm.quantity_on_hand}
                     onChange={(e) => setItemForm({ ...itemForm, quantity_on_hand: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Unit Cost (₹)</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Unit Cost (₹)</label>
                   <input type="number" min="0" step="0.01" value={itemForm.unit_cost}
                     onChange={(e) => setItemForm({ ...itemForm, unit_cost: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Reorder Level</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Reorder Level</label>
                   <input type="number" min="0" step="0.01" value={itemForm.reorder_level}
                     onChange={(e) => setItemForm({ ...itemForm, reorder_level: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Reorder Quantity</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Reorder Quantity</label>
                   <input type="number" min="0" step="0.01" value={itemForm.reorder_quantity}
                     onChange={(e) => setItemForm({ ...itemForm, reorder_quantity: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }} />
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Warehouse</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Warehouse</label>
                   <select value={itemForm.warehouse_id}
                     onChange={(e) => setItemForm({ ...itemForm, warehouse_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                     <option value="">Select Warehouse</option>
                     {(warehouses || []).map((w: any) => (
                       <option key={w.id} value={w.id}>{w.name}</option>
@@ -327,10 +327,10 @@ export default function InventoryDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Property</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Property</label>
                   <select value={itemForm.property_id}
                     onChange={(e) => setItemForm({ ...itemForm, property_id: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                    className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                     <option value="">Select Property</option>
                     {(properties || []).map((p: any) => (
                       <option key={p.id} value={p.id}>{p.name}</option>
@@ -338,7 +338,7 @@ export default function InventoryDashboard() {
                   </select>
                 </div>
               </div>
-              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                 <Button type="button" variant="outline" size="sm" onClick={() => { setShowAddItem(false); }}>Cancel</Button>
                 <Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>
                   {isSubmitting ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Saving</> : "Create Item"}
@@ -353,37 +353,37 @@ export default function InventoryDashboard() {
       {showAddCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "#E2E8F0" }}>
-              <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>Add Category</h3>
+            <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white z-10" style={{ borderColor: "var(--color-border)" }}>
+              <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>Add Category</h3>
               <button onClick={() => { setShowAddCategory(false); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
             <form onSubmit={handleAddCategory} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Category Name *</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Category Name *</label>
                 <input type="text" required value={catForm.name}
                   onChange={(e) => setCatForm({ ...catForm, name: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                   placeholder="Cleaning Supplies" />
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Description</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Description</label>
                 <textarea value={catForm.description}
                   onChange={(e) => setCatForm({ ...catForm, description: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                   rows={2} placeholder="Optional description" />
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Property</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Property</label>
                 <select value={catForm.property_id}
                   onChange={(e) => setCatForm({ ...catForm, property_id: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}>
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}>
                   <option value="">All Properties</option>
                   {(properties || []).map((p: any) => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
                 </select>
               </div>
-              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+              <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                 <Button type="button" variant="outline" size="sm" onClick={() => { setShowAddCategory(false); }}>Cancel</Button>
                 <Button type="submit" variant="primary" size="sm" disabled={isSubmitting}>
                   {isSubmitting ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Saving</> : "Create Category"}

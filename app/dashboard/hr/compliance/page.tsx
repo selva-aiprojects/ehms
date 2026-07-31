@@ -10,9 +10,9 @@ import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 
 function SkeletonCard() {
-  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}>
-    <div className="w-12 h-8 rounded mb-2" style={{ background: "#CBD5E1" }} />
-    <div className="w-16 h-3 rounded" style={{ background: "#CBD5E1" }} />
+  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}>
+    <div className="w-12 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} />
+    <div className="w-16 h-3 rounded" style={{ background: "var(--color-border-strong)" }} />
   </div>;
 }
 
@@ -47,24 +47,24 @@ export default function CompliancePage() {
   const contributions = data?.contributions as Record<string, { amount: number; rate: string }> | undefined;
 
   const summaryCards = [
-    { label: "Total Gross", value: (data?.total_gross as number) || 0, icon: Users, color: "#1A3C5E" },
-    { label: "Total Deductions", value: (data?.total_deductions as number) || 0, icon: CreditCard, color: "#E53E3E" },
-    { label: "Total Net Pay", value: (data?.total_net as number) || 0, icon: FileText, color: "#2BAE8E" },
-    { label: "Employees", value: (data?.employee_count as number) || 0, icon: Users, color: "#F5A623" },
+    { label: "Total Gross", value: (data?.total_gross as number) || 0, icon: Users, color: "var(--color-navy)" },
+    { label: "Total Deductions", value: (data?.total_deductions as number) || 0, icon: CreditCard, color: "var(--color-danger)" },
+    { label: "Total Net Pay", value: (data?.total_net as number) || 0, icon: FileText, color: "var(--color-primary)" },
+    { label: "Employees", value: (data?.employee_count as number) || 0, icon: Users, color: "var(--color-warning)" },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Statutory Compliance</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>{data?.month as string || "Current month"} &middot; PF, ESI, PT & TDS</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Statutory Compliance</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>{data?.month as string || "Current month"} &middot; PF, ESI, PT & TDS</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={fetchData} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={fetchData} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors" style={{ color: "#1A3C5E", background: "#F5F7FA", border: "1px solid #E2E8F0" }}>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors" style={{ color: "var(--color-navy)", background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
             <Download className="w-3.5 h-3.5" /> Export
           </button>
         </div>
@@ -88,11 +88,11 @@ export default function CompliancePage() {
         </div>
       )}
 
-      <div className="flex items-center rounded-lg text-xs font-medium overflow-hidden" style={{ border: "1px solid #E2E8F0", width: "fit-content" }}>
+      <div className="flex items-center rounded-lg text-xs font-medium overflow-hidden" style={{ border: "1px solid var(--color-border)", width: "fit-content" }}>
         {COMPLIANCE_TABS.map((tab) => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className="flex items-center gap-1.5 px-4 py-2 transition-colors"
-            style={{ background: activeTab === tab.key ? "#1A3C5E" : "#F5F7FA", color: activeTab === tab.key ? "#FFF" : "#64748B" }}>
+            style={{ background: activeTab === tab.key ? "var(--color-navy)" : "var(--color-light)", color: activeTab === tab.key ? "var(--color-white)" : "var(--color-text-muted)" }}>
             <tab.icon className="w-3.5 h-3.5" />
             {tab.label}
           </button>
@@ -106,19 +106,19 @@ export default function CompliancePage() {
         />
         <div className="p-1">
           {contributions?.[activeTab] ? (
-            <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
+            <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: "var(--color-light)" }}>
               <div>
-                <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{COMPLIANCE_TABS.find((t) => t.key === activeTab)?.label}</div>
-                <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Rate: {contributions[activeTab].rate}</div>
+                <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{COMPLIANCE_TABS.find((t) => t.key === activeTab)?.label}</div>
+                <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Rate: {contributions[activeTab].rate}</div>
               </div>
-              <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>
+              <div className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>
                 {'\u20B9'}{Number(contributions[activeTab].amount).toLocaleString()}
               </div>
             </div>
           ) : (
             <div className="text-center py-8">
-              <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No data available for this period</p>
+              <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No data available for this period</p>
             </div>
           )}
         </div>
@@ -126,3 +126,4 @@ export default function CompliancePage() {
     </div>
   );
 }
+

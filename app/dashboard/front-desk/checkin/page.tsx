@@ -29,12 +29,12 @@ function useCheckins(propertyId: string | null) {
 }
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
-  pending: { label: "Pending", color: "#F59E0B", bg: "#FEF3C7" },
-  identity_verified: { label: "ID Verified", color: "#3B82F6", bg: "#EFF6FF" },
-  payment_pending: { label: "Payment Due", color: "#F97316", bg: "#FFF7ED" },
-  completed: { label: "Completed", color: "#10B981", bg: "#ECFDF5" },
-  expired: { label: "Expired", color: "#94A3B8", bg: "#F1F5F9" },
-  cancelled: { label: "Cancelled", color: "#EF4444", bg: "#FEF2F2" },
+  pending: { label: "Pending", color: "var(--color-warning)", bg: "var(--color-warning-soft)" },
+  identity_verified: { label: "ID Verified", color: "var(--color-info)", bg: "var(--color-info-soft)" },
+  payment_pending: { label: "Payment Due", color: "var(--color-warning)", bg: "var(--color-warning-soft)" },
+  completed: { label: "Completed", color: "var(--color-success)", bg: "var(--color-success-soft)" },
+  expired: { label: "Expired", color: "var(--color-text-faint)", bg: "var(--color-light)" },
+  cancelled: { label: "Cancelled", color: "var(--color-danger)", bg: "var(--color-danger-soft)" },
 };
 
 export default function CheckinDashboardPage() {
@@ -59,12 +59,12 @@ export default function CheckinDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(59,130,246,0.10)" }}>
-            <QrCode className="w-5 h-5" style={{ color: "#3B82F6" }} />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(var(--color-info-rgb),0.10)" }}>
+            <QrCode className="w-5 h-5" style={{ color: "var(--color-info)" }} />
           </div>
           <div>
-            <h1 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Self Check-in Management</h1>
-            <p className="text-xs" style={{ color: "#64748B" }}>Manage kiosk sessions, QR codes, and digital keys</p>
+            <h1 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Self Check-in Management</h1>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Manage kiosk sessions, QR codes, and digital keys</p>
           </div>
         </div>
       </div>
@@ -92,38 +92,38 @@ export default function CheckinDashboardPage() {
       <Card padding={false}>
         {loading ? (
           <div className="py-12 flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#3B82F6" }} />
+            <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-info)" }} />
           </div>
         ) : sessions.length === 0 ? (
           <div className="py-12 text-center">
-            <QrCode className="w-8 h-8 mx-auto mb-2" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm" style={{ color: "#94A3B8" }}>No check-in sessions</p>
+            <QrCode className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-border-strong)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-faint)" }}>No check-in sessions</p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr style={{ background: "#F5F7FA" }}>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Guest</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Booking</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Status</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Identity</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Key</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>QR</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Opened</th>
+              <tr style={{ background: "var(--color-light)" }}>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Guest</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Booking</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Status</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Identity</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Key</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>QR</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Opened</th>
               </tr>
             </thead>
-            <tbody className="divide-y" style={{ borderColor: "#E2E8F0" }}>
+            <tbody className="divide-y" style={{ borderColor: "var(--color-border)" }}>
               {sessions.map((s: any) => {
                 const meta = STATUS_META[s.status] || STATUS_META.pending;
                 return (
                   <tr key={s.id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => setSelectedSession(s)}>
                     <td className="px-4 py-2.5">
-                      <p className="text-xs font-medium" style={{ color: "#1A3C5E" }}>{s.guest_full_name || s.guest_full_name || "—"}</p>
-                      <p className="text-[10px]" style={{ color: "#94A3B8" }}>{s.guest_email || ""}</p>
+                      <p className="text-xs font-medium" style={{ color: "var(--color-navy)" }}>{s.guest_full_name || s.guest_full_name || "—"}</p>
+                      <p className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>{s.guest_email || ""}</p>
                     </td>
                     <td className="px-4 py-2.5">
-                      <p className="text-[10px] font-mono" style={{ color: "#64748B" }}>{s.source_booking_ref?.slice(0, 8) || "—"}</p>
-                      <p className="text-[10px]" style={{ color: "#94A3B8" }}>{s.bk_check_in} → {s.bk_check_out}</p>
+                      <p className="text-[10px] font-mono" style={{ color: "var(--color-text-muted)" }}>{s.source_booking_ref?.slice(0, 8) || "—"}</p>
+                      <p className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>{s.bk_check_in} → {s.bk_check_out}</p>
                     </td>
                     <td className="px-4 py-2.5">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: meta.bg, color: meta.color }}>
@@ -132,16 +132,16 @@ export default function CheckinDashboardPage() {
                     </td>
                     <td className="px-4 py-2.5">
                       {s.id_verified ? (
-                        <Shield className="w-4 h-4" style={{ color: "#10B981" }} />
+                        <Shield className="w-4 h-4" style={{ color: "var(--color-success)" }} />
                       ) : (
-                        <span className="text-[10px]" style={{ color: "#94A3B8" }}>—</span>
+                        <span className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>—</span>
                       )}
                     </td>
                     <td className="px-4 py-2.5">
                       {s.digital_key_issued ? (
-                        <Key className="w-4 h-4" style={{ color: "#10B981" }} />
+                        <Key className="w-4 h-4" style={{ color: "var(--color-success)" }} />
                       ) : (
-                        <span className="text-[10px]" style={{ color: "#94A3B8" }}>—</span>
+                        <span className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>—</span>
                       )}
                     </td>
                     <td className="px-4 py-2.5">
@@ -156,7 +156,7 @@ export default function CheckinDashboardPage() {
                         Copy QR
                       </button>
                     </td>
-                    <td className="px-4 py-2.5 text-[10px]" style={{ color: "#94A3B8" }}>
+                    <td className="px-4 py-2.5 text-[10px]" style={{ color: "var(--color-text-faint)" }}>
                       {new Date(s.created_at).toLocaleString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                     </td>
                   </tr>
@@ -172,8 +172,8 @@ export default function CheckinDashboardPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }} onClick={() => setSelectedSession(null)}>
           <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold" style={{ color: "#1A3C5E" }}>Check-in Details</h3>
-              <button onClick={() => setSelectedSession(null)} className="text-xs cursor-pointer" style={{ color: "#94A3B8" }}>✕</button>
+              <h3 className="text-sm font-bold" style={{ color: "var(--color-navy)" }}>Check-in Details</h3>
+              <button onClick={() => setSelectedSession(null)} className="text-xs cursor-pointer" style={{ color: "var(--color-text-faint)" }}>✕</button>
             </div>
 
             <div className="space-y-3">
@@ -184,9 +184,9 @@ export default function CheckinDashboardPage() {
               <InfoRow icon={<Key className="w-3.5 h-3.5" />} label="Digital Key" value={selectedSession.digital_key_value || "Not issued"} />
 
               {selectedSession.session_token && (
-                <div className="p-3 rounded-lg" style={{ background: "#F8FAFC" }}>
-                  <p className="text-[10px] font-medium mb-1" style={{ color: "#94A3B8" }}>Kiosk URL</p>
-                  <p className="text-[10px] font-mono break-all" style={{ color: "#3B82F6" }}>
+                <div className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                  <p className="text-[10px] font-medium mb-1" style={{ color: "var(--color-text-faint)" }}>Kiosk URL</p>
+                  <p className="text-[10px] font-mono break-all" style={{ color: "var(--color-info)" }}>
                     {qrUrl(selectedSession.session_token)}
                   </p>
                 </div>
@@ -202,9 +202,9 @@ export default function CheckinDashboardPage() {
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span style={{ color: "#94A3B8" }}>{icon}</span>
-      <span className="text-[10px] w-20 shrink-0" style={{ color: "#94A3B8" }}>{label}</span>
-      <span className="text-xs font-medium" style={{ color: "#1A3C5E" }}>{value || "—"}</span>
+      <span style={{ color: "var(--color-text-faint)" }}>{icon}</span>
+      <span className="text-[10px] w-20 shrink-0" style={{ color: "var(--color-text-faint)" }}>{label}</span>
+      <span className="text-xs font-medium" style={{ color: "var(--color-navy)" }}>{value || "—"}</span>
     </div>
   );
 }

@@ -13,13 +13,13 @@ import Badge from "@/components/ui/badge";
 import Table from "@/components/ui/table";
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 function SkeletonCard() {
-  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}>
-    <div className="w-12 h-8 rounded mb-2" style={{ background: "#CBD5E1" }} />
-    <div className="w-16 h-3 rounded" style={{ background: "#CBD5E1" }} />
+  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}>
+    <div className="w-12 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} />
+    <div className="w-16 h-3 rounded" style={{ background: "var(--color-border-strong)" }} />
   </div>;
 }
 
@@ -127,9 +127,9 @@ export default function PayrollPage() {
 
   const statusActions = (pr: any) => {
     const nextSteps: Record<string, { label: string; status: string; color: string }[]> = {
-      draft: [{ label: "Compute", status: "computed", color: "#1A3C5E" }],
-      computed: [{ label: "Approve", status: "approved", color: "#2BAE8E" }],
-      approved: [{ label: "Mark Paid", status: "paid", color: "#2BAE8E" }],
+      draft: [{ label: "Compute", status: "computed", color: "var(--color-navy)" }],
+      computed: [{ label: "Approve", status: "approved", color: "var(--color-primary)" }],
+      approved: [{ label: "Mark Paid", status: "paid", color: "var(--color-primary)" }],
     };
     const steps = nextSteps[pr.status] || [];
     return steps.map((step) => (
@@ -145,14 +145,14 @@ export default function PayrollPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Payroll</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Manage payroll runs and salary processing</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Payroll</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Manage payroll runs and salary processing</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={fetchData} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={fetchData} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowRunModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+          <button onClick={() => setShowRunModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
             <Plus className="w-3.5 h-3.5" /> Run Payroll
           </button>
         </div>
@@ -160,9 +160,9 @@ export default function PayrollPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: feedback.type === "success" ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)",
-          color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: feedback.type === "success" ? "1px solid rgba(43,174,142,0.2)" : "1px solid rgba(229,62,62,0.2)",
+          background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: feedback.type === "success" ? "1px solid rgba(var(--color-primary-rgb),0.2)" : "1px solid rgba(var(--color-danger-rgb),0.2)",
         }}>
           {feedback.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -176,23 +176,23 @@ export default function PayrollPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+          <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-2xl font-bold">₹{Number(summary.totalMtd || 0).toLocaleString()}</div>
               <DollarSign className="w-5 h-5 opacity-60" />
             </div>
             <div className="text-xs opacity-80">Total Payroll MTD</div>
           </div>
-          <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+          <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-2xl font-bold">₹{Number(summary.avgSalary || 0).toLocaleString()}</div>
               <TrendingUp className="w-5 h-5 opacity-60" />
             </div>
             <div className="text-xs opacity-80">Average Salary</div>
           </div>
-          <div className="rounded-xl p-4" style={{ background: "#F5A623" }}>
+          <div className="rounded-xl p-4" style={{ background: "var(--color-warning)" }}>
             <div className="flex items-center justify-between mb-2">
-              <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>{summary.totalEmployees || 0}</div>
+              <div className="text-2xl font-bold" style={{ color: "var(--color-text)" }}>{summary.totalEmployees || 0}</div>
               <Users className="w-5 h-5" style={{ color: "rgba(0,0,0,0.4)" }} />
             </div>
             <div className="text-xs" style={{ color: "rgba(0,0,0,0.6)" }}>Total Employees</div>
@@ -209,26 +209,26 @@ export default function PayrollPage() {
           </div>
         ) : payrolls.length === 0 ? (
           <div className="text-center py-8">
-            <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No payroll runs yet</p>
+            <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No payroll runs yet</p>
           </div>
         ) : (
           <Table
             data={payrolls}
             keyExtractor={(pr: any) => pr.id}
             columns={[
-              { key: "run_id", header: "Run ID", render: (pr: any) => <span className="font-mono text-xs" style={{ color: "#64748B" }}>{pr.run_id || pr.id?.slice(0, 8) || "—"}</span> },
+              { key: "run_id", header: "Run ID", render: (pr: any) => <span className="font-mono text-xs" style={{ color: "var(--color-text-muted)" }}>{pr.run_id || pr.id?.slice(0, 8) || "—"}</span> },
               { key: "period", header: "Period", render: (pr: any) => <span className="text-xs">{pr.period_start ? new Date(pr.period_start).toLocaleDateString("en-IN") : "—"} - {pr.period_end ? new Date(pr.period_end).toLocaleDateString("en-IN") : "—"}</span> },
               { key: "total_gross", header: "Total Gross", render: (pr: any) => <span className="text-xs font-medium">₹{Number(pr.total_gross || 0).toLocaleString()}</span> },
-              { key: "total_deductions", header: "Total Deductions", render: (pr: any) => <span className="text-xs" style={{ color: "#E53E3E" }}>₹{Number(pr.total_deductions || 0).toLocaleString()}</span> },
-              { key: "total_net", header: "Total Net", render: (pr: any) => <span className="text-xs font-semibold" style={{ color: "#1A3C5E" }}>₹{Number(pr.total_net || 0).toLocaleString()}</span> },
+              { key: "total_deductions", header: "Total Deductions", render: (pr: any) => <span className="text-xs" style={{ color: "var(--color-danger)" }}>₹{Number(pr.total_deductions || 0).toLocaleString()}</span> },
+              { key: "total_net", header: "Total Net", render: (pr: any) => <span className="text-xs font-semibold" style={{ color: "var(--color-navy)" }}>₹{Number(pr.total_net || 0).toLocaleString()}</span> },
               { key: "status", header: "Status", render: (pr: any) => statusBadge(pr.status) },
-              { key: "processed_by", header: "Processed By", render: (pr: any) => <span className="text-xs" style={{ color: "#64748B" }}>{pr.processed_by?.user ? `${pr.processed_by.user.first_name} ${pr.processed_by.user.last_name || ""}` : "—"}</span> },
+              { key: "processed_by", header: "Processed By", render: (pr: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{pr.processed_by?.user ? `${pr.processed_by.user.first_name} ${pr.processed_by.user.last_name || ""}` : "—"}</span> },
               { key: "actions", header: "Actions", render: (pr: any) => (
                 <div className="flex items-center gap-1">
                   {statusActions(pr)}
                   <button onClick={() => handleView(pr)} className="p-1 rounded hover:bg-gray-100" title="View Details">
-                    <Eye className="w-3.5 h-3.5" style={{ color: "#1A3C5E" }} />
+                    <Eye className="w-3.5 h-3.5" style={{ color: "var(--color-navy)" }} />
                   </button>
                 </div>
               )},
@@ -246,7 +246,7 @@ export default function PayrollPage() {
             action={
               <div className="flex items-center gap-2">
                 {statusActions(selectedPayroll)}
-                <button onClick={() => setSelectedPayroll(null)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#64748B" }} /></button>
+                <button onClick={() => setSelectedPayroll(null)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>
               </div>
             }
           />
@@ -256,8 +256,8 @@ export default function PayrollPage() {
             </div>
           ) : payrollDetails.length === 0 ? (
             <div className="text-center py-8">
-              <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No detail records</p>
+              <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No detail records</p>
             </div>
           ) : (
             <Table
@@ -267,13 +267,13 @@ export default function PayrollPage() {
                 { key: "employee", header: "Employee", render: (pd: any) => (
                   <span className="text-xs font-medium">{pd.employee?.user ? `${pd.employee.user.first_name} ${pd.employee.user.last_name || ""}` : pd.employee?.employee_code || "—"}</span>
                 )},
-                { key: "department", header: "Department", render: (pd: any) => <span className="text-xs" style={{ color: "#64748B" }}>{pd.employee?.department?.name || "—"}</span> },
+                { key: "department", header: "Department", render: (pd: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{pd.employee?.department?.name || "—"}</span> },
                 { key: "gross_pay", header: "Gross Pay", render: (pd: any) => <span className="text-xs">₹{Number(pd.gross_pay || 0).toLocaleString()}</span> },
-                { key: "pf", header: "PF", render: (pd: any) => <span className="text-xs" style={{ color: "#64748B" }}>₹{Number(pd.pf || 0).toLocaleString()}</span> },
-                { key: "esi", header: "ESI", render: (pd: any) => <span className="text-xs" style={{ color: "#64748B" }}>₹{Number(pd.esi || 0).toLocaleString()}</span> },
-                { key: "pt", header: "PT", render: (pd: any) => <span className="text-xs" style={{ color: "#64748B" }}>₹{Number(pd.pt || 0).toLocaleString()}</span> },
-                { key: "tds", header: "TDS", render: (pd: any) => <span className="text-xs" style={{ color: "#64748B" }}>₹{Number(pd.tds || 0).toLocaleString()}</span> },
-                { key: "net_pay", header: "Net Pay", render: (pd: any) => <span className="text-xs font-semibold" style={{ color: "#2BAE8E" }}>₹{Number(pd.net_pay || 0).toLocaleString()}</span> },
+                { key: "pf", header: "PF", render: (pd: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>₹{Number(pd.pf || 0).toLocaleString()}</span> },
+                { key: "esi", header: "ESI", render: (pd: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>₹{Number(pd.esi || 0).toLocaleString()}</span> },
+                { key: "pt", header: "PT", render: (pd: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>₹{Number(pd.pt || 0).toLocaleString()}</span> },
+                { key: "tds", header: "TDS", render: (pd: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>₹{Number(pd.tds || 0).toLocaleString()}</span> },
+                { key: "net_pay", header: "Net Pay", render: (pd: any) => <span className="text-xs font-semibold" style={{ color: "var(--color-primary)" }}>₹{Number(pd.net_pay || 0).toLocaleString()}</span> },
               ]}
             />
           )}
@@ -284,37 +284,37 @@ export default function PayrollPage() {
       {showRunModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/20" onClick={() => setShowRunModal(false)} />
-          <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl" style={{ border: "1px solid #E2E8F0" }}>
-            <div className="px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid #E2E8F0" }}>
-              <h2 className="text-base font-semibold" style={{ color: "#1A3C5E" }}>Run Payroll</h2>
-              <button onClick={() => setShowRunModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#64748B" }} /></button>
+          <div className="relative w-full max-w-md bg-white rounded-xl shadow-xl" style={{ border: "1px solid var(--color-border)" }}>
+            <div className="px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
+              <h2 className="text-base font-semibold" style={{ color: "var(--color-navy)" }}>Run Payroll</h2>
+              <button onClick={() => setShowRunModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>
             </div>
             <div className="p-6 space-y-4 text-sm">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Property</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Property</label>
                 <select value={runForm.property_id} onChange={(e) => setRunForm({ ...runForm, property_id: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+                  className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
                   <option value="">Select Property</option>
                   {properties.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Period Start *</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Period Start *</label>
                   <input type="date" value={runForm.period_start} onChange={(e) => setRunForm({ ...runForm, period_start: e.target.value })}
-                    className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                    className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Period End *</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Period End *</label>
                   <input type="date" value={runForm.period_end} onChange={(e) => setRunForm({ ...runForm, period_end: e.target.value })}
-                    className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                    className="w-full px-3 py-1.5 rounded-lg text-xs outline-none border" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
                 </div>
               </div>
             </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <button onClick={() => setShowRunModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#64748B", background: "#F5F7FA" }}>Cancel</button>
+            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button onClick={() => setShowRunModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
               <button onClick={handleRunPayroll} disabled={saving || !runForm.period_start || !runForm.period_end}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
                 {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
                 {saving ? "Processing..." : "Run Payroll"}
               </button>
@@ -325,3 +325,4 @@ export default function PayrollPage() {
     </div>
   );
 }
+

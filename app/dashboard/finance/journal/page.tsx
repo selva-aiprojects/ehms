@@ -28,8 +28,8 @@ const ACCTS = [
 const aName = (id: string) => ACCTS.find((a) => a.i === id)?.l || id;
 const inp = (extra = "") => `w-full px-3 py-2 text-sm rounded-lg border outline-none ${extra}`;
 const inpSm = (extra = "") => `w-full px-2 py-1.5 text-xs rounded border outline-none ${extra}`;
-const B = { border: "1px solid #E2E8F0" };
-const C1 = "#1A3C5E", C2 = "#64748B", C3 = "#94A3B8";
+const B = { border: "1px solid var(--color-border)" };
+const C1 = "var(--color-navy)", C2 = "var(--color-text-muted)", C3 = "var(--color-text-faint)";
 const emptyLine = () => ({ account_id: "", debit: 0, credit: 0, description: "" });
 const today = () => new Date().toISOString().split("T")[0];
 
@@ -97,7 +97,7 @@ export default function JournalPage() {
 
       {sMsg && (
         <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm"
-          style={{ background: "rgba(43,174,142,0.1)", color: "#2BAE8E" }}>
+          style={{ background: "rgba(var(--color-primary-rgb),0.1)", color: "var(--color-primary)" }}>
           <CheckCircle className="w-4 h-4" /> {sMsg}
         </div>
       )}
@@ -124,8 +124,8 @@ export default function JournalPage() {
           <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: C3 }} /></div>
         ) : isError ? (
           <div className="flex flex-col items-center gap-2 py-8">
-            <AlertCircle className="w-6 h-6" style={{ color: "#E53E3E" }} />
-            <p className="text-sm" style={{ color: "#E53E3E" }}>Failed to load journal entries.</p>
+            <AlertCircle className="w-6 h-6" style={{ color: "var(--color-danger)" }} />
+            <p className="text-sm" style={{ color: "var(--color-danger)" }}>Failed to load journal entries.</p>
             <Button variant="outline" size="sm" onClick={() => mutate()}>Retry</Button>
           </div>
         ) : data.length === 0 ? (
@@ -150,7 +150,7 @@ export default function JournalPage() {
                   <Eye className="w-3.5 h-3.5" />
                 </button>
                 {!r.is_posted && (
-                  <button onClick={(e) => { e.stopPropagation(); handlePost(r); }} className="p-1 rounded hover:bg-gray-100" title="Post" style={{ color: "#2BAE8E" }}>
+                  <button onClick={(e) => { e.stopPropagation(); handlePost(r); }} className="p-1 rounded hover:bg-gray-100" title="Post" style={{ color: "var(--color-primary)" }}>
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -168,7 +168,7 @@ export default function JournalPage() {
               <button onClick={() => { setShowForm(false); setFErr(""); }} className="text-lg" style={{ color: C3 }}>✕</button>
             </div>
             {fErr && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E" }}>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)" }}>
                 <AlertCircle className="w-4 h-4 shrink-0" /> {fErr}
               </div>
             )}
@@ -198,7 +198,7 @@ export default function JournalPage() {
               </div>
               <div className="overflow-x-auto rounded-lg border" style={{ ...B }}>
                 <table className="w-full text-sm">
-                  <thead><tr style={{ background: "#F5F7FA" }}>
+                  <thead><tr style={{ background: "var(--color-light)" }}>
                     <th className="px-3 py-2 text-left text-xs font-semibold" style={{ color: C2 }}>Account</th>
                     <th className="px-3 py-2 text-right text-xs font-semibold" style={{ color: C2 }}>Debit</th>
                     <th className="px-3 py-2 text-right text-xs font-semibold" style={{ color: C2 }}>Credit</th>
@@ -207,7 +207,7 @@ export default function JournalPage() {
                   </tr></thead>
                   <tbody>
                     {form.lines.map((line, idx) => (
-                      <tr key={idx} style={{ borderTop: "1px solid #F1F5F9" }}>
+                      <tr key={idx} style={{ borderTop: "1px solid var(--color-light)" }}>
                         <td className="px-3 py-1.5">
                           <select value={line.account_id} onChange={(e) => upd(idx, "account_id", e.target.value)} className={inpSm()} style={{ ...B }}>
                             <option value="">Select account</option>
@@ -229,14 +229,14 @@ export default function JournalPage() {
                         <td className="px-3 py-1.5">
                           {form.lines.length > 1 && (
                             <button onClick={() => setForm((p) => ({ ...p, lines: p.lines.filter((_, i) => i !== idx) }))}
-                              className="text-xs" style={{ color: "#E53E3E" }}>✕</button>
+                              className="text-xs" style={{ color: "var(--color-danger)" }}>✕</button>
                           )}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr style={{ borderTop: "2px solid #E2E8F0", background: "#F8FAFC" }}>
+                    <tr style={{ borderTop: "2px solid var(--color-border)", background: "var(--color-light)" }}>
                       <td className="px-3 py-2 text-xs font-semibold" style={{ color: C1 }}>Totals</td>
                       <td className="px-3 py-2 text-right text-xs font-semibold" style={{ color: C1 }}>{formatCurrency(tot("debit"))}</td>
                       <td className="px-3 py-2 text-right text-xs font-semibold" style={{ color: C1 }}>{formatCurrency(tot("credit"))}</td>
@@ -246,7 +246,7 @@ export default function JournalPage() {
                 </table>
               </div>
               {tot("debit") !== tot("credit") && tot("debit") > 0 && tot("credit") > 0 && (
-                <p className="text-xs mt-1" style={{ color: "#F5A623" }}>Diff: {formatCurrency(Math.abs(tot("debit") - tot("credit")))}</p>
+                <p className="text-xs mt-1" style={{ color: "var(--color-warning)" }}>Diff: {formatCurrency(Math.abs(tot("debit") - tot("credit")))}</p>
               )}
             </div>
             <div className="flex items-center justify-end gap-2">
@@ -279,7 +279,7 @@ export default function JournalPage() {
                 <span className="text-xs font-medium" style={{ color: C2 }}>Line Items</span>
                 <div className="overflow-x-auto rounded-lg border mt-1" style={{ ...B }}>
                   <table className="w-full text-sm">
-                    <thead><tr style={{ background: "#F5F7FA" }}>
+                    <thead><tr style={{ background: "var(--color-light)" }}>
                       <th className="px-3 py-2 text-left text-xs font-semibold" style={{ color: C2 }}>Account</th>
                       <th className="px-3 py-2 text-right text-xs font-semibold" style={{ color: C2 }}>Debit</th>
                       <th className="px-3 py-2 text-right text-xs font-semibold" style={{ color: C2 }}>Credit</th>
@@ -287,12 +287,12 @@ export default function JournalPage() {
                     </tr></thead>
                     <tbody>
                       {vEntry.lines.map((line: any, idx: number) => (
-                        <tr key={idx} style={{ borderTop: "1px solid #F1F5F9" }}>
+                        <tr key={idx} style={{ borderTop: "1px solid var(--color-light)" }}>
                           <td className="px-3 py-2 text-xs" style={{ color: C1 }}>{aName(line.account_id)}</td>
-                          <td className="px-3 py-2 text-right text-xs" style={{ color: line.debit > 0 ? "#2BAE8E" : C2 }}>
+                          <td className="px-3 py-2 text-right text-xs" style={{ color: line.debit > 0 ? "var(--color-primary)" : C2 }}>
                             {line.debit > 0 ? formatCurrency(line.debit) : "—"}
                           </td>
-                          <td className="px-3 py-2 text-right text-xs" style={{ color: line.credit > 0 ? "#E53E3E" : C2 }}>
+                          <td className="px-3 py-2 text-right text-xs" style={{ color: line.credit > 0 ? "var(--color-danger)" : C2 }}>
                             {line.credit > 0 ? formatCurrency(line.credit) : "—"}
                           </td>
                           <td className="px-3 py-2 text-xs" style={{ color: C2 }}>{line.description || "—"}</td>

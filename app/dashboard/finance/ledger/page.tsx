@@ -16,7 +16,7 @@ function SkeletonRow() {
   return (
     <tr>
       {Array.from({ length: 6 }).map((_, i) => (
-        <td key={i} className="px-4 py-3"><div className="h-4 rounded animate-pulse" style={{ background: "#E2E8F0", width: `${60 + i * 10}px` }} /></td>
+        <td key={i} className="px-4 py-3"><div className="h-4 rounded animate-pulse" style={{ background: "var(--color-border)", width: `${60 + i * 10}px` }} /></td>
       ))}
     </tr>
   );
@@ -58,10 +58,10 @@ export default function GeneralLedgerPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>General Ledger</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>View account-wise ledger with running balance</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>General Ledger</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>View account-wise ledger with running balance</p>
         </div>
-        <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+        <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
@@ -69,9 +69,9 @@ export default function GeneralLedgerPage() {
       <Card padding={false}>
         <div className="p-5 flex flex-wrap items-end gap-3">
           <div className="min-w-[200px] flex-1">
-            <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Account</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Account</label>
             <select value={selectedAccountId} onChange={(e) => setSelectedAccountId(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }}>
+              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }}>
               <option value="">— Select Account —</option>
               {accountList.map((a: any) => (
                 <option key={a.id} value={a.id}>{a.account_code} — {a.account_name}</option>
@@ -79,9 +79,9 @@ export default function GeneralLedgerPage() {
             </select>
           </div>
           <div className="min-w-[180px] flex-1">
-            <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>Property</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Property</label>
             <select value={selectedPropertyId} onChange={(e) => setSelectedPropertyId(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0", color: "#1A2E44" }}>
+              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)", color: "var(--color-text)" }}>
               <option value="">All Properties</option>
               {propertyList.map((p: any) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
@@ -89,18 +89,18 @@ export default function GeneralLedgerPage() {
             </select>
           </div>
           <div className="min-w-[140px]">
-            <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>From</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>From</label>
             <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} />
+              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} />
           </div>
           <div className="min-w-[140px]">
-            <label className="block text-xs font-medium mb-1" style={{ color: "#64748B" }}>To</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>To</label>
             <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid #E2E8F0" }} />
+              className="w-full px-3 py-2 text-sm rounded-lg outline-none" style={{ border: "1px solid var(--color-border)" }} />
           </div>
           <button onClick={handleViewLedger} disabled={!selectedAccountId || isLoading}
             className="px-4 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50 text-white"
-            style={{ background: "#1A3C5E" }}>
+            style={{ background: "var(--color-navy)" }}>
             {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : <Search className="w-3.5 h-3.5 inline" />}
             {" "}View Ledger
           </button>
@@ -108,7 +108,7 @@ export default function GeneralLedgerPage() {
       </Card>
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" /> Failed to load ledger. <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
         </div>
       )}
@@ -116,9 +116,9 @@ export default function GeneralLedgerPage() {
       {viewTrigger === 0 && !ledger && (
         <Card>
           <div className="text-center py-12">
-            <Search className="w-10 h-10 mx-auto mb-3" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm font-medium" style={{ color: "#1A2E44" }}>Select an account and click "View Ledger"</p>
-            <p className="text-xs mt-1" style={{ color: "#64748B" }}>Choose an account from the dropdown above to view its ledger entries</p>
+            <Search className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--color-border-strong)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Select an account and click "View Ledger"</p>
+            <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>Choose an account from the dropdown above to view its ledger entries</p>
           </div>
         </Card>
       )}
@@ -132,7 +132,7 @@ export default function GeneralLedgerPage() {
                 <tr>
                   {["Date", "Description", "Ref Type", "Debit", "Credit", "Running Balance"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                      style={{ color: "#FFFFFF", background: "#1A3C5E" }}>{h}</th>
+                      style={{ color: "var(--color-white)", background: "var(--color-navy)" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -151,10 +151,10 @@ export default function GeneralLedgerPage() {
             action={accountInfo?.account_type && <Badge variant={TYPE_BADGE[accountInfo.account_type] || "gray"}>{accountInfo.account_type.replace(/_/g, " ")}</Badge>} />
           <div className="px-5 pb-4 flex items-center gap-4 text-sm flex-wrap">
             <div>
-              <span className="text-xs font-medium" style={{ color: "#64748B" }}>Opening Balance</span>
-              <div className="font-semibold" style={{ color: "#1A3C5E" }}>{formatCurrency(ledger.opening_balance || 0)}</div>
+              <span className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Opening Balance</span>
+              <div className="font-semibold" style={{ color: "var(--color-navy)" }}>{formatCurrency(ledger.opening_balance || 0)}</div>
             </div>
-            <div className="text-xs px-2 py-0.5 rounded" style={{ background: "#F5F7FA", color: "#64748B" }}>
+            <div className="text-xs px-2 py-0.5 rounded" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
               {accountInfo && (accountInfo.account_type === "asset" || accountInfo.account_type === "expense")
                 ? "Debit increases balance"
                 : "Credit increases balance"}
@@ -162,8 +162,8 @@ export default function GeneralLedgerPage() {
           </div>
           {entries.length === 0 ? (
             <div className="text-center py-8">
-              <Ban className="w-8 h-8 mx-auto mb-2" style={{ color: "#CBD5E1" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No ledger entries found for the selected filters</p>
+              <Ban className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-border-strong)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No ledger entries found for the selected filters</p>
             </div>
           ) : (
             <>
@@ -171,31 +171,31 @@ export default function GeneralLedgerPage() {
                 data={entries}
                 keyExtractor={(_: any, i: number) => String(i)}
                 columns={[
-                  { key: "entry_date", header: "Date", render: (e: any) => <span className="text-xs" style={{ color: "#64748B" }}>{formatDate(e.entry_date)}</span> },
+                  { key: "entry_date", header: "Date", render: (e: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{formatDate(e.entry_date)}</span> },
                   { key: "description", header: "Description", render: (e: any) => (
-                    <div><div className="text-sm" style={{ color: "#1A2E44" }}>{e.description || e.journal_description || "—"}</div></div>
+                    <div><div className="text-sm" style={{ color: "var(--color-text)" }}>{e.description || e.journal_description || "—"}</div></div>
                   )},
                   { key: "reference_type", header: "Ref Type", render: (e: any) => (
                     <Badge variant="gray">{e.reference_type || "—"}</Badge>
                   )},
                   { key: "debit", header: "Debit", render: (e: any) => (
-                    <span className="font-mono text-sm" style={{ color: e.debit ? "#1A3C5E" : "#CBD5E1" }}>{e.debit ? formatCurrency(e.debit) : "—"}</span>
+                    <span className="font-mono text-sm" style={{ color: e.debit ? "var(--color-navy)" : "var(--color-border-strong)" }}>{e.debit ? formatCurrency(e.debit) : "—"}</span>
                   )},
                   { key: "credit", header: "Credit", render: (e: any) => (
-                    <span className="font-mono text-sm" style={{ color: e.credit ? "#1A3C5E" : "#CBD5E1" }}>{e.credit ? formatCurrency(e.credit) : "—"}</span>
+                    <span className="font-mono text-sm" style={{ color: e.credit ? "var(--color-navy)" : "var(--color-border-strong)" }}>{e.credit ? formatCurrency(e.credit) : "—"}</span>
                   )},
                   { key: "running_balance", header: "Running Balance", render: (e: any) => {
                     const bal = e.running_balance ?? 0;
-                    return <span className="font-mono text-sm font-semibold" style={{ color: bal >= 0 ? "#1A3C5E" : "#E53E3E" }}>{formatCurrency(bal)}</span>;
+                    return <span className="font-mono text-sm font-semibold" style={{ color: bal >= 0 ? "var(--color-navy)" : "var(--color-danger)" }}>{formatCurrency(bal)}</span>;
                   }},
                 ]}
               />
-              <div className="px-5 py-3 flex items-center justify-end gap-6 text-sm border-t" style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }}>
-                <div><span className="text-xs font-medium" style={{ color: "#64748B" }}>Total Debits</span><div className="font-semibold" style={{ color: "#1A3C5E" }}>{formatCurrency(ledger.total_debits || 0)}</div></div>
-                <div><span className="text-xs font-medium" style={{ color: "#64748B" }}>Total Credits</span><div className="font-semibold" style={{ color: "#1A3C5E" }}>{formatCurrency(ledger.total_credits || 0)}</div></div>
-                <div className="pl-4" style={{ borderLeft: "1px solid #E2E8F0" }}>
-                  <span className="text-xs font-medium" style={{ color: "#64748B" }}>Closing Balance</span>
-                  <div className="font-bold text-base" style={{ color: (ledger.closing_balance ?? 0) >= 0 ? "#1A3C5E" : "#E53E3E" }}>
+              <div className="px-5 py-3 flex items-center justify-end gap-6 text-sm border-t" style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }}>
+                <div><span className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Total Debits</span><div className="font-semibold" style={{ color: "var(--color-navy)" }}>{formatCurrency(ledger.total_debits || 0)}</div></div>
+                <div><span className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Total Credits</span><div className="font-semibold" style={{ color: "var(--color-navy)" }}>{formatCurrency(ledger.total_credits || 0)}</div></div>
+                <div className="pl-4" style={{ borderLeft: "1px solid var(--color-border)" }}>
+                  <span className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Closing Balance</span>
+                  <div className="font-bold text-base" style={{ color: (ledger.closing_balance ?? 0) >= 0 ? "var(--color-navy)" : "var(--color-danger)" }}>
                     {formatCurrency(ledger.closing_balance || 0)}
                   </div>
                 </div>

@@ -69,10 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{ ...state, signOut, refresh: fetchUser }}>
       {state.loading ? (
-        <div className="flex h-screen w-full items-center justify-center bg-[#F5F7FA]">
+        <div className="flex h-screen w-full items-center justify-center bg-[color:var(--color-light)]">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-[#64748B] text-sm font-medium">Loading workspace...</p>
+            <div className="w-8 h-8 border-4 border-[color:var(--color-primary)] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-[color:var(--color-text-muted)] text-sm font-medium">Loading workspace...</p>
           </div>
         </div>
       ) : (

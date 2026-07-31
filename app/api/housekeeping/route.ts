@@ -103,10 +103,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
-
-    return NextResponse.json({ data: rows[0] }, { status: 201 });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Failed to create task";
-    return NextResponse.json({ error: msg }, { status: 500 });
-  }
-}

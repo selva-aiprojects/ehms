@@ -13,12 +13,12 @@ import Table from "@/components/ui/table";
 import { useAppraisalCycles, useAppraisalReviews, useAppraisalGoals, useEmployees } from "@/lib/hooks";
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
-const inputStyle: React.CSSProperties = { border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" };
-const selectStyle: React.CSSProperties = { border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", background: "white" };
-const textareaStyle: React.CSSProperties = { border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", resize: "vertical", minHeight: "72px" };
+const inputStyle: React.CSSProperties = { border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" };
+const selectStyle: React.CSSProperties = { border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", background: "white" };
+const textareaStyle: React.CSSProperties = { border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", resize: "vertical", minHeight: "72px" };
 
 const CYCLE_TYPES = ["annual", "half_yearly", "quarterly"] as const;
 const CYCLE_STATUSES = ["draft", "active", "closed"] as const;
@@ -179,16 +179,16 @@ export default function AppraisalPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#2C3547" }}>Appraisal Workflow</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#667085" }}>Manage appraisal cycles, reviews, and goals</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-sidebar)" }}>Appraisal Workflow</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Manage appraisal cycles, reviews, and goals</p>
         </div>
       </div>
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: feedback.type === "success" ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)",
-          color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: feedback.type === "success" ? "1px solid rgba(43,174,142,0.2)" : "1px solid rgba(229,62,62,0.2)",
+          background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: feedback.type === "success" ? "1px solid rgba(var(--color-primary-rgb),0.2)" : "1px solid rgba(var(--color-danger-rgb),0.2)",
         }}>
           {feedback.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -196,7 +196,7 @@ export default function AppraisalPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: "#F5F7FA", border: "1px solid #E5E7EB" }}>
+      <div className="flex items-center gap-1 rounded-lg p-1" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -205,8 +205,8 @@ export default function AppraisalPage() {
               onClick={() => setActiveTab(tab.key)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all"
               style={{
-                background: activeTab === tab.key ? "#FFFFFF" : "transparent",
-                color: activeTab === tab.key ? "#2C3547" : "#667085",
+                background: activeTab === tab.key ? "var(--color-white)" : "transparent",
+                color: activeTab === tab.key ? "var(--color-sidebar)" : "var(--color-text-muted)",
                 boxShadow: activeTab === tab.key ? "0 1px 2px rgba(0,0,0,0.06)" : "none",
               }}
             >
@@ -224,7 +224,7 @@ export default function AppraisalPage() {
             title="Appraisal Cycles"
             subtitle={`${(appraisalCycles || []).length} cycles`}
             action={
-              <button onClick={openCycleForm} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2C3547" }}>
+              <button onClick={openCycleForm} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-sidebar)" }}>
                 <Plus className="w-3.5 h-3.5" /> Add Cycle
               </button>
             }
@@ -234,64 +234,64 @@ export default function AppraisalPage() {
               {Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}
             </div>
           ) : cyclesError ? (
-            <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+            <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
               <AlertCircle className="w-4 h-4" />
               Failed to load cycles.
               <button onClick={() => mutateCycles()} className="ml-auto underline text-xs">Retry</button>
             </div>
           ) : (appraisalCycles || []).length === 0 ? (
             <div className="text-center py-8">
-              <CalendarDays className="w-6 h-6 mx-auto mb-2" style={{ color: "#667085" }} />
-              <p className="text-sm" style={{ color: "#667085" }}>No cycles found</p>
+              <CalendarDays className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No cycles found</p>
             </div>
           ) : (
             <Table
               data={appraisalCycles || []}
               keyExtractor={(c: any) => c.id}
               columns={[
-                { key: "name", header: "Name", render: (c: any) => <span className="font-medium text-sm" style={{ color: "#2C3547" }}>{c.name}</span> },
-                { key: "cycle_type", header: "Type", render: (c: any) => <span className="text-xs capitalize" style={{ color: "#667085" }}>{c.cycle_type?.replace("_", " ")}</span> },
-                { key: "period_start", header: "Period Start", render: (c: any) => <span className="text-xs" style={{ color: "#667085" }}>{c.period_start ? new Date(c.period_start).toLocaleDateString() : "—"}</span> },
-                { key: "period_end", header: "Period End", render: (c: any) => <span className="text-xs" style={{ color: "#667085" }}>{c.period_end ? new Date(c.period_end).toLocaleDateString() : "—"}</span> },
-                { key: "rating_scale", header: "Rating Scale", render: (c: any) => <span className="text-xs font-mono" style={{ color: "#667085" }}>{c.rating_scale}</span> },
+                { key: "name", header: "Name", render: (c: any) => <span className="font-medium text-sm" style={{ color: "var(--color-sidebar)" }}>{c.name}</span> },
+                { key: "cycle_type", header: "Type", render: (c: any) => <span className="text-xs capitalize" style={{ color: "var(--color-text-muted)" }}>{c.cycle_type?.replace("_", " ")}</span> },
+                { key: "period_start", header: "Period Start", render: (c: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{c.period_start ? new Date(c.period_start).toLocaleDateString() : "—"}</span> },
+                { key: "period_end", header: "Period End", render: (c: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{c.period_end ? new Date(c.period_end).toLocaleDateString() : "—"}</span> },
+                { key: "rating_scale", header: "Rating Scale", render: (c: any) => <span className="text-xs font-mono" style={{ color: "var(--color-text-muted)" }}>{c.rating_scale}</span> },
                 { key: "status", header: "Status", render: (c: any) => cycleStatusBadge(c.status) },
                 { key: "actions", header: "Actions", render: (c: any) => (
                   <div className="flex items-center gap-1" onClick={(ev) => ev.stopPropagation()}>
-                    <button className="p-1 rounded hover:bg-gray-100" title="View"><Eye className="w-3.5 h-3.5" style={{ color: "#2C3547" }} /></button>
+                    <button className="p-1 rounded hover:bg-gray-100" title="View"><Eye className="w-3.5 h-3.5" style={{ color: "var(--color-sidebar)" }} /></button>
                   </div>
                 )},
               ]}
             />
           )}
           {showCycleForm && (
-            <div className="mt-4 p-4 rounded-xl" style={{ border: "1px solid #E5E7EB", background: "#F9FAFB" }}>
+            <div className="mt-4 p-4 rounded-xl" style={{ border: "1px solid var(--color-border)", background: "var(--color-light)" }}>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Name</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Name</label>
                   <input type="text" value={cycleForm.name} onChange={(e) => setCycleForm({ ...cycleForm, name: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Cycle Type</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Cycle Type</label>
                   <select value={cycleForm.cycle_type} onChange={(e) => setCycleForm({ ...cycleForm, cycle_type: e.target.value })} style={selectStyle}>
                     {CYCLE_TYPES.map((t) => <option key={t} value={t}>{t.replace("_", " ")}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Period Start</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Period Start</label>
                   <input type="date" value={cycleForm.period_start} onChange={(e) => setCycleForm({ ...cycleForm, period_start: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Period End</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Period End</label>
                   <input type="date" value={cycleForm.period_end} onChange={(e) => setCycleForm({ ...cycleForm, period_end: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Rating Scale</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Rating Scale</label>
                   <input type="number" value={cycleForm.rating_scale} onChange={(e) => setCycleForm({ ...cycleForm, rating_scale: Number(e.target.value) })} style={inputStyle} />
                 </div>
               </div>
               <div className="flex items-center justify-end gap-2 mt-4">
-                <button onClick={() => setShowCycleForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#667085", background: "#F5F7FA" }}>Cancel</button>
-                <button onClick={saveCycle} disabled={cycleSaving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2C3547" }}>
+                <button onClick={() => setShowCycleForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+                <button onClick={saveCycle} disabled={cycleSaving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-sidebar)" }}>
                   {cycleSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                   {cycleSaving ? "Saving..." : "Save"}
                 </button>
@@ -313,7 +313,7 @@ export default function AppraisalPage() {
                   <option value="">All Cycles</option>
                   {(appraisalCycles || []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
-                <button onClick={openReviewForm} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2C3547" }}>
+                <button onClick={openReviewForm} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-sidebar)" }}>
                   <Plus className="w-3.5 h-3.5" /> Add Review
                 </button>
               </div>
@@ -324,23 +324,23 @@ export default function AppraisalPage() {
               {Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}
             </div>
           ) : reviewsError ? (
-            <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+            <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
               <AlertCircle className="w-4 h-4" />
               Failed to load reviews.
               <button onClick={() => mutateReviews()} className="ml-auto underline text-xs">Retry</button>
             </div>
           ) : (appraisalReviews || []).length === 0 ? (
             <div className="text-center py-8">
-              <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "#667085" }} />
-              <p className="text-sm" style={{ color: "#667085" }}>No reviews found</p>
+              <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No reviews found</p>
             </div>
           ) : (
             <Table
               data={appraisalReviews || []}
               keyExtractor={(r: any) => r.id}
               columns={[
-                { key: "employee", header: "Employee", render: (r: any) => <span className="text-sm font-medium" style={{ color: "#2C3547" }}>{empName(r.employee_id)}</span> },
-                { key: "reviewer", header: "Reviewer", render: (r: any) => <span className="text-xs" style={{ color: "#667085" }}>{r.reviewer_id || "—"}</span> },
+                { key: "employee", header: "Employee", render: (r: any) => <span className="text-sm font-medium" style={{ color: "var(--color-sidebar)" }}>{empName(r.employee_id)}</span> },
+                { key: "reviewer", header: "Reviewer", render: (r: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{r.reviewer_id || "—"}</span> },
                 { key: "self_rating", header: "Self Rating", render: (r: any) => <span className="text-xs">{r.self_rating ?? "—"}</span> },
                 { key: "reviewer_rating", header: "Reviewer Rating", render: (r: any) => <span className="text-xs">{r.reviewer_rating ?? "—"}</span> },
                 { key: "final_rating", header: "Final Rating", render: (r: any) => <span className="text-xs font-semibold">{r.final_rating ?? "—"}</span> },
@@ -348,17 +348,17 @@ export default function AppraisalPage() {
                 { key: "status", header: "Status", render: (r: any) => reviewStatusBadge(r.status) },
                 { key: "actions", header: "Actions", render: (r: any) => (
                   <div className="flex items-center gap-1" onClick={(ev) => ev.stopPropagation()}>
-                    <button className="p-1 rounded hover:bg-gray-100" title="Edit"><Edit2 className="w-3.5 h-3.5" style={{ color: "#2C3547" }} /></button>
+                    <button className="p-1 rounded hover:bg-gray-100" title="Edit"><Edit2 className="w-3.5 h-3.5" style={{ color: "var(--color-sidebar)" }} /></button>
                   </div>
                 )},
               ]}
             />
           )}
           {showReviewForm && (
-            <div className="mt-4 p-4 rounded-xl" style={{ border: "1px solid #E5E7EB", background: "#F9FAFB" }}>
+            <div className="mt-4 p-4 rounded-xl" style={{ border: "1px solid var(--color-border)", background: "var(--color-light)" }}>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Employee</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Employee</label>
                   <select value={reviewForm.employee_id} onChange={(e) => setReviewForm({ ...reviewForm, employee_id: e.target.value })} style={selectStyle}>
                     <option value="">Select Employee</option>
                     {employeesList.map((e: any) => (
@@ -367,43 +367,43 @@ export default function AppraisalPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Reviewer ID</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Reviewer ID</label>
                   <input type="text" value={reviewForm.reviewer_id} onChange={(e) => setReviewForm({ ...reviewForm, reviewer_id: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Self Rating</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Self Rating</label>
                   <input type="number" value={reviewForm.self_rating} onChange={(e) => setReviewForm({ ...reviewForm, self_rating: Number(e.target.value) })} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Reviewer Rating</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Reviewer Rating</label>
                   <input type="number" value={reviewForm.reviewer_rating} onChange={(e) => setReviewForm({ ...reviewForm, reviewer_rating: Number(e.target.value) })} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Final Rating</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Final Rating</label>
                   <input type="number" value={reviewForm.final_rating} onChange={(e) => setReviewForm({ ...reviewForm, final_rating: Number(e.target.value) })} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Overall Score</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Overall Score</label>
                   <input type="number" value={reviewForm.overall_score} onChange={(e) => setReviewForm({ ...reviewForm, overall_score: Number(e.target.value) })} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Status</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Status</label>
                   <select value={reviewForm.status} onChange={(e) => setReviewForm({ ...reviewForm, status: e.target.value })} style={selectStyle}>
                     {REVIEW_STATUSES.map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Self Comment</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Self Comment</label>
                   <textarea value={reviewForm.self_comment} onChange={(e) => setReviewForm({ ...reviewForm, self_comment: e.target.value })} style={textareaStyle} rows={3} />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Reviewer Comment</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Reviewer Comment</label>
                   <textarea value={reviewForm.reviewer_comment} onChange={(e) => setReviewForm({ ...reviewForm, reviewer_comment: e.target.value })} style={textareaStyle} rows={3} />
                 </div>
               </div>
               <div className="flex items-center justify-end gap-2 mt-4">
-                <button onClick={() => setShowReviewForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#667085", background: "#F5F7FA" }}>Cancel</button>
-                <button onClick={saveReview} disabled={reviewSaving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2C3547" }}>
+                <button onClick={() => setShowReviewForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+                <button onClick={saveReview} disabled={reviewSaving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-sidebar)" }}>
                   {reviewSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                   {reviewSaving ? "Saving..." : "Save"}
                 </button>
@@ -431,7 +431,7 @@ export default function AppraisalPage() {
                     <option key={e.id} value={e.id}>{e.user ? `${e.user.first_name} ${e.user.last_name || ""}` : e.employee_code}</option>
                   ))}
                 </select>
-                <button onClick={openGoalForm} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2C3547" }}>
+                <button onClick={openGoalForm} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-sidebar)" }}>
                   <Plus className="w-3.5 h-3.5" /> Add Goal
                 </button>
               </div>
@@ -442,39 +442,39 @@ export default function AppraisalPage() {
               {Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}
             </div>
           ) : goalsError ? (
-            <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+            <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
               <AlertCircle className="w-4 h-4" />
               Failed to load goals.
               <button onClick={() => mutateGoals()} className="ml-auto underline text-xs">Retry</button>
             </div>
           ) : (appraisalGoals || []).length === 0 ? (
             <div className="text-center py-8">
-              <Target className="w-6 h-6 mx-auto mb-2" style={{ color: "#667085" }} />
-              <p className="text-sm" style={{ color: "#667085" }}>No goals found</p>
+              <Target className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No goals found</p>
             </div>
           ) : (
             <Table
               data={appraisalGoals || []}
               keyExtractor={(g: any) => g.id}
               columns={[
-                { key: "employee", header: "Employee", render: (g: any) => <span className="text-sm font-medium" style={{ color: "#2C3547" }}>{empName(g.employee_id)}</span> },
-                { key: "goal", header: "Goal", render: (g: any) => <span className="text-xs" style={{ color: "#667085" }}>{(g.goal || "").length > 60 ? g.goal.slice(0, 60) + "..." : g.goal || "—"}</span> },
+                { key: "employee", header: "Employee", render: (g: any) => <span className="text-sm font-medium" style={{ color: "var(--color-sidebar)" }}>{empName(g.employee_id)}</span> },
+                { key: "goal", header: "Goal", render: (g: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{(g.goal || "").length > 60 ? g.goal.slice(0, 60) + "..." : g.goal || "—"}</span> },
                 { key: "weightage", header: "Weightage (%)", render: (g: any) => <span className="text-xs font-mono">{g.weightage ?? "—"}</span> },
-                { key: "target_date", header: "Target Date", render: (g: any) => <span className="text-xs" style={{ color: "#667085" }}>{g.target_date ? new Date(g.target_date).toLocaleDateString() : "—"}</span> },
+                { key: "target_date", header: "Target Date", render: (g: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{g.target_date ? new Date(g.target_date).toLocaleDateString() : "—"}</span> },
                 { key: "status", header: "Status", render: (g: any) => goalStatusBadge(g.status) },
                 { key: "actions", header: "Actions", render: (g: any) => (
                   <div className="flex items-center gap-1" onClick={(ev) => ev.stopPropagation()}>
-                    <button className="p-1 rounded hover:bg-gray-100" title="Edit"><Edit2 className="w-3.5 h-3.5" style={{ color: "#2C3547" }} /></button>
+                    <button className="p-1 rounded hover:bg-gray-100" title="Edit"><Edit2 className="w-3.5 h-3.5" style={{ color: "var(--color-sidebar)" }} /></button>
                   </div>
                 )},
               ]}
             />
           )}
           {showGoalForm && (
-            <div className="mt-4 p-4 rounded-xl" style={{ border: "1px solid #E5E7EB", background: "#F9FAFB" }}>
+            <div className="mt-4 p-4 rounded-xl" style={{ border: "1px solid var(--color-border)", background: "var(--color-light)" }}>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Employee</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Employee</label>
                   <select value={goalForm.employee_id} onChange={(e) => setGoalForm({ ...goalForm, employee_id: e.target.value })} style={selectStyle}>
                     <option value="">Select Employee</option>
                     {employeesList.map((e: any) => (
@@ -483,21 +483,21 @@ export default function AppraisalPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Weightage (%)</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Weightage (%)</label>
                   <input type="number" value={goalForm.weightage} onChange={(e) => setGoalForm({ ...goalForm, weightage: Number(e.target.value) })} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Target Date</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Target Date</label>
                   <input type="date" value={goalForm.target_date} onChange={(e) => setGoalForm({ ...goalForm, target_date: e.target.value })} style={inputStyle} />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Goal</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Goal</label>
                   <textarea value={goalForm.goal} onChange={(e) => setGoalForm({ ...goalForm, goal: e.target.value })} style={textareaStyle} rows={3} />
                 </div>
               </div>
               <div className="flex items-center justify-end gap-2 mt-4">
-                <button onClick={() => setShowGoalForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#667085", background: "#F5F7FA" }}>Cancel</button>
-                <button onClick={saveGoal} disabled={goalSaving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2C3547" }}>
+                <button onClick={() => setShowGoalForm(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+                <button onClick={saveGoal} disabled={goalSaving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-sidebar)" }}>
                   {goalSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                   {goalSaving ? "Saving..." : "Save"}
                 </button>
@@ -510,8 +510,8 @@ export default function AppraisalPage() {
       {/* Feedback Toast */}
       {feedback && (
         <div className="fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm flex items-center gap-2 shadow-lg" style={{
-          background: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          color: "#FFFFFF",
+          background: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          color: "var(--color-white)",
         }}>
           {feedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -520,3 +520,4 @@ export default function AppraisalPage() {
     </div>
   );
 }
+

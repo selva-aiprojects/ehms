@@ -1,8 +1,8 @@
-# CybeHMS — Project Working Document
+# HostSphere — Project Working Document
 
-> **Cybelinx Hospitality Management System**
+> **HostSphere — Cybelinx Hospitality Management System**
 > Full progress log from project start to current state.
-> Last updated: 27 June 2026 (Rebranded to CybeHMS by Cybelinx)
+> Last updated: 31 July 2026 (Rebranded to HostSphere)
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Item | Detail |
 |---|---|
-| **Project** | CybeHMS — Cybelinx Hospitality Management System |
+| **Project** | HostSphere — Cybelinx Hospitality Management System |
 | **Stack** | Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · NeonDB (PostgreSQL) |
 | **Architecture** | **Schema-per-Tenant Multi-Tenancy** — each tenant in isolated PostgreSQL schema |
 | **Primary Tenant** | Viswa Group of Estates (schema: `viswa`) |
@@ -25,7 +25,7 @@
 
 ## Domain & Workflow Overview
 
-CybeHMS is a **subscription-based** Cybelinx Hospitality and Facilities Management system serving four major verticals:
+HostSphere is a **subscription-based** Cybelinx Hospitality and Facilities Management system serving four major verticals:
 1. **Hotels**
 2. **Serviced Apartments**
 3. **Apartment Management (Long-term Rental)**

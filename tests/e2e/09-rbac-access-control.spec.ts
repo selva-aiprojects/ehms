@@ -280,7 +280,7 @@ test.describe("RBAC & Role-Based Access Control", () => {
         await page.waitForTimeout(1000);
 
         await expect(
-          page.getByText("CybeHMS Portal")
+          page.getByText("HostSphere Portal")
         ).toBeVisible({ timeout: 5000 });
       }
     });
@@ -318,7 +318,7 @@ test.describe("RBAC & Role-Based Access Control", () => {
 
       await page.waitForTimeout(2000);
 
-      const error = page.locator('[style*="E53E3E"], [class*="error"]').first();
+      const error = page.locator('[style*="E53E3E"], [style*="color-danger"], [class*="error"]').first();
       if (await error.isVisible({ timeout: 5000 }).catch(() => false)) {
         await expect(error).toBeVisible();
       }

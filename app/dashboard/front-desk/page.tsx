@@ -18,24 +18,24 @@ import LogRequestModal from "./components/LogRequestModal";
 import { useRouter } from "next/navigation";
 
 const ROOM_STATUS_STYLES: Record<string, { bg: string; border: string; dot: string; label: string; text: string; pillBg: string; pillText: string }> = {
-  vacant: { bg: "#ECFDF5", border: "#10B981", dot: "#10B981", label: "Available", text: "#065F46", pillBg: "#D1FAE5", pillText: "#047857" },
-  occupied: { bg: "#EFF6FF", border: "#3B82F6", dot: "#3B82F6", label: "Occupied", text: "#1E40AF", pillBg: "#DBEAFE", pillText: "#1D4ED8" },
-  dirty: { bg: "#FFFBEB", border: "#F59E0B", dot: "#F59E0B", label: "Dirty", text: "#92400E", pillBg: "#FEF3C7", pillText: "#B45309" },
+  vacant: { bg: "var(--color-success-soft)", border: "var(--color-success)", dot: "var(--color-success)", label: "Available", text: "var(--color-success-dark)", pillBg: "var(--color-success-soft)", pillText: "var(--color-success-dark)" },
+  occupied: { bg: "var(--color-info-soft)", border: "var(--color-info)", dot: "var(--color-info)", label: "Occupied", text: "var(--color-info-dark)", pillBg: "var(--color-info-soft)", pillText: "var(--color-info)" },
+  dirty: { bg: "var(--color-warning-soft)", border: "var(--color-warning)", dot: "var(--color-warning)", label: "Dirty", text: "var(--color-warning-dark)", pillBg: "var(--color-warning-soft)", pillText: "var(--color-warning-dark)" },
   cleaning: { bg: "#F5F3FF", border: "#8B5CF6", dot: "#8B5CF6", label: "Cleaning", text: "#5B21B6", pillBg: "#EDE9FE", pillText: "#6D28D9" },
-  maintenance: { bg: "#FEF2F2", border: "#EF4444", dot: "#EF4444", label: "Maintenance", text: "#991B1B", pillBg: "#FEE2E2", pillText: "#B91C1C" },
-  reserved: { bg: "#F8FAFC", border: "#64748B", dot: "#64748B", label: "Reserved", text: "#334155", pillBg: "#E2E8F0", pillText: "#475569" },
-  inspection: { bg: "#F0FDF4", border: "#22C55E", dot: "#22C55E", label: "Inspection", text: "#15803D", pillBg: "#DCFCE7", pillText: "#166534" },
+  maintenance: { bg: "var(--color-danger-soft)", border: "var(--color-danger)", dot: "var(--color-danger)", label: "Maintenance", text: "var(--color-danger-dark)", pillBg: "var(--color-danger-soft)", pillText: "var(--color-danger-dark)" },
+  reserved: { bg: "var(--color-light)", border: "var(--color-text-muted)", dot: "var(--color-text-muted)", label: "Reserved", text: "var(--color-text)", pillBg: "var(--color-border)", pillText: "var(--color-text)" },
+  inspection: { bg: "var(--color-success-soft)", border: "var(--color-success)", dot: "var(--color-success)", label: "Inspection", text: "var(--color-success-dark)", pillBg: "var(--color-success-soft)", pillText: "var(--color-success-dark)" },
 };
 
 function SkeletonRoomCard() {
   return (
-    <div className="rounded-xl p-3 animate-pulse" style={{ background: "#F5F7FA" }}>
+    <div className="rounded-xl p-3 animate-pulse" style={{ background: "var(--color-light)" }}>
       <div className="flex items-center justify-between mb-2">
-        <div className="w-8 h-4 rounded" style={{ background: "#E2E8F0" }} />
-        <div className="w-8 h-4 rounded" style={{ background: "#E2E8F0" }} />
+        <div className="w-8 h-4 rounded" style={{ background: "var(--color-border)" }} />
+        <div className="w-8 h-4 rounded" style={{ background: "var(--color-border)" }} />
       </div>
-      <div className="w-16 h-3 rounded mb-2" style={{ background: "#E2E8F0" }} />
-      <div className="w-12 h-3 rounded" style={{ background: "#E2E8F0" }} />
+      <div className="w-16 h-3 rounded mb-2" style={{ background: "var(--color-border)" }} />
+      <div className="w-12 h-3 rounded" style={{ background: "var(--color-border)" }} />
     </div>
   );
 }
@@ -43,10 +43,10 @@ function SkeletonRoomCard() {
 function SkeletonPanel() {
   return (
     <div className="animate-pulse space-y-3">
-      <div className="w-24 h-4 rounded" style={{ background: "#E2E8F0" }} />
-      <div className="w-full h-8 rounded" style={{ background: "#E2E8F0" }} />
-      <div className="w-full h-8 rounded" style={{ background: "#E2E8F0" }} />
-      <div className="w-3/4 h-8 rounded" style={{ background: "#E2E8F0" }} />
+      <div className="w-24 h-4 rounded" style={{ background: "var(--color-border)" }} />
+      <div className="w-full h-8 rounded" style={{ background: "var(--color-border)" }} />
+      <div className="w-full h-8 rounded" style={{ background: "var(--color-border)" }} />
+      <div className="w-3/4 h-8 rounded" style={{ background: "var(--color-border)" }} />
     </div>
   );
 }
@@ -220,8 +220,8 @@ export default function FrontDeskPage() {
     return (
       <div className="flex h-[80vh] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-[#64748B] text-sm font-medium">Loading Front Desk Command Center...</p>
+          <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[var(--color-text-muted)] text-sm font-medium">Loading Front Desk Command Center...</p>
         </div>
       </div>
     );
@@ -231,12 +231,12 @@ export default function FrontDeskPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Front Desk Command Center</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>{currentProperty?.name || (activeJourney === "apartments" ? "Viswa Service Apartments" : "Oceanview Hotel")} · {new Date().toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Front Desk Command Center</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>{currentProperty?.name || (activeJourney === "apartments" ? "Viswa Service Apartments" : "Oceanview Hotel")} · {new Date().toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}</p>
         </div>
         <div className="flex items-center gap-2">
           {loadingRes && (
-            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
+            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
               <Loader2 className="w-3 h-3 animate-spin" /> Syncing
             </div>
           )}
@@ -247,7 +247,7 @@ export default function FrontDeskPage() {
       </div>
 
       {resError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" />
           Could not load live data. Displaying mock data.
           <button onClick={() => mutateRes()} className="ml-auto underline text-xs">Retry</button>
@@ -259,11 +259,11 @@ export default function FrontDeskPage() {
           <CardHeader title="Room Matrix" subtitle={`${buildingRooms.length} rooms in building`} action={
             <div className="flex flex-wrap items-center gap-2">
               {distinctBuildings.length > 1 && (
-                <div className="flex gap-1 border-r pr-2" style={{ borderColor: "#E2E8F0" }}>
+                <div className="flex gap-1 border-r pr-2" style={{ borderColor: "var(--color-border)" }}>
                   {distinctBuildings.map((b) => (
                     <button key={b} onClick={() => { setSelectedBuilding(b); setSelectedRoom(null); }}
                       className="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all"
-                      style={{ background: activeBuilding === b ? "#2BAE8E" : "#F5F7FA", color: activeBuilding === b ? "#FFFFFF" : "#1A3C5E" }}
+                      style={{ background: activeBuilding === b ? "var(--color-primary)" : "var(--color-light)", color: activeBuilding === b ? "var(--color-white)" : "var(--color-navy)" }}
                     >Tower {b}</button>
                   ))}
                 </div>
@@ -272,24 +272,24 @@ export default function FrontDeskPage() {
                 {(distinctFloors.length > 0 ? distinctFloors : [1, 2, 3]).map((f) => (
                   <button key={f} onClick={() => { setFloor(f); setSelectedRoom(null); }}
                     className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
-                    style={{ background: activeFloor === f ? "#1A3C5E" : "#F5F7FA", color: activeFloor === f ? "#FFFFFF" : "#64748B" }}
+                    style={{ background: activeFloor === f ? "var(--color-navy)" : "var(--color-light)", color: activeFloor === f ? "var(--color-white)" : "var(--color-text-muted)" }}
                   >Floor {f}</button>
                 ))}
               </div>
             </div>
           } />
           
-          <div className="px-4 py-2.5 bg-slate-50 border-b flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "#E2E8F0" }}>
+          <div className="px-4 py-2.5 bg-slate-50 border-b flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "var(--color-border)" }}>
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold uppercase tracking-wider mr-1.5 flex items-center gap-1" style={{ color: "#64748B" }}>
+              <span className="text-xs font-bold uppercase tracking-wider mr-1.5 flex items-center gap-1" style={{ color: "var(--color-text-muted)" }}>
                 Status Filter:
               </span>
               {[
-                { id: "all", label: `All (${parentUnits.length + standaloneUnits.length})`, bg: statusFilter === "all" ? "#1A3C5E" : "#FFFFFF", color: statusFilter === "all" ? "#FFFFFF" : "#475569", border: statusFilter === "all" ? "#1A3C5E" : "#CBD5E1" },
-                { id: "vacant", label: `Available (${parentUnits.filter((r: any) => computeFlatStatus(r) === "vacant").length + standaloneUnits.filter((r: any) => r.status === "vacant").length})`, bg: statusFilter === "vacant" ? "#10B981" : "#ECFDF5", color: statusFilter === "vacant" ? "#FFFFFF" : "#065F46", border: "#6EE7B7" },
-                { id: "occupied", label: `Occupied (${parentUnits.filter((r: any) => computeFlatStatus(r) === "occupied").length + standaloneUnits.filter((r: any) => r.status === "occupied").length})`, bg: statusFilter === "occupied" ? "#3B82F6" : "#EFF6FF", color: statusFilter === "occupied" ? "#FFFFFF" : "#1E40AF", border: "#93C5FD" },
-                { id: "dirty", label: `Dirty/Cleaning (${parentUnits.filter((r: any) => { const s = computeFlatStatus(r); return s === "dirty" || s === "cleaning"; }).length + standaloneUnits.filter((r: any) => r.status === "dirty" || r.status === "cleaning").length})`, bg: statusFilter === "dirty" ? "#F59E0B" : "#FFFBEB", color: statusFilter === "dirty" ? "#FFFFFF" : "#92400E", border: "#FCD34D" },
-                { id: "maintenance", label: `Maint. (${parentUnits.filter((r: any) => computeFlatStatus(r) === "maintenance").length + standaloneUnits.filter((r: any) => r.status === "maintenance").length})`, bg: statusFilter === "maintenance" ? "#EF4444" : "#FEF2F2", color: statusFilter === "maintenance" ? "#FFFFFF" : "#991B1B", border: "#FCA5A5" },
+                { id: "all", label: `All (${parentUnits.length + standaloneUnits.length})`, bg: statusFilter === "all" ? "var(--color-navy)" : "var(--color-white)", color: statusFilter === "all" ? "var(--color-white)" : "var(--color-text)", border: statusFilter === "all" ? "var(--color-navy)" : "var(--color-border-strong)" },
+                { id: "vacant", label: `Available (${parentUnits.filter((r: any) => computeFlatStatus(r) === "vacant").length + standaloneUnits.filter((r: any) => r.status === "vacant").length})`, bg: statusFilter === "vacant" ? "var(--color-success)" : "var(--color-success-soft)", color: statusFilter === "vacant" ? "var(--color-white)" : "var(--color-success-dark)", border: "var(--color-success)" },
+                { id: "occupied", label: `Occupied (${parentUnits.filter((r: any) => computeFlatStatus(r) === "occupied").length + standaloneUnits.filter((r: any) => r.status === "occupied").length})`, bg: statusFilter === "occupied" ? "var(--color-info)" : "var(--color-info-soft)", color: statusFilter === "occupied" ? "var(--color-white)" : "var(--color-info-dark)", border: "var(--color-info)" },
+                { id: "dirty", label: `Dirty/Cleaning (${parentUnits.filter((r: any) => { const s = computeFlatStatus(r); return s === "dirty" || s === "cleaning"; }).length + standaloneUnits.filter((r: any) => r.status === "dirty" || r.status === "cleaning").length})`, bg: statusFilter === "dirty" ? "var(--color-warning)" : "var(--color-warning-soft)", color: statusFilter === "dirty" ? "var(--color-white)" : "var(--color-warning-dark)", border: "var(--color-warning)" },
+                { id: "maintenance", label: `Maint. (${parentUnits.filter((r: any) => computeFlatStatus(r) === "maintenance").length + standaloneUnits.filter((r: any) => r.status === "maintenance").length})`, bg: statusFilter === "maintenance" ? "var(--color-danger)" : "var(--color-danger-soft)", color: statusFilter === "maintenance" ? "var(--color-white)" : "var(--color-danger-dark)", border: "#FCA5A5" },
               ].map((f) => (
                 <button key={f.id} onClick={() => { setStatusFilter(f.id); setSelectedRoom(null); }}
                   className="px-2.5 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 shadow-2xs hover:scale-[1.02]"
@@ -320,8 +320,8 @@ export default function FrontDeskPage() {
                         className={`rounded-xl p-3.5 text-left transition-all border-2 flex flex-col justify-between shadow-2xs relative overflow-hidden group hover:shadow-md col-span-1 sm:col-span-2 md:col-span-2`}
                         style={{
                           background: s.bg,
-                          borderColor: isSelected ? "#1A3C5E" : s.border,
-                          boxShadow: isSelected ? "0 0 0 3px rgba(26,60,94,0.25)" : "none"
+                          borderColor: isSelected ? "var(--color-navy)" : s.border,
+                          boxShadow: isSelected ? "0 0 0 3px rgba(var(--color-navy-rgb),0.25)" : "none"
                         }}
                       >
                         <div>
@@ -329,11 +329,11 @@ export default function FrontDeskPage() {
                             <div className="flex items-center gap-1.5 min-w-0">
                               <Building2 className="w-4 h-4 flex-shrink-0" style={{ color: s.text }} />
                               <span className="font-extrabold text-base tracking-tight truncate" style={{ color: s.text }}>{room.unit_label}</span>
-                              <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: "rgba(42,157,143,0.18)", color: "#047857" }}>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: "rgba(var(--color-primary-dark-rgb),0.18)", color: "var(--color-success-dark)" }}>
                                 {room.layout_type || 'Apartment'}
                               </span>
                               {isAc !== undefined && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: isAc ? "rgba(16,185,129,0.18)" : "rgba(100,116,139,0.15)", color: isAc ? "#047857" : "#475569" }}>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: isAc ? "rgba(var(--color-success-rgb),0.18)" : "rgba(var(--color-text-muted-rgb),0.15)", color: isAc ? "var(--color-success-dark)" : "var(--color-text)" }}>
                                   {isAc ? "AC" : "Non-AC"}
                                 </span>
                               )}
@@ -350,7 +350,7 @@ export default function FrontDeskPage() {
                               </button>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3 text-xs font-semibold mb-2" style={{ color: "#334155" }}>
+                          <div className="flex items-center gap-3 text-xs font-semibold mb-2" style={{ color: "var(--color-text)" }}>
                             <span>{childCount} room{childCount !== 1 ? 's' : ''}</span>
                             <span>·</span>
                             <span>{room.occupied_children || 0} occupied</span>
@@ -384,8 +384,8 @@ export default function FrontDeskPage() {
                       className="rounded-xl p-3.5 text-left transition-all border-2 flex flex-col justify-between h-full shadow-2xs relative overflow-hidden group hover:shadow-md"
                       style={{ 
                         background: s.bg, 
-                        borderColor: isSelected ? "#1A3C5E" : s.border,
-                        boxShadow: isSelected ? "0 0 0 3px rgba(26,60,94,0.25)" : "none"
+                        borderColor: isSelected ? "var(--color-navy)" : s.border,
+                        boxShadow: isSelected ? "0 0 0 3px rgba(var(--color-navy-rgb),0.25)" : "none"
                       }}
                     >
                       <div>
@@ -393,7 +393,7 @@ export default function FrontDeskPage() {
                           <div className="flex items-center gap-1.5 min-w-0">
                             <span className="font-extrabold text-base tracking-tight truncate" style={{ color: s.text }}>{room.unit_label}</span>
                             {isAc !== undefined && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: isAc ? "rgba(16,185,129,0.18)" : "rgba(100,116,139,0.15)", color: isAc ? "#047857" : "#475569" }}>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: isAc ? "rgba(var(--color-success-rgb),0.18)" : "rgba(var(--color-text-muted-rgb),0.15)", color: isAc ? "var(--color-success-dark)" : "var(--color-text)" }}>
                                 {isAc ? "AC" : "Non-AC"}
                               </span>
                             )}
@@ -403,16 +403,16 @@ export default function FrontDeskPage() {
                             {s.label}
                           </span>
                         </div>
-                        <div className="text-xs font-semibold mb-3 truncate" style={{ color: "#334155" }}>{room.layout_type || room.unit_type}</div>
+                        <div className="text-xs font-semibold mb-3 truncate" style={{ color: "var(--color-text)" }}>{room.layout_type || room.unit_type}</div>
                       </div>
                       <div className="pt-2.5 border-t flex items-center justify-between mt-auto" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
                         <div className="flex flex-col">
-                          <span className="text-[10px] font-medium" style={{ color: "#64748B" }}>Nightly Rate</span>
+                          <span className="text-[10px] font-medium" style={{ color: "var(--color-text-muted)" }}>Nightly Rate</span>
                           <span className="text-xs font-bold" style={{ color: s.text }}>₹{room.base_rate}</span>
                         </div>
                         {room.guest_name ? (
                           <div className="text-right min-w-0 max-w-[110px]">
-                            <div className="text-[10px] font-medium" style={{ color: "#64748B" }}>Occupant</div>
+                            <div className="text-[10px] font-medium" style={{ color: "var(--color-text-muted)" }}>Occupant</div>
                             <div className="text-xs font-bold truncate" style={{ color: s.text }}>{room.guest_name}</div>
                           </div>
                         ) : room.status === "vacant" ? (
@@ -429,7 +429,7 @@ export default function FrontDeskPage() {
                   );
                 })}
           </div>
-          <div className="flex flex-wrap items-center gap-4 px-4 py-3 text-xs bg-slate-50/60" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
+          <div className="flex flex-wrap items-center gap-4 px-4 py-3 text-xs bg-slate-50/60" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
             {Object.entries(ROOM_STATUS_STYLES).map(([k, v]) => (
               <span key={k} className="flex items-center gap-1.5 font-semibold" style={{ color: v.text }}>
                 <span className="w-2.5 h-2.5 rounded-full shadow-2xs" style={{ background: v.dot }} /> {v.label}
@@ -447,7 +447,7 @@ export default function FrontDeskPage() {
                   <Badge variant={selected.vip ? "amber" : "gray"}>
                     {(ROOM_STATUS_STYLES[selected.status] || ROOM_STATUS_STYLES.vacant).label}
                   </Badge>
-                  <span className="font-bold text-sm" style={{ color: "#1A3C5E" }}>₹{selected.base_rate}/night</span>
+                  <span className="font-bold text-sm" style={{ color: "var(--color-navy)" }}>₹{selected.base_rate}/night</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   <Badge variant="teal">{selected.layout_type || selected.unit_type}</Badge>
@@ -461,21 +461,21 @@ export default function FrontDeskPage() {
                   )}
                 </div>
                 {selected.vip && (
-                  <div className="flex items-center gap-1 text-xs font-medium" style={{ color: "#F5A623" }}>
+                  <div className="flex items-center gap-1 text-xs font-medium" style={{ color: "var(--color-warning)" }}>
                     <Star className="w-3 h-3 fill-current" /> VIP Guest
                   </div>
                 )}
                 {selected.guest_name && (
-                  <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-                    <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>{selected.guest_name}</div>
-                    <div className="flex items-center gap-2 text-xs mt-1" style={{ color: "#64748B" }}>
+                  <div className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                    <div className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{selected.guest_name}</div>
+                    <div className="flex items-center gap-2 text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
                       <Calendar className="w-3 h-3" />
                       <span>{selected.check_in || "—"} → {selected.check_out || "—"}</span>
                     </div>
                   </div>
                 )}
                 {selected.status === "occupied" && selected.booking_id && (
-                  <div className="flex items-center gap-2 text-xs p-2 rounded-lg" style={{ background: "rgba(42,157,143,0.08)", color: "#2BAE8E" }}>
+                  <div className="flex items-center gap-2 text-xs p-2 rounded-lg" style={{ background: "rgba(var(--color-primary-dark-rgb),0.08)", color: "var(--color-primary)" }}>
                     <DoorOpen className="w-3 h-3" /> Currently checked in
                   </div>
                 )}
@@ -514,7 +514,7 @@ export default function FrontDeskPage() {
                   {(selected.status === "occupied") && (
                     <Button
                       variant="outline" size="sm" className="w-full"
-                      style={{ color: "#E53E3E", borderColor: "#E53E3E" }}
+                      style={{ color: "var(--color-danger)", borderColor: "var(--color-danger)" }}
                       disabled={applyingAction === selected.id}
                       onClick={() => handleCheckOut(selected.id, selected.booking_id)}
                     >
@@ -528,7 +528,7 @@ export default function FrontDeskPage() {
                   {selected.status !== "vacant" && selected.status !== "occupied" && (
                     <Button
                       variant="outline" size="sm" className="w-full font-bold"
-                      style={{ background: "#ECFDF5", color: "#065F46", borderColor: "#10B981" }}
+                      style={{ background: "var(--color-success-soft)", color: "var(--color-success-dark)", borderColor: "var(--color-success)" }}
                       disabled={applyingAction === selected.id}
                       onClick={() => handleUpdateRoomStatus(selected.id, "vacant")}
                     >
@@ -538,7 +538,7 @@ export default function FrontDeskPage() {
                   {selected.status === "vacant" && (
                     <Button
                       variant="outline" size="sm" className="w-full font-bold"
-                      style={{ background: "#FFFBEB", color: "#92400E", borderColor: "#F59E0B" }}
+                      style={{ background: "var(--color-warning-soft)", color: "var(--color-warning-dark)", borderColor: "var(--color-warning)" }}
                       disabled={applyingAction === selected.id}
                       onClick={() => handleUpdateRoomStatus(selected.id, "dirty")}
                     >
@@ -550,9 +550,9 @@ export default function FrontDeskPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-64 text-center">
-              <Search className="w-5 h-5 mb-3" style={{ color: "#64748B" }} />
-              <p className="text-sm font-medium" style={{ color: "#1A2E44" }}>Select a Room</p>
-              <p className="text-xs mt-1" style={{ color: "#64748B" }}>Click on any room card to view details</p>
+              <Search className="w-5 h-5 mb-3" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>Select a Room</p>
+              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>Click on any room card to view details</p>
             </div>
           )}
         </Card>
@@ -569,13 +569,13 @@ export default function FrontDeskPage() {
             <SkeletonPanel />
           ) : arrivalsData.length === 0 ? (
             <div className="text-center py-6">
-              <Calendar className="w-5 h-5 mx-auto mb-2" style={{ color: "#64748B" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No arrivals expected today</p>
+              <Calendar className="w-5 h-5 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No arrivals expected today</p>
             </div>
           ) : (
             arrivalsData.slice(0, 6).map((b: any, i: number) => (
-              <div key={`arrival-${b.id || i}`} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(arrivalsData.length, 6) - 1 ? "1px solid #E2E8F0" : "none" }}>
-                <span style={{ color: "#1A2E44" }}>
+              <div key={`arrival-${b.id || i}`} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(arrivalsData.length, 6) - 1 ? "1px solid var(--color-border)" : "none" }}>
+                <span style={{ color: "var(--color-text)" }}>
                   {b.guest_name || "Unknown"} ({b.unit_label || "—"})
                 </span>
                 <Badge variant="amber">Arriving</Badge>
@@ -589,13 +589,13 @@ export default function FrontDeskPage() {
             <SkeletonPanel />
           ) : inHouseData.length === 0 ? (
             <div className="text-center py-6">
-              <Users className="w-5 h-5 mx-auto mb-2" style={{ color: "#64748B" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No guests in-house</p>
+              <Users className="w-5 h-5 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No guests in-house</p>
             </div>
           ) : (
             inHouseData.slice(0, 6).map((b: any, i: number) => (
-              <div key={`inhouse-${b.id || i}`} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(inHouseData.length, 6) - 1 ? "1px solid #E2E8F0" : "none" }}>
-                <span style={{ color: "#1A2E44" }}>
+              <div key={`inhouse-${b.id || i}`} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(inHouseData.length, 6) - 1 ? "1px solid var(--color-border)" : "none" }}>
+                <span style={{ color: "var(--color-text)" }}>
                   {b.guest_name || "Unknown"} ({b.unit_label || "—"})
                 </span>
                 <Badge variant="teal">In House</Badge>
@@ -609,13 +609,13 @@ export default function FrontDeskPage() {
             <SkeletonPanel />
           ) : departuresData.length === 0 ? (
             <div className="text-center py-6">
-              <Clock className="w-5 h-5 mx-auto mb-2" style={{ color: "#64748B" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No departures today</p>
+              <Clock className="w-5 h-5 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No departures today</p>
             </div>
           ) : (
             departuresData.slice(0, 4).map((b: any, i: number) => (
-              <div key={`departure-${b.id || i}`} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(departuresData.length, 4) - 1 ? "1px solid #E2E8F0" : "none" }}>
-                <span style={{ color: "#1A2E44" }}>
+              <div key={`departure-${b.id || i}`} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < Math.min(departuresData.length, 4) - 1 ? "1px solid var(--color-border)" : "none" }}>
+                <span style={{ color: "var(--color-text)" }}>
                   {b.guest_name || "Unknown"} ({b.unit_label || "—"})
                 </span>
                 <Button
@@ -634,41 +634,41 @@ export default function FrontDeskPage() {
       <Card>
         <CardHeader title="Today's Overview" subtitle="Quick stats at a glance" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-            <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>
+          <div className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
+            <div className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>
               {rooms.filter((r: any) => {
                 if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'occupied';
                 return r.status === "occupied";
               }).length}
             </div>
-            <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Occupied Rooms</div>
+            <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Occupied Rooms</div>
           </div>
-          <div className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-            <div className="text-lg font-bold" style={{ color: "#2BAE8E" }}>
+          <div className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
+            <div className="text-lg font-bold" style={{ color: "var(--color-primary)" }}>
               {rooms.filter((r: any) => {
                 if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'vacant';
                 return r.status === "vacant";
               }).length}
             </div>
-            <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Vacant Rooms</div>
+            <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Vacant Rooms</div>
           </div>
-          <div className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-            <div className="text-lg font-bold" style={{ color: "#F5A623" }}>
+          <div className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
+            <div className="text-lg font-bold" style={{ color: "var(--color-warning)" }}>
               {rooms.filter((r: any) => {
                 if (r.unit_type === 'apartment' && !r.parent_unit_id) { const s = computeFlatStatus(r); return s === 'dirty' || s === 'cleaning'; }
                 return r.status === "dirty" || r.status === "cleaning";
               }).length}
             </div>
-            <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Dirty / Cleaning</div>
+            <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Dirty / Cleaning</div>
           </div>
-          <div className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-            <div className="text-lg font-bold" style={{ color: "#E53E3E" }}>
+          <div className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
+            <div className="text-lg font-bold" style={{ color: "var(--color-danger)" }}>
               {rooms.filter((r: any) => {
                 if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'maintenance';
                 return r.status === "maintenance";
               }).length}
             </div>
-            <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Maintenance</div>
+            <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Maintenance</div>
           </div>
         </div>
       </Card>
@@ -677,53 +677,53 @@ export default function FrontDeskPage() {
         <Card>
           <CardHeader title="Quick Actions" subtitle="Common front desk tasks" />
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={handleWalkIn} className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(42,157,143,0.1)", color: "#1A3C5E", border: "1px solid rgba(42,157,143,0.2)" }}>
-              <UserPlus className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+            <button onClick={handleWalkIn} className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(var(--color-primary-dark-rgb),0.1)", color: "var(--color-navy)", border: "1px solid rgba(var(--color-primary-dark-rgb),0.2)" }}>
+              <UserPlus className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
               New Guest
             </button>
-            <button className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(26,60,94,0.08)", color: "#1A3C5E", border: "1px solid rgba(26,60,94,0.15)" }}>
-              <Phone className="w-5 h-5" style={{ color: "#1A3C5E" }} />
+            <button className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(var(--color-navy-rgb),0.08)", color: "var(--color-navy)", border: "1px solid rgba(var(--color-navy-rgb),0.15)" }}>
+              <Phone className="w-5 h-5" style={{ color: "var(--color-navy)" }} />
               Call Guest
             </button>
-            <button className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(245,166,35,0.1)", color: "#1A3C5E", border: "1px solid rgba(245,166,35,0.2)" }}>
-              <Bell className="w-5 h-5" style={{ color: "#F5A623" }} />
+            <button className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(var(--color-warning-rgb),0.1)", color: "var(--color-navy)", border: "1px solid rgba(var(--color-warning-rgb),0.2)" }}>
+              <Bell className="w-5 h-5" style={{ color: "var(--color-warning)" }} />
               Wake-up Call
             </button>
-            <button onClick={() => router.push("/dashboard/housekeeping")} className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(43,174,142,0.08)", color: "#1A3C5E", border: "1px solid rgba(43,174,142,0.15)" }}>
-              <ClipboardList className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+            <button onClick={() => router.push("/dashboard/housekeeping")} className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(var(--color-primary-rgb),0.08)", color: "var(--color-navy)", border: "1px solid rgba(var(--color-primary-rgb),0.15)" }}>
+              <ClipboardList className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
               Housekeeping
             </button>
-            <button onClick={() => setLogRequestModalData({ isOpen: true })} className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(229,62,62,0.08)", color: "#1A3C5E", border: "1px solid rgba(229,62,62,0.15)" }}>
-              <Trash2 className="w-5 h-5" style={{ color: "#E53E3E" }} />
+            <button onClick={() => setLogRequestModalData({ isOpen: true })} className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-navy)", border: "1px solid rgba(var(--color-danger-rgb),0.15)" }}>
+              <Trash2 className="w-5 h-5" style={{ color: "var(--color-danger)" }} />
               Report Issue
             </button>
-            <button className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(100,116,139,0.1)", color: "#1A3C5E", border: "1px solid rgba(100,116,139,0.15)" }}>
-              <Download className="w-5 h-5" style={{ color: "#64748B" }} />
+            <button className="flex flex-col items-center gap-2 p-4 rounded-xl text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "rgba(var(--color-text-muted-rgb),0.1)", color: "var(--color-navy)", border: "1px solid rgba(var(--color-text-muted-rgb),0.15)" }}>
+              <Download className="w-5 h-5" style={{ color: "var(--color-text-muted)" }} />
               Export Report
             </button>
           </div>
         </Card>
 
         <Card>
-          <CardHeader title="Guest Messaging" subtitle={`${dashboardData?.recentRequests?.filter((r: any) => r.status !== 'resolved').length || 0} open requests`} action={<button onClick={() => router.push("/dashboard/front-desk")} className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "#F5F7FA", color: "#1A3C5E" }}><Settings className="w-3 h-3" /></button>} />
+          <CardHeader title="Guest Messaging" subtitle={`${dashboardData?.recentRequests?.filter((r: any) => r.status !== 'resolved').length || 0} open requests`} action={<button onClick={() => router.push("/dashboard/front-desk")} className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-navy)" }}><Settings className="w-3 h-3" /></button>} />
           <div className="space-y-3">
             {loadingDashboard ? (
-              <div className="flex justify-center p-6"><Loader2 className="w-5 h-5 animate-spin text-[#64748B]" /></div>
+              <div className="flex justify-center p-6"><Loader2 className="w-5 h-5 animate-spin text-[var(--color-text-muted)]" /></div>
             ) : dashboardData?.recentRequests?.filter((r: any) => r.status !== 'resolved').length === 0 ? (
               <div className="text-center py-6">
-                <MessageSquare className="w-5 h-5 mx-auto mb-2 text-[#64748B]" />
-                <p className="text-sm text-[#64748B]">No open requests</p>
+                <MessageSquare className="w-5 h-5 mx-auto mb-2 text-[var(--color-text-muted)]" />
+                <p className="text-sm text-[var(--color-text-muted)]">No open requests</p>
               </div>
             ) : (
               dashboardData?.recentRequests?.filter((r: any) => r.status !== 'resolved').slice(0, 3).map((req: any) => {
                 const initials = req.unit_label ? req.unit_label.slice(0, 2) : "GD";
                 const typeColors: Record<string, { bg: string; color: string }> = {
-                  room_service: { bg: "rgba(42,157,143,0.15)", color: "#2BAE8E" },
-                  housekeeping: { bg: "rgba(245,166,35,0.15)", color: "#D4850A" },
-                  maintenance: { bg: "rgba(229,62,62,0.1)", color: "#E53E3E" },
-                  complaint: { bg: "rgba(26,60,94,0.1)", color: "#1A3C5E" },
+                  room_service: { bg: "rgba(var(--color-primary-dark-rgb),0.15)", color: "var(--color-primary)" },
+                  housekeeping: { bg: "rgba(var(--color-warning-rgb),0.15)", color: "var(--color-warning)" },
+                  maintenance: { bg: "rgba(var(--color-danger-rgb),0.1)", color: "var(--color-danger)" },
+                  complaint: { bg: "rgba(var(--color-navy-rgb),0.1)", color: "var(--color-navy)" },
                 };
-                const tc = typeColors[req.request_type] || { bg: "rgba(100,116,139,0.1)", color: "#64748B" };
+                const tc = typeColors[req.request_type] || { bg: "rgba(var(--color-text-muted-rgb),0.1)", color: "var(--color-text-muted)" };
                 const timeAgo = (() => {
                   const diff = Date.now() - new Date(req.created_at).getTime();
                   const mins = Math.floor(diff / 60000);
@@ -733,18 +733,18 @@ export default function FrontDeskPage() {
                   return `${Math.floor(hrs / 24)}d ago`;
                 })();
                 return (
-                  <div key={req.id} className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                  <div key={req.id} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: tc.bg, color: tc.color }}>{initials}</div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium truncate" style={{ color: "#1A2E44" }}>Room {req.unit_label || "?"} · {req.request_type.replace("_", " ")}</div>
-                        <div className="text-xs truncate" style={{ color: "#64748B" }}>{req.description}</div>
+                        <div className="text-sm font-medium truncate" style={{ color: "var(--color-text)" }}>Room {req.unit_label || "?"} · {req.request_type.replace("_", " ")}</div>
+                        <div className="text-xs truncate" style={{ color: "var(--color-text-muted)" }}>{req.description}</div>
                       </div>
                       <div className="text-right">
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${req.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
                           {req.status}
                         </span>
-                        <span className="text-[10px] block mt-0.5" style={{ color: "#64748B" }}>{timeAgo}</span>
+                        <span className="text-[10px] block mt-0.5" style={{ color: "var(--color-text-muted)" }}>{timeAgo}</span>
                       </div>
                     </div>
                   </div>
@@ -757,11 +757,11 @@ export default function FrontDeskPage() {
                   type="text"
                   placeholder="Type a quick message..."
                   className="w-full px-3 py-2 text-sm rounded-lg outline-none"
-                  style={{ background: "#F5F7FA", color: "#1A2E44", border: "1px solid #E2E8F0" }}
+                  style={{ background: "var(--color-light)", color: "var(--color-text)", border: "1px solid var(--color-border)" }}
                   readOnly
                 />
               </div>
-              <button className="px-4 py-2 rounded-lg text-sm font-medium" style={{ background: "#1A3C5E", color: "#FFFFFF" }}>
+              <button className="px-4 py-2 rounded-lg text-sm font-medium" style={{ background: "var(--color-navy)", color: "var(--color-white)" }}>
                 <Send className="w-4 h-4" />
               </button>
             </div>
@@ -779,7 +779,7 @@ export default function FrontDeskPage() {
                 .then(data => setDashboardData(data))
                 .finally(() => setLoadingDashboard(false));
             }
-          }} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
+          }} className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
             <RefreshCw className="w-3 h-3" /> Refresh
           </button>
         } />
@@ -791,28 +791,28 @@ export default function FrontDeskPage() {
             
             // Recent check-ins
             dashboardData?.recentBookings?.filter((b: any) => b.status === 'checked_in' && b.checked_in_at?.startsWith(new Date().toISOString().split('T')[0])).forEach((b: any) => {
-              activities.push({ icon: LogIn, iconBg: "rgba(42,157,143,0.12)", iconColor: "#2BAE8E", title: "Check-In Completed", desc: `${b.guest_name || 'Guest'} checked into Room ${b.unit_label || '?'}`, time: new Date(b.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+              activities.push({ icon: LogIn, iconBg: "rgba(var(--color-primary-dark-rgb),0.12)", iconColor: "var(--color-primary)", title: "Check-In Completed", desc: `${b.guest_name || 'Guest'} checked into Room ${b.unit_label || '?'}`, time: new Date(b.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
             });
             
             // Recent check-outs
             dashboardData?.recentBookings?.filter((b: any) => b.status === 'checked_out' && b.checked_out_at?.startsWith(new Date().toISOString().split('T')[0])).forEach((b: any) => {
-              activities.push({ icon: LogOut, iconBg: "rgba(229,62,62,0.1)", iconColor: "#E53E3E", title: "Check-Out Processed", desc: `${b.guest_name || 'Guest'} checked out of Room ${b.unit_label || '?'}`, time: new Date(b.checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+              activities.push({ icon: LogOut, iconBg: "rgba(var(--color-danger-rgb),0.1)", iconColor: "var(--color-danger)", title: "Check-Out Processed", desc: `${b.guest_name || 'Guest'} checked out of Room ${b.unit_label || '?'}`, time: new Date(b.checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
             });
             
             // Guest requests
             dashboardData?.recentRequests?.slice(0, 3).forEach((r: any) => {
               const icon = r.request_type === 'complaint' ? AlertCircle : Bell;
-              activities.push({ icon, iconBg: "rgba(245,166,35,0.12)", iconColor: "#F5A623", title: "Guest Request Logged", desc: `Room ${r.unit_label || '?'}: ${r.description}`, time: new Date(r.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+              activities.push({ icon, iconBg: "rgba(var(--color-warning-rgb),0.12)", iconColor: "var(--color-warning)", title: "Guest Request Logged", desc: `Room ${r.unit_label || '?'}: ${r.description}`, time: new Date(r.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
             });
             
             // Housekeeping
             dashboardData?.recentHK?.slice(0, 2).forEach((h: any) => {
-              activities.push({ icon: RotateCcw, iconBg: "rgba(43,174,142,0.1)", iconColor: "#2BAE8E", title: "Housekeeping Update", desc: `Room ${h.unit_label || '?'}: ${h.task_type} — ${h.status}`, time: new Date(h.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+              activities.push({ icon: RotateCcw, iconBg: "rgba(var(--color-primary-rgb),0.1)", iconColor: "var(--color-primary)", title: "Housekeeping Update", desc: `Room ${h.unit_label || '?'}: ${h.task_type} — ${h.status}`, time: new Date(h.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
             });
             
             // Maintenance
             dashboardData?.recentMaint?.slice(0, 2).forEach((m: any) => {
-              activities.push({ icon: Settings, iconBg: "rgba(100,116,139,0.1)", iconColor: "#64748B", title: "Maintenance Ticket", desc: `${m.title} (Room ${m.unit_label || '?'})`, time: new Date(m.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
+              activities.push({ icon: Settings, iconBg: "rgba(var(--color-text-muted-rgb),0.1)", iconColor: "var(--color-text-muted)", title: "Maintenance Ticket", desc: `${m.title} (Room ${m.unit_label || '?'})`, time: new Date(m.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) });
             });
             
             activities.sort((a, b) => b.time.localeCompare(a.time));
@@ -821,8 +821,8 @@ export default function FrontDeskPage() {
             if (displayed.length === 0) {
               return (
                 <div className="text-center py-6">
-                  <Clock className="w-5 h-5 mx-auto mb-2 text-[#64748B]" />
-                  <p className="text-sm text-[#64748B]">No activity today</p>
+                  <Clock className="w-5 h-5 mx-auto mb-2 text-[var(--color-text-muted)]" />
+                  <p className="text-sm text-[var(--color-text-muted)]">No activity today</p>
                 </div>
               );
             }
@@ -830,16 +830,16 @@ export default function FrontDeskPage() {
             return displayed.map((act, i) => {
               const IconComp = act.icon;
               return (
-                <div key={i} className="flex items-start gap-3 py-3" style={{ borderBottom: i < displayed.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                <div key={i} className="flex items-start gap-3 py-3" style={{ borderBottom: i < displayed.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                   <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: act.iconBg }}>
                     <IconComp className="w-3.5 h-3.5" style={{ color: act.iconColor }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium" style={{ color: "#1A2E44" }}>{act.title}</span>
-                      <span className="text-xs" style={{ color: "#64748B" }}>{act.time}</span>
+                      <span className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{act.title}</span>
+                      <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{act.time}</span>
                     </div>
-                    <p className="text-xs mt-0.5 truncate" style={{ color: "#64748B" }}>{act.desc}</p>
+                    <p className="text-xs mt-0.5 truncate" style={{ color: "var(--color-text-muted)" }}>{act.desc}</p>
                   </div>
                 </div>
               );
@@ -852,45 +852,45 @@ export default function FrontDeskPage() {
         <CardHeader title="Detailed Room Metrics" subtitle="Occupancy and revenue breakdown" />
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="p-3 rounded-lg text-center" style={{ background: "rgba(42,157,143,0.08)" }}>
-              <div className="text-lg font-bold" style={{ color: "#2BAE8E" }}>
+            <div className="p-3 rounded-lg text-center" style={{ background: "rgba(var(--color-primary-dark-rgb),0.08)" }}>
+              <div className="text-lg font-bold" style={{ color: "var(--color-primary)" }}>
                 {dashboardData?.occupancy?.total_rooms ? Math.round((dashboardData.occupancy.occupied / dashboardData.occupancy.total_rooms) * 100) : 0}%
               </div>
-              <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Occupancy Rate</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Occupancy Rate</div>
             </div>
-            <div className="p-3 rounded-lg text-center" style={{ background: "rgba(26,60,94,0.06)" }}>
-              <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>₹{((dashboardData?.revenue?.revenue || 0) / 1000).toFixed(0)}K</div>
-              <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Today's Revenue</div>
+            <div className="p-3 rounded-lg text-center" style={{ background: "rgba(var(--color-navy-rgb),0.06)" }}>
+              <div className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>₹{((dashboardData?.revenue?.revenue || 0) / 1000).toFixed(0)}K</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Today's Revenue</div>
             </div>
-            <div className="p-3 rounded-lg text-center" style={{ background: "rgba(245,166,35,0.08)" }}>
-              <div className="text-lg font-bold" style={{ color: "#F5A623" }}>
+            <div className="p-3 rounded-lg text-center" style={{ background: "rgba(var(--color-warning-rgb),0.08)" }}>
+              <div className="text-lg font-bold" style={{ color: "var(--color-warning)" }}>
                 ₹{dashboardData?.revenue?.bookings_today ? ((dashboardData.revenue.revenue / dashboardData.revenue.bookings_today) / 1000).toFixed(1) + 'K' : '0'}
               </div>
-              <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Avg. Daily Rate</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Avg. Daily Rate</div>
             </div>
-            <div className="p-3 rounded-lg text-center" style={{ background: "rgba(100,116,139,0.08)" }}>
-              <div className="text-lg font-bold" style={{ color: "#64748B" }}>{dashboardData?.revenue?.bookings_today || 0}</div>
-              <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>Bookings Today</div>
+            <div className="p-3 rounded-lg text-center" style={{ background: "rgba(var(--color-text-muted-rgb),0.08)" }}>
+              <div className="text-lg font-bold" style={{ color: "var(--color-text-muted)" }}>{dashboardData?.revenue?.bookings_today || 0}</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Bookings Today</div>
             </div>
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium" style={{ color: "#1A3C5E" }}>Room Status Breakdown</span>
-              <span className="text-xs" style={{ color: "#64748B" }}>{dashboardData?.occupancy?.total_rooms || 0} total rooms</span>
+              <span className="text-sm font-medium" style={{ color: "var(--color-navy)" }}>Room Status Breakdown</span>
+              <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{dashboardData?.occupancy?.total_rooms || 0} total rooms</span>
             </div>
             <div className="space-y-2">
               {[
-                { label: 'Occupied', count: dashboardData?.occupancy?.occupied || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: '#3B82F6' },
-                { label: 'Vacant (Available)', count: dashboardData?.occupancy?.vacant || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: '#10B981' },
-                { label: 'Dirty / Cleaning', count: dashboardData?.occupancy?.dirty || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: '#F59E0B' },
-                { label: 'Maintenance', count: dashboardData?.occupancy?.maint || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: '#EF4444' },
+                { label: 'Occupied', count: dashboardData?.occupancy?.occupied || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: 'var(--color-info)' },
+                { label: 'Vacant (Available)', count: dashboardData?.occupancy?.vacant || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: 'var(--color-success)' },
+                { label: 'Dirty / Cleaning', count: dashboardData?.occupancy?.dirty || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: 'var(--color-warning)' },
+                { label: 'Maintenance', count: dashboardData?.occupancy?.maint || 0, total: dashboardData?.occupancy?.total_rooms || 1, color: 'var(--color-danger)' },
               ].map(s => (
                 <div key={s.label}>
                   <div className="flex items-center justify-between text-xs mb-1">
-                    <span style={{ color: "#1A2E44" }}>{s.label}</span>
-                    <span style={{ color: "#64748B" }}>{s.count}/{s.total} rooms</span>
+                    <span style={{ color: "var(--color-text)" }}>{s.label}</span>
+                    <span style={{ color: "var(--color-text-muted)" }}>{s.count}/{s.total} rooms</span>
                   </div>
-                  <div className="w-full h-2 rounded-full" style={{ background: "#F5F7FA" }}>
+                  <div className="w-full h-2 rounded-full" style={{ background: "var(--color-light)" }}>
                     <div className="h-2 rounded-full" style={{ width: `${(s.count / s.total) * 100}%`, background: s.color }} />
                   </div>
                 </div>
@@ -898,24 +898,24 @@ export default function FrontDeskPage() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 pt-2">
-            <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+            <div className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
               <div className="flex items-center gap-2 mb-2">
-                <Wifi className="w-3.5 h-3.5" style={{ color: "#64748B" }} />
-                <span className="text-xs font-medium" style={{ color: "#1A2E44" }}>Guest Requests Today</span>
+                <Wifi className="w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
+                <span className="text-xs font-medium" style={{ color: "var(--color-text)" }}>Guest Requests Today</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{dashboardData?.amenityRequests?.total || 0}</span>
-                <span className="text-xs" style={{ color: "#F5A623" }}>{dashboardData?.amenityRequests?.pending || 0} pending</span>
+                <span className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>{dashboardData?.amenityRequests?.total || 0}</span>
+                <span className="text-xs" style={{ color: "var(--color-warning)" }}>{dashboardData?.amenityRequests?.pending || 0} pending</span>
               </div>
             </div>
-            <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+            <div className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
               <div className="flex items-center gap-2 mb-2">
-                <Coffee className="w-3.5 h-3.5" style={{ color: "#64748B" }} />
-                <span className="text-xs font-medium" style={{ color: "#1A2E44" }}>F&B Orders Today</span>
+                <Coffee className="w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
+                <span className="text-xs font-medium" style={{ color: "var(--color-text)" }}>F&B Orders Today</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{dashboardData?.fbOrders?.total || 0}</span>
-                <span className="text-xs" style={{ color: "#2BAE8E" }}>{dashboardData?.fbOrders?.in_progress || 0} in progress</span>
+                <span className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>{dashboardData?.fbOrders?.total || 0}</span>
+                <span className="text-xs" style={{ color: "var(--color-primary)" }}>{dashboardData?.fbOrders?.in_progress || 0} in progress</span>
               </div>
             </div>
           </div>
@@ -964,3 +964,4 @@ export default function FrontDeskPage() {
     </div>
   );
 }
+

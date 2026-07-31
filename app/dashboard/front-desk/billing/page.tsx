@@ -37,10 +37,10 @@ export default function BillingFolioPage() {
     <div className="p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "#1A3C5E" }}>
-            <Wallet className="w-6 h-6 text-[#2BAE8E]" /> Billing & Folio
+          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "var(--color-navy)" }}>
+            <Wallet className="w-6 h-6 text-[var(--color-primary)]" /> Billing & Folio
           </h1>
-          <p className="text-[#64748B] mt-1 text-sm">Manage active guest folios, process payments, and bulk checkout.</p>
+          <p className="text-[var(--color-text-muted)] mt-1 text-sm">Manage active guest folios, process payments, and bulk checkout.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -50,15 +50,15 @@ export default function BillingFolioPage() {
               placeholder="Search Unit or Guest..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 border rounded-full text-sm w-64 focus:outline-none focus:ring-2 focus:ring-[#2BAE8E]/20"
-              style={{ borderColor: "#E2E8F0" }}
+              className="pl-9 pr-4 py-2 border rounded-full text-sm w-64 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)]/20"
+              style={{ borderColor: "var(--color-border)" }}
             />
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card className="bg-gradient-to-br from-[#1A3C5E] to-[#2BAE8E] text-white">
+        <Card className="bg-gradient-to-br from-[var(--color-navy)] to-[var(--color-primary)] text-white">
           <div className="p-5 flex flex-col h-full justify-between">
             <div className="flex items-center justify-between mb-4">
               <span className="font-medium opacity-90">Total Outstanding</span>
@@ -77,13 +77,13 @@ export default function BillingFolioPage() {
       <Card>
         <CardHeader title="Active Folios" subtitle={`${filtered.length} folios`} />
         {isLoading ? (
-          <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[#64748B]" /></div>
+          <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin text-[var(--color-text-muted)]" /></div>
         ) : !filtered || filtered.length === 0 ? (
-          <div className="text-center py-12 text-[#64748B]">No active folios found.</div>
+          <div className="text-center py-12 text-[var(--color-text-muted)]">No active folios found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-[#F5F7FA] text-[#64748B] uppercase text-xs">
+              <thead className="bg-[var(--color-light)] text-[var(--color-text-muted)] uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3 rounded-tl-lg">Unit / Guest</th>
                   <th className="px-4 py-3">Total Charges</th>
@@ -92,20 +92,20 @@ export default function BillingFolioPage() {
                   <th className="px-4 py-3 text-right rounded-tr-lg">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E2E8F0]">
+              <tbody className="divide-y divide-[var(--color-border)]">
                 {filtered.map((f: any) => {
                   const bal = Number(f.balance_due);
                   return (
-                    <tr key={f.booking_id} className="hover:bg-[#F5F7FA]/50 transition-colors">
+                    <tr key={f.booking_id} className="hover:bg-[color:var(--color-light)]/50 transition-colors">
                       <td className="px-4 py-4">
-                        <div className="font-semibold text-[#1A3C5E]">Unit {f.unit_label}</div>
-                        <div className="text-xs text-[#64748B] mt-0.5">{f.first_name} {f.last_name}</div>
+                        <div className="font-semibold text-[var(--color-navy)]">Unit {f.unit_label}</div>
+                        <div className="text-xs text-[var(--color-text-muted)] mt-0.5">{f.first_name} {f.last_name}</div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="font-medium text-[#1A2E44]">${Number(f.room_charges) + Number(f.invoice_total)}</div>
+                        <div className="font-medium text-[var(--color-text)]">${Number(f.room_charges) + Number(f.invoice_total)}</div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className={`font-semibold ${bal > 0 ? "text-red-500" : "text-[#2BAE8E]"}`}>
+                        <div className={`font-semibold ${bal > 0 ? "text-red-500" : "text-[var(--color-primary)]"}`}>
                           ${bal.toFixed(2)}
                         </div>
                       </td>
@@ -117,7 +117,7 @@ export default function BillingFolioPage() {
                       <td className="px-4 py-4 text-right">
                         <button 
                           onClick={() => setFolioModalData({ isOpen: true, bookingId: f.booking_id, guestName: `${f.first_name} ${f.last_name}` })}
-                          className="text-[#2BAE8E] hover:text-[#2BAE8E]/80 font-medium inline-flex items-center"
+                          className="text-[var(--color-primary)] hover:text-[color:var(--color-primary)]/80 font-medium inline-flex items-center"
                         >
                           Open Folio <ChevronRight className="w-4 h-4 ml-1" />
                         </button>
@@ -141,3 +141,4 @@ export default function BillingFolioPage() {
     </div>
   );
 }
+

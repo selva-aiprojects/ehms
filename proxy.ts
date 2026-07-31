@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { verifyToken, type JwtPayload } from "@/lib/auth";
 import { ROLE_ACCESS } from "@/lib/role-access";
 
-const PUBLIC_ROUTES = ["/", "/tenants", "/login", "/_next/", "/favicon.ico", "/eHMS_logo.png", "/favicon.png"];
+const PUBLIC_ROUTES = ["/", "/tenants", "/login", "/_next/", "/favicon.ico", "/hostsphere-logo.png", "/favicon.png"];
 
 const PUBLIC_API_PREFIXES = [
   "/api/auth/login",

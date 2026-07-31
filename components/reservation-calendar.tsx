@@ -45,20 +45,20 @@ interface CalendarProps {
 
 /* ─── Constants ─────────────────────────────────────────── */
 const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  confirmed:  { bg: "#DBEAFE", border: "#3B82F6", text: "#1E40AF", label: "Confirmed" },
-  checked_in: { bg: "#D1FAE5", border: "#10B981", text: "#065F46", label: "Checked In" },
-  pending:    { bg: "#FEF3C7", border: "#F59E0B", text: "#92400E", label: "Pending" },
-  cancelled:  { bg: "#FEE2E2", border: "#EF4444", text: "#991B1B", label: "Cancelled" },
+  confirmed:  { bg: "var(--color-info-soft)", border: "var(--color-info)", text: "var(--color-info-dark)", label: "Confirmed" },
+  checked_in: { bg: "var(--color-success-soft)", border: "var(--color-success)", text: "var(--color-success-dark)", label: "Checked In" },
+  pending:    { bg: "var(--color-warning-soft)", border: "var(--color-warning)", text: "var(--color-warning-dark)", label: "Pending" },
+  cancelled:  { bg: "var(--color-danger-soft)", border: "var(--color-danger)", text: "var(--color-danger-dark)", label: "Cancelled" },
   reserved:   { bg: "#E0E7FF", border: "#6366F1", text: "#3730A3", label: "Reserved" },
 };
 
 const UNIT_STATUS_COLORS: Record<string, string> = {
-  vacant: "#10B981",
-  occupied: "#3B82F6",
-  dirty: "#F59E0B",
+  vacant: "var(--color-success)",
+  occupied: "var(--color-info)",
+  dirty: "var(--color-warning)",
   cleaning: "#8B5CF6",
   inspection: "#EC4899",
-  maintenance: "#EF4444",
+  maintenance: "var(--color-danger)",
   reserved: "#6366F1",
 };
 
@@ -103,7 +103,7 @@ function formatCurrency(amount: number): string {
 
 /* ─── Sub-components ────────────────────────────────────── */
 function UnitLabel({ unit }: { unit: Unit }) {
-  const statusColor = UNIT_STATUS_COLORS[unit.status] || "#94A3B8";
+  const statusColor = UNIT_STATUS_COLORS[unit.status] || "var(--color-text-faint)";
   return (
     <div
       className="flex items-center gap-2 px-3 border-b border-r"
@@ -111,18 +111,18 @@ function UnitLabel({ unit }: { unit: Unit }) {
         height: ROW_HEIGHT,
         minWidth: LABEL_WIDTH,
         maxWidth: LABEL_WIDTH,
-        borderColor: "#E2E8F0",
-        background: "#FAFBFC",
+        borderColor: "var(--color-border)",
+        background: "var(--color-light)",
       }}
     >
       <span
         className="w-2 h-2 rounded-full shrink-0"
         style={{ background: statusColor }}
       />
-      <span className="text-xs font-medium truncate" style={{ color: "#1A3C5E" }}>
+      <span className="text-xs font-medium truncate" style={{ color: "var(--color-navy)" }}>
         {unit.unit_label}
       </span>
-      <span className="text-[10px] ml-auto shrink-0" style={{ color: "#94A3B8" }}>
+      <span className="text-[10px] ml-auto shrink-0" style={{ color: "var(--color-text-faint)" }}>
         {unit.floor_name}
       </span>
     </div>
@@ -142,21 +142,21 @@ function DateHeaderCell({ date, cellWidth }: { date: string; cellWidth: number }
       style={{
         width: cellWidth,
         height: HEADER_HEIGHT,
-        borderColor: "#E2E8F0",
-        background: today ? "#EFF6FF" : weekend ? "#F8FAFC" : "#FFFFFF",
+        borderColor: "var(--color-border)",
+        background: today ? "var(--color-info-soft)" : weekend ? "var(--color-light)" : "var(--color-white)",
       }}
     >
       <span
         className="text-[10px] font-medium"
-        style={{ color: today ? "#3B82F6" : "#94A3B8" }}
+        style={{ color: today ? "var(--color-info)" : "var(--color-text-faint)" }}
       >
         {dayName}
       </span>
       <span
         className={`text-xs font-bold ${today ? "rounded-full px-1.5 py-0.5" : ""}`}
         style={{
-          color: today ? "#FFFFFF" : weekend ? "#64748B" : "#1A3C5E",
-          background: today ? "#3B82F6" : "transparent",
+          color: today ? "var(--color-white)" : weekend ? "var(--color-text-muted)" : "var(--color-navy)",
+          background: today ? "var(--color-info)" : "transparent",
         }}
       >
         {dayNum}
@@ -239,12 +239,12 @@ function EmptyCell({
       style={{
         width: cellWidth,
         height: ROW_HEIGHT,
-        borderColor: "#E2E8F0",
+        borderColor: "var(--color-border)",
         background: dragOver
-          ? "rgba(43,174,142,0.10)"
+          ? "rgba(var(--color-primary-rgb),0.10)"
           : today
-          ? "#F8FAFC"
-          : "#FFFFFF",
+          ? "var(--color-light)"
+          : "var(--color-white)",
       }}
       onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDragOver(true); }}
       onDragLeave={() => setDragOver(false)}
@@ -257,7 +257,7 @@ function EmptyCell({
       onClick={onClick}
     >
       {today && (
-        <div className="absolute inset-y-0 left-0 w-px" style={{ background: "#3B82F6", opacity: 0.3 }} />
+        <div className="absolute inset-y-0 left-0 w-px" style={{ background: "var(--color-info)", opacity: 0.3 }} />
       )}
     </div>
   );
@@ -285,18 +285,20 @@ export default function ReservationCalendar({
     if (filterBuilding !== "all") filtered = filtered.filter((u) => u.building_id === filterBuilding);
     if (filterFloor !== "all") filtered = filtered.filter((u) => u.floor_id === filterFloor);
 
-    const groups: { label: string; units: Unit[] }[] = [];
-    let currentGroup: { label: string; units: Unit[] } | null = null;
+    const groups = new Map<string, { id: string; label: string; units: Unit[] }>();
 
     for (const unit of filtered) {
-      const groupKey = `${unit.building_name} — ${unit.floor_name}`;
-      if (!currentGroup || currentGroup.label !== groupKey) {
-        currentGroup = { label: groupKey, units: [] };
-        groups.push(currentGroup);
-      }
-      currentGroup.units.push(unit);
+      // Display names are not unique; use persisted IDs for grouping and React keys.
+      const groupId = `${unit.building_id}:${unit.floor_id}`;
+      const group = groups.get(groupId) ?? {
+        id: groupId,
+        label: `${unit.building_name} — ${unit.floor_name}`,
+        units: [],
+      };
+      group.units.push(unit);
+      groups.set(groupId, group);
     }
-    return groups;
+    return Array.from(groups.values());
   }, [units, filterBuilding, filterFloor]);
 
   // Unique buildings and floors for filters
@@ -333,11 +335,11 @@ export default function ReservationCalendar({
   const calendarWidth = totalDays * cellWidth;
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl" style={{ border: "1px solid #E2E8F0" }}>
+    <div className="flex flex-col h-full bg-white rounded-xl" style={{ border: "1px solid var(--color-border)" }}>
       {/* ── Toolbar ──────────────────────────────────────── */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ borderColor: "#E2E8F0" }}>
-        <CalendarIcon className="w-4 h-4" style={{ color: "#1A3C5E" }} />
-        <h3 className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>
+      <div className="flex items-center gap-3 px-4 py-3 border-b" style={{ borderColor: "var(--color-border)" }}>
+        <CalendarIcon className="w-4 h-4" style={{ color: "var(--color-navy)" }} />
+        <h3 className="text-sm font-semibold" style={{ color: "var(--color-navy)" }}>
           Reservation Calendar
         </h3>
 
@@ -350,7 +352,7 @@ export default function ReservationCalendar({
               }
             }}
             className="px-2 py-1 text-xs rounded-md border cursor-pointer hover:bg-gray-50"
-            style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+            style={{ borderColor: "var(--color-border)", color: "var(--color-navy)" }}
           >
             Today
           </button>
@@ -363,25 +365,25 @@ export default function ReservationCalendar({
             className={`p-1 rounded cursor-pointer ${zoom === "day" ? "bg-blue-100" : "hover:bg-gray-100"}`}
             title="Day view"
           >
-            <ZoomIn className="w-3.5 h-3.5" style={{ color: zoom === "day" ? "#3B82F6" : "#64748B" }} />
+            <ZoomIn className="w-3.5 h-3.5" style={{ color: zoom === "day" ? "var(--color-info)" : "var(--color-text-muted)" }} />
           </button>
           <button
             onClick={() => setZoom("week")}
             className={`p-1 rounded cursor-pointer ${zoom === "week" ? "bg-blue-100" : "hover:bg-gray-100"}`}
             title="Week view"
           >
-            <ZoomOut className="w-3.5 h-3.5" style={{ color: zoom === "week" ? "#3B82F6" : "#64748B" }} />
+            <ZoomOut className="w-3.5 h-3.5" style={{ color: zoom === "week" ? "var(--color-info)" : "var(--color-text-muted)" }} />
           </button>
         </div>
 
         {/* Filters */}
         <div className="flex items-center gap-2 ml-auto">
-          <Filter className="w-3.5 h-3.5" style={{ color: "#94A3B8" }} />
+          <Filter className="w-3.5 h-3.5" style={{ color: "var(--color-text-faint)" }} />
           <select
             value={filterBuilding}
             onChange={(e) => setFilterBuilding(e.target.value)}
             className="text-xs border rounded-md px-2 py-1"
-            style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+            style={{ borderColor: "var(--color-border)", color: "var(--color-navy)" }}
           >
             <option value="all">All Buildings</option>
             {buildings.map((b) => (
@@ -392,7 +394,7 @@ export default function ReservationCalendar({
             value={filterFloor}
             onChange={(e) => setFilterFloor(e.target.value)}
             className="text-xs border rounded-md px-2 py-1"
-            style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+            style={{ borderColor: "var(--color-border)", color: "var(--color-navy)" }}
           >
             <option value="all">All Floors</option>
             {floors.map((f) => (
@@ -406,7 +408,7 @@ export default function ReservationCalendar({
           {Object.entries(STATUS_COLORS).map(([key, val]) => (
             <div key={key} className="flex items-center gap-1">
               <span className="w-3 h-2 rounded-sm" style={{ background: val.border }} />
-              <span className="text-[10px]" style={{ color: "#64748B" }}>{val.label}</span>
+              <span className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>{val.label}</span>
             </div>
           ))}
         </div>
@@ -422,29 +424,29 @@ export default function ReservationCalendar({
               className="border-b border-r sticky top-0 z-30 flex items-center px-3"
               style={{
                 height: HEADER_HEIGHT,
-                background: "#F8FAFC",
-                borderColor: "#E2E8F0",
+                background: "var(--color-light)",
+                borderColor: "var(--color-border)",
                 minWidth: LABEL_WIDTH,
               }}
             >
-              <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>
+              <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>
                 Room / Unit
               </span>
             </div>
             {/* Unit rows */}
             {groupedUnits.map((group) => (
-              <div key={group.label}>
+              <div key={group.id}>
                 {/* Floor header */}
                 <div
                   className="flex items-center px-3 border-b border-r"
                   style={{
                     height: 28,
-                    background: "#F1F5F9",
-                    borderColor: "#E2E8F0",
+                    background: "var(--color-light)",
+                    borderColor: "var(--color-border)",
                     minWidth: LABEL_WIDTH,
                   }}
                 >
-                  <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#64748B" }}>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-muted)" }}>
                     {group.label}
                   </span>
                 </div>
@@ -469,14 +471,14 @@ export default function ReservationCalendar({
 
             {/* Booking rows */}
             {groupedUnits.map((group) => (
-              <div key={group.label}>
+              <div key={group.id}>
                 {/* Floor spacer */}
                 <div
                   className="border-b border-r"
                   style={{
                     height: 28,
-                    borderColor: "#E2E8F0",
-                    background: "#F1F5F9",
+                    borderColor: "var(--color-border)",
+                    background: "var(--color-light)",
                   }}
                 />
                 {group.units.map((unit) => {
@@ -516,7 +518,7 @@ export default function ReservationCalendar({
       </div>
 
       {/* ── Footer Stats ────────────────────────────────── */}
-      <div className="flex items-center gap-4 px-4 py-2 border-t text-[11px]" style={{ borderColor: "#E2E8F0", color: "#64748B" }}>
+      <div className="flex items-center gap-4 px-4 py-2 border-t text-[11px]" style={{ borderColor: "var(--color-border)", color: "var(--color-text-muted)" }}>
         <span>{groupedUnits.reduce((acc, g) => acc + g.units.length, 0)} rooms</span>
         <span>{bookings.length} bookings</span>
         <span>{dates.length} days displayed</span>

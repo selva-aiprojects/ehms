@@ -7,11 +7,11 @@ import {
 } from "lucide-react";
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  open: { bg: "rgba(43,174,142,0.08)", text: "#2BAE8E" },
-  in_progress: { bg: "rgba(33,150,243,0.08)", text: "#2196F3" },
-  awaiting_tenant: { bg: "rgba(245,166,35,0.08)", text: "#F5A623" },
-  resolved: { bg: "rgba(100,116,139,0.08)", text: "#64748B" },
-  closed: { bg: "rgba(229,62,62,0.08)", text: "#E53E3E" },
+  open: { bg: "rgba(var(--color-primary-rgb),0.08)", text: "var(--color-primary)" },
+  in_progress: { bg: "rgba(var(--color-info-rgb),0.08)", text: "var(--color-info)" },
+  awaiting_tenant: { bg: "rgba(var(--color-warning-rgb),0.08)", text: "var(--color-warning)" },
+  resolved: { bg: "rgba(var(--color-text-muted-rgb),0.08)", text: "var(--color-text-muted)" },
+  closed: { bg: "rgba(var(--color-danger-rgb),0.08)", text: "var(--color-danger)" },
 };
 
 interface TicketMessage {
@@ -90,7 +90,7 @@ export default function TenantTicketDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#2BAE8E" }} />
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-primary)" }} />
       </div>
     );
   }
@@ -98,10 +98,10 @@ export default function TenantTicketDetailPage() {
   if (error || !ticket) {
     return (
       <div className="text-center py-16">
-        <AlertCircle className="w-8 h-8 mx-auto mb-2" style={{ color: "#E53E3E" }} />
-        <p className="text-sm" style={{ color: "#64748B" }}>{error || "Ticket not found"}</p>
+        <AlertCircle className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-danger)" }} />
+        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>{error || "Ticket not found"}</p>
         <button onClick={() => router.push("/dashboard/tickets")}
-          className="mt-3 text-sm font-medium" style={{ color: "#2BAE8E" }}
+          className="mt-3 text-sm font-medium" style={{ color: "var(--color-primary)" }}
         >&larr; Back to tickets</button>
       </div>
     );
@@ -113,44 +113,44 @@ export default function TenantTicketDetailPage() {
     <div>
       <button onClick={() => router.push("/dashboard/tickets")}
         className="flex items-center gap-1.5 text-sm font-medium mb-4 transition-colors"
-        style={{ color: "#64748B" }}
+        style={{ color: "var(--color-text-muted)" }}
       >
         <ArrowLeft className="w-4 h-4" /> Back to Tickets
       </button>
 
-      <div className="rounded-xl p-5 mb-4" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
+      <div className="rounded-xl p-5 mb-4" style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-xl font-bold truncate" style={{ color: "#1A3C5E" }}>{ticket.subject}</h1>
+              <h1 className="text-xl font-bold truncate" style={{ color: "var(--color-navy)" }}>{ticket.subject}</h1>
             </div>
-            <div className="flex items-center gap-3 text-xs" style={{ color: "#64748B" }}>
-              <span className="font-mono font-semibold" style={{ color: "#2BAE8E" }}>{ticket.tenant_code}</span>
+            <div className="flex items-center gap-3 text-xs" style={{ color: "var(--color-text-muted)" }}>
+              <span className="font-mono font-semibold" style={{ color: "var(--color-primary)" }}>{ticket.tenant_code}</span>
               <span>Created {new Date(ticket.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</span>
               <span>Updated {new Date(ticket.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <RefreshCw className="w-4 h-4 cursor-pointer" style={{ color: "#94A3B8" }} onClick={loadTicket} />
+            <RefreshCw className="w-4 h-4 cursor-pointer" style={{ color: "var(--color-text-faint)" }} onClick={loadTicket} />
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mt-4 pt-4" style={{ borderTop: "1px solid #E2E8F0" }}>
+        <div className="flex items-center gap-3 mt-4 pt-4" style={{ borderTop: "1px solid var(--color-border)" }}>
           <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium"
             style={{ background: sc.bg, color: sc.text }}
           >
             {ticket.status.replace("_", " ")}
           </span>
-          <span className="text-xs font-medium" style={{ color: "#64748B" }}>{ticket.category}</span>
-          <span className="text-xs font-medium" style={{ color: "#64748B" }}>Priority: {ticket.priority}</span>
+          <span className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>{ticket.category}</span>
+          <span className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Priority: {ticket.priority}</span>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-3">
           {ticket.description && (
-            <div className="rounded-xl p-4" style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}>
-              <p className="text-sm whitespace-pre-wrap" style={{ color: "#1A3C5E" }}>{ticket.description}</p>
+            <div className="rounded-xl p-4" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
+              <p className="text-sm whitespace-pre-wrap" style={{ color: "var(--color-navy)" }}>{ticket.description}</p>
             </div>
           )}
 
@@ -163,20 +163,20 @@ export default function TenantTicketDetailPage() {
                   <div key={msg.id}
                     className="rounded-xl p-4"
                     style={{
-                      background: isSystem ? "rgba(100,116,139,0.04)" : "#FFFFFF",
-                      border: `1px solid #E2E8F0`,
-                      borderLeft: `3px solid ${isAdmin ? "#2BAE8E" : isSystem ? "#94A3B8" : "#2196F3"}`,
+                      background: isSystem ? "rgba(var(--color-text-muted-rgb),0.04)" : "var(--color-white)",
+                      border: `1px solid var(--color-border)`,
+                      borderLeft: `3px solid ${isAdmin ? "var(--color-primary)" : isSystem ? "var(--color-text-faint)" : "var(--color-info)"}`,
                     }}
                   >
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-xs font-semibold" style={{ color: isAdmin ? "#2BAE8E" : isSystem ? "#64748B" : "#2196F3" }}>
+                      <span className="text-xs font-semibold" style={{ color: isAdmin ? "var(--color-primary)" : isSystem ? "var(--color-text-muted)" : "var(--color-info)" }}>
                         {isAdmin ? "Support Team" : isSystem ? "System" : "You"}
                       </span>
-                      <span className="text-[10px] ml-auto" style={{ color: "#94A3B8" }}>
+                      <span className="text-[10px] ml-auto" style={{ color: "var(--color-text-faint)" }}>
                         {new Date(msg.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                       </span>
                     </div>
-                    <p className="text-sm whitespace-pre-wrap" style={{ color: "#1A3C5E" }}>{msg.message}</p>
+                    <p className="text-sm whitespace-pre-wrap" style={{ color: "var(--color-navy)" }}>{msg.message}</p>
                   </div>
                 );
               })}
@@ -184,16 +184,16 @@ export default function TenantTicketDetailPage() {
           )}
 
           {ticket.status !== "resolved" && ticket.status !== "closed" && (
-            <div className="rounded-xl p-4" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
+            <div className="rounded-xl p-4" style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}>
               <textarea value={replyText} onChange={(e) => setReplyText(e.target.value)}
                 rows={3} placeholder="Type your reply..."
                 className="w-full text-sm resize-none outline-none"
-                style={{ color: "#1A3C5E" }}
+                style={{ color: "var(--color-navy)" }}
               />
-              <div className="flex items-center justify-end mt-3 pt-3" style={{ borderTop: "1px solid #E2E8F0" }}>
+              <div className="flex items-center justify-end mt-3 pt-3" style={{ borderTop: "1px solid var(--color-border)" }}>
                 <button onClick={handleSendReply} disabled={sending || !replyText.trim()}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-white transition-all hover:opacity-90 disabled:opacity-60"
-                  style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" }}
+                  style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)" }}
                 >
                   {sending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
                   Send Reply
@@ -203,8 +203,8 @@ export default function TenantTicketDetailPage() {
           )}
 
           {(ticket.status === "resolved" || ticket.status === "closed") && (
-            <div className="rounded-xl p-4 text-center" style={{ background: "rgba(100,116,139,0.04)", border: "1px solid #E2E8F0" }}>
-              <p className="text-sm font-medium" style={{ color: "#64748B" }}>
+            <div className="rounded-xl p-4 text-center" style={{ background: "rgba(var(--color-text-muted-rgb),0.04)", border: "1px solid var(--color-border)" }}>
+              <p className="text-sm font-medium" style={{ color: "var(--color-text-muted)" }}>
                 This ticket is {ticket.status}. No further replies can be sent.
               </p>
             </div>
@@ -212,29 +212,29 @@ export default function TenantTicketDetailPage() {
         </div>
 
         <div className="space-y-3">
-          <div className="rounded-xl p-4" style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}>
-            <h4 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "#94A3B8" }}>Ticket Info</h4>
+          <div className="rounded-xl p-4" style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}>
+            <h4 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--color-text-faint)" }}>Ticket Info</h4>
             <div className="space-y-2.5 text-sm">
               <div className="flex justify-between">
-                <span style={{ color: "#64748B" }}>Status</span>
+                <span style={{ color: "var(--color-text-muted)" }}>Status</span>
                 <span className="font-medium" style={{ color: sc.text }}>{ticket.status.replace("_", " ")}</span>
               </div>
               <div className="flex justify-between">
-                <span style={{ color: "#64748B" }}>Priority</span>
-                <span style={{ color: "#1A3C5E" }}>{ticket.priority}</span>
+                <span style={{ color: "var(--color-text-muted)" }}>Priority</span>
+                <span style={{ color: "var(--color-navy)" }}>{ticket.priority}</span>
               </div>
               <div className="flex justify-between">
-                <span style={{ color: "#64748B" }}>Category</span>
-                <span style={{ color: "#1A3C5E" }}>{ticket.category}</span>
+                <span style={{ color: "var(--color-text-muted)" }}>Category</span>
+                <span style={{ color: "var(--color-navy)" }}>{ticket.category}</span>
               </div>
               <div className="flex justify-between">
-                <span style={{ color: "#64748B" }}>Messages</span>
-                <span style={{ color: "#1A3C5E" }}>{ticket.messages?.length || 0}</span>
+                <span style={{ color: "var(--color-text-muted)" }}>Messages</span>
+                <span style={{ color: "var(--color-navy)" }}>{ticket.messages?.length || 0}</span>
               </div>
               {ticket.resolved_at && (
                 <div className="flex justify-between">
-                  <span style={{ color: "#64748B" }}>Resolved</span>
-                  <span className="text-xs" style={{ color: "#1A3C5E" }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>Resolved</span>
+                  <span className="text-xs" style={{ color: "var(--color-navy)" }}>
                     {new Date(ticket.resolved_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </span>
                 </div>

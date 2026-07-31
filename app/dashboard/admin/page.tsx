@@ -39,7 +39,7 @@ const COMPLIANCE_ITEMS = [
 ];
 
 function SkeletonLine() {
-  return <div className="h-4 rounded animate-pulse mb-2" style={{ background: "#E2E8F0" }} />;
+  return <div className="h-4 rounded animate-pulse mb-2" style={{ background: "var(--color-border)" }} />;
 }
 
 export default function AdminPage() {
@@ -145,8 +145,8 @@ export default function AdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Admin & Configuration</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Global configuration, security, audit logs</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Admin & Configuration</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Global configuration, security, audit logs</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => window.location.href = '/dashboard/admin/masters'}>
@@ -155,7 +155,7 @@ export default function AdminPage() {
           <Button variant="secondary" size="sm" onClick={() => setActionFeedback({ type: "success", message: "Settings saved" })}>
             <Sliders className="w-3.5 h-3.5" /> Save Settings
           </Button>
-          <button onClick={handleRefresh} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={handleRefresh} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
           </button>
         </div>
@@ -165,9 +165,9 @@ export default function AdminPage() {
         <div
           className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
           style={{
-            background: actionFeedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: actionFeedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${actionFeedback.type === "success" ? "rgba(42,157,143,0.2)" : "rgba(229,62,62,0.2)"}`,
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
           }}
         >
           {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
@@ -183,8 +183,8 @@ export default function AdminPage() {
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap"
               style={{
-                background: isActive ? "#1A3C5E" : "#F5F7FA",
-                color: isActive ? "#FFFFFF" : "#64748B",
+                background: isActive ? "var(--color-navy)" : "var(--color-light)",
+                color: isActive ? "var(--color-white)" : "var(--color-text-muted)",
               }}
             >
               <Icon className="w-4 h-4" /> {tab.label}
@@ -203,15 +203,15 @@ export default function AdminPage() {
               ) : (
                 <div className="space-y-2 text-sm">
                   {[
-                    { label: "API Uptime", value: "99.97%", color: "#2BAE8E" },
-                    { label: "Avg Response", value: "142ms", color: "#2BAE8E" },
-                    { label: "Active Sessions", value: "247", color: "#1A3C5E" },
-                    { label: "DB Connections", value: "18/50", color: "#1A3C5E" },
-                    { label: "Cache Hit Rate", value: "94.2%", color: "#2BAE8E" },
-                    { label: "Error Rate (24h)", value: "0.03%", color: "#2BAE8E" },
+                    { label: "API Uptime", value: "99.97%", color: "var(--color-primary)" },
+                    { label: "Avg Response", value: "142ms", color: "var(--color-primary)" },
+                    { label: "Active Sessions", value: "247", color: "var(--color-navy)" },
+                    { label: "DB Connections", value: "18/50", color: "var(--color-navy)" },
+                    { label: "Cache Hit Rate", value: "94.2%", color: "var(--color-primary)" },
+                    { label: "Error Rate (24h)", value: "0.03%", color: "var(--color-primary)" },
                   ].map((s) => (
                     <div key={s.label} className="flex justify-between">
-                      <span style={{ color: "#64748B" }}>{s.label}</span>
+                      <span style={{ color: "var(--color-text-muted)" }}>{s.label}</span>
                       <span className="font-medium" style={{ color: s.color }}>{s.value}</span>
                     </div>
                   ))}
@@ -232,7 +232,7 @@ export default function AdminPage() {
                     const badgeVariant = c.status === "active" || c.badge === "teal" ? "teal" as const : (c.status === "expired" || c.badge === "red" ? "red" as const : "amber" as const);
                     return (
                     <div key={c.id || i} className="flex items-center justify-between">
-                      <span style={{ color: "#1A2E44" }}>{label}</span>
+                      <span style={{ color: "var(--color-text)" }}>{label}</span>
                       <Badge variant={badgeVariant}>{status}</Badge>
                     </div>
                   )})}
@@ -253,10 +253,10 @@ export default function AdminPage() {
                     const timeStr = a.created_at ? new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : a.time;
                     return (
                     <div key={a.id || i} className="flex justify-between py-1">
-                      <span style={{ color: "#1A2E44" }}>
+                      <span style={{ color: "var(--color-text)" }}>
                         <span className="font-medium">{userName}</span> — {actionText}
                       </span>
-                      <span className="shrink-0 ml-2" style={{ color: "#64748B" }}>{timeStr}</span>
+                      <span className="shrink-0 ml-2" style={{ color: "var(--color-text-muted)" }}>{timeStr}</span>
                     </div>
                   )})}
                 </div>
@@ -267,57 +267,57 @@ export default function AdminPage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <Link href="/dashboard/admin/tickets?status=open"
               className="rounded-xl p-4 transition-all hover:shadow-md"
-              style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}
+              style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>Open Tickets</span>
-                <Ticket className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Open Tickets</span>
+                <Ticket className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
               </div>
-              <p className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-navy)" }}>
                 {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.open || 0}
               </p>
-              <p className="text-xs mt-1" style={{ color: "#64748B" }}>
+              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
                 {ticketStats?.in_progress || 0} in progress
               </p>
             </Link>
             <Link href="/dashboard/admin/tickets?status=awaiting_tenant"
               className="rounded-xl p-4 transition-all hover:shadow-md"
-              style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}
+              style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>Awaiting Tenant</span>
-                <Clock className="w-4 h-4" style={{ color: "#F5A623" }} />
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Awaiting Tenant</span>
+                <Clock className="w-4 h-4" style={{ color: "var(--color-warning)" }} />
               </div>
-              <p className="text-2xl font-bold" style={{ color: "#F5A623" }}>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-warning)" }}>
                 {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.awaiting_tenant || 0}
               </p>
-              <p className="text-xs mt-1" style={{ color: "#64748B" }}>Waiting for response</p>
+              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>Waiting for response</p>
             </Link>
             <Link href="/dashboard/admin/tickets?priority=critical"
               className="rounded-xl p-4 transition-all hover:shadow-md"
-              style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}
+              style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>High / Critical</span>
-                <AlertTriangle className="w-4 h-4" style={{ color: "#E53E3E" }} />
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>High / Critical</span>
+                <AlertTriangle className="w-4 h-4" style={{ color: "var(--color-danger)" }} />
               </div>
-              <p className="text-2xl font-bold" style={{ color: "#E53E3E" }}>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-danger)" }}>
                 {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.high_critical || 0}
               </p>
-              <p className="text-xs mt-1" style={{ color: "#64748B" }}>Needs immediate attention</p>
+              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>Needs immediate attention</p>
             </Link>
             <Link href="/dashboard/admin/tickets"
               className="rounded-xl p-4 transition-all hover:shadow-md"
-              style={{ background: "#FFFFFF", border: "1px solid #E2E8F0" }}
+              style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>Resolved</span>
-                <CheckCircle className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Resolved</span>
+                <CheckCircle className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
               </div>
-              <p className="text-2xl font-bold" style={{ color: "#2BAE8E" }}>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-primary)" }}>
                 {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.resolved || 0}
               </p>
-              <p className="text-xs mt-1" style={{ color: "#64748B" }}>
+              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
                 {ticketStats?.closed || 0} closed
               </p>
             </Link>
@@ -327,17 +327,17 @@ export default function AdminPage() {
             <CardHeader title="Role Management" subtitle="12 system roles defined" />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
               {[
-                { role: "Super Admin", count: 1, color: "#E53E3E" },
-                { role: "Executive", count: 2, color: "#1A3C5E" },
-                { role: "Property Manager", count: 2, color: "#1A3C5E" },
-                { role: "Front Desk", count: 3, color: "#2BAE8E" },
-                { role: "HK Staff", count: 8, color: "#2BAE8E" },
-                { role: "Maintenance", count: 4, color: "#F5A623" },
-                { role: "Finance", count: 2, color: "#1A3C5E" },
-                { role: "HR", count: 1, color: "#2BAE8E" },
+                { role: "Super Admin", count: 1, color: "var(--color-danger)" },
+                { role: "Executive", count: 2, color: "var(--color-navy)" },
+                { role: "Property Manager", count: 2, color: "var(--color-navy)" },
+                { role: "Front Desk", count: 3, color: "var(--color-primary)" },
+                { role: "HK Staff", count: 8, color: "var(--color-primary)" },
+                { role: "Maintenance", count: 4, color: "var(--color-warning)" },
+                { role: "Finance", count: 2, color: "var(--color-navy)" },
+                { role: "HR", count: 1, color: "var(--color-primary)" },
               ].map((r) => (
-                <div key={r.role} className="p-3 rounded-lg flex items-center justify-between" style={{ background: "#F5F7FA" }}>
-                  <span style={{ color: "#1A2E44" }}>{r.role}</span>
+                <div key={r.role} className="p-3 rounded-lg flex items-center justify-between" style={{ background: "var(--color-light)" }}>
+                  <span style={{ color: "var(--color-text)" }}>{r.role}</span>
                   <span className="font-bold" style={{ color: r.color }}>{r.count}</span>
                 </div>
               ))}
@@ -359,16 +359,16 @@ export default function AdminPage() {
               }
             />
             {loadingUsers ? (
-              <div className="space-y-1">{[...Array(5)].map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: "#F5F7FA" }} />)}</div>
+              <div className="space-y-1">{[...Array(5)].map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: "var(--color-light)" }} />)}</div>
             ) : (
               <Table
                 data={displayUsers}
                 keyExtractor={(u: any) => u.id || Math.random()}
                 columns={[
                   { key: "name", header: "Name", render: (u: any) => <span className="font-medium text-sm">{u.first_name} {u.last_name || ""}</span> },
-                  { key: "email", header: "Email", render: (u: any) => <span className="text-xs" style={{ color: "#64748B" }}>{u.email}</span> },
+                  { key: "email", header: "Email", render: (u: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{u.email}</span> },
                   { key: "role", header: "Role", render: (u: any) => <Badge variant="gray">{u.user_roles?.[0]?.role?.name || u.role || "—"}</Badge> },
-                  { key: "property", header: "Scope", render: (u: any) => <span className="text-xs" style={{ color: "#64748B" }}>{u.user_roles?.[0]?.property_id ? "Specific" : "Global"}</span> },
+                  { key: "property", header: "Scope", render: (u: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{u.user_roles?.[0]?.property_id ? "Specific" : "Global"}</span> },
                   { key: "status", header: "Status", render: (u: any) => (
                     <Badge variant={u.is_active !== false ? "teal" : "red"}>{u.is_active !== false ? "active" : "inactive"}</Badge>
                   )},
@@ -380,59 +380,59 @@ export default function AdminPage() {
           {showAddUserModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
               <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-                <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "#E2E8F0" }}>
-                  <h3 className="font-bold text-lg" style={{ color: "#1A3C5E" }}>Add New System User</h3>
+                <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
+                  <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>Add New System User</h3>
                   <button onClick={() => setShowAddUserModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
                 </div>
                 <form onSubmit={handleCreateUser} className="p-6 space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>First Name *</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>First Name *</label>
                       <input
                         type="text" required value={newUser.first_name}
                         onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                         placeholder="Jane"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Last Name</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Last Name</label>
                       <input
                         type="text" value={newUser.last_name}
                         onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                         placeholder="Smith"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Email Address *</label>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Email Address *</label>
                     <input
                       type="email" required value={newUser.email}
                       onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                       placeholder="jane.smith@ehms.com"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Password *</label>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Password *</label>
                     <input
                       type="password" required value={newUser.password}
                       onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "#E2E8F0" }}
+                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
                       placeholder="•••••••• (Min 8 chars)"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>System Role *</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>System Role *</label>
                       <select
                         value={newUser.role_name}
                         onChange={(e) => setNewUser({ ...newUser, role_name: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}
                       >
                         <option value="super_admin">Super Admin</option>
                         <option value="executive">Executive</option>
@@ -449,11 +449,11 @@ export default function AdminPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold mb-1" style={{ color: "#1A2E44" }}>Workspace Scope</label>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Workspace Scope</label>
                       <select
                         value={newUser.property_id}
                         onChange={(e) => setNewUser({ ...newUser, property_id: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "#E2E8F0" }}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}
                       >
                         <option value="">Global (All Workspaces)</option>
                         {properties.map((p: any) => (
@@ -463,7 +463,7 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "#E2E8F0" }}>
+                  <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
                     <Button type="button" variant="outline" size="sm" onClick={() => setShowAddUserModal(false)}>
                       Cancel
                     </Button>
@@ -490,7 +490,7 @@ export default function AdminPage() {
           ) : (
           <div className="grid gap-3">
             {displayCompliance.length === 0 ? (
-              <div className="text-center py-8"><Shield className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} /><p className="text-sm" style={{ color: "#64748B" }}>No compliance records</p></div>
+              <div className="text-center py-8"><Shield className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} /><p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No compliance records</p></div>
             ) : displayCompliance.map((c: any, i: number) => {
               const label = c.certificate_type || c.label;
               const expiry = c.expiry_date ? new Date(c.expiry_date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : c.expiry || "N/A";
@@ -499,12 +499,12 @@ export default function AdminPage() {
               const badgeVariant = isActive ? "teal" as const : isExpired ? "red" as const : "amber" as const;
               const statusText = c.status || c.status;
               return (
-              <div key={c.id || i} className="flex items-center justify-between p-4 rounded-lg" style={{ background: "#F5F7FA" }}>
+              <div key={c.id || i} className="flex items-center justify-between p-4 rounded-lg" style={{ background: "var(--color-light)" }}>
                 <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5" style={{ color: isActive ? "#2BAE8E" : isExpired ? "#E53E3E" : "#F5A623" }} />
+                  <Shield className="w-5 h-5" style={{ color: isActive ? "var(--color-primary)" : isExpired ? "var(--color-danger)" : "var(--color-warning)" }} />
                   <div>
-                    <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>{label}</div>
-                    <div className="text-xs" style={{ color: "#64748B" }}>Expires: {expiry}</div>
+                    <div className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{label}</div>
+                    <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Expires: {expiry}</div>
                   </div>
                 </div>
                 <Badge variant={badgeVariant}>{statusText}</Badge>
@@ -512,8 +512,8 @@ export default function AdminPage() {
             )})}
           </div>
           )}
-          <div className="mt-4 pt-3" style={{ borderTop: "1px solid #E2E8F0" }}>
-            <p className="text-xs" style={{ color: "#64748B" }}>
+          <div className="mt-4 pt-3" style={{ borderTop: "1px solid var(--color-border)" }}>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
               <AlertCircle className="w-3 h-3 inline mr-1" />
               {displayCompliance.filter((c: any) => c.status !== "active" && c.badge !== "teal").length} items require attention
             </p>
@@ -528,24 +528,24 @@ export default function AdminPage() {
             {loadingLogs ? (
               [...Array(5)].map((_, i) => <SkeletonLine key={i} />)
             ) : displayLogs.length === 0 ? (
-              <div className="text-center py-8"><FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} /><p className="text-sm" style={{ color: "#64748B" }}>No audit logs</p></div>
+              <div className="text-center py-8"><FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} /><p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No audit logs</p></div>
             ) : (
               displayLogs.map((a: any, i: number) => {
                 const userName = a.user?.first_name ? `${a.user.first_name} ${a.user.last_name || ""}` : a.user || "System";
                 const initial = userName.charAt(0);
                 const timeStr = a.created_at ? new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : a.time;
                 return (
-                <div key={a.id || i} className="flex items-center justify-between py-2.5" style={{ borderBottom: i < displayLogs.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                <div key={a.id || i} className="flex items-center justify-between py-2.5" style={{ borderBottom: i < displayLogs.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: "#2C3547" }}>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: "var(--color-sidebar)" }}>
                       {initial}
                     </div>
                     <div>
-                      <span className="font-medium" style={{ color: "#1A2E44" }}>{userName}</span>
-                      <span className="ml-1" style={{ color: "#64748B" }}>{a.action} {a.entity_type}</span>
+                      <span className="font-medium" style={{ color: "var(--color-text)" }}>{userName}</span>
+                      <span className="ml-1" style={{ color: "var(--color-text-muted)" }}>{a.action} {a.entity_type}</span>
                     </div>
                   </div>
-                  <span className="text-xs shrink-0 ml-2" style={{ color: "#64748B" }}>{timeStr}</span>
+                  <span className="text-xs shrink-0 ml-2" style={{ color: "var(--color-text-muted)" }}>{timeStr}</span>
                 </div>
               )})
             )}
@@ -569,13 +569,13 @@ export default function AdminPage() {
                 ].map((s) => (
                   <div key={s.label} className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{s.label}</div>
-                      <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{s.desc}</div>
+                      <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{s.label}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{s.desc}</div>
                     </div>
                     <div
                       onClick={() => setActionFeedback({ type: "success", message: `${s.label} toggled ${s.enabled ? "OFF" : "ON"}` })}
                       className="w-10 h-5 rounded-full cursor-pointer transition-colors relative"
-                      style={{ background: s.enabled ? "#2BAE8E" : "#CBD5E1" }}
+                      style={{ background: s.enabled ? "var(--color-primary)" : "var(--color-border-strong)" }}
                     >
                       <div className="w-4 h-4 rounded-full bg-white absolute top-0.5 shadow-sm transition-all" style={{ left: s.enabled ? "5px" : "21px" }} />
                     </div>
@@ -601,8 +601,8 @@ export default function AdminPage() {
                 ].map((c) => (
                   <div key={c.key} className="flex items-center justify-between py-1.5">
                     <div>
-                      <code className="text-xs font-mono" style={{ color: "#1A3C5E" }}>{c.key}</code>
-                      <div className="text-xs" style={{ color: "#64748B" }}>{c.value}</div>
+                      <code className="text-xs font-mono" style={{ color: "var(--color-navy)" }}>{c.key}</code>
+                      <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{c.value}</div>
                     </div>
                     <Badge variant={c.editable ? "teal" : "gray"}>{c.editable ? "editable" : "system"}</Badge>
                   </div>
@@ -624,14 +624,14 @@ export default function AdminPage() {
                   { type: "Configuration", size: "12 MB", date: "17 Jun 2026, 02:35 AM", status: "success" },
                   { type: "Logs Archive", size: "450 MB", date: "16 Jun 2026, 02:00 AM", status: "success" },
                 ].map((b, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(42,157,143,0.15)" }}>
-                        <Database className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-primary-dark-rgb),0.15)" }}>
+                        <Database className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
                       </div>
                       <div>
-                        <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{b.type}</div>
-                        <div className="text-xs" style={{ color: "#64748B" }}>{b.size} · {b.date}</div>
+                        <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{b.type}</div>
+                        <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{b.size} · {b.date}</div>
                       </div>
                     </div>
                     <Badge variant="teal">{b.status}</Badge>
@@ -646,9 +646,9 @@ export default function AdminPage() {
                   <Upload className="w-3.5 h-3.5" /> Restore
                 </Button>
               </div>
-              <div className="mt-3 pt-3 text-xs flex items-center gap-1" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
+              <div className="mt-3 pt-3 text-xs flex items-center gap-1" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
                 <RefreshCw className="w-3 h-3" />
-                Auto-backup runs daily at 2:00 AM. Last: <span className="font-medium" style={{ color: "#1A2E44" }}>Successful</span>
+                Auto-backup runs daily at 2:00 AM. Last: <span className="font-medium" style={{ color: "var(--color-text)" }}>Successful</span>
               </div>
             </Card>
             <Card>
@@ -661,14 +661,14 @@ export default function AdminPage() {
                   { name: "Channel Manager — SiteMinder", key: "sm_••••••••••••••", status: "active", lastUsed: "1 hr ago" },
                   { name: "Analytics — Google Analytics", key: "UA-•••••••••", status: "inactive", lastUsed: "N/A" },
                 ].map((a, i) => (
-                  <div key={i} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: "#F5F7FA" }}>
+                  <div key={i} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: "var(--color-light)" }}>
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: a.status === "active" ? "rgba(42,157,143,0.15)" : "rgba(148,163,184,0.15)" }}>
-                        <Code className="w-3.5 h-3.5" style={{ color: a.status === "active" ? "#2BAE8E" : "#94A3B8" }} />
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: a.status === "active" ? "rgba(var(--color-primary-dark-rgb),0.15)" : "rgba(var(--color-text-faint-rgb),0.15)" }}>
+                        <Code className="w-3.5 h-3.5" style={{ color: a.status === "active" ? "var(--color-primary)" : "var(--color-text-faint)" }} />
                       </div>
                       <div>
-                        <div className="text-xs font-medium" style={{ color: "#1A2E44" }}>{a.name}</div>
-                        <code className="text-[10px] font-mono" style={{ color: "#94A3B8" }}>{a.key}</code>
+                        <div className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{a.name}</div>
+                        <code className="text-[10px] font-mono" style={{ color: "var(--color-text-faint)" }}>{a.key}</code>
                       </div>
                     </div>
                     <div className="text-right">
@@ -703,14 +703,14 @@ export default function AdminPage() {
               ].map((t, i) => {
                 const Icon = t.icon;
                 return (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: t.status === "active" ? "rgba(42,157,143,0.15)" : "rgba(245,166,35,0.15)" }}>
-                        <Icon className="w-4 h-4" style={{ color: t.status === "active" ? "#2BAE8E" : "#F5A623" }} />
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: t.status === "active" ? "rgba(var(--color-primary-dark-rgb),0.15)" : "rgba(var(--color-warning-rgb),0.15)" }}>
+                        <Icon className="w-4 h-4" style={{ color: t.status === "active" ? "var(--color-primary)" : "var(--color-warning)" }} />
                       </div>
                       <div>
-                        <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{t.name}</div>
-                        <div className="text-xs flex items-center gap-2 mt-0.5" style={{ color: "#64748B" }}>
+                        <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{t.name}</div>
+                        <div className="text-xs flex items-center gap-2 mt-0.5" style={{ color: "var(--color-text-muted)" }}>
                           <span>{t.channel}</span>
                           <span>·</span>
                           <span>Last edited: {t.lastEdited}</span>
@@ -751,18 +751,18 @@ export default function AdminPage() {
             ].map((s) => {
                 const Icon = s.icon;
                 return (
-                  <div key={s.service} className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-                    <Icon className="w-4 h-4 mx-auto mb-1" style={{ color: s.status === "operational" ? "#2BAE8E" : "#F5A623" }} />
-                    <div className="text-xs font-medium" style={{ color: "#1A2E44" }}>{s.service}</div>
-                    <div className="text-[10px]" style={{ color: "#64748B" }}>{s.uptime}</div>
-                    <div className="w-1.5 h-1.5 rounded-full mx-auto mt-1" style={{ background: s.status === "operational" ? "#2BAE8E" : "#F5A623" }} />
+                  <div key={s.service} className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
+                    <Icon className="w-4 h-4 mx-auto mb-1" style={{ color: s.status === "operational" ? "var(--color-primary)" : "var(--color-warning)" }} />
+                    <div className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{s.service}</div>
+                    <div className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>{s.uptime}</div>
+                    <div className="w-1.5 h-1.5 rounded-full mx-auto mt-1" style={{ background: s.status === "operational" ? "var(--color-primary)" : "var(--color-warning)" }} />
                   </div>
                 );
               })}
             </div>
-            <div className="mt-4 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
+            <div className="mt-4 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
               <span><RefreshCw className="w-3 h-3 inline mr-1" /> Overall uptime this month</span>
-              <span className="font-semibold" style={{ color: "#2BAE8E" }}>99.94%</span>
+              <span className="font-semibold" style={{ color: "var(--color-primary)" }}>99.94%</span>
             </div>
           </Card>
         </>
@@ -770,3 +770,4 @@ export default function AdminPage() {
     </div>
   );
 }
+

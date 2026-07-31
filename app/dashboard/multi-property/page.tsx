@@ -34,7 +34,7 @@ export default function MultiPropertyPage() {
   if (loading && !data) {
     return (
       <div className="p-6 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#3B82F6" }} />
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-info)" }} />
       </div>
     );
   }
@@ -52,12 +52,12 @@ export default function MultiPropertyPage() {
             <Building2 className="w-5 h-5" style={{ color: "#8B5CF6" }} />
           </div>
           <div>
-            <h1 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Multi-Property Dashboard</h1>
-            <p className="text-xs" style={{ color: "#64748B" }}>Group overview and cross-property analytics</p>
+            <h1 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Multi-Property Dashboard</h1>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Group overview and cross-property analytics</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <select value={days} onChange={(e) => setDays(parseInt(e.target.value))} className="text-xs border rounded-lg px-2 py-1.5" style={{ borderColor: "#E2E8F0" }}>
+          <select value={days} onChange={(e) => setDays(parseInt(e.target.value))} className="text-xs border rounded-lg px-2 py-1.5" style={{ borderColor: "var(--color-border)" }}>
             <option value={7}>Last 7 days</option>
             <option value={14}>Last 14 days</option>
             <option value={30}>Last 30 days</option>
@@ -71,26 +71,26 @@ export default function MultiPropertyPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card>
-          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#94A3B8" }}>Properties</p>
+          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Properties</p>
           <p className="text-2xl font-bold mt-0.5" style={{ color: "#8B5CF6" }}>{summary.propertyCount || 0}</p>
         </Card>
         <Card>
-          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#94A3B8" }}>Total Rooms</p>
-          <p className="text-2xl font-bold mt-0.5" style={{ color: "#1A3C5E" }}>{summary.totalRooms || 0}</p>
+          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Total Rooms</p>
+          <p className="text-2xl font-bold mt-0.5" style={{ color: "var(--color-navy)" }}>{summary.totalRooms || 0}</p>
         </Card>
         <Card>
-          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#94A3B8" }}>Avg Occupancy</p>
-          <p className="text-2xl font-bold mt-0.5" style={{ color: summary.avgOccupancy > 70 ? "#10B981" : summary.avgOccupancy > 40 ? "#F59E0B" : "#EF4444" }}>
+          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Avg Occupancy</p>
+          <p className="text-2xl font-bold mt-0.5" style={{ color: summary.avgOccupancy > 70 ? "var(--color-success)" : summary.avgOccupancy > 40 ? "var(--color-warning)" : "var(--color-danger)" }}>
             {summary.avgOccupancy || 0}%
           </p>
         </Card>
         <Card>
-          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#94A3B8" }}>Total Revenue</p>
-          <p className="text-2xl font-bold mt-0.5" style={{ color: "#10B981" }}>{formatCurrency(summary.totalRevenue || 0)}</p>
+          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Total Revenue</p>
+          <p className="text-2xl font-bold mt-0.5" style={{ color: "var(--color-success)" }}>{formatCurrency(summary.totalRevenue || 0)}</p>
         </Card>
         <Card>
-          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#94A3B8" }}>Check-ins / Out</p>
-          <p className="text-2xl font-bold mt-0.5" style={{ color: "#3B82F6" }}>
+          <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Check-ins / Out</p>
+          <p className="text-2xl font-bold mt-0.5" style={{ color: "var(--color-info)" }}>
             {summary.totalCheckins || 0} / {summary.totalCheckouts || 0}
           </p>
         </Card>
@@ -98,14 +98,14 @@ export default function MultiPropertyPage() {
 
       {/* Property Cards */}
       <div>
-        <h3 className="text-sm font-semibold mb-3" style={{ color: "#1A3C5E" }}>Property Performance</h3>
+        <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-navy)" }}>Property Performance</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {properties.map((p: any) => {
             const occ = Number(p.occupancy) || 0;
             return (
               <Card key={p.property_id} className="hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-bold" style={{ color: "#1A3C5E" }}>{p.property_name}</h4>
+                  <h4 className="text-sm font-bold" style={{ color: "var(--color-navy)" }}>{p.property_name}</h4>
                   <Badge variant={occ > 70 ? "teal" : occ > 40 ? "amber" : "red"}>
                     {occ.toFixed(0)}% occ
                   </Badge>
@@ -113,27 +113,27 @@ export default function MultiPropertyPage() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <p className="text-[10px]" style={{ color: "#94A3B8" }}>Rooms</p>
-                    <p className="text-sm font-bold" style={{ color: "#1A3C5E" }}>{p.occupied}/{p.total_rooms}</p>
+                    <p className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>Rooms</p>
+                    <p className="text-sm font-bold" style={{ color: "var(--color-navy)" }}>{p.occupied}/{p.total_rooms}</p>
                   </div>
                   <div>
-                    <p className="text-[10px]" style={{ color: "#94A3B8" }}>Revenue</p>
-                    <p className="text-sm font-bold" style={{ color: "#10B981" }}>{formatCurrency(Number(p.revenue))}</p>
+                    <p className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>Revenue</p>
+                    <p className="text-sm font-bold" style={{ color: "var(--color-success)" }}>{formatCurrency(Number(p.revenue))}</p>
                   </div>
                   <div>
-                    <p className="text-[10px]" style={{ color: "#94A3B8" }}>ADR</p>
-                    <p className="text-sm font-bold" style={{ color: "#1A3C5E" }}>{formatCurrency(Number(p.adr))}</p>
+                    <p className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>ADR</p>
+                    <p className="text-sm font-bold" style={{ color: "var(--color-navy)" }}>{formatCurrency(Number(p.adr))}</p>
                   </div>
                   <div>
-                    <p className="text-[10px]" style={{ color: "#94A3B8" }}>RevPAR</p>
-                    <p className="text-sm font-bold" style={{ color: "#1A3C5E" }}>{formatCurrency(Number(p.revpar))}</p>
+                    <p className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>RevPAR</p>
+                    <p className="text-sm font-bold" style={{ color: "var(--color-navy)" }}>{formatCurrency(Number(p.revpar))}</p>
                   </div>
                 </div>
 
                 {/* Mini occupancy bar */}
                 <div className="mt-3">
-                  <div className="h-2 rounded-full overflow-hidden" style={{ background: "#E2E8F0" }}>
-                    <div className="h-full rounded-full" style={{ width: `${occ}%`, background: occ > 70 ? "#10B981" : occ > 40 ? "#F59E0B" : "#EF4444" }} />
+                  <div className="h-2 rounded-full overflow-hidden" style={{ background: "var(--color-border)" }}>
+                    <div className="h-full rounded-full" style={{ width: `${occ}%`, background: occ > 70 ? "var(--color-success)" : occ > 40 ? "var(--color-warning)" : "var(--color-danger)" }} />
                   </div>
                 </div>
               </Card>
@@ -141,8 +141,8 @@ export default function MultiPropertyPage() {
           })}
           {properties.length === 0 && (
             <div className="col-span-full py-12 text-center">
-              <Building2 className="w-8 h-8 mx-auto mb-2" style={{ color: "#CBD5E1" }} />
-              <p className="text-sm" style={{ color: "#94A3B8" }}>No properties found. Assign properties to a group to see cross-property analytics.</p>
+              <Building2 className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-border-strong)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-faint)" }}>No properties found. Assign properties to a group to see cross-property analytics.</p>
             </div>
           )}
         </div>
@@ -151,7 +151,7 @@ export default function MultiPropertyPage() {
       {/* Trend Chart */}
       {trend.length > 0 && (
         <Card>
-          <h3 className="text-sm font-semibold mb-3" style={{ color: "#1A3C5E" }}>Revenue Trend ({days} days)</h3>
+          <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-navy)" }}>Revenue Trend ({days} days)</h3>
           <div className="h-48 flex items-end gap-px">
             {/* Group by date */}
             {(() => {
@@ -168,8 +168,8 @@ export default function MultiPropertyPage() {
                 const h = (dayRevenue / maxRevenue) * 180;
                 return (
                   <div key={d} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full rounded-t" style={{ height: `${h}px`, background: "linear-gradient(180deg, #8B5CF6, #3B82F6)" }} />
-                    <span className="text-[8px]" style={{ color: "#94A3B8" }}>{d.slice(5)}</span>
+                    <div className="w-full rounded-t" style={{ height: `${h}px`, background: "linear-gradient(180deg, #8B5CF6, var(--color-info))" }} />
+                    <span className="text-[8px]" style={{ color: "var(--color-text-faint)" }}>{d.slice(5)}</span>
                   </div>
                 );
               });

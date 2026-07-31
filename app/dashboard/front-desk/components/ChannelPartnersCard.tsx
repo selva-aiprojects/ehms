@@ -113,19 +113,19 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
 
   return (
     <Card className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b border-[#E2E8F0]">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
         <div>
-          <h3 className="text-sm font-semibold text-[#1A3C5E] flex items-center gap-1.5">
-            <Globe className="w-4 h-4 text-[#2BAE8E]" /> Channel Manager & OTAs
+          <h3 className="text-sm font-semibold text-[var(--color-navy)] flex items-center gap-1.5">
+            <Globe className="w-4 h-4 text-[var(--color-primary)]" /> Channel Manager & OTAs
           </h3>
-          <p className="text-[11px] text-[#64748B]">2-Way Real-time availability & rate bridge</p>
+          <p className="text-[11px] text-[var(--color-text-muted)]">2-Way Real-time availability & rate bridge</p>
         </div>
         <div className="flex items-center gap-1.5">
           <Button
             size="sm"
             variant="outline"
             onClick={() => setShowSimulator(true)}
-            className="text-xs h-7 px-2 border-[#2BAE8E] text-[#2BAE8E] hover:bg-[#ECFDF5]"
+            className="text-xs h-7 px-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-success-soft)]"
           >
             <Radio className="w-3 h-3 mr-1" /> Webhook Simulator
           </Button>
@@ -133,7 +133,7 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
             size="sm"
             onClick={handleBroadcastSync}
             disabled={syncing}
-            className="text-xs h-7 px-2.5 bg-[#1A3C5E] hover:bg-[#132A42] text-white"
+            className="text-xs h-7 px-2.5 bg-[var(--color-navy)] hover:bg-[var(--color-dark-navy)] text-white"
           >
             <RefreshCw className={`w-3 h-3 mr-1 ${syncing ? "animate-spin" : ""}`} />
             {syncing ? "Broadcasting..." : "Sync All"}
@@ -142,23 +142,23 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
       </div>
 
       {loading ? (
-        <div className="flex justify-center p-8"><Loader2 className="w-5 h-5 animate-spin text-[#64748B]" /></div>
+        <div className="flex justify-center p-8"><Loader2 className="w-5 h-5 animate-spin text-[var(--color-text-muted)]" /></div>
       ) : channels.length === 0 ? (
         <div className="text-center py-8">
-          <Globe className="w-6 h-6 mx-auto mb-2 text-[#64748B]" />
-          <p className="text-sm text-[#64748B]">No active OTA channels found.</p>
+          <Globe className="w-6 h-6 mx-auto mb-2 text-[var(--color-text-muted)]" />
+          <p className="text-sm text-[var(--color-text-muted)]">No active OTA channels found.</p>
         </div>
       ) : (
-        <div className="divide-y divide-[#E2E8F0] overflow-y-auto max-h-[300px]">
+        <div className="divide-y divide-[var(--color-border)] overflow-y-auto max-h-[300px]">
           {channels.map(channel => (
-            <div key={channel.id} className="flex items-center justify-between p-3 text-sm hover:bg-[#F8FAFC] transition-colors">
+            <div key={channel.id} className="flex items-center justify-between p-3 text-sm hover:bg-[var(--color-light)] transition-colors">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-[#1A3C5E]/5 flex items-center justify-center font-bold text-xs text-[#1A3C5E]">
+                <div className="w-8 h-8 rounded-full bg-[color:var(--color-navy)]/5 flex items-center justify-center font-bold text-xs text-[var(--color-navy)]">
                   {channel.channel_name.substring(0, 2).toUpperCase()}
                 </div>
                 <div>
-                  <p className="font-semibold text-xs text-[#1A2E44]">{channel.channel_name}</p>
-                  <p className="text-[11px] text-[#64748B] flex items-center gap-1">
+                  <p className="font-semibold text-xs text-[var(--color-text)]">{channel.channel_name}</p>
+                  <p className="text-[11px] text-[var(--color-text-muted)] flex items-center gap-1">
                     <Clock className="w-3 h-3" /> 
                     {channel.last_sync_time ? new Date(channel.last_sync_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : "Never synced"}
                   </p>
@@ -166,20 +166,20 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
               </div>
               <div className="text-right">
                 {channel.last_sync_status === 200 || channel.last_sync_status === 201 ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2BAE8E] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-primary)] bg-[var(--color-success-soft)] px-2 py-0.5 rounded-full">
                     <CheckCircle2 className="w-3 h-3" /> Live Sync (5s)
                   </span>
                 ) : channel.last_sync_status ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#E53E3E] bg-[#FEE2E2] px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-danger)] bg-[var(--color-danger-soft)] px-2 py-0.5 rounded-full">
                     <XCircle className="w-3 h-3" /> Sync Error
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#64748B] bg-gray-100 px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--color-text-muted)] bg-gray-100 px-2 py-0.5 rounded-full">
                     Pending
                   </span>
                 )}
                 <div className="flex items-center justify-end gap-2 mt-1">
-                  <span className="text-[10px] font-bold text-[#1A3C5E] bg-[#1A3C5E]/10 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] font-bold text-[var(--color-navy)] bg-[color:var(--color-navy)]/10 px-1.5 py-0.5 rounded">
                     {channel.new_bookings_24h || 0} arrivals today
                   </span>
                   {channel.commission_rate > 0 && (
@@ -196,23 +196,23 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
       {showSimulator && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
-            <div className="px-5 py-3.5 flex items-center justify-between border-b border-[#E2E8F0] bg-[#F8FAFC]">
+            <div className="px-5 py-3.5 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-light)]">
               <div>
-                <h3 className="text-sm font-semibold text-[#1A3C5E] flex items-center gap-1.5">
-                  <Radio className="w-4 h-4 text-[#2BAE8E]" /> Simulate Inbound OTA Webhook
+                <h3 className="text-sm font-semibold text-[var(--color-navy)] flex items-center gap-1.5">
+                  <Radio className="w-4 h-4 text-[var(--color-primary)]" /> Simulate Inbound OTA Webhook
                 </h3>
-                <p className="text-[11px] text-[#64748B]">Simulate a direct external OTA booking arrival</p>
+                <p className="text-[11px] text-[var(--color-text-muted)]">Simulate a direct external OTA booking arrival</p>
               </div>
               <button onClick={() => setShowSimulator(false)} className="p-1 hover:bg-gray-200 rounded-full"><X className="w-4 h-4 text-gray-500" /></button>
             </div>
 
             <form onSubmit={handleSimulateWebhook} className="p-5 space-y-3.5 text-xs">
               <div>
-                <label className="block font-medium text-[#1A2E44] mb-1">Select OTA Channel Source</label>
+                <label className="block font-medium text-[var(--color-text)] mb-1">Select OTA Channel Source</label>
                 <select
                   value={simForm.channel_name}
                   onChange={e => setSimForm({ ...simForm, channel_name: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[#2BAE8E]"
+                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
                 >
                   <option value="Booking.com">Booking.com</option>
                   <option value="MakeMyTrip / GoIbibo">MakeMyTrip / GoIbibo</option>
@@ -223,12 +223,12 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
               </div>
 
               <div>
-                <label className="block font-medium text-[#1A2E44] mb-1">Target Vacant Unit / Room</label>
+                <label className="block font-medium text-[var(--color-text)] mb-1">Target Vacant Unit / Room</label>
                 <select
                   required
                   value={simForm.unit_id}
                   onChange={e => setSimForm({ ...simForm, unit_id: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[#2BAE8E]"
+                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
                 >
                   <option value="" disabled>Select Vacant Room ({vacantRooms.length} available)...</option>
                   {vacantRooms.map((r: any) => (
@@ -240,53 +240,53 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
               </div>
 
               <div>
-                <label className="block font-medium text-[#1A2E44] mb-1">Guest Full Name</label>
+                <label className="block font-medium text-[var(--color-text)] mb-1">Guest Full Name</label>
                 <input
                   required
                   type="text"
                   value={simForm.guest_name}
                   onChange={e => setSimForm({ ...simForm, guest_name: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[#2BAE8E]"
+                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-[#1A2E44] mb-1">Check-In Date</label>
+                  <label className="block font-medium text-[var(--color-text)] mb-1">Check-In Date</label>
                   <input
                     required
                     type="date"
                     value={simForm.check_in}
                     onChange={e => setSimForm({ ...simForm, check_in: e.target.value })}
-                    className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[#2BAE8E]"
+                    className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-[#1A2E44] mb-1">Check-Out Date</label>
+                  <label className="block font-medium text-[var(--color-text)] mb-1">Check-Out Date</label>
                   <input
                     required
                     type="date"
                     value={simForm.check_out}
                     onChange={e => setSimForm({ ...simForm, check_out: e.target.value })}
-                    className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[#2BAE8E]"
+                    className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-medium text-[#1A2E44] mb-1">Total OTA Charge (₹)</label>
+                <label className="block font-medium text-[var(--color-text)] mb-1">Total OTA Charge (₹)</label>
                 <input
                   required
                   type="number"
                   value={simForm.total_amount}
                   onChange={e => setSimForm({ ...simForm, total_amount: e.target.value })}
-                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[#2BAE8E]"
+                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
                 />
               </div>
 
               <div className="pt-3 border-t flex justify-end gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowSimulator(false)}>Cancel</Button>
-                <Button type="submit" size="sm" disabled={simulating} className="bg-[#2BAE8E] hover:bg-[#239B7E] text-white">
+                <Button type="submit" size="sm" disabled={simulating} className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white">
                   {simulating ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <PlusCircle className="w-3.5 h-3.5 mr-1.5" />}
                   Trigger Inbound Webhook
                 </Button>

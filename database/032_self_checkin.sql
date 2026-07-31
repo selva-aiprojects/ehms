@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS kiosk_config (
   digital_key_enabled BOOLEAN DEFAULT true,
 
   branding_logo_url   TEXT,
-  branding_color      TEXT DEFAULT '#1E3A8A',
+  branding_color      TEXT DEFAULT '#062A54',
   background_image_url TEXT,
 
   auto_checkin_enabled BOOLEAN DEFAULT false,

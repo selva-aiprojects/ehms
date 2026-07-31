@@ -436,7 +436,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center p-16 space-y-3">
-        <Loader2 className="w-8 h-8 animate-spin text-[#1A3C5E]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--color-navy)]" />
         <p className="text-sm text-slate-500 font-medium">Loading property inventory & room specifications...</p>
       </div>
     );
@@ -448,9 +448,9 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
       {feedback && (
         <div className="rounded-xl px-4 py-3 text-sm flex items-center gap-2.5 shadow-sm transition-all"
           style={{
-            background: feedback.type === "success" ? "rgba(42,157,143,0.1)" : "rgba(229,62,62,0.08)",
-            color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-            border: `1px solid ${feedback.type === "success" ? "rgba(42,157,143,0.25)" : "rgba(229,62,62,0.25)"}`
+            background: feedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${feedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.25)" : "rgba(var(--color-danger-rgb),0.25)"}`
           }}>
           {feedback.type === "success" ? <CheckCircle className="w-4 h-4 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 flex-shrink-0" />}
           <span className="font-medium">{feedback.message}</span>
@@ -459,28 +459,28 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
 
       {/* Quick Stats Header */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl p-4 text-white shadow-sm flex items-center justify-between" style={{ background: "#1A3C5E" }}>
+        <div className="rounded-xl p-4 text-white shadow-sm flex items-center justify-between" style={{ background: "var(--color-navy)" }}>
           <div>
             <div className="text-2xl font-bold">{totalUnits}</div>
             <div className="text-xs opacity-80 mt-0.5">Total Rooms / Units</div>
           </div>
           <DoorOpen className="w-8 h-8 opacity-30" />
         </div>
-        <div className="rounded-xl p-4 text-white shadow-sm flex items-center justify-between" style={{ background: "#2BAE8E" }}>
+        <div className="rounded-xl p-4 text-white shadow-sm flex items-center justify-between" style={{ background: "var(--color-primary)" }}>
           <div>
             <div className="text-2xl font-bold">{acUnitsCount}</div>
             <div className="text-xs opacity-80 mt-0.5 flex items-center gap-1"><Wind className="w-3 h-3" /> AC Rooms</div>
           </div>
           <Badge variant="teal" className="bg-white/20 text-white border-0">Air Conditioned</Badge>
         </div>
-        <div className="rounded-xl p-4 shadow-sm flex items-center justify-between" style={{ background: "#F5A623", color: "#1A2E44" }}>
+        <div className="rounded-xl p-4 shadow-sm flex items-center justify-between" style={{ background: "var(--color-warning)", color: "var(--color-text)" }}>
           <div>
             <div className="text-2xl font-bold">{nonAcUnitsCount}</div>
             <div className="text-xs opacity-80 mt-0.5 font-medium">Non-AC / Standard</div>
           </div>
           <Badge variant="amber" className="bg-white/40 text-slate-900 border-0">Non-AC</Badge>
         </div>
-        <div className="rounded-xl p-4 shadow-sm border bg-white flex items-center justify-between" style={{ borderColor: "#E2E8F0" }}>
+        <div className="rounded-xl p-4 shadow-sm border bg-white flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
           <div>
             <div className="text-2xl font-bold text-slate-800">{totalBuildings}</div>
             <div className="text-xs text-slate-500 mt-0.5">Buildings ({floors.length} Floors)</div>
@@ -497,14 +497,14 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
             <div className="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1 text-xs font-medium">
               <button
                 onClick={() => setSelectedBuildingId("all")}
-                className={`px-3 py-1.5 rounded-md transition-all ${selectedBuildingId === "all" ? "bg-white text-[#1A3C5E] shadow-sm font-semibold" : "text-slate-600 hover:text-slate-900"}`}>
+                className={`px-3 py-1.5 rounded-md transition-all ${selectedBuildingId === "all" ? "bg-white text-[var(--color-navy)] shadow-sm font-semibold" : "text-slate-600 hover:text-slate-900"}`}>
                 All Buildings ({totalBuildings})
               </button>
               {buildings.map(b => (
                 <button
                   key={b.id}
                   onClick={() => { setSelectedBuildingId(b.id); setSelectedFloorId("all"); }}
-                  className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1 ${selectedBuildingId === b.id ? "bg-white text-[#1A3C5E] shadow-sm font-semibold" : "text-slate-600 hover:text-slate-900"}`}>
+                  className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1 ${selectedBuildingId === b.id ? "bg-white text-[var(--color-navy)] shadow-sm font-semibold" : "text-slate-600 hover:text-slate-900"}`}>
                   <Building2 className="w-3 h-3" /> {b.name}
                 </button>
               ))}
@@ -514,17 +514,17 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
             <div className="flex items-center gap-1.5 bg-slate-100 rounded-lg p-1 text-xs font-medium">
               <button
                 onClick={() => setFilterSpec("all")}
-                className={`px-2.5 py-1.5 rounded-md transition-all ${filterSpec === "all" ? "bg-white text-[#1A3C5E] shadow-sm" : "text-slate-600"}`}>
+                className={`px-2.5 py-1.5 rounded-md transition-all ${filterSpec === "all" ? "bg-white text-[var(--color-navy)] shadow-sm" : "text-slate-600"}`}>
                 All Specs
               </button>
               <button
                 onClick={() => setFilterSpec("ac")}
-                className={`px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 ${filterSpec === "ac" ? "bg-white text-[#2BAE8E] shadow-sm font-semibold" : "text-slate-600"}`}>
-                <Wind className="w-3 h-3 text-[#2BAE8E]" /> AC Only
+                className={`px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 ${filterSpec === "ac" ? "bg-white text-[var(--color-primary)] shadow-sm font-semibold" : "text-slate-600"}`}>
+                <Wind className="w-3 h-3 text-[var(--color-primary)]" /> AC Only
               </button>
               <button
                 onClick={() => setFilterSpec("non-ac")}
-                className={`px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 ${filterSpec === "non-ac" ? "bg-white text-[#F5A623] shadow-sm font-semibold" : "text-slate-600"}`}>
+                className={`px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 ${filterSpec === "non-ac" ? "bg-white text-[var(--color-warning)] shadow-sm font-semibold" : "text-slate-600"}`}>
                 Non-AC Only
               </button>
             </div>
@@ -537,7 +537,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                 placeholder="Search room #, category..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-1.5 rounded-lg text-xs border border-slate-200 outline-none focus:border-[#1A3C5E] bg-white w-48"
+                className="pl-8 pr-3 py-1.5 rounded-lg text-xs border border-slate-200 outline-none focus:border-[var(--color-navy)] bg-white w-48"
               />
             </div>
           </div>
@@ -582,11 +582,11 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                   {/* Building Header */}
                   <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-wrap gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="min-w-9 px-2 h-9 rounded-lg bg-[#1A3C5E]/10 flex items-center justify-center text-[#1A3C5E] font-bold text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                      <div className="min-w-9 px-2 h-9 rounded-lg bg-[color:var(--color-navy)]/10 flex items-center justify-center text-[var(--color-navy)] font-bold text-xs whitespace-nowrap overflow-hidden text-ellipsis">
                         {b.code}
                       </div>
                       <div>
-                        <h3 className="text-base font-bold text-[#1A3C5E] flex items-center gap-2">
+                        <h3 className="text-base font-bold text-[var(--color-navy)] flex items-center gap-2">
                           {b.name}
                           <Badge variant="gray">{b.floors} {b.floors === 1 ? "Floor" : "Floors"}</Badge>
                         </h3>
@@ -628,7 +628,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                               <div className="flex items-center gap-1.5">
                                 <button
                                   onClick={() => openAddUnitModal(flr.id)}
-                                  className="text-xs text-[#1A3C5E] font-medium hover:underline flex items-center gap-1 px-2 py-1 rounded hover:bg-slate-100">
+                                  className="text-xs text-[var(--color-navy)] font-medium hover:underline flex items-center gap-1 px-2 py-1 rounded hover:bg-slate-100">
                                   <Plus className="w-3 h-3" /> Add Room Here
                                 </button>
                                 {flrUnits.length === 0 && (
@@ -662,13 +662,13 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                                     <div
                                       key={unit.id}
                                       className="border rounded-xl p-3.5 bg-white shadow-sm hover:shadow-md transition-all relative group flex flex-col justify-between"
-                                      style={{ borderColor: isAc ? "rgba(43,174,142,0.3)" : "rgba(245,166,35,0.3)" }}>
+                                      style={{ borderColor: isAc ? "rgba(var(--color-primary-rgb),0.3)" : "rgba(var(--color-warning-rgb),0.3)" }}>
                                       <div>
                                         {/* Top row: Number & AC badge */}
                                         <div className="flex items-center justify-between mb-2">
                                           <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
-                                              <span className="text-base font-extrabold text-[#1A3C5E] tracking-tight truncate max-w-[150px]" title={unit.unit_label}>
+                                              <span className="text-base font-extrabold text-[var(--color-navy)] tracking-tight truncate max-w-[150px]" title={unit.unit_label}>
                                                 {unit.unit_type === "apartment" ? "Flat" : (unit.unit_type === "suite" ? "Suite" : "Room")} {unit.unit_label}
                                               </span>
                                             </div>
@@ -721,13 +721,13 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                                       {/* Bottom row: Rate & Actions */}
                                       <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between mb-3">
                                         <div>
-                                          <span className="text-xs font-bold text-[#1A3C5E]">₹{rate.toLocaleString()}</span>
+                                          <span className="text-xs font-bold text-[var(--color-navy)]">₹{rate.toLocaleString()}</span>
                                           <span className="text-[10px] text-slate-400"> / night</span>
                                         </div>
                                         <div className="flex items-center gap-1">
                                           <button
                                             onClick={() => openEditUnitModal(unit)}
-                                            className="p-1.5 text-slate-500 hover:text-[#1A3C5E] hover:bg-slate-100 rounded-lg transition-colors"
+                                            className="p-1.5 text-slate-500 hover:text-[var(--color-navy)] hover:bg-slate-100 rounded-lg transition-colors"
                                             title="Edit Specifications">
                                             <Edit2 className="w-3.5 h-3.5" />
                                           </button>
@@ -745,7 +745,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                                         <div className="mt-auto pt-3 border-t border-dashed border-slate-200">
                                           <button
                                             onClick={() => openAddUnitModal(unit.floor_id, unit)}
-                                            className="w-full py-1.5 border border-dashed border-[#2BAE8E] text-[#2BAE8E] hover:bg-[#2BAE8E] hover:text-white rounded text-xs font-bold flex items-center justify-center gap-1 transition-colors">
+                                            className="w-full py-1.5 border border-dashed border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white rounded text-xs font-bold flex items-center justify-center gap-1 transition-colors">
                                             <Plus className="w-3.5 h-3.5" /> Add Room to Flat {childUnits.length > 0 ? `(${childUnits.length} rooms added)` : ""}
                                           </button>
                                         </div>
@@ -770,7 +770,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
       {modalType === "building" && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
-            <div className="px-6 py-4 bg-[#1A3C5E] text-white flex items-center justify-between">
+            <div className="px-6 py-4 bg-[var(--color-navy)] text-white flex items-center justify-between">
               <h3 className="font-bold text-base flex items-center gap-2">
                 <Building2 className="w-5 h-5" /> Add New Building / Tower
               </h3>
@@ -787,7 +787,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                   placeholder="e.g. Tower A - Executive Wing"
                   value={buildingForm.name}
                   onChange={e => setBuildingForm({ ...buildingForm, name: e.target.value })}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -799,7 +799,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     placeholder="e.g. TWR-A"
                     value={buildingForm.code}
                     onChange={e => setBuildingForm({ ...buildingForm, code: e.target.value.toUpperCase() })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono uppercase focus:ring-2 focus:ring-[#1A3C5E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono uppercase focus:ring-2 focus:ring-[var(--color-navy)] outline-none"
                   />
                 </div>
                 <div>
@@ -811,7 +811,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     required
                     value={buildingForm.floors}
                     onChange={e => setBuildingForm({ ...buildingForm, floors: parseInt(e.target.value) || 1 })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none"
                   />
                   <p className="text-[10px] text-slate-400 mt-1">Auto-creates Floor 1 to {buildingForm.floors}</p>
                 </div>
@@ -831,7 +831,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
       {modalType === "unit" && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in">
           <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="px-6 py-4 bg-[#1A3C5E] text-white flex items-center justify-between flex-shrink-0">
+            <div className="px-6 py-4 bg-[var(--color-navy)] text-white flex items-center justify-between flex-shrink-0">
               <h3 className="font-bold text-base flex items-center gap-2">
                 <DoorOpen className="w-5 h-5" /> {unitForm.id ? `Edit Room ${unitForm.unit_label} Specifications` : "Add Single Room / Unit"}
               </h3>
@@ -852,7 +852,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                       const bldFloors = floors.filter(f => f.building_id === bId);
                       setUnitForm({ ...unitForm, building_id: bId, floor_id: bldFloors[0]?.id || "" });
                     }}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white">
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none bg-white">
                     {buildings.map(b => (
                       <option key={b.id} value={b.id}>{b.name}</option>
                     ))}
@@ -865,7 +865,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     required
                     value={unitForm.floor_id}
                     onChange={e => setUnitForm({ ...unitForm, floor_id: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white">
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none bg-white">
                     {floors
                       .filter(f => !unitForm.building_id || f.building_id === unitForm.building_id)
                       .map(f => (
@@ -882,7 +882,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     placeholder="e.g. 101 or A-201"
                     value={unitForm.unit_label}
                     onChange={e => setUnitForm({ ...unitForm, unit_label: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-[#1A3C5E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-[var(--color-navy)] outline-none"
                   />
                 </div>
               </div>
@@ -891,7 +891,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
               {isApartmentVertical && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-blue-50/50 border border-blue-100/60">
                   <div>
-                    <label className="block text-xs font-semibold text-[#1A3C5E] uppercase mb-1">Unit / Configuration Type <span className="text-red-500">*</span></label>
+                    <label className="block text-xs font-semibold text-[var(--color-navy)] uppercase mb-1">Unit / Configuration Type <span className="text-red-500">*</span></label>
                     <select
                       value={unitForm.unit_type}
                       onChange={e => {
@@ -902,7 +902,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                           parent_unit_id: nextType === "apartment" ? "" : unitForm.parent_unit_id 
                         });
                       }}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white font-medium">
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none bg-white font-medium">
                       <option value="room">Room (Private Bedroom)</option>
                       <option value="suite">Suite (Premium Room)</option>
                       <option value="apartment">Apartment (Entire Flat)</option>
@@ -912,11 +912,11 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
 
                   {(unitForm.unit_type === "room" || unitForm.unit_type === "suite") && (
                     <div>
-                      <label className="block text-xs font-semibold text-[#1A3C5E] uppercase mb-1">Parent Flat / Apartment</label>
+                      <label className="block text-xs font-semibold text-[var(--color-navy)] uppercase mb-1">Parent Flat / Apartment</label>
                       <select
                         value={unitForm.parent_unit_id || ""}
                         onChange={e => setUnitForm({ ...unitForm, parent_unit_id: e.target.value })}
-                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white font-medium">
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none bg-white font-medium">
                         <option value="">-- Independent (No Parent Apartment) --</option>
                         {units
                           .filter(u => u.unit_type === "apartment" && u.id !== unitForm.id)
@@ -942,7 +942,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     <select
                       value={unitForm.layout_type}
                       onChange={e => handleCategoryChange(e.target.value, false)}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white font-medium">
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none bg-white font-medium">
                       {roomCategories.length === 0 ? (
                         defaultCategories.map(cat => (
                           <option key={cat} value={cat}>{cat}</option>
@@ -962,7 +962,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     <label className="block text-xs font-medium text-slate-600 mb-1">Air Conditioning (AC) Status</label>
                     <div className="flex items-center gap-3 pt-1">
                       <label className={`flex-1 flex items-center justify-center gap-2 p-2 rounded-lg border cursor-pointer font-semibold text-xs transition-all ${
-                        unitForm.attributes?.ac ? "bg-[#2BAE8E]/15 border-[#2BAE8E] text-[#2BAE8E]" : "bg-white border-slate-200 text-slate-600"
+                        unitForm.attributes?.ac ? "bg-[color:var(--color-primary)]/15 border-[var(--color-primary)] text-[var(--color-primary)]" : "bg-white border-slate-200 text-slate-600"
                       }`}>
                         <input
                           type="radio"
@@ -975,7 +975,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                       </label>
 
                       <label className={`flex-1 flex items-center justify-center gap-2 p-2 rounded-lg border cursor-pointer font-semibold text-xs transition-all ${
-                        unitForm.attributes?.ac === false ? "bg-[#F5A623]/20 border-[#F5A623] text-slate-900" : "bg-white border-slate-200 text-slate-600"
+                        unitForm.attributes?.ac === false ? "bg-[color:var(--color-warning)]/20 border-[var(--color-warning)] text-slate-900" : "bg-white border-slate-200 text-slate-600"
                       }`}>
                         <input
                           type="radio"
@@ -1001,7 +1001,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     required
                     value={unitForm.base_rate}
                     onChange={e => setUnitForm({ ...unitForm, base_rate: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-[#2BAE8E] focus:ring-2 focus:ring-[#1A3C5E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-navy)] outline-none"
                   />
                 </div>
 
@@ -1013,7 +1013,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     max={20}
                     value={unitForm.max_occupancy}
                     onChange={e => setUnitForm({ ...unitForm, max_occupancy: parseInt(e.target.value) || 2 })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none"
                   />
                 </div>
 
@@ -1024,7 +1024,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     min={50}
                     value={unitForm.sq_ft}
                     onChange={e => setUnitForm({ ...unitForm, sq_ft: parseFloat(e.target.value) || 350 })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none"
                   />
                 </div>
 
@@ -1033,7 +1033,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                   <select
                     value={unitForm.attributes?.bed_type || "King"}
                     onChange={e => setUnitForm({ ...unitForm, attributes: { ...unitForm.attributes, bed_type: e.target.value } })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white">
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none bg-white">
                     <option value="King">King Bed</option>
                     <option value="Queen">Queen Bed</option>
                     <option value="Twin">Twin Beds</option>
@@ -1056,7 +1056,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                             type="checkbox"
                             checked={checked}
                             onChange={() => toggleFeatureCheckbox(unitForm, setUnitForm, fName)}
-                            className="rounded text-[#1A3C5E] focus:ring-[#1A3C5E]"
+                            className="rounded text-[var(--color-navy)] focus:ring-[var(--color-navy)]"
                           />
                           <span>{fName}</span>
                         </label>
@@ -1071,7 +1071,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                             type="checkbox"
                             checked={checked}
                             onChange={() => toggleFeatureCheckbox(unitForm, setUnitForm, fac.name)}
-                            className="rounded text-[#1A3C5E] focus:ring-[#1A3C5E]"
+                            className="rounded text-[var(--color-navy)] focus:ring-[var(--color-navy)]"
                           />
                           <span>{fac.name}</span>
                         </label>
@@ -1096,7 +1096,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
       {modalType === "bulk_units" && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in">
           <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="px-6 py-4 bg-[#2BAE8E] text-white flex items-center justify-between flex-shrink-0">
+            <div className="px-6 py-4 bg-[var(--color-primary)] text-white flex items-center justify-between flex-shrink-0">
               <h3 className="font-bold text-base flex items-center gap-2">
                 <Sparkles className="w-5 h-5" /> Bulk Create Rooms & Assign Specifications
               </h3>
@@ -1113,11 +1113,11 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
               {/* Unit Type Selection */}
               {isApartmentVertical && (
                 <div className="mb-4 p-4 rounded-xl bg-blue-50/50 border border-blue-100/60">
-                  <label className="block text-xs font-semibold text-[#1A3C5E] uppercase mb-1">Unit / Configuration Type <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-semibold text-[var(--color-navy)] uppercase mb-1">Unit / Configuration Type <span className="text-red-500">*</span></label>
                   <select
                     value={bulkForm.unit_type}
                     onChange={e => setBulkForm({ ...bulkForm, unit_type: e.target.value })}
-                    className="w-full sm:w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#1A3C5E] outline-none bg-white font-medium">
+                    className="w-full sm:w-1/2 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-navy)] outline-none bg-white font-medium">
                     <option value="room">Room (Private Bedroom)</option>
                     <option value="suite">Suite (Premium Room)</option>
                     <option value="apartment">Apartment (Entire Flat)</option>
@@ -1133,7 +1133,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     required
                     value={bulkForm.floor_id}
                     onChange={e => setBulkForm({ ...bulkForm, floor_id: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#2BAE8E] outline-none bg-white font-medium">
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primary)] outline-none bg-white font-medium">
                     {floors.map(f => {
                       const bName = buildings.find(b => b.id === f.building_id)?.name || "";
                       return <option key={f.id} value={f.id}>{bName ? `${bName} — ` : ""}{f.name}</option>;
@@ -1148,7 +1148,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     placeholder="e.g. 1 -> 101"
                     value={bulkForm.prefix}
                     onChange={e => setBulkForm({ ...bulkForm, prefix: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-[#2BAE8E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-[var(--color-primary)] outline-none"
                   />
                 </div>
 
@@ -1161,7 +1161,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                       max={999}
                       value={bulkForm.start_num}
                       onChange={e => setBulkForm({ ...bulkForm, start_num: parseInt(e.target.value) || 1 })}
-                      className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus:ring-2 focus:ring-[#2BAE8E] outline-none font-bold"
+                      className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primary)] outline-none font-bold"
                     />
                   </div>
                   <div>
@@ -1172,7 +1172,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                       max={999}
                       value={bulkForm.end_num}
                       onChange={e => setBulkForm({ ...bulkForm, end_num: parseInt(e.target.value) || 10 })}
-                      className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus:ring-2 focus:ring-[#2BAE8E] outline-none font-bold"
+                      className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primary)] outline-none font-bold"
                     />
                   </div>
                 </div>
@@ -1193,7 +1193,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     <select
                       value={bulkForm.layout_type}
                       onChange={e => handleCategoryChange(e.target.value, true)}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#2BAE8E] outline-none bg-white font-medium">
+                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primary)] outline-none bg-white font-medium">
                       {roomCategories.length === 0 ? (
                         defaultCategories.map(cat => (
                           <option key={cat} value={cat}>{cat}</option>
@@ -1212,7 +1212,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     <label className="block text-xs font-medium text-slate-600 mb-1">Air Conditioning (AC) Status</label>
                     <div className="flex items-center gap-3 pt-1">
                       <label className={`flex-1 flex items-center justify-center gap-2 p-2 rounded-lg border cursor-pointer font-semibold text-xs transition-all ${
-                        bulkForm.attributes?.ac ? "bg-[#2BAE8E]/15 border-[#2BAE8E] text-[#2BAE8E]" : "bg-white border-slate-200 text-slate-600"
+                        bulkForm.attributes?.ac ? "bg-[color:var(--color-primary)]/15 border-[var(--color-primary)] text-[var(--color-primary)]" : "bg-white border-slate-200 text-slate-600"
                       }`}>
                         <input
                           type="radio"
@@ -1225,7 +1225,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                       </label>
 
                       <label className={`flex-1 flex items-center justify-center gap-2 p-2 rounded-lg border cursor-pointer font-semibold text-xs transition-all ${
-                        bulkForm.attributes?.ac === false ? "bg-[#F5A623]/20 border-[#F5A623] text-slate-900" : "bg-white border-slate-200 text-slate-600"
+                        bulkForm.attributes?.ac === false ? "bg-[color:var(--color-warning)]/20 border-[var(--color-warning)] text-slate-900" : "bg-white border-slate-200 text-slate-600"
                       }`}>
                         <input
                           type="radio"
@@ -1251,7 +1251,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     required
                     value={bulkForm.base_rate}
                     onChange={e => setBulkForm({ ...bulkForm, base_rate: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-[#2BAE8E] focus:ring-2 focus:ring-[#2BAE8E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)] outline-none"
                   />
                 </div>
 
@@ -1263,7 +1263,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     max={20}
                     value={bulkForm.max_occupancy}
                     onChange={e => setBulkForm({ ...bulkForm, max_occupancy: parseInt(e.target.value) || 2 })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#2BAE8E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primary)] outline-none"
                   />
                 </div>
 
@@ -1274,7 +1274,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                     min={50}
                     value={bulkForm.sq_ft}
                     onChange={e => setBulkForm({ ...bulkForm, sq_ft: parseFloat(e.target.value) || 350 })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#2BAE8E] outline-none"
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primary)] outline-none"
                   />
                 </div>
 
@@ -1283,7 +1283,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                   <select
                     value={bulkForm.attributes?.bed_type || "King"}
                     onChange={e => setBulkForm({ ...bulkForm, attributes: { ...bulkForm.attributes, bed_type: e.target.value } })}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[#2BAE8E] outline-none bg-white">
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primary)] outline-none bg-white">
                     <option value="King">King Bed</option>
                     <option value="Queen">Queen Bed</option>
                     <option value="Twin">Twin Beds</option>
@@ -1305,7 +1305,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                             type="checkbox"
                             checked={checked}
                             onChange={() => toggleFeatureCheckbox(bulkForm, setBulkForm, fName)}
-                            className="rounded text-[#2BAE8E] focus:ring-[#2BAE8E]"
+                            className="rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                           />
                           <span>{fName}</span>
                         </label>
@@ -1320,7 +1320,7 @@ export default function PropertyRoomsInventory({ propertyId, property }: Propert
                             type="checkbox"
                             checked={checked}
                             onChange={() => toggleFeatureCheckbox(bulkForm, setBulkForm, fac.name)}
-                            className="rounded text-[#2BAE8E] focus:ring-[#2BAE8E]"
+                            className="rounded text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                           />
                           <span>{fac.name}</span>
                         </label>

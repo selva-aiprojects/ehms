@@ -12,18 +12,18 @@ import Table from "@/components/ui/table";
 import { useEmployees, useHKStats, useDepartments } from "@/lib/hooks";
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 function SkeletonCard() {
   return (
-    <div className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}>
+    <div className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}>
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-full" style={{ background: "#CBD5E1" }} />
-        <div><div className="w-24 h-4 rounded mb-1" style={{ background: "#CBD5E1" }} /><div className="w-16 h-3 rounded" style={{ background: "#CBD5E1" }} /></div>
+        <div className="w-10 h-10 rounded-full" style={{ background: "var(--color-border-strong)" }} />
+        <div><div className="w-24 h-4 rounded mb-1" style={{ background: "var(--color-border-strong)" }} /><div className="w-16 h-3 rounded" style={{ background: "var(--color-border-strong)" }} /></div>
       </div>
-      <div className="w-full h-2 rounded mb-2" style={{ background: "#CBD5E1" }} />
-      <div className="flex gap-2"><div className="w-16 h-5 rounded" style={{ background: "#CBD5E1" }} /><div className="w-16 h-5 rounded" style={{ background: "#CBD5E1" }} /></div>
+      <div className="w-full h-2 rounded mb-2" style={{ background: "var(--color-border-strong)" }} />
+      <div className="flex gap-2"><div className="w-16 h-5 rounded" style={{ background: "var(--color-border-strong)" }} /><div className="w-16 h-5 rounded" style={{ background: "var(--color-border-strong)" }} /></div>
     </div>
   );
 }
@@ -69,23 +69,23 @@ export default function HKStaffPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Staff Performance</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Housekeeping team productivity and metrics</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Staff Performance</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Housekeeping team productivity and metrics</p>
         </div>
         <div className="flex items-center gap-2">
           {isLoading && (
-            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
+            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
               <Loader2 className="w-3 h-3 animate-spin" /> Syncing
             </div>
           )}
-          <button onClick={() => { mutate(); mutateStats(); setPerfLoading(true); fetch("/api/housekeeping/stats").then(r => r.json()).then(data => { const perf = data?.staff_performance || data?.data?.staff_performance || []; setStaffPerformance(Array.isArray(perf) ? perf : []); }).catch(() => {}).finally(() => setPerfLoading(false)); }} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => { mutate(); mutateStats(); setPerfLoading(true); fetch("/api/housekeeping/stats").then(r => r.json()).then(data => { const perf = data?.staff_performance || data?.data?.staff_performance || []; setStaffPerformance(Array.isArray(perf) ? perf : []); }).catch(() => {}).finally(() => setPerfLoading(false)); }} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" />
           Failed to load staff data.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
@@ -94,9 +94,9 @@ export default function HKStaffPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: feedback.type === "success" ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)",
-          color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: feedback.type === "success" ? "1px solid rgba(43,174,142,0.2)" : "1px solid rgba(229,62,62,0.2)",
+          background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: feedback.type === "success" ? "1px solid rgba(var(--color-primary-rgb),0.2)" : "1px solid rgba(var(--color-danger-rgb),0.2)",
         }}>
           {feedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -104,35 +104,35 @@ export default function HKStaffPage() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-2xl font-bold">{displayEmployees.length}</div>
             <Users className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Total Staff</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-2xl font-bold">{hkStats?.completed_today ?? staffPerformance.reduce((a: number, s: any) => a + (s.completed_tasks || 0), 0)}</div>
             <CheckCircle className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">Completed Today</div>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "#F5A623" }}>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-warning)" }}>
           <div className="flex items-center justify-between mb-2">
             <div className="text-2xl font-bold">{hkStats?.in_progress ?? 0}</div>
             <Clock className="w-5 h-5 opacity-60" />
           </div>
           <div className="text-xs opacity-80">In Progress</div>
         </div>
-        <div className="rounded-xl p-4" style={{ background: "#F5F7FA" }}>
+        <div className="rounded-xl p-4" style={{ background: "var(--color-light)" }}>
           <div className="flex items-center justify-between mb-2">
-            <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>
+            <div className="text-2xl font-bold" style={{ color: "var(--color-text)" }}>
               {staffPerformance.length > 0 ? (staffPerformance.reduce((a: number, s: any) => a + (s.avg_rating || 0), 0) / staffPerformance.length).toFixed(1) : "—"}
             </div>
-            <Star className="w-5 h-5" style={{ color: "#64748B" }} />
+            <Star className="w-5 h-5" style={{ color: "var(--color-text-muted)" }} />
           </div>
-          <div className="text-xs" style={{ color: "#64748B" }}>Avg Rating</div>
+          <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Avg Rating</div>
         </div>
       </div>
 
@@ -142,12 +142,12 @@ export default function HKStaffPage() {
           subtitle="Individual productivity metrics"
           action={
             <div className="relative">
-              <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#64748B" }} />
+              <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
               <input
                 type="text" value={search} onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search staff..."
                 className="pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none border w-40"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }}
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }}
               />
             </div>
           }
@@ -158,8 +158,8 @@ export default function HKStaffPage() {
           </div>
         ) : displayEmployees.length === 0 ? (
           <div className="text-center py-8">
-            <Users className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No staff found</p>
+            <Users className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No staff found</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -170,29 +170,29 @@ export default function HKStaffPage() {
               const status = perf.current_status || "available";
               const initials = ((emp.user?.first_name?.[0] || "") + (emp.user?.last_name?.[0] || "")).toUpperCase() || "?";
               return (
-                <div key={emp.id} className="rounded-xl p-4 transition-all hover:shadow-md" style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}>
+                <div key={emp.id} className="rounded-xl p-4 transition-all hover:shadow-md" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0" style={{ background: "#1A3C5E" }}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0" style={{ background: "var(--color-navy)" }}>
                       {initials}
                     </div>
                     <div className="min-w-0">
-                      <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>
+                      <div className="font-medium text-sm" style={{ color: "var(--color-text)" }}>
                         {emp.user ? `${emp.user.first_name} ${emp.user.last_name || ""}` : emp.name || emp.employee_code || "Staff"}
                       </div>
-                      <div className="text-xs" style={{ color: "#64748B" }}>{emp.designation || "—"}</div>
+                      <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{emp.designation || "—"}</div>
                     </div>
                     <Badge variant={status === "available" || status === "active" ? "teal" : status === "busy" ? "amber" : "gray"}>
                       {status.replace(/_/g, " ")}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-4 text-xs mb-3" style={{ color: "#64748B" }}>
-                    <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3" style={{ color: "#2BAE8E" }} /> {completed} done</span>
-                    <span className="flex items-center gap-1"><Star className="w-3 h-3" style={{ color: "#F5A623" }} /> {avgRating}</span>
+                  <div className="flex items-center gap-4 text-xs mb-3" style={{ color: "var(--color-text-muted)" }}>
+                    <span className="flex items-center gap-1"><CheckCircle className="w-3 h-3" style={{ color: "var(--color-primary)" }} /> {completed} done</span>
+                    <span className="flex items-center gap-1"><Star className="w-3 h-3" style={{ color: "var(--color-warning)" }} /> {avgRating}</span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "#E2E8F0" }}>
-                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(completed * 25, 100)}%`, background: "#2BAE8E" }} />
+                  <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "var(--color-border)" }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(completed * 25, 100)}%`, background: "var(--color-primary)" }} />
                   </div>
-                  <div className="flex items-center gap-2 mt-3 text-xs" style={{ color: "#64748B" }}>
+                  <div className="flex items-center gap-2 mt-3 text-xs" style={{ color: "var(--color-text-muted)" }}>
                     {emp.user?.email && <span className="flex items-center gap-1 truncate"><Mail className="w-3 h-3 shrink-0" /> {emp.user.email}</span>}
                   </div>
                 </div>
@@ -211,8 +211,8 @@ export default function HKStaffPage() {
           <div className="space-y-1">{Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}</div>
         ) : displayEmployees.length === 0 ? (
           <div className="text-center py-8">
-            <Users className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No staff data</p>
+            <Users className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No staff data</p>
           </div>
         ) : (
           <Table
@@ -221,7 +221,7 @@ export default function HKStaffPage() {
             columns={[
               { key: "name", header: "Staff Name", render: (e: any) => (
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: "#1A3C5E" }}>
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: "var(--color-navy)" }}>
                     {((e.user?.first_name?.[0] || "") + (e.user?.last_name?.[0] || "")).toUpperCase() || "?"}
                   </div>
                   <span className="font-medium text-sm">{e.user ? `${e.user.first_name} ${e.user.last_name || ""}` : e.name || e.employee_code || "—"}</span>
@@ -236,7 +236,7 @@ export default function HKStaffPage() {
                 const r = p.avg_rating ?? p.rating;
                 return (
                   <span className="flex items-center gap-1 text-xs">
-                    <Star className="w-3 h-3" style={{ color: r >= 4 ? "#2BAE8E" : r >= 3 ? "#F5A623" : "#E53E3E" }} />
+                    <Star className="w-3 h-3" style={{ color: r >= 4 ? "var(--color-primary)" : r >= 3 ? "var(--color-warning)" : "var(--color-danger)" }} />
                     {r != null ? r : "—"}
                   </span>
                 );
@@ -246,7 +246,7 @@ export default function HKStaffPage() {
                 const st = p.current_status || (e.is_active !== false ? "active" : "inactive");
                 return <Badge variant={st === "active" || st === "available" ? "teal" : st === "busy" ? "amber" : "gray"}>{st.replace(/_/g, " ")}</Badge>;
               }},
-              { key: "designation", header: "Role", render: (e: any) => <span className="text-xs" style={{ color: "#64748B" }}>{e.designation || "—"}</span> },
+              { key: "designation", header: "Role", render: (e: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{e.designation || "—"}</span> },
             ]}
           />
         )}
@@ -254,3 +254,4 @@ export default function HKStaffPage() {
     </div>
   );
 }
+

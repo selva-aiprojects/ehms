@@ -3,12 +3,12 @@ import { getPublicDb } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 
 const DEFAULT_BRANDING = {
-  primary_color: "#2BAE8E",
-  secondary_color: "#1A3C5E",
-  accent_color: "#D4A853",
-  sidebar_color: "#2C3547",
-  logo_url: "/CybeHMS_logo.png",
-  company_name: "CybeHMS",
+  primary_color: "#D4AF37",
+  secondary_color: "#0F172A",
+  accent_color: "#F3E5AB",
+  sidebar_color: "#0F172A",
+  logo_url: "/hostsphere-logo.png",
+  company_name: "HostSphere",
 };
 
 export async function GET(req: NextRequest) {

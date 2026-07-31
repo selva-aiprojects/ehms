@@ -15,7 +15,7 @@ export default function ActiveBookingSelector({ value, onChange }: { value?: str
 
   return (
     <select 
-      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2BAE8E]/20"
+      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[color:var(--color-primary)]/20"
       value={value || ""}
       onChange={(e) => {
         const selected = bookings.find((b: any) => b.booking_id === e.target.value);
@@ -36,3 +36,4 @@ export default function ActiveBookingSelector({ value, onChange }: { value?: str
     </select>
   );
 }
+

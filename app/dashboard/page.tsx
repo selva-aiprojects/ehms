@@ -65,9 +65,9 @@ function LineChart({ data, smooth }: { data: { label: string; revenue: number; e
 
   if (allZero) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 rounded-xl" style={{ background: "#F8FAFC", border: "1px dashed #CBD5E1" }}>
-        <IndianRupee className="w-8 h-8 mb-2" style={{ color: "#CBD5E1" }} />
-        <p className="text-sm font-medium" style={{ color: "#94A3B8" }}>No financial data yet</p>
+      <div className="flex flex-col items-center justify-center h-48 rounded-xl" style={{ background: "var(--color-light)", border: "1px dashed var(--color-border-strong)" }}>
+        <IndianRupee className="w-8 h-8 mb-2" style={{ color: "var(--color-border-strong)" }} />
+        <p className="text-sm font-medium" style={{ color: "var(--color-text-faint)" }}>No financial data yet</p>
       </div>
     );
   }
@@ -77,18 +77,18 @@ function LineChart({ data, smooth }: { data: { label: string; revenue: number; e
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ minHeight: 220 }}>
         <defs>
           <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2BAE8E" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#2BAE8E" stopOpacity="0.01" />
+            <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0.01" />
           </linearGradient>
           <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#E53E3E" stopOpacity="0.10" />
-            <stop offset="100%" stopColor="#E53E3E" stopOpacity="0.01" />
+            <stop offset="0%" stopColor="var(--color-danger)" stopOpacity="0.10" />
+            <stop offset="100%" stopColor="var(--color-danger)" stopOpacity="0.01" />
           </linearGradient>
         </defs>
         {[0, 25, 50, 75, 100].map(pct => (
           <g key={pct}>
-            <line x1={padL} y1={toY(max * pct / 100)} x2={W - padR} y2={toY(max * pct / 100)} stroke="#F1F5F9" strokeWidth={1} />
-            <text x={padL - 10} y={toY(max * pct / 100) + 4} textAnchor="end" fontSize={10} fill="#94A3B8">
+            <line x1={padL} y1={toY(max * pct / 100)} x2={W - padR} y2={toY(max * pct / 100)} stroke="var(--color-light)" strokeWidth={1} />
+            <text x={padL - 10} y={toY(max * pct / 100) + 4} textAnchor="end" fontSize={10} fill="var(--color-text-faint)">
               {formatVal(max * pct / 100)}
             </text>
           </g>
@@ -99,14 +99,14 @@ function LineChart({ data, smooth }: { data: { label: string; revenue: number; e
             <path d={expArea} fill="url(#expGrad)" />
           </>
         )}
-        <path d={revPath} fill="none" stroke="#2BAE8E" strokeWidth={2.5} strokeLinejoin="round" />
-        <path d={expPath} fill="none" stroke="#E53E3E" strokeWidth={2.5} strokeLinejoin="round" />
+        <path d={revPath} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} strokeLinejoin="round" />
+        <path d={expPath} fill="none" stroke="var(--color-danger)" strokeWidth={2.5} strokeLinejoin="round" />
 
         {revPoints.map((p, i) => (
           <g key={`rev-pt-${i}`}>
-            <circle cx={p.x} cy={p.y} r={4.5} fill="#2BAE8E" stroke="#fff" strokeWidth={1.5} />
+            <circle cx={p.x} cy={p.y} r={4.5} fill="var(--color-primary)" stroke="var(--color-white)" strokeWidth={1.5} />
             {p.val > 0 && (
-              <text x={p.x} y={p.y - 8} textAnchor="middle" fontSize={9} fontWeight="600" fill="#1e293b">
+              <text x={p.x} y={p.y - 8} textAnchor="middle" fontSize={9} fontWeight="600" fill="var(--color-text)">
                 {formatVal(p.val)}
               </text>
             )}
@@ -115,9 +115,9 @@ function LineChart({ data, smooth }: { data: { label: string; revenue: number; e
 
         {expPoints.map((p, i) => (
           <g key={`exp-pt-${i}`}>
-            <circle cx={p.x} cy={p.y} r={4.5} fill="#E53E3E" stroke="#fff" strokeWidth={1.5} />
+            <circle cx={p.x} cy={p.y} r={4.5} fill="var(--color-danger)" stroke="var(--color-white)" strokeWidth={1.5} />
             {p.val > 0 && (
-              <text x={p.x} y={p.y + 14} textAnchor="middle" fontSize={9} fontWeight="600" fill="#991b1b">
+              <text x={p.x} y={p.y + 14} textAnchor="middle" fontSize={9} fontWeight="600" fill="var(--color-danger-dark)">
                 {formatVal(p.val)}
               </text>
             )}
@@ -125,7 +125,7 @@ function LineChart({ data, smooth }: { data: { label: string; revenue: number; e
         ))}
 
         {data.map((d, i) => (
-          <text key={d.label} x={toX(i)} y={H - 10} textAnchor="middle" fontSize={10} fill="#64748B">{d.label}</text>
+          <text key={d.label} x={toX(i)} y={H - 10} textAnchor="middle" fontSize={10} fill="var(--color-text-muted)">{d.label}</text>
         ))}
       </svg>
     </div>
@@ -138,11 +138,11 @@ function DonutChart({ pct, color, size = 120 }: { pct: number; color: string; si
   const dash = (pct / 100) * circ;
   return (
     <svg width={size} height={size} viewBox="0 0 120 120">
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#E2E8F0" strokeWidth={12} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--color-border)" strokeWidth={12} />
       <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={12}
         strokeDasharray={`${dash} ${circ - dash}`} strokeLinecap="round"
         transform="rotate(-90 60 60)" style={{ transition: "stroke-dasharray 1s ease" }} />
-      <text x={cx} y={cy + 6} textAnchor="middle" fontSize={18} fontWeight="700" fill="#1A3C5E">{pct}%</text>
+      <text x={cx} y={cy + 6} textAnchor="middle" fontSize={18} fontWeight="700" fill="var(--color-navy)">{pct}%</text>
     </svg>
   );
 }
@@ -155,9 +155,9 @@ function DrillDownPanel({ items, onClose, viewAllHref }: {
 }) {
   if (!items?.length) {
     return (
-      <div className="mt-3 rounded-xl p-4 text-center" style={{ background: "#F8FAFC", border: "1px solid #E2E8F0" }}>
-        <p className="text-xs" style={{ color: "#94A3B8" }}>No records to display</p>
-        <button onClick={onClose} className="text-xs mt-1 hover:underline" style={{ color: "#64748B" }}>Close</button>
+      <div className="mt-3 rounded-xl p-4 text-center" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
+        <p className="text-xs" style={{ color: "var(--color-text-faint)" }}>No records to display</p>
+        <button onClick={onClose} className="text-xs mt-1 hover:underline" style={{ color: "var(--color-text-muted)" }}>Close</button>
       </div>
     );
   }
@@ -166,8 +166,8 @@ function DrillDownPanel({ items, onClose, viewAllHref }: {
     <div
       className="mt-3 rounded-xl overflow-hidden"
       style={{
-        border: "1px solid #E2E8F0",
-        background: "#FAFBFC",
+        border: "1px solid var(--color-border)",
+        background: "var(--color-light)",
         animation: "slideDown 0.2s ease-out",
       }}
     >
@@ -175,9 +175,9 @@ function DrillDownPanel({ items, onClose, viewAllHref }: {
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr style={{ background: "#F1F5F9" }}>
+            <tr style={{ background: "var(--color-light)" }}>
               {cols.map(c => (
-                <th key={c} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: "#1A3C5E", textTransform: "capitalize" }}>
+                <th key={c} className="px-3 py-2 text-left font-semibold whitespace-nowrap" style={{ color: "var(--color-navy)", textTransform: "capitalize" }}>
                   {c.replace(/_/g, " ")}
                 </th>
               ))}
@@ -185,27 +185,27 @@ function DrillDownPanel({ items, onClose, viewAllHref }: {
           </thead>
           <tbody>
             {items.map((item, i) => (
-              <tr key={i} style={{ borderTop: "1px solid #E2E8F0" }}>
+              <tr key={i} style={{ borderTop: "1px solid var(--color-border)" }}>
                 {cols.map(c => {
                   let val = item[c];
                   if (val instanceof Date || (typeof val === "string" && val.includes("T"))) {
                     try { val = new Date(val as string).toLocaleDateString("en-IN"); } catch {}
                   }
                   if (typeof val === "number") val = val.toLocaleString("en-IN");
-                  return <td key={c} className="px-3 py-2 whitespace-nowrap" style={{ color: "#475569" }}>{String(val ?? "—")}</td>;
+                  return <td key={c} className="px-3 py-2 whitespace-nowrap" style={{ color: "var(--color-text)" }}>{String(val ?? "—")}</td>;
                 })}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-between px-3 py-2" style={{ borderTop: "1px solid #E2E8F0" }}>
+      <div className="flex items-center justify-between px-3 py-2" style={{ borderTop: "1px solid var(--color-border)" }}>
         {viewAllHref ? (
-          <Link href={viewAllHref} className="text-xs font-medium flex items-center gap-1 hover:underline" style={{ color: "#2BAE8E" }}>
+          <Link href={viewAllHref} className="text-xs font-medium flex items-center gap-1 hover:underline" style={{ color: "var(--color-primary)" }}>
             <ExternalLink className="w-3 h-3" /> View all
           </Link>
         ) : <span />}
-        <button onClick={onClose} className="text-xs font-medium transition-all hover:opacity-70" style={{ color: "#64748B" }}>
+        <button onClick={onClose} className="text-xs font-medium transition-all hover:opacity-70" style={{ color: "var(--color-text-muted)" }}>
           Close ✕
         </button>
       </div>
@@ -229,7 +229,7 @@ function ActivityPill({
       </div>
       <div>
         <p className="text-xl font-bold leading-none" style={{ color }}>{value}</p>
-        <p className="text-xs mt-0.5 font-medium" style={{ color: "#64748B" }}>{label}</p>
+        <p className="text-xs mt-0.5 font-medium" style={{ color: "var(--color-text-muted)" }}>{label}</p>
       </div>
     </div>
   );
@@ -243,21 +243,21 @@ function MetricCard({ label, value, icon, bg, trend }: {
   trend?: { pct: number; label: string };
 }) {
   return (
-    <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid #E2E8F0", boxShadow: "0 1px 4px rgba(26,60,94,0.06)" }}>
+    <div className="hs-card p-5">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium mb-1" style={{ color: "#64748B" }}>{label}</p>
-          <p className="text-xl font-bold" style={{ color: "#1A3C5E" }}>{value}</p>
+          <p className="text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>{label}</p>
+          <p className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>{value}</p>
           {trend && (
             <div className="flex items-center gap-1 mt-1">
               {trend.pct >= 0
-                ? <ArrowUpRight className="w-3 h-3" style={{ color: "#2BAE8E" }} />
-                : <ArrowDownRight className="w-3 h-3" style={{ color: "#E53E3E" }} />
+                ? <ArrowUpRight className="w-3 h-3" style={{ color: "var(--color-primary)" }} />
+                : <ArrowDownRight className="w-3 h-3" style={{ color: "var(--color-danger)" }} />
               }
-              <span className="text-xs font-medium" style={{ color: trend.pct >= 0 ? "#2BAE8E" : "#E53E3E" }}>
+              <span className="text-xs font-medium" style={{ color: trend.pct >= 0 ? "var(--color-primary)" : "var(--color-danger)" }}>
                 {Math.abs(trend.pct)}%
               </span>
-              <span className="text-xs" style={{ color: "#94A3B8" }}>{trend.label}</span>
+              <span className="text-xs" style={{ color: "var(--color-text-faint)" }}>{trend.label}</span>
             </div>
           )}
         </div>
@@ -269,8 +269,8 @@ function MetricCard({ label, value, icon, bg, trend }: {
   );
 }
 
-const card = "bg-white rounded-2xl p-5" as const;
-const cardStyle = { border: "1px solid #E2E8F0", boxShadow: "0 1px 4px rgba(26,60,94,0.06)" };
+const card = "hs-card p-5" as const;
+const cardStyle = { border: "1px solid var(--hs-border-light)", boxShadow: "var(--hs-shadow-sm)" };
 
 export default function DashboardPage() {
   const { selectedPropertyId } = useJourney();
@@ -294,7 +294,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-[#2BAE8E] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -324,14 +324,14 @@ export default function DashboardPage() {
         onClick={() => toggleSection(label)}
         className="flex items-center gap-2 w-full text-left mb-3 group"
       >
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,60,94,0.08)" }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-navy-rgb),0.08)" }}>
           {icon}
         </div>
-        <h2 className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>{label}</h2>
-        <span className="text-xs ml-1 opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: "#64748B" }}>
+        <h2 className="text-sm font-semibold" style={{ color: "var(--color-navy)" }}>{label}</h2>
+        <span className="text-xs ml-1 opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: "var(--color-text-muted)" }}>
           {open ? "collapse" : "expand"}
         </span>
-        {open ? <ChevronDown className="w-4 h-4 ml-auto" style={{ color: "#64748B" }} /> : <ChevronRight className="w-4 h-4 ml-auto" style={{ color: "#64748B" }} />}
+        {open ? <ChevronDown className="w-4 h-4 ml-auto" style={{ color: "var(--color-text-muted)" }} /> : <ChevronRight className="w-4 h-4 ml-auto" style={{ color: "var(--color-text-muted)" }} />}
       </button>
     );
   }
@@ -420,36 +420,36 @@ export default function DashboardPage() {
     {
       label: "Total Revenue",
       value: stats ? formatCurrency(current.revenue) : "—",
-      icon: <IndianRupee className="w-5 h-5" style={{ color: "#2BAE8E" }} />,
-      bg: "rgba(43,174,142,0.12)",
+      icon: <IndianRupee className="w-5 h-5" style={{ color: "var(--color-primary)" }} />,
+      bg: "rgba(var(--color-primary-rgb),0.12)",
       trend: revTrend,
     },
     {
       label: "Total Expenses",
       value: stats ? formatCurrency(current.expenses.total) : "—",
-      icon: <IndianRupee className="w-5 h-5" style={{ color: "#E53E3E" }} />,
-      bg: "rgba(229,62,62,0.12)",
+      icon: <IndianRupee className="w-5 h-5" style={{ color: "var(--color-danger)" }} />,
+      bg: "rgba(var(--color-danger-rgb),0.12)",
       trend: expTrend,
     },
     {
       label: "Overall Rating",
       value: stats ? `${current.avgRating} / 5` : "—",
-      icon: <Star className="w-5 h-5" style={{ color: "#F5A623" }} />,
-      bg: "rgba(245,166,35,0.12)",
+      icon: <Star className="w-5 h-5" style={{ color: "var(--color-warning)" }} />,
+      bg: "rgba(var(--color-warning-rgb),0.12)",
       trend: ratingTrend,
     },
     {
       label: "Total Bookings",
       value: stats ? String(current.bookings) : "—",
-      icon: <Building2 className="w-5 h-5" style={{ color: "#1A3C5E" }} />,
-      bg: "rgba(26,60,94,0.12)",
+      icon: <Building2 className="w-5 h-5" style={{ color: "var(--color-navy)" }} />,
+      bg: "rgba(var(--color-navy-rgb),0.12)",
       trend: bookingsTrend,
     },
     {
       label: "Occupancy Rate",
       value: stats ? `${current.occupancyRate}%` : "—",
-      icon: <Users className="w-5 h-5" style={{ color: "#1A3C5E" }} />,
-      bg: "rgba(26,60,94,0.12)",
+      icon: <Users className="w-5 h-5" style={{ color: "var(--color-navy)" }} />,
+      bg: "rgba(var(--color-navy-rgb),0.12)",
       trend: occupancyTrend,
     },
   ];
@@ -457,11 +457,11 @@ export default function DashboardPage() {
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 bg-white rounded-3xl border border-slate-200 shadow-sm">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(229,62,62,0.1)" }}>
-          <AlertTriangle className="w-8 h-8" style={{ color: "#E53E3E" }} />
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(var(--color-danger-rgb),0.1)" }}>
+          <AlertTriangle className="w-8 h-8" style={{ color: "var(--color-danger)" }} />
         </div>
-        <h2 className="text-lg font-bold mb-2" style={{ color: "#1A3C5E" }}>Dashboard Access Restricted</h2>
-        <p className="text-sm max-w-md mb-4" style={{ color: "#64748B" }}>
+        <h2 className="text-lg font-bold mb-2" style={{ color: "var(--color-navy)" }}>Dashboard Access Restricted</h2>
+        <p className="text-sm max-w-md mb-4" style={{ color: "var(--color-text-muted)" }}>
           This unified operational dashboard is only accessible to Superadmin and Property Manager roles. Please use the sidebar to navigate to your assigned operational modules.
         </p>
       </div>
@@ -472,19 +472,19 @@ export default function DashboardPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Unified Executive Dashboard</h1>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Unified Executive Dashboard</h1>
           <p className="text-xs text-slate-400 mt-0.5">Real-time revenue metrics, quality logs, and operational expenses</p>
         </div>
-        <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+        <div className="flex items-center gap-2 text-xs" style={{ color: "var(--color-text-muted)" }}>
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Live · refreshes every 30s</span>
         </div>
       </div>
 
       {/* Dynamic Date Filters Panel */}
-      <div className="bg-white rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4" style={{ border: "1px solid #E2E8F0" }}>
+      <div className="bg-white rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4" style={{ border: "1px solid var(--color-border)" }}>
         <div className="flex items-center gap-3">
-          <label className="text-xs font-bold uppercase tracking-wider" style={{ color: "#64748B" }}>Analysis Period:</label>
+          <label className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--color-text-muted)" }}>Analysis Period:</label>
           <select
             value={period}
             onChange={(e) => {
@@ -495,7 +495,7 @@ export default function DashboardPage() {
               }
             }}
             className="text-xs px-3 py-1.5 rounded-lg border outline-none font-medium"
-            style={{ borderColor: "#CBD5E1", color: "#1A3C5E", background: "#F8FAFC" }}
+            style={{ borderColor: "var(--color-border-strong)", color: "var(--color-navy)", background: "var(--color-light)" }}
           >
             <option value="monthly">Monthly (This Month vs Last Month)</option>
             <option value="quarterly">Quarterly (This Q vs Last Q)</option>
@@ -508,29 +508,29 @@ export default function DashboardPage() {
         {period === "custom" && (
           <div className="flex flex-wrap items-center gap-3 animate-fade-in">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs" style={{ color: "#64748B" }}>From:</span>
+              <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>From:</span>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 className="text-xs px-2.5 py-1.5 rounded-lg border outline-none font-medium"
-                style={{ borderColor: "#CBD5E1" }}
+                style={{ borderColor: "var(--color-border-strong)" }}
               />
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs" style={{ color: "#64748B" }}>To:</span>
+              <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>To:</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 className="text-xs px-2.5 py-1.5 rounded-lg border outline-none font-medium"
-                style={{ borderColor: "#CBD5E1" }}
+                style={{ borderColor: "var(--color-border-strong)" }}
               />
             </div>
             <button
               onClick={() => setCustomFilterActive(true)}
               className="text-xs px-4 py-1.5 rounded-lg font-bold text-white transition-all hover:opacity-90"
-              style={{ background: "#2BAE8E" }}
+              style={{ background: "var(--color-primary)" }}
             >
               Apply Filter
             </button>
@@ -551,28 +551,28 @@ export default function DashboardPage() {
       <div className={card} style={cardStyle}>
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <div>
-            <h2 className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>Revenue vs Expenses Trend</h2>
-            <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Comparison of cash inflows and operational expenses</p>
+            <h2 className="text-sm font-semibold" style={{ color: "var(--color-navy)" }}>Revenue vs Expenses Trend</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Comparison of cash inflows and operational expenses</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: "#2BAE8E" }}>
-                <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#2BAE8E" }} /> Revenue
+              <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: "var(--color-primary)" }}>
+                <span className="inline-block w-3 h-3 rounded-full" style={{ background: "var(--color-primary)" }} /> Revenue
               </div>
-              <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: "#E53E3E" }}>
-                <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#E53E3E" }} /> Expenses
+              <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: "var(--color-danger)" }}>
+                <span className="inline-block w-3 h-3 rounded-full" style={{ background: "var(--color-danger)" }} /> Expenses
               </div>
             </div>
             
-            <div className="flex items-center gap-1.5 border-l pl-4" style={{ borderColor: "#E2E8F0" }}>
+            <div className="flex items-center gap-1.5 border-l pl-4" style={{ borderColor: "var(--color-border)" }}>
               <input
                 type="checkbox"
                 id="smoothCurve"
                 checked={smoothCurve}
                 onChange={(e) => setSmoothCurve(e.target.checked)}
-                className="w-3.5 h-3.5 accent-[#2BAE8E] cursor-pointer"
+                className="w-3.5 h-3.5 accent-[var(--color-primary)] cursor-pointer"
               />
-              <label htmlFor="smoothCurve" className="text-xs font-medium cursor-pointer" style={{ color: "#64748B" }}>
+              <label htmlFor="smoothCurve" className="text-xs font-medium cursor-pointer" style={{ color: "var(--color-text-muted)" }}>
                 Smooth curve
               </label>
             </div>
@@ -584,26 +584,26 @@ export default function DashboardPage() {
       {/* Breakdown grids */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className={card} style={cardStyle}>
-          <h3 className="text-sm font-semibold mb-1" style={{ color: "#1A3C5E" }}>Operations Expenses</h3>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--color-navy)" }}>Operations Expenses</h3>
           <p className="text-xs text-slate-400 mb-4">Functional cost breakdown for this period</p>
           <div className="space-y-3">
             {isLoading ? (
               [...Array(5)].map((_, i) => <Skeleton key={i} className="h-10" />)
             ) : (
               [
-                { label: "Staff Salary", value: current.expenses.salary, color: "#1A3C5E" },
-                { label: "Property Maintenance", value: current.expenses.maintenance, color: "#F5A623" },
-                { label: "Software & Subscriptions", value: current.expenses.subscriptions, color: "#2BAE8E" },
-                { label: "Utilities & Rent", value: current.expenses.utilities, color: "#64748B" },
-                { label: "Other Expenses", value: current.expenses.other, color: "#94A3B8" },
+                { label: "Staff Salary", value: current.expenses.salary, color: "var(--color-navy)" },
+                { label: "Property Maintenance", value: current.expenses.maintenance, color: "var(--color-warning)" },
+                { label: "Software & Subscriptions", value: current.expenses.subscriptions, color: "var(--color-primary)" },
+                { label: "Utilities & Rent", value: current.expenses.utilities, color: "var(--color-text-muted)" },
+                { label: "Other Expenses", value: current.expenses.other, color: "var(--color-text-faint)" },
               ].map(e => {
                 const total = current.expenses.total || 1;
                 const pct = Math.round((e.value / total) * 100);
                 return (
                   <div key={e.label} className="space-y-1">
                     <div className="flex items-center justify-between text-xs font-medium">
-                      <span style={{ color: "#475569" }}>{e.label}</span>
-                      <span style={{ color: "#1A3C5E" }}>{formatCurrency(e.value)} ({pct}%)</span>
+                      <span style={{ color: "var(--color-text)" }}>{e.label}</span>
+                      <span style={{ color: "var(--color-navy)" }}>{formatCurrency(e.value)} ({pct}%)</span>
                     </div>
                     <div className="h-2 rounded-full w-full bg-slate-100">
                       <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: e.color }} />
@@ -616,24 +616,24 @@ export default function DashboardPage() {
         </div>
 
         <div className={card} style={cardStyle}>
-          <h3 className="text-sm font-semibold mb-1" style={{ color: "#1A3C5E" }}>Booking Channels</h3>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--color-navy)" }}>Booking Channels</h3>
           <p className="text-xs text-slate-400 mb-4">Traffic source split for active reservations</p>
           <div className="space-y-3">
             {isLoading ? (
               [...Array(3)].map((_, i) => <Skeleton key={i} className="h-12" />)
             ) : (
               [
-                { label: "Channel Partners (OTAs)", value: current.channels.channelPartners, color: "#2BAE8E" },
-                { label: "Direct (Website/Social)", value: current.channels.direct, color: "#1A3C5E" },
-                { label: "Walk-ins (Direct Counter)", value: current.channels.walkins, color: "#F5A623" },
+                { label: "Channel Partners (OTAs)", value: current.channels.channelPartners, color: "var(--color-primary)" },
+                { label: "Direct (Website/Social)", value: current.channels.direct, color: "var(--color-navy)" },
+                { label: "Walk-ins (Direct Counter)", value: current.channels.walkins, color: "var(--color-warning)" },
               ].map(ch => {
                 const total = (current.channels.channelPartners + current.channels.direct + current.channels.walkins) || 1;
                 const pct = Math.round((ch.value / total) * 100);
                 return (
                   <div key={ch.label} className="space-y-1">
                     <div className="flex items-center justify-between text-xs font-medium">
-                      <span style={{ color: "#475569" }}>{ch.label}</span>
-                      <span style={{ color: "#1A3C5E" }}>{ch.value} ({pct}%)</span>
+                      <span style={{ color: "var(--color-text)" }}>{ch.label}</span>
+                      <span style={{ color: "var(--color-navy)" }}>{ch.value} ({pct}%)</span>
                     </div>
                     <div className="h-2 rounded-full w-full bg-slate-100">
                       <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: ch.color }} />
@@ -646,24 +646,24 @@ export default function DashboardPage() {
         </div>
 
         <div className={card} style={cardStyle}>
-          <h3 className="text-sm font-semibold mb-1" style={{ color: "#1A3C5E" }}>Quality & Reviews</h3>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--color-navy)" }}>Quality & Reviews</h3>
           <p className="text-xs text-slate-400 mb-4">Guest feedback performance ratings</p>
           {isLoading ? (
             <Skeleton className="h-40" />
           ) : (
             <div className="flex flex-col items-center gap-4 py-1">
               <div className="text-center">
-                <div className="text-4xl font-extrabold" style={{ color: "#1A3C5E" }}>{current.avgRating.toFixed(1)} <span className="text-lg font-bold text-slate-400">/ 5.0</span></div>
+                <div className="text-4xl font-extrabold" style={{ color: "var(--color-navy)" }}>{current.avgRating.toFixed(1)} <span className="text-lg font-bold text-slate-400">/ 5.0</span></div>
                 <div className="text-xs font-semibold uppercase tracking-wider mt-1 text-slate-400">Average Rating</div>
               </div>
               
               <div className="w-full space-y-2">
                 <div className="flex items-center justify-between text-xs font-medium">
-                  <span style={{ color: "#475569" }}>Positive Review Rate</span>
-                  <span style={{ color: "#2BAE8E" }}>{current.positiveRatingPct}%</span>
+                  <span style={{ color: "var(--color-text)" }}>Positive Review Rate</span>
+                  <span style={{ color: "var(--color-primary)" }}>{current.positiveRatingPct}%</span>
                 </div>
                 <div className="h-2.5 rounded-full w-full bg-slate-100">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${current.positiveRatingPct}%`, background: "#2BAE8E" }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${current.positiveRatingPct}%`, background: "var(--color-primary)" }} />
                 </div>
                 <p className="text-[10px] text-center text-slate-400 mt-2">
                   Positive ratings include 4-star and 5-star reviews
@@ -671,7 +671,7 @@ export default function DashboardPage() {
               </div>
 
               <Link href="/dashboard/front-desk/feedbacks" className="w-full text-center text-xs py-2 rounded-xl font-medium transition-all hover:opacity-85"
-                style={{ background: "rgba(26,60,94,0.08)", color: "#1A3C5E", border: "1px solid rgba(26,60,94,0.15)" }}>
+                style={{ background: "rgba(var(--color-navy-rgb),0.08)", color: "var(--color-navy)", border: "1px solid rgba(var(--color-navy-rgb),0.15)" }}>
                 View Reviews & Feedbacks →
               </Link>
             </div>
@@ -683,13 +683,13 @@ export default function DashboardPage() {
       {isAdmin && (
         <div className="space-y-5 mt-6">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-1 h-6 rounded-full" style={{ background: "#2BAE8E" }} />
-            <h2 className="text-base font-bold" style={{ color: "#1A3C5E" }}>Admin Overview</h2>
+            <div className="w-1 h-6 rounded-full" style={{ background: "var(--color-primary)" }} />
+            <h2 className="text-base font-bold" style={{ color: "var(--color-navy)" }}>Admin Overview</h2>
           </div>
 
           {/* ── Today's Live Activity Strip ── */}
           <div className={card} style={cardStyle}>
-            <SectionHeader label="today" icon={<Eye className="w-4 h-4" style={{ color: "#2BAE8E" }} />} />
+            <SectionHeader label="today" icon={<Eye className="w-4 h-4" style={{ color: "var(--color-primary)" }} />} />
             {expandedSections.has("today") && (
               overviewLoading ? (
                 <div className="flex gap-3 overflow-x-auto pb-1">
@@ -698,12 +698,12 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-3">
                   <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
-                    <ActivityPill label="Occupied Rooms" value={todayCheckins} icon={<Bed className="w-4 h-4" style={{ color: "#2BAE8E" }} />} color="#2BAE8E" bg="#EFFDF9" href="/dashboard/front-desk" onClick={() => drill("Occupied Rooms", ((overview as any)?.drillDown?.rooms || []).filter((r: any) => r.status === "occupied" || r.status === "dirty"), "/dashboard/front-desk")} />
-                    <ActivityPill label="HK Tasks Open" value={openHKTasks} icon={<ClipboardList className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" bg="#FFFBEB" href="/dashboard/housekeeping" onClick={() => drill("HK Tasks Open", (overview as any)?.drillDown?.hkTasks || [], "/dashboard/housekeeping")} />
-                    <ActivityPill label="Maint. Open" value={openMaint} icon={<Wrench className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" bg="#FFF5F5" href="/dashboard/maintenance" onClick={() => drill("Maint. Open", (overview as any)?.drillDown?.maintTickets || [], "/dashboard/maintenance")} />
-                    <ActivityPill label="Pending Requests" value={pendingReqs} icon={<MessageSquare className="w-4 h-4" style={{ color: "#1A3C5E" }} />} color="#1A3C5E" bg="#EFF4FF" href="/dashboard/front-desk/requests" onClick={() => drill("Pending Requests", (overview as any)?.drillDown?.guestRequests || [], "/dashboard/front-desk/requests")} />
-                    <ActivityPill label="Vendor Bills Due" value={pendingBills} icon={<AlertTriangle className="w-4 h-4" style={{ color: "#E53E3E" }} />} color="#E53E3E" bg="#FFF5F5" href="/dashboard/finance/payables" onClick={() => drill("Vendor Bills Due", (overview as any)?.drillDown?.vendorBills || [], "/dashboard/finance/payables")} />
-                    <ActivityPill label="Avg Rating" value={`${overview?.feedbacks?.avgRating ?? 0} ★`} icon={<Star className="w-4 h-4" style={{ color: "#F5A623" }} />} color="#F5A623" bg="#FFFBEB" href="/dashboard/front-desk/feedbacks" onClick={() => drill("Avg Rating", (overview?.feedbacks as any)?.recent || [], "/dashboard/front-desk/feedbacks")} />
+                    <ActivityPill label="Occupied Rooms" value={todayCheckins} icon={<Bed className="w-4 h-4" style={{ color: "var(--color-primary)" }} />} color="var(--color-primary)" bg="var(--color-success-soft)" href="/dashboard/front-desk" onClick={() => drill("Occupied Rooms", ((overview as any)?.drillDown?.rooms || []).filter((r: any) => r.status === "occupied" || r.status === "dirty"), "/dashboard/front-desk")} />
+                    <ActivityPill label="HK Tasks Open" value={openHKTasks} icon={<ClipboardList className="w-4 h-4" style={{ color: "var(--color-warning)" }} />} color="var(--color-warning)" bg="var(--color-warning-soft)" href="/dashboard/housekeeping" onClick={() => drill("HK Tasks Open", (overview as any)?.drillDown?.hkTasks || [], "/dashboard/housekeeping")} />
+                    <ActivityPill label="Maint. Open" value={openMaint} icon={<Wrench className="w-4 h-4" style={{ color: "var(--color-danger)" }} />} color="var(--color-danger)" bg="var(--color-danger-soft)" href="/dashboard/maintenance" onClick={() => drill("Maint. Open", (overview as any)?.drillDown?.maintTickets || [], "/dashboard/maintenance")} />
+                    <ActivityPill label="Pending Requests" value={pendingReqs} icon={<MessageSquare className="w-4 h-4" style={{ color: "var(--color-navy)" }} />} color="var(--color-navy)" bg="var(--color-info-soft)" href="/dashboard/front-desk/requests" onClick={() => drill("Pending Requests", (overview as any)?.drillDown?.guestRequests || [], "/dashboard/front-desk/requests")} />
+                    <ActivityPill label="Vendor Bills Due" value={pendingBills} icon={<AlertTriangle className="w-4 h-4" style={{ color: "var(--color-danger)" }} />} color="var(--color-danger)" bg="var(--color-danger-soft)" href="/dashboard/finance/payables" onClick={() => drill("Vendor Bills Due", (overview as any)?.drillDown?.vendorBills || [], "/dashboard/finance/payables")} />
+                    <ActivityPill label="Avg Rating" value={`${overview?.feedbacks?.avgRating ?? 0} ★`} icon={<Star className="w-4 h-4" style={{ color: "var(--color-warning)" }} />} color="var(--color-warning)" bg="var(--color-warning-soft)" href="/dashboard/front-desk/feedbacks" onClick={() => drill("Avg Rating", (overview?.feedbacks as any)?.recent || [], "/dashboard/front-desk/feedbacks")} />
                   </div>
                   {drilling && ["Occupied Rooms", "HK Tasks Open", "Maint. Open", "Pending Requests", "Vendor Bills Due", "Avg Rating"].includes(drilling.section) && (
                     <DrillDownPanel items={drilling.items} onClose={() => setDrilling(null)} viewAllHref={drilling.href} />
@@ -715,7 +715,7 @@ export default function DashboardPage() {
 
           {/* ── Revenue Dashboards ── */}
           <div className={card} style={cardStyle}>
-            <SectionHeader label="dashboards" icon={<TrendingUp className="w-4 h-4" style={{ color: "#2BAE8E" }} />} />
+            <SectionHeader label="dashboards" icon={<TrendingUp className="w-4 h-4" style={{ color: "var(--color-primary)" }} />} />
             {expandedSections.has("dashboards") && (
               overviewLoading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -724,10 +724,10 @@ export default function DashboardPage() {
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { label: "Today Revenue", key: "today", recentKey: "recentToday", color: "#2BAE8E", bg: "rgba(43,174,142,0.08)", icon: <IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} /> },
-                    { label: "This Week", key: "week", recentKey: "recentWeek", color: "#1A3C5E", bg: "rgba(26,60,94,0.06)", icon: <TrendingUp className="w-4 h-4" style={{ color: "#1A3C5E" }} /> },
-                    { label: "This Month", key: "month", recentKey: "recentMonth", color: "#F5A623", bg: "rgba(245,166,35,0.08)", icon: <TrendingUp className="w-4 h-4" style={{ color: "#F5A623" }} /> },
-                    { label: "This Year", key: "year", recentKey: "recentYear", color: "#E53E3E", bg: "rgba(229,62,62,0.08)", icon: <IndianRupee className="w-4 h-4" style={{ color: "#E53E3E" }} /> },
+                    { label: "Today Revenue", key: "today", recentKey: "recentToday", color: "var(--color-primary)", bg: "rgba(var(--color-primary-rgb),0.08)", icon: <IndianRupee className="w-4 h-4" style={{ color: "var(--color-primary)" }} /> },
+                    { label: "This Week", key: "week", recentKey: "recentWeek", color: "var(--color-navy)", bg: "rgba(var(--color-navy-rgb),0.06)", icon: <TrendingUp className="w-4 h-4" style={{ color: "var(--color-navy)" }} /> },
+                    { label: "This Month", key: "month", recentKey: "recentMonth", color: "var(--color-warning)", bg: "rgba(var(--color-warning-rgb),0.08)", icon: <TrendingUp className="w-4 h-4" style={{ color: "var(--color-warning)" }} /> },
+                    { label: "This Year", key: "year", recentKey: "recentYear", color: "var(--color-danger)", bg: "rgba(var(--color-danger-rgb),0.08)", icon: <IndianRupee className="w-4 h-4" style={{ color: "var(--color-danger)" }} /> },
                   ].map(item => {
                     const val = (overview?.revenue as any)?.[item.key] ?? 0;
                     const drillItems = (overview as any)?.revenue?.[item.recentKey] || (overview as any)?.revenue?.recent || [];
@@ -738,12 +738,12 @@ export default function DashboardPage() {
                         <button onClick={() => drill(item.label, drillItems, "/dashboard/finance")} className="w-full p-3 text-center group">
                           <div className="flex items-center gap-2 mb-1.5 justify-center">
                             {item.icon}
-                            <p className="text-xs font-medium" style={{ color: "#64748B" }}>{item.label}</p>
+                            <p className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>{item.label}</p>
                           </div>
                           <p className="text-xl font-bold" style={{ color: item.color }}>
                             ₹{val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val.toLocaleString("en-IN")}
                           </p>
-                          <p className="text-xs mt-1 opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: "#64748B" }}>
+                          <p className="text-xs mt-1 opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: "var(--color-text-muted)" }}>
                             {isActive ? "▲ collapse" : "▼ view details"}
                           </p>
                         </button>
@@ -758,22 +758,22 @@ export default function DashboardPage() {
 
           {/* ── Employees ── */}
           <div className={card} style={cardStyle}>
-            <SectionHeader label="employees" icon={<UserCheck className="w-4 h-4" style={{ color: "#1A3C5E" }} />} />
+            <SectionHeader label="employees" icon={<UserCheck className="w-4 h-4" style={{ color: "var(--color-navy)" }} />} />
             {expandedSections.has("employees") && (
               overviewLoading ? <Skeleton className="h-16" /> : (
                 <div>
                   <button onClick={() => drill("employees", (overview as any)?.drillDown?.employees || [], "/dashboard/hr/employees")}
                     className="flex items-center gap-4 w-full transition-all hover:opacity-80 group">
-                    <div className="w-16 h-16 rounded-xl flex items-center justify-center" style={{ background: "rgba(26,60,94,0.08)" }}>
-                      <Users className="w-7 h-7" style={{ color: "#1A3C5E" }} />
+                    <div className="w-16 h-16 rounded-xl flex items-center justify-center" style={{ background: "rgba(var(--color-navy-rgb),0.08)" }}>
+                      <Users className="w-7 h-7" style={{ color: "var(--color-navy)" }} />
                     </div>
                     <div className="text-left">
-                      <p className="text-3xl font-bold" style={{ color: "#1A3C5E" }}>{overview?.employeesAvailable ?? 0}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>Active employees</p>
-                      <p className="text-xs opacity-0 group-hover:opacity-60 transition-opacity mt-0.5" style={{ color: "#2BAE8E" }}>Click to see list ▼</p>
+                      <p className="text-3xl font-bold" style={{ color: "var(--color-navy)" }}>{overview?.employeesAvailable ?? 0}</p>
+                      <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Active employees</p>
+                      <p className="text-xs opacity-0 group-hover:opacity-60 transition-opacity mt-0.5" style={{ color: "var(--color-primary)" }}>Click to see list ▼</p>
                     </div>
                   </button>
-                  <Link href="/dashboard/hr/employees" className="text-xs mt-2 inline-block hover:underline" style={{ color: "#2BAE8E" }}>View all employees →</Link>
+                  <Link href="/dashboard/hr/employees" className="text-xs mt-2 inline-block hover:underline" style={{ color: "var(--color-primary)" }}>View all employees →</Link>
                   {drilling?.section === "employees" && <DrillDownPanel items={(overview as any)?.drillDown?.employees || []} onClose={() => setDrilling(null)} viewAllHref="/dashboard/hr/employees" />}
                 </div>
               )
@@ -782,7 +782,7 @@ export default function DashboardPage() {
 
           {/* ── Outstanding Issues ── */}
           <div className={card} style={cardStyle}>
-            <SectionHeader label="issues" icon={<AlertTriangle className="w-4 h-4" style={{ color: "#E53E3E" }} />} />
+            <SectionHeader label="issues" icon={<AlertTriangle className="w-4 h-4" style={{ color: "var(--color-danger)" }} />} />
             {expandedSections.has("issues") && (
               overviewLoading ? <Skeleton className="h-24" /> : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -794,17 +794,17 @@ export default function DashboardPage() {
                       Maintenance: "/dashboard/maintenance/tickets",
                       Other: "/dashboard/front-desk/requests",
                     };
-                    const colorMap: Record<string, string> = { Vendor: "#E53E3E", Housekeeping: "#F5A623", Maintenance: "#1A3C5E", Other: "#2BAE8E" };
+                    const colorMap: Record<string, string> = { Vendor: "var(--color-danger)", Housekeeping: "var(--color-warning)", Maintenance: "var(--color-navy)", Other: "var(--color-primary)" };
                     const drillKey = drillMap[issue.category];
                     const drillItems = drillKey ? (overview as any)?.drillDown?.[drillKey] || [] : [];
                     const isActive = drilling?.section === issue.category;
-                    const col = colorMap[issue.category] || "#1A3C5E";
+                    const col = colorMap[issue.category] || "var(--color-navy)";
                     return (
                       <div key={issue.category} className="rounded-xl transition-all hover:shadow-md"
                         style={{ background: `${col}08`, border: `1px solid ${col}25` }}>
                         <button onClick={() => drill(issue.category, drillItems, hrefMap[issue.category])} className="w-full p-3 text-center group">
                           <p className="text-3xl font-bold" style={{ color: col }}>{issue.count}</p>
-                          <p className="text-xs mt-1 font-medium" style={{ color: "#64748B" }}>{issue.category}</p>
+                          <p className="text-xs mt-1 font-medium" style={{ color: "var(--color-text-muted)" }}>{issue.category}</p>
                           <p className="text-xs mt-0.5 opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: col }}>
                             {isActive ? "▲ collapse" : "▼ details"}
                           </p>
@@ -823,7 +823,7 @@ export default function DashboardPage() {
 
           {/* ── Rooms ── */}
           <div className={card} style={cardStyle}>
-            <SectionHeader label="rooms" icon={<Bed className="w-4 h-4" style={{ color: "#2BAE8E" }} />} />
+            <SectionHeader label="rooms" icon={<Bed className="w-4 h-4" style={{ color: "var(--color-primary)" }} />} />
             {expandedSections.has("rooms") && (
               overviewLoading ? <Skeleton className="h-24" /> : (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -833,9 +833,9 @@ export default function DashboardPage() {
                     const cleaning = rooms.find(r => r.status === "cleaning")?.count || 0;
                     const dirty = rooms.find(r => r.status === "dirty" || r.status === "occupied")?.count || 0;
                     const roomTypes = [
-                      { label: "Readily Available", count: ready, color: "#2BAE8E", bg: "rgba(43,174,142,0.10)", border: "rgba(43,174,142,0.20)", filter: "ready" },
-                      { label: "Cleaning In Progress", count: cleaning, color: "#F5A623", bg: "rgba(245,166,35,0.10)", border: "rgba(245,166,35,0.20)", filter: "cleaning" },
-                      { label: "Occupied / Dirty", count: dirty, color: "#E53E3E", bg: "rgba(229,62,62,0.10)", border: "rgba(229,62,62,0.20)", filter: "occupied,dirty" },
+                      { label: "Readily Available", count: ready, color: "var(--color-primary)", bg: "rgba(var(--color-primary-rgb),0.10)", border: "rgba(var(--color-primary-rgb),0.20)", filter: "ready" },
+                      { label: "Cleaning In Progress", count: cleaning, color: "var(--color-warning)", bg: "rgba(var(--color-warning-rgb),0.10)", border: "rgba(var(--color-warning-rgb),0.20)", filter: "cleaning" },
+                      { label: "Occupied / Dirty", count: dirty, color: "var(--color-danger)", bg: "rgba(var(--color-danger-rgb),0.10)", border: "rgba(var(--color-danger-rgb),0.20)", filter: "occupied,dirty" },
                     ];
                     return roomTypes.map(rt => {
                       const filterStatuses = rt.filter.split(",");
@@ -863,7 +863,7 @@ export default function DashboardPage() {
 
           {/* ── Feedbacks ── */}
           <div className={card} style={cardStyle}>
-            <SectionHeader label="feedback" icon={<MessageSquare className="w-4 h-4" style={{ color: "#F5A623" }} />} />
+            <SectionHeader label="feedback" icon={<MessageSquare className="w-4 h-4" style={{ color: "var(--color-warning)" }} />} />
             {expandedSections.has("feedback") && (
               overviewLoading ? <Skeleton className="h-32" /> : (
                 <div className="space-y-3">
@@ -877,23 +877,23 @@ export default function DashboardPage() {
                         { label: "Overall", val: overview?.feedbacks?.overall ?? 0 },
                       ].map(item => (
                         <div key={item.label} className="p-3 rounded-xl text-center transition-all hover:shadow-sm"
-                          style={{ background: "#FFFBEB", border: "1px solid rgba(245,166,35,0.2)" }}>
-                          <p className="text-2xl font-bold" style={{ color: "#F5A623" }}>{item.val}</p>
-                          <p className="text-xs" style={{ color: "#64748B" }}>{item.label}</p>
+                          style={{ background: "var(--color-warning-soft)", border: "1px solid rgba(var(--color-warning-rgb),0.2)" }}>
+                          <p className="text-2xl font-bold" style={{ color: "var(--color-warning)" }}>{item.val}</p>
+                          <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{item.label}</p>
                         </div>
                       ))}
                     </div>
                   </button>
                   <div className="flex items-center justify-between pt-1">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-semibold" style={{ color: "#1A3C5E" }}>Average Rating:</span>
+                      <span className="text-sm font-semibold" style={{ color: "var(--color-navy)" }}>Average Rating:</span>
                       <span className="text-lg font-bold px-3 py-0.5 rounded-full"
-                        style={{ background: "#EFFDF9", color: "#2BAE8E", border: "1px solid rgba(43,174,142,0.3)" }}>
+                        style={{ background: "var(--color-success-soft)", color: "var(--color-primary)", border: "1px solid rgba(var(--color-primary-rgb),0.3)" }}>
                         {overview?.feedbacks?.avgRating ?? 0} / 5.0 ★
                       </span>
                     </div>
                     <button onClick={() => drill("feedbacks", (overview?.feedbacks as any)?.recent || [], "/dashboard/front-desk/feedbacks")}
-                      className="text-xs font-semibold hover:underline" style={{ color: "#2BAE8E" }}>
+                      className="text-xs font-semibold hover:underline" style={{ color: "var(--color-primary)" }}>
                       View reviews →
                     </button>
                   </div>
@@ -907,16 +907,16 @@ export default function DashboardPage() {
 
           {/* ── Financial Status ── */}
           <div className={card} style={cardStyle}>
-            <SectionHeader label="financial" icon={<IndianRupee className="w-4 h-4" style={{ color: "#2BAE8E" }} />} />
+            <SectionHeader label="financial" icon={<IndianRupee className="w-4 h-4" style={{ color: "var(--color-primary)" }} />} />
             {expandedSections.has("financial") && (
               overviewLoading ? <Skeleton className="h-48" /> : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
-                      { label: "Spending Today", key: "todaySpending", recentKey: "recentToday", color: "#2BAE8E", bg: "rgba(43,174,142,0.08)" },
-                      { label: "This Week", key: "weekSpending", recentKey: "recentWeek", color: "#F5A623", bg: "rgba(245,166,35,0.08)" },
-                      { label: "This Month", key: "monthSpending", recentKey: "recentMonth", color: "#1A3C5E", bg: "rgba(26,60,94,0.08)" },
-                      { label: "This Year", key: "yearSpending", recentKey: "recentYear", color: "#E53E3E", bg: "rgba(229,62,62,0.08)" },
+                      { label: "Spending Today", key: "todaySpending", recentKey: "recentToday", color: "var(--color-primary)", bg: "rgba(var(--color-primary-rgb),0.08)" },
+                      { label: "This Week", key: "weekSpending", recentKey: "recentWeek", color: "var(--color-warning)", bg: "rgba(var(--color-warning-rgb),0.08)" },
+                      { label: "This Month", key: "monthSpending", recentKey: "recentMonth", color: "var(--color-navy)", bg: "rgba(var(--color-navy-rgb),0.08)" },
+                      { label: "This Year", key: "yearSpending", recentKey: "recentYear", color: "var(--color-danger)", bg: "rgba(var(--color-danger-rgb),0.08)" },
                     ].map(item => {
                       const val = (overview?.financial as any)?.[item.key] ?? 0;
                       const drillItems = (overview?.financial as any)?.[item.recentKey] || (overview as any)?.financial?.recentBills || [];
@@ -928,7 +928,7 @@ export default function DashboardPage() {
                             <p className="text-lg font-bold" style={{ color: item.color }}>
                               ₹{val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val.toLocaleString("en-IN")}
                             </p>
-                            <p className="text-xs" style={{ color: "#64748B" }}>{item.label}</p>
+                            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{item.label}</p>
                             <p className="text-xs opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: item.color }}>▼</p>
                           </button>
                           {isActive && <DrillDownPanel items={drillItems} onClose={() => setDrilling(null)} viewAllHref="/dashboard/finance/payables" />}
@@ -936,11 +936,11 @@ export default function DashboardPage() {
                       );
                     })}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2" style={{ borderTop: "1px solid #E2E8F0" }}>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2" style={{ borderTop: "1px solid var(--color-border)" }}>
                     {[
-                      { label: "Available Balance", key: "availableMoney", color: "#2BAE8E" },
-                      { label: "Expected Expenses", key: "expectedExpenses", color: "#E53E3E" },
-                      { label: "Expected Receivables", key: "expectedReceivables", color: "#2BAE8E" },
+                      { label: "Available Balance", key: "availableMoney", color: "var(--color-primary)" },
+                      { label: "Expected Expenses", key: "expectedExpenses", color: "var(--color-danger)" },
+                      { label: "Expected Receivables", key: "expectedReceivables", color: "var(--color-primary)" },
                     ].map(item => {
                       const val = (overview?.financial as any)?.[item.key] ?? 0;
                       const drillItems = item.key === "expectedExpenses" ? ((overview as any)?.drillDown?.vendorBills || []) : ((overview as any)?.revenue?.recent || []);
@@ -951,10 +951,10 @@ export default function DashboardPage() {
                             <p className="text-xl font-bold" style={{ color: item.color }}>
                               ₹{val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val.toLocaleString("en-IN")}
                             </p>
-                            <p className="text-xs" style={{ color: "#64748B" }}>{item.label}</p>
+                            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>{item.label}</p>
                             <p className="text-xs opacity-0 group-hover:opacity-60 transition-opacity" style={{ color: item.color }}>▼ details</p>
                           </button>
-                          <Link href="/dashboard/finance" className="text-xs mt-0.5 inline-block hover:underline" style={{ color: "#2BAE8E" }}>Finance →</Link>
+                          <Link href="/dashboard/finance" className="text-xs mt-0.5 inline-block hover:underline" style={{ color: "var(--color-primary)" }}>Finance →</Link>
                           {isActive && <DrillDownPanel items={drillItems} onClose={() => setDrilling(null)} viewAllHref="/dashboard/finance" />}
                         </div>
                       );

@@ -92,9 +92,9 @@ export default function AdminTenantsPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <Shield className="w-10 h-10 mx-auto mb-2" style={{ color: "#E53E3E" }} />
-          <p className="font-medium" style={{ color: "#1A3C5E" }}>Platform admin access required</p>
-          <p className="text-sm" style={{ color: "#64748B" }}>Only eHMS platform superadmins can manage tenants.</p>
+          <Shield className="w-10 h-10 mx-auto mb-2" style={{ color: "var(--color-danger)" }} />
+          <p className="font-medium" style={{ color: "var(--color-navy)" }}>Platform admin access required</p>
+          <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Only eHMS platform superadmins can manage tenants.</p>
         </div>
       </div>
     );
@@ -105,18 +105,18 @@ export default function AdminTenantsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: "#1A3C5E" }}>Tenant Management</h1>
-          <p className="text-sm" style={{ color: "#64748B" }}>Provision, edit, and suspend organization shards</p>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--color-navy)" }}>Tenant Management</h1>
+          <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Provision, edit, and suspend organization shards</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={loadTenants} className="p-2 rounded-lg transition-colors"
-            style={{ color: "#64748B" }}
+            style={{ color: "var(--color-text-muted)" }}
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
           <Link href="/tenants"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105"
-            style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)", color: "#FFF" }}
+            style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)", color: "var(--color-white)" }}
           >
             <Globe className="w-4 h-4" /> New Shard
           </Link>
@@ -125,12 +125,12 @@ export default function AdminTenantsPage() {
 
       {loading && (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#2BAE8E" }} />
+          <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-primary)" }} />
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-2 py-8 text-sm" style={{ color: "#E53E3E" }}>
+        <div className="flex items-center gap-2 py-8 text-sm" style={{ color: "var(--color-danger)" }}>
           <AlertCircle className="w-4 h-4" /> {error}
         </div>
       )}
@@ -144,35 +144,35 @@ export default function AdminTenantsPage() {
               <div key={t.id}
                 className="rounded-xl p-5 transition-all hover:shadow-md"
                 style={{
-                  background: "#FFFFFF",
-                  border: `1px solid ${suspended ? "rgba(229,62,62,0.15)" : "#E2E8F0"}`,
+                  background: "var(--color-white)",
+                  border: `1px solid ${suspended ? "rgba(var(--color-danger-rgb),0.15)" : "var(--color-border)"}`,
                   opacity: suspended ? 0.75 : 1,
                 }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                      style={{ background: suspended ? "rgba(229,62,62,0.08)" : "rgba(43,174,142,0.08)" }}
+                      style={{ background: suspended ? "rgba(var(--color-danger-rgb),0.08)" : "rgba(var(--color-primary-rgb),0.08)" }}
                     >
-                      <Building2 className="w-5 h-5" style={{ color: suspended ? "#E53E3E" : "#2BAE8E" }} />
+                      <Building2 className="w-5 h-5" style={{ color: suspended ? "var(--color-danger)" : "var(--color-primary)" }} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold" style={{ color: "#1A3C5E" }}>{t.name}</h3>
+                        <h3 className="font-semibold" style={{ color: "var(--color-navy)" }}>{t.name}</h3>
                         <span className="font-mono text-xs px-1.5 py-0.5 rounded"
-                          style={{ background: "rgba(43,174,142,0.08)", color: "#2BAE8E", border: "1px solid rgba(43,174,142,0.15)" }}
+                          style={{ background: "rgba(var(--color-primary-rgb),0.08)", color: "var(--color-primary)", border: "1px solid rgba(var(--color-primary-rgb),0.15)" }}
                         >{t.code}</span>
                         {suspended && (
                           <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded font-medium"
-                            style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E" }}
+                            style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)" }}
                           >
                             <Ban className="w-3 h-3" /> Suspended
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-1">
-                        <span className="text-xs font-mono" style={{ color: "#94A3B8" }}>schema: {t.schema_name}</span>
-                        {t.domain && <span className="text-xs" style={{ color: "#94A3B8" }}>{t.domain}</span>}
+                        <span className="text-xs font-mono" style={{ color: "var(--color-text-faint)" }}>schema: {t.schema_name}</span>
+                        {t.domain && <span className="text-xs" style={{ color: "var(--color-text-faint)" }}>{t.domain}</span>}
                       </div>
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {(getWorkspaces(t).length > 0 ? getWorkspaces(t) : verticals.map(v => ({ type: v, name: VERTICAL_LABELS[v]?.label || v, is_primary: false }))).map((ws) => {
@@ -180,7 +180,7 @@ export default function AdminTenantsPage() {
                           const Icon = meta?.icon || Building2;
                           return (
                             <span key={ws.type + ws.name} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium"
-                              style={{ background: ws.is_primary ? "rgba(43,174,142,0.1)" : "rgba(43,174,142,0.06)", color: ws.is_primary ? "#2BAE8E" : "rgba(43,174,142,0.7)", border: `1px solid ${ws.is_primary ? "rgba(43,174,142,0.2)" : "rgba(43,174,142,0.1)"}` }}
+                              style={{ background: ws.is_primary ? "rgba(var(--color-primary-rgb),0.1)" : "rgba(var(--color-primary-rgb),0.06)", color: ws.is_primary ? "var(--color-primary)" : "rgba(var(--color-primary-rgb),0.7)", border: `1px solid ${ws.is_primary ? "rgba(var(--color-primary-rgb),0.2)" : "rgba(var(--color-primary-rgb),0.1)"}` }}
                             >
                               <Icon className="w-3 h-3" /> {ws.name}
                             </span>
@@ -192,7 +192,7 @@ export default function AdminTenantsPage() {
                   <div className="flex items-center gap-2">
                     <button onClick={() => setEditTarget(t)}
                       className="p-2 rounded-lg transition-colors text-xs font-medium"
-                      style={{ color: "#64748B" }}
+                      style={{ color: "var(--color-text-muted)" }}
                     >
                       <Edit3 className="w-4 h-4" />
                     </button>
@@ -341,38 +341,38 @@ function EditTenantModal({
     >
       <div className="relative w-full max-w-4xl rounded-2xl p-6 bg-white shadow-xl animate-slide-up max-h-[90vh] overflow-y-auto">
         <button onClick={onClose} className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100"
-          style={{ color: "#64748B" }}
+          style={{ color: "var(--color-text-muted)" }}
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: "rgba(43,174,142,0.1)" }}
+            style={{ background: "rgba(var(--color-primary-rgb),0.1)" }}
           >
-            <Globe className="w-5 h-5" style={{ color: "#2BAE8E" }} />
+            <Globe className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
           </div>
           <div>
-            <h3 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{tenant.name}</h3>
-            <p className="text-xs font-mono" style={{ color: "#94A3B8" }}>{tenant.code} &middot; {tenant.schema_name}</p>
+            <h3 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>{tenant.name}</h3>
+            <p className="text-xs font-mono" style={{ color: "var(--color-text-faint)" }}>{tenant.code} &middot; {tenant.schema_name}</p>
           </div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: "#1A2E44" }}>
+            <label className="block text-sm font-medium mb-1" style={{ color: "var(--color-text)" }}>
               <Mail className="w-3.5 h-3.5 inline mr-1" /> Contact Email
             </label>
             <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)}
               placeholder="admin@org.com"
               className="w-full px-3 py-2 rounded-lg border text-sm outline-none transition-colors"
-              style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+              style={{ borderColor: "var(--color-border)", color: "var(--color-navy)" }}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-1">
-              <label className="block text-sm font-medium mb-2" style={{ color: "#1A2E44" }}>
+              <label className="block text-sm font-medium mb-2" style={{ color: "var(--color-text)" }}>
                 Subscribed Features
               </label>
               <div className="grid grid-cols-1 gap-2">
@@ -383,9 +383,9 @@ function EditTenantModal({
                     <button key={v.key} type="button" onClick={() => toggle(v.key)}
                       className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left"
                       style={{
-                        background: sel ? "rgba(43,174,142,0.08)" : "#F5F7FA",
-                        border: `1px solid ${sel ? "rgba(43,174,142,0.25)" : "#E2E8F0"}`,
-                        color: sel ? "#2BAE8E" : "#64748B",
+                        background: sel ? "rgba(var(--color-primary-rgb),0.08)" : "var(--color-light)",
+                        border: `1px solid ${sel ? "rgba(var(--color-primary-rgb),0.25)" : "var(--color-border)"}`,
+                        color: sel ? "var(--color-primary)" : "var(--color-text-muted)",
                       }}
                     >
                       <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -399,12 +399,12 @@ function EditTenantModal({
 
             <div className="md:col-span-2">
               <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium" style={{ color: "#1A2E44" }}>
+                <label className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
                   Workspace Names
                 </label>
                 <button onClick={addWorkspace}
                   className="text-sm font-semibold flex items-center gap-1 px-3 py-1.5 rounded transition-colors"
-                  style={{ color: "#2BAE8E" }}
+                  style={{ color: "var(--color-primary)" }}
                 >
                   + Add Workspace
                 </button>
@@ -412,12 +412,12 @@ function EditTenantModal({
               <div className="space-y-3">
                 {workspaces.map((ws, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-lg"
-                    style={{ background: "#F5F7FA", border: "1px solid #E2E8F0" }}
+                    style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}
                   >
                     <div className="flex-1 space-y-2">
                       <select value={ws.type} onChange={(e) => updateWorkspace(i, "type", e.target.value)}
                         className="w-full text-sm rounded-lg px-3 py-2 border"
-                        style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+                        style={{ borderColor: "var(--color-border)", color: "var(--color-navy)" }}
                       >
                         {verticalOptions.map((v) => (
                           <option key={v.key} value={v.key}>{v.label}</option>
@@ -427,34 +427,34 @@ function EditTenantModal({
                         placeholder="Enter workspace name (e.g. Grand Hyatt)"
                         maxLength={100}
                         className="w-full text-sm rounded-lg px-3 py-2 border"
-                        style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+                        style={{ borderColor: "var(--color-border)", color: "var(--color-navy)" }}
                       />
                     </div>
                     <div className="flex flex-col items-center gap-1.5 shrink-0">
                       <label className="flex items-center gap-1.5 cursor-pointer text-xs font-medium"
                         title="Set as primary workspace"
-                        style={{ color: "#64748B" }}
+                        style={{ color: "var(--color-text-muted)" }}
                       >
                         <input type="radio" name="ws-primary" checked={ws.is_primary}
                           onChange={() => setPrimary(i)}
-                          style={{ accentColor: "#2BAE8E" }}
+                          style={{ accentColor: "var(--color-primary)" }}
                         />
                         Primary
                       </label>
                       <label className="flex items-center gap-1.5 cursor-pointer text-xs font-medium"
                         title="Suspend this workspace"
-                        style={{ color: ws.suspended ? "#E53E3E" : "#64748B" }}
+                        style={{ color: ws.suspended ? "var(--color-danger)" : "var(--color-text-muted)" }}
                       >
                         <input type="checkbox" checked={ws.suspended}
                           onChange={(e) => updateWorkspace(i, "suspended", e.target.checked)}
-                          style={{ accentColor: "#E53E3E" }}
+                          style={{ accentColor: "var(--color-danger)" }}
                         />
                         Suspend
                       </label>
                       {workspaces.length > 1 && (
                         <button onClick={() => confirmRemoveWorkspace(i)}
                           className="p-1 rounded hover:bg-red-50 text-xs mt-0.5"
-                          style={{ color: "#E53E3E" }}
+                          style={{ color: "var(--color-danger)" }}
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -468,34 +468,34 @@ function EditTenantModal({
 
           {/* Delete workspace confirmation */}
           {deletingIdx !== null && (
-            <div className="rounded-lg p-4" style={{ background: "rgba(229,62,62,0.04)", border: "1px solid rgba(229,62,62,0.15)" }}>
+            <div className="rounded-lg p-4" style={{ background: "rgba(var(--color-danger-rgb),0.04)", border: "1px solid rgba(var(--color-danger-rgb),0.15)" }}>
               <div className="flex items-center gap-2 mb-3">
-                <AlertCircle className="w-4 h-4" style={{ color: "#E53E3E" }} />
-                <span className="text-sm font-semibold" style={{ color: "#E53E3E" }}>Remove Workspace</span>
+                <AlertCircle className="w-4 h-4" style={{ color: "var(--color-danger)" }} />
+                <span className="text-sm font-semibold" style={{ color: "var(--color-danger)" }}>Remove Workspace</span>
               </div>
               {deleteCheck.checking ? (
-                <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+                <div className="flex items-center gap-2 text-xs" style={{ color: "var(--color-text-muted)" }}>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" /> Checking for provisioned services...
                 </div>
               ) : deleteCheck.error ? (
-                <p className="text-xs" style={{ color: "#E53E3E" }}>{deleteCheck.error}</p>
+                <p className="text-xs" style={{ color: "var(--color-danger)" }}>{deleteCheck.error}</p>
               ) : deleteCheck.result ? (
                 <div>
                   {deleteCheck.result.safe_to_delete ? (
                     <>
-                      <p className="text-xs mb-3" style={{ color: "#64748B" }}>
+                      <p className="text-xs mb-3" style={{ color: "var(--color-text-muted)" }}>
                         No services provisioned for this workspace. Are you sure you want to remove <strong>{workspaces[deletingIdx]?.name}</strong>?
                       </p>
                       <div className="flex gap-2">
                         <button onClick={() => { setDeletingIdx(null); setDeleteCheck({ checking: false, result: null, error: null }); }}
                           className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                          style={{ border: "1px solid #E2E8F0", color: "#64748B" }}
+                          style={{ border: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}
                         >
                           Cancel
                         </button>
                         <button onClick={() => executeRemoveWorkspace(deletingIdx)}
                           className="px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors"
-                          style={{ background: "#E53E3E" }}
+                          style={{ background: "var(--color-danger)" }}
                         >
                           Yes, Remove
                         </button>
@@ -503,22 +503,22 @@ function EditTenantModal({
                     </>
                   ) : (
                     <>
-                      <p className="text-xs mb-2" style={{ color: "#E53E3E" }}>
+                      <p className="text-xs mb-2" style={{ color: "var(--color-danger)" }}>
                         Cannot remove <strong>{workspaces[deletingIdx]?.name}</strong> — {deleteCheck.result.total_services} service(s) are provisioned:
                       </p>
-                      <ul className="text-xs space-y-1 mb-3" style={{ color: "#64748B" }}>
+                      <ul className="text-xs space-y-1 mb-3" style={{ color: "var(--color-text-muted)" }}>
                         {Object.entries(deleteCheck.result.service_counts)
                           .filter(([, count]) => count > 0)
                           .map(([label, count]) => (
                             <li key={label} className="flex items-center gap-1">
-                              <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "#E53E3E" }} />
+                              <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-danger)" }} />
                               {label}: {count}
                             </li>
                           ))}
                       </ul>
                       <button onClick={() => { setDeletingIdx(null); setDeleteCheck({ checking: false, result: null, error: null }); }}
                         className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                        style={{ border: "1px solid #E2E8F0", color: "#64748B" }}
+                        style={{ border: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}
                       >
                         Dismiss
                       </button>
@@ -532,16 +532,16 @@ function EditTenantModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="flex items-center gap-3 p-3 rounded-lg cursor-pointer"
-                style={{ background: isSuspended ? "rgba(229,62,62,0.05)" : "#F5F7FA", border: `1px solid ${isSuspended ? "rgba(229,62,62,0.15)" : "#E2E8F0"}` }}
+                style={{ background: isSuspended ? "rgba(var(--color-danger-rgb),0.05)" : "var(--color-light)", border: `1px solid ${isSuspended ? "rgba(var(--color-danger-rgb),0.15)" : "var(--color-border)"}` }}
               >
                 <input type="checkbox" checked={isSuspended} onChange={(e) => setIsSuspended(e.target.checked)}
-                  style={{ accentColor: "#E53E3E" }}
+                  style={{ accentColor: "var(--color-danger)" }}
                 />
                 <div>
-                  <div className="text-sm font-medium" style={{ color: isSuspended ? "#E53E3E" : "#1A3C5E" }}>
+                  <div className="text-sm font-medium" style={{ color: isSuspended ? "var(--color-danger)" : "var(--color-navy)" }}>
                     {isSuspended ? "Suspended" : "Active"}
                   </div>
-                  <div className="text-xs" style={{ color: "#94A3B8" }}>
+                  <div className="text-xs" style={{ color: "var(--color-text-faint)" }}>
                     Blocks authentication, preserves data
                   </div>
                 </div>
@@ -550,11 +550,11 @@ function EditTenantModal({
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#94A3B8" }}>Admin Actions</span>
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Admin Actions</span>
               </div>
               <button type="button" onClick={handleResetPassword} disabled={resetting}
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all hover:opacity-90 disabled:opacity-60 cursor-pointer"
-                style={{ border: "1px solid #E2E8F0", color: "#D97706" }}
+                style={{ border: "1px solid var(--color-border)", color: "var(--color-warning)" }}
               >
                 {resetting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Shield className="w-3.5 h-3.5" />}
                 {resetting ? "Resetting..." : "Reset Password & Resend Welcome"}
@@ -563,7 +563,7 @@ function EditTenantModal({
                 <div className={`mt-2 rounded-lg px-3 py-2 text-xs flex items-start gap-2 ${
                   resetResult.ok ? "text-green-700" : "text-red-600"
                 }`}
-                  style={{ background: resetResult.ok ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)" }}
+                  style={{ background: resetResult.ok ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)" }}
                 >
                   {resetResult.ok ? <CheckCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" /> : <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />}
                   <span>{resetResult.msg}</span>
@@ -575,13 +575,13 @@ function EditTenantModal({
           <div className="flex gap-3 pt-2">
             <button onClick={onClose}
               className="flex-1 py-2.5 rounded-lg text-sm font-medium"
-              style={{ border: "1px solid #E2E8F0", color: "#64748B" }}
+              style={{ border: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}
             >
               Cancel
             </button>
             <button onClick={() => onSave({ verticals: selected, suspended: isSuspended, workspaces, contact_email: contactEmail || null })} disabled={saving || selected.length === 0}
               className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-60 cursor-pointer"
-              style={{ background: "linear-gradient(135deg, #2BAE8E 0%, #4DB88A 100%)" }}
+              style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)" }}
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>

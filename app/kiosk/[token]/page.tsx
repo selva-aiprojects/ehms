@@ -115,8 +115,8 @@ export default function KioskPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#F8FAFC" }}>
-        <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#1E3A8A" }} />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-light)" }}>
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--color-navy)" }} />
       </div>
     );
   }
@@ -125,11 +125,11 @@ export default function KioskPage() {
   const currentIdx = steps.indexOf(step);
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)" }}>
+    <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(135deg, var(--color-navy) 0%, var(--color-info) 100%)" }}>
       {/* Header */}
       <header className="px-6 py-4 flex items-center gap-3">
         <Building2 className="w-6 h-6 text-white" />
-        <span className="text-white font-bold text-lg">{session?.property_name || "eHMS Kiosk"}</span>
+        <span className="text-white font-bold text-lg">{session?.property_name || "HostSphere Kiosk"}</span>
       </header>
 
       <main className="flex-1 flex items-center justify-center px-4 pb-8">
@@ -139,24 +139,24 @@ export default function KioskPage() {
             <div className="flex items-center gap-1 mb-6">
               {steps.map((s, i) => (
                 <div key={s} className="flex-1 h-1 rounded-full" style={{
-                  background: i <= currentIdx ? "#CA8A04" : "rgba(255,255,255,0.3)"
+                  background: i <= currentIdx ? "var(--color-warning)" : "rgba(var(--color-white-rgb),0.3)"
                 }} />
               ))}
             </div>
           )}
 
-          <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)" }}>
+          <div className="rounded-2xl p-6" style={{ background: "rgba(var(--color-white-rgb),0.95)", backdropFilter: "blur(10px)" }}>
             {/* Welcome */}
             {step === "welcome" && (
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ background: "#ECFDF5" }}>
-                  <User className="w-8 h-8" style={{ color: "#10B981" }} />
+                <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ background: "var(--color-success-soft)" }}>
+                  <User className="w-8 h-8" style={{ color: "var(--color-success)" }} />
                 </div>
-                <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Self Check-in</h1>
-                <p className="text-sm" style={{ color: "#64748B" }}>
+                <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Self Check-in</h1>
+                <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
                   Welcome, <strong>{session?.guest_full_name || "Guest"}</strong>
                 </p>
-                <div className="text-xs space-y-1" style={{ color: "#94A3B8" }}>
+                <div className="text-xs space-y-1" style={{ color: "var(--color-text-faint)" }}>
                   <p>Check-in: {session?.bk_check_in}</p>
                   <p>Check-out: {session?.bk_check_out}</p>
                   {session?.source_booking_ref && <p>Booking: {session.source_booking_ref}</p>}
@@ -164,7 +164,7 @@ export default function KioskPage() {
                 <button
                   onClick={() => setStep("identity")}
                   className="w-full py-3 rounded-xl text-white font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity"
-                  style={{ background: "#1E3A8A" }}
+                  style={{ background: "var(--color-navy)" }}
                 >
                   Start Check-in
                 </button>
@@ -175,18 +175,18 @@ export default function KioskPage() {
             {step === "identity" && (
               <div className="space-y-4">
                 <div className="text-center">
-                  <Shield className="w-10 h-10 mx-auto mb-2" style={{ color: "#3B82F6" }} />
-                  <h2 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Identity Verification</h2>
-                  <p className="text-xs" style={{ color: "#94A3B8" }}>Required for hotel registration</p>
+                  <Shield className="w-10 h-10 mx-auto mb-2" style={{ color: "var(--color-info)" }} />
+                  <h2 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Identity Verification</h2>
+                  <p className="text-xs" style={{ color: "var(--color-text-faint)" }}>Required for hotel registration</p>
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>ID Type</label>
+                  <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>ID Type</label>
                   <select
                     value={idType}
                     onChange={(e) => setIdType(e.target.value)}
                     className="w-full text-sm border rounded-lg px-3 py-2.5"
-                    style={{ borderColor: "#E2E8F0" }}
+                    style={{ borderColor: "var(--color-border)" }}
                   >
                     <option value="aadhaar">Aadhaar Card</option>
                     <option value="passport">Passport</option>
@@ -196,21 +196,21 @@ export default function KioskPage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>ID Number</label>
+                  <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>ID Number</label>
                   <input
                     value={idNumber}
                     onChange={(e) => setIdNumber(e.target.value)}
                     className="w-full text-sm border rounded-lg px-3 py-2.5"
-                    style={{ borderColor: "#E2E8F0" }}
+                    style={{ borderColor: "var(--color-border)" }}
                     placeholder="Enter your ID number"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Upload ID (Front)</label>
-                  <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50" style={{ borderColor: "#E2E8F0" }}>
-                    <Upload className="w-6 h-6 mx-auto mb-1" style={{ color: "#CBD5E1" }} />
-                    <p className="text-xs" style={{ color: "#94A3B8" }}>Tap to upload or take photo</p>
+                  <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Upload ID (Front)</label>
+                  <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50" style={{ borderColor: "var(--color-border)" }}>
+                    <Upload className="w-6 h-6 mx-auto mb-1" style={{ color: "var(--color-border-strong)" }} />
+                    <p className="text-xs" style={{ color: "var(--color-text-faint)" }}>Tap to upload or take photo</p>
                   </div>
                 </div>
 
@@ -218,7 +218,7 @@ export default function KioskPage() {
                   onClick={handleIdentitySubmit}
                   disabled={!idNumber || submitting}
                   className="w-full py-3 rounded-xl text-white font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50"
-                  style={{ background: "#1E3A8A" }}
+                  style={{ background: "var(--color-navy)" }}
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin inline" /> : "Continue"}
                 </button>
@@ -229,9 +229,9 @@ export default function KioskPage() {
             {step === "selfie" && (
               <div className="space-y-4">
                 <div className="text-center">
-                  <Camera className="w-10 h-10 mx-auto mb-2" style={{ color: "#3B82F6" }} />
-                  <h2 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Take a Selfie</h2>
-                  <p className="text-xs" style={{ color: "#94A3B8" }}>For identity verification and face match</p>
+                  <Camera className="w-10 h-10 mx-auto mb-2" style={{ color: "var(--color-info)" }} />
+                  <h2 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Take a Selfie</h2>
+                  <p className="text-xs" style={{ color: "var(--color-text-faint)" }}>For identity verification and face match</p>
                 </div>
 
                 <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
@@ -239,14 +239,14 @@ export default function KioskPage() {
                     <img src={selfieDataUrl} alt="Selfie" className="w-full h-full object-cover" />
                   ) : (
                     <div className="text-center">
-                      <Camera className="w-12 h-12 mx-auto mb-2" style={{ color: "#CBD5E1" }} />
+                      <Camera className="w-12 h-12 mx-auto mb-2" style={{ color: "var(--color-border-strong)" }} />
                       <button
                         onClick={() => {
                           // Simulate camera capture for demo
                           setSelfieDataUrl(DEMO_SELFIE);
                         }}
                         className="text-xs px-4 py-2 rounded-lg text-white cursor-pointer"
-                        style={{ background: "#3B82F6" }}
+                        style={{ background: "var(--color-info)" }}
                       >
                         Open Camera
                       </button>
@@ -259,7 +259,7 @@ export default function KioskPage() {
                     onClick={handleSelfieCapture}
                     disabled={submitting}
                     className="w-full py-3 rounded-xl text-white font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50"
-                    style={{ background: "#1E3A8A" }}
+                    style={{ background: "var(--color-navy)" }}
                   >
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin inline" /> : "Verify & Continue"}
                   </button>
@@ -271,9 +271,9 @@ export default function KioskPage() {
             {step === "payment" && (
               <div className="space-y-4">
                 <div className="text-center">
-                  <CreditCard className="w-10 h-10 mx-auto mb-2" style={{ color: "#3B82F6" }} />
-                  <h2 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Complete Payment</h2>
-                  <p className="text-xs" style={{ color: "#94A3B8" }}>
+                  <CreditCard className="w-10 h-10 mx-auto mb-2" style={{ color: "var(--color-info)" }} />
+                  <h2 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Complete Payment</h2>
+                  <p className="text-xs" style={{ color: "var(--color-text-faint)" }}>
                     Total: <strong>₹{session?.payment_amount || session?.total_amount || 0}</strong>
                   </p>
                 </div>
@@ -286,7 +286,7 @@ export default function KioskPage() {
                       className={`py-3 rounded-xl text-sm font-medium border-2 cursor-pointer transition-all ${
                         paymentMethod === m ? "border-blue-500 bg-blue-50" : "border-gray-200"
                       }`}
-                      style={{ color: paymentMethod === m ? "#1E3A8A" : "#64748B" }}
+                      style={{ color: paymentMethod === m ? "var(--color-navy)" : "var(--color-text-muted)" }}
                     >
                       {m === "card" ? "💳 Card" : m === "upi" ? "📱 UPI" : m === "cash" ? "💵 Cash" : "🔗 Payment Link"}
                     </button>
@@ -297,7 +297,7 @@ export default function KioskPage() {
                   onClick={handlePayment}
                   disabled={submitting}
                   className="w-full py-3 rounded-xl text-white font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50"
-                  style={{ background: "#10B981" }}
+                  style={{ background: "var(--color-success)" }}
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin inline" /> : "Complete Payment & Check In"}
                 </button>
@@ -307,24 +307,24 @@ export default function KioskPage() {
             {/* Done */}
             {step === "done" && (
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ background: "#ECFDF5" }}>
-                  <CheckCircle className="w-8 h-8" style={{ color: "#10B981" }} />
+                <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center" style={{ background: "var(--color-success-soft)" }}>
+                  <CheckCircle className="w-8 h-8" style={{ color: "var(--color-success)" }} />
                 </div>
-                <h2 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>You&apos;re All Set!</h2>
-                <p className="text-sm" style={{ color: "#64748B" }}>Welcome to {session?.property_name}</p>
+                <h2 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>You&apos;re All Set!</h2>
+                <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Welcome to {session?.property_name}</p>
 
                 {session?.digital_key_value && (
-                  <div className="p-4 rounded-xl" style={{ background: "#F0FDF4" }}>
-                    <Key className="w-6 h-6 mx-auto mb-2" style={{ color: "#10B981" }} />
-                    <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#94A3B8" }}>Digital Room Key</p>
-                    <p className="text-lg font-mono font-bold mt-1" style={{ color: "#1A3C5E" }}>{session.digital_key_value}</p>
-                    <p className="text-[10px] mt-1" style={{ color: "#94A3B8" }}>
+                  <div className="p-4 rounded-xl" style={{ background: "var(--color-success-soft)" }}>
+                    <Key className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-success)" }} />
+                    <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Digital Room Key</p>
+                    <p className="text-lg font-mono font-bold mt-1" style={{ color: "var(--color-navy)" }}>{session.digital_key_value}</p>
+                    <p className="text-[10px] mt-1" style={{ color: "var(--color-text-faint)" }}>
                       Valid for 24 hours. Use on your phone or show at the door.
                     </p>
                   </div>
                 )}
 
-                <div className="text-xs space-y-1" style={{ color: "#94A3B8" }}>
+                <div className="text-xs space-y-1" style={{ color: "var(--color-text-faint)" }}>
                   <p>Check-in: {new Date().toLocaleString("en-IN")}</p>
                   <p>Check-out: {session?.bk_check_out}</p>
                 </div>
@@ -334,25 +334,25 @@ export default function KioskPage() {
             {/* Expired */}
             {step === "expired" && (
               <div className="text-center space-y-4">
-                <Clock className="w-12 h-12 mx-auto" style={{ color: "#F59E0B" }} />
-                <h2 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Session Expired</h2>
-                <p className="text-sm" style={{ color: "#64748B" }}>Please scan the QR code again or contact the front desk.</p>
+                <Clock className="w-12 h-12 mx-auto" style={{ color: "var(--color-warning)" }} />
+                <h2 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Session Expired</h2>
+                <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Please scan the QR code again or contact the front desk.</p>
               </div>
             )}
 
             {/* Error */}
             {step === "error" && (
               <div className="text-center space-y-4">
-                <AlertTriangle className="w-12 h-12 mx-auto" style={{ color: "#EF4444" }} />
-                <h2 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Something went wrong</h2>
-                <p className="text-sm" style={{ color: "#64748B" }}>{error}</p>
+                <AlertTriangle className="w-12 h-12 mx-auto" style={{ color: "var(--color-danger)" }} />
+                <h2 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Something went wrong</h2>
+                <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>{error}</p>
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <p className="text-center text-[10px] mt-4" style={{ color: "rgba(255,255,255,0.6)" }}>
-            Powered by eHMS • Digital Check-in
+          <p className="text-center text-[10px] mt-4" style={{ color: "rgba(var(--color-white-rgb),0.6)" }}>
+            Powered by HostSphere • Digital Check-in
           </p>
         </div>
       </main>

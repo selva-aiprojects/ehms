@@ -823,7 +823,7 @@ test.describe("F&B Room Service", () => {
           await plusBtn.click();
           await page.waitForTimeout(300);
 
-          const footerTotal = page.locator(".font-bold.text-\\[\\#1A3C5E\\]").filter({ hasText: /Total.*₹/ }).first();
+          const footerTotal = page.locator(".font-bold.text-\\[var\\(--color-navy\\)\\]").filter({ hasText: /Total.*₹/ }).first();
           if (await footerTotal.isVisible({ timeout: 2000 }).catch(() => false)) {
             await expect(footerTotal).toBeVisible();
           }

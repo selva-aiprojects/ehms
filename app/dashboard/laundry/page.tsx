@@ -96,8 +96,8 @@ export default function LaundryPage() {
             <Shirt className="w-5 h-5" style={{ color: "#8B5CF6" }} />
           </div>
           <div>
-            <h1 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Laundry Management</h1>
-            <p className="text-xs" style={{ color: "#64748B" }}>Guest laundry orders, tracking, and vendor management</p>
+            <h1 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Laundry Management</h1>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Guest laundry orders, tracking, and vendor management</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -113,13 +113,13 @@ export default function LaundryPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Pending", value: pendingOrders, color: "#F59E0B" },
-          { label: "In Progress", value: inProgressOrders, color: "#3B82F6" },
-          { label: "Ready", value: readyOrders, color: "#10B981" },
+          { label: "Pending", value: pendingOrders, color: "var(--color-warning)" },
+          { label: "In Progress", value: inProgressOrders, color: "var(--color-info)" },
+          { label: "Ready", value: readyOrders, color: "var(--color-success)" },
           { label: "Today's Revenue", value: formatCurrency(todayRevenue), color: "#8B5CF6" },
         ].map((stat) => (
           <Card key={stat.label}>
-            <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#94A3B8" }}>{stat.label}</p>
+            <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>{stat.label}</p>
             <p className="text-xl font-bold mt-0.5" style={{ color: stat.color }}>{stat.value}</p>
           </Card>
         ))}
@@ -129,16 +129,16 @@ export default function LaundryPage() {
       {showPriceList && (
         <Card>
           <CardHeader title="Laundry Price List" subtitle="Standard rates per item" action={
-            <button onClick={() => setShowPriceList(false)} className="text-xs cursor-pointer" style={{ color: "#64748B" }}>Close</button>
+            <button onClick={() => setShowPriceList(false)} className="text-xs cursor-pointer" style={{ color: "var(--color-text-muted)" }}>Close</button>
           } />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {priceList.map((p: any) => (
-              <div key={p.id} className="flex items-center justify-between py-1.5 px-3 rounded-lg" style={{ background: "#F8FAFC" }}>
+              <div key={p.id} className="flex items-center justify-between py-1.5 px-3 rounded-lg" style={{ background: "var(--color-light)" }}>
                 <div>
-                  <p className="text-xs font-medium" style={{ color: "#1A3C5E" }}>{p.item_name}</p>
-                  <p className="text-[10px]" style={{ color: "#94A3B8" }}>{p.wash_type}</p>
+                  <p className="text-xs font-medium" style={{ color: "var(--color-navy)" }}>{p.item_name}</p>
+                  <p className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>{p.wash_type}</p>
                 </div>
-                <span className="text-xs font-semibold" style={{ color: "#1A3C5E" }}>{formatCurrency(Number(p.price))}</span>
+                <span className="text-xs font-semibold" style={{ color: "var(--color-navy)" }}>{formatCurrency(Number(p.price))}</span>
               </div>
             ))}
           </div>
@@ -149,19 +149,19 @@ export default function LaundryPage() {
       {showForm && (
         <Card>
           <CardHeader title="New Laundry Order" action={
-            <button onClick={() => setShowForm(false)} className="text-xs cursor-pointer" style={{ color: "#64748B" }}>Cancel</button>
+            <button onClick={() => setShowForm(false)} className="text-xs cursor-pointer" style={{ color: "var(--color-text-muted)" }}>Cancel</button>
           } />
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-medium block mb-1" style={{ color: "#64748B" }}>Special Instructions</label>
-                <input value={formInstructions} onChange={(e) => setFormInstructions(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "#E2E8F0" }} placeholder="e.g. Handle with care" />
+                <label className="text-xs font-medium block mb-1" style={{ color: "var(--color-text-muted)" }}>Special Instructions</label>
+                <input value={formInstructions} onChange={(e) => setFormInstructions(e.target.value)} className="w-full text-sm border rounded-lg px-3 py-2" style={{ borderColor: "var(--color-border)" }} placeholder="e.g. Handle with care" />
               </div>
             </div>
 
             {/* Line Items */}
             <div>
-              <label className="text-xs font-medium block mb-2" style={{ color: "#64748B" }}>Items</label>
+              <label className="text-xs font-medium block mb-2" style={{ color: "var(--color-text-muted)" }}>Items</label>
               <div className="space-y-2">
                 {formItems.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2">
@@ -169,18 +169,18 @@ export default function LaundryPage() {
                       value={item.item_name}
                       onChange={(e) => updateItem(idx, "item_name", e.target.value)}
                       className="flex-1 text-sm border rounded-lg px-3 py-1.5"
-                      style={{ borderColor: "#E2E8F0" }}
+                      style={{ borderColor: "var(--color-border)" }}
                       placeholder="Item name"
                       list="laundry-items"
                     />
-                    <select value={item.wash_type} onChange={(e) => updateItem(idx, "wash_type", e.target.value)} className="text-xs border rounded-lg px-2 py-1.5" style={{ borderColor: "#E2E8F0" }}>
+                    <select value={item.wash_type} onChange={(e) => updateItem(idx, "wash_type", e.target.value)} className="text-xs border rounded-lg px-2 py-1.5" style={{ borderColor: "var(--color-border)" }}>
                       <option value="regular">Regular</option>
                       <option value="dry_clean">Dry Clean</option>
                       <option value="iron_only">Iron Only</option>
                     </select>
-                    <input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, "quantity", parseInt(e.target.value) || 1)} className="w-16 text-sm border rounded-lg px-2 py-1.5 text-center" style={{ borderColor: "#E2E8F0" }} />
-                    <input type="number" min="0" value={item.unit_price} onChange={(e) => updateItem(idx, "unit_price", parseFloat(e.target.value) || 0)} className="w-24 text-sm border rounded-lg px-2 py-1.5 text-right" style={{ borderColor: "#E2E8F0" }} />
-                    <span className="text-xs font-medium w-20 text-right" style={{ color: "#1A3C5E" }}>
+                    <input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, "quantity", parseInt(e.target.value) || 1)} className="w-16 text-sm border rounded-lg px-2 py-1.5 text-center" style={{ borderColor: "var(--color-border)" }} />
+                    <input type="number" min="0" value={item.unit_price} onChange={(e) => updateItem(idx, "unit_price", parseFloat(e.target.value) || 0)} className="w-24 text-sm border rounded-lg px-2 py-1.5 text-right" style={{ borderColor: "var(--color-border)" }} />
+                    <span className="text-xs font-medium w-20 text-right" style={{ color: "var(--color-navy)" }}>
                       {formatCurrency(item.quantity * item.unit_price)}
                     </span>
                     {formItems.length > 1 && (
@@ -192,8 +192,8 @@ export default function LaundryPage() {
                 ))}
               </div>
               <div className="flex items-center gap-3 mt-2">
-                <button onClick={addItem} className="text-xs font-medium cursor-pointer" style={{ color: "#3B82F6" }}>+ Add Item</button>
-                <span className="ml-auto text-sm font-bold" style={{ color: "#1A3C5E" }}>Total: {formatCurrency(totalAmount)}</span>
+                <button onClick={addItem} className="text-xs font-medium cursor-pointer" style={{ color: "var(--color-info)" }}>+ Add Item</button>
+                <span className="ml-auto text-sm font-bold" style={{ color: "var(--color-navy)" }}>Total: {formatCurrency(totalAmount)}</span>
               </div>
               <datalist id="laundry-items">
                 {priceList.map((p: any) => (
@@ -226,39 +226,39 @@ export default function LaundryPage() {
       <Card padding={false}>
         {isLoading ? (
           <div className="py-12 flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#3B82F6" }} />
+            <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-info)" }} />
           </div>
         ) : orders.length === 0 ? (
           <div className="py-12 text-center">
-            <Shirt className="w-8 h-8 mx-auto mb-2" style={{ color: "#CBD5E1" }} />
-            <p className="text-sm" style={{ color: "#94A3B8" }}>No laundry orders found</p>
+            <Shirt className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--color-border-strong)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-faint)" }}>No laundry orders found</p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr style={{ background: "#F5F7FA" }}>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Order #</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Guest</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Room</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Amount</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Status</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Date</th>
-                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "#64748B" }}>Actions</th>
+              <tr style={{ background: "var(--color-light)" }}>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Order #</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Guest</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Room</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Amount</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Status</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Date</th>
+                <th className="text-left text-[11px] font-semibold uppercase tracking-wider px-4 py-2.5" style={{ color: "var(--color-text-muted)" }}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y" style={{ borderColor: "#E2E8F0" }}>
+            <tbody className="divide-y" style={{ borderColor: "var(--color-border)" }}>
               {orders.map((order: any) => {
                 const guestName = order.guest ? `${order.guest.first_name || ""} ${order.guest.last_name || ""}`.trim() : "N/A";
                 return (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-2.5 text-xs font-mono font-medium" style={{ color: "#3B82F6" }}>{order.order_number}</td>
-                    <td className="px-4 py-2.5 text-xs" style={{ color: "#1A3C5E" }}>{guestName}</td>
-                    <td className="px-4 py-2.5 text-xs" style={{ color: "#64748B" }}>{order.unit_label || "—"}</td>
-                    <td className="px-4 py-2.5 text-xs font-medium" style={{ color: "#1A3C5E" }}>{formatCurrency(Number(order.total_amount))}</td>
+                    <td className="px-4 py-2.5 text-xs font-mono font-medium" style={{ color: "var(--color-info)" }}>{order.order_number}</td>
+                    <td className="px-4 py-2.5 text-xs" style={{ color: "var(--color-navy)" }}>{guestName}</td>
+                    <td className="px-4 py-2.5 text-xs" style={{ color: "var(--color-text-muted)" }}>{order.unit_label || "—"}</td>
+                    <td className="px-4 py-2.5 text-xs font-medium" style={{ color: "var(--color-navy)" }}>{formatCurrency(Number(order.total_amount))}</td>
                     <td className="px-4 py-2.5">
                       <Badge variant={STATUS_VARIANT[order.status] || "gray"}>{STATUS_LABELS[order.status] || order.status}</Badge>
                     </td>
-                    <td className="px-4 py-2.5 text-[10px]" style={{ color: "#94A3B8" }}>
+                    <td className="px-4 py-2.5 text-[10px]" style={{ color: "var(--color-text-faint)" }}>
                       {new Date(order.created_at).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
                     </td>
                     <td className="px-4 py-2.5">

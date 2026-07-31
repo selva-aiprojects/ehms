@@ -11,7 +11,18 @@ export async function GET(req: NextRequest) {
     const fromDate = searchParams.get("from_date");
     const toDate = searchParams.get("to_date");
 
-    if (!accountId) return NextResponse.json({ error: "account_id is required" }, { status: 400 });
+    if (!accountId || accountId === "__skip__") {
+      return NextResponse.json({
+        data: {
+          account: null,
+          opening_balance: 0,
+          entries: [],
+          total_debits: 0,
+          total_credits: 0,
+          closing_balance: 0,
+        },
+      });
+    }
 
     const account = (await sql`SELECT * FROM chart_of_accounts WHERE id = ${accountId}`) as Record<string, unknown>[];
     if (!account.length) return NextResponse.json({ error: "Account not found" }, { status: 404 });

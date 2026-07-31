@@ -10,7 +10,27 @@ export async function GET(req: NextRequest) {
     const fromDate = searchParams.get("from_date");
     const toDate = searchParams.get("to_date");
 
-    const rows = await sql`
+    const conditions: string[] = [];
+    const params: (string | number)[] = [];
+    if (employeeId) {
+      params.push(employeeId);
+      conditions.push(`lr.employee_id = $${params.length}`);
+    }
+    if (status) {
+      params.push(status);
+      conditions.push(`lr.status = $${params.length}`);
+    }
+    if (fromDate) {
+      params.push(fromDate);
+      conditions.push(`lr.start_date >= $${params.length}::date`);
+    }
+    if (toDate) {
+      params.push(toDate);
+      conditions.push(`lr.end_date <= $${params.length}::date`);
+    }
+
+    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+    const query = `
       SELECT
         lr.*,
         json_build_object('id', lt.id, 'name', lt.name, 'code', lt.code) AS leave_type,
@@ -20,13 +40,10 @@ export async function GET(req: NextRequest) {
       LEFT JOIN leave_types lt ON lt.id = lr.leave_type_id
       LEFT JOIN employees e ON e.id = lr.employee_id
       LEFT JOIN users u ON u.id = lr.approved_by
-      WHERE 1=1
-        ${employeeId ? sql`AND lr.employee_id = ${employeeId}` : sql``}
-        ${status ? sql`AND lr.status = ${status}` : sql``}
-        ${fromDate ? sql`AND lr.start_date >= ${fromDate}::date` : sql``}
-        ${toDate ? sql`AND lr.end_date <= ${toDate}::date` : sql``}
+      ${whereClause}
       ORDER BY lr.created_at DESC
     `;
+    const rows = await sql.query(query, params);
 
     return NextResponse.json({ data: rows });
   } catch (error) {

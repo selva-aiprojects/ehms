@@ -25,7 +25,7 @@ export default function Table<T>({ columns, data, keyExtractor, onRowClick, clas
               <th
                 key={col.key}
                 className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                style={{ color: "#FFFFFF", background: "#1A3C5E" }}
+                style={{ color: "var(--color-white)", background: "var(--color-navy)" }}
               >
                 {col.header}
               </th>
@@ -38,7 +38,7 @@ export default function Table<T>({ columns, data, keyExtractor, onRowClick, clas
               key={keyExtractor(item, idx)}
               onClick={() => onRowClick?.(item)}
               className={onRowClick ? "cursor-pointer" : ""}
-              style={{ background: idx % 2 === 0 ? "#FFFFFF" : "#F5F7FA", borderBottom: "1px solid #E2E8F0" }}
+              style={{ background: idx % 2 === 0 ? "var(--color-white)" : "var(--color-light)", borderBottom: "1px solid var(--color-border)" }}
             >
               {columns.map((col) => (
                 <td key={col.key} className={`px-4 py-3 whitespace-nowrap ${col.className || ""}`}>

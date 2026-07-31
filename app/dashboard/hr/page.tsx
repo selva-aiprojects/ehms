@@ -35,11 +35,11 @@ const COMPLIANCE_DATA = [
 ];
 
 const RECRUITMENT_PIPELINE = [
-  { stage: "Sourced", count: 48, color: "#94A3B8" },
-  { stage: "Screened", count: 32, color: "#64748B" },
-  { stage: "Interviewing", count: 18, color: "#F5A623" },
-  { stage: "Offered", count: 8, color: "#2BAE8E" },
-  { stage: "Hired", count: 5, color: "#1A3C5E" },
+  { stage: "Sourced", count: 48, color: "var(--color-text-faint)" },
+  { stage: "Screened", count: 32, color: "var(--color-text-muted)" },
+  { stage: "Interviewing", count: 18, color: "var(--color-warning)" },
+  { stage: "Offered", count: 8, color: "var(--color-primary)" },
+  { stage: "Hired", count: 5, color: "var(--color-navy)" },
 ];
 
 const TRAINING_SESSIONS = [
@@ -78,7 +78,7 @@ const PAYROLL_HISTORY = [
 ];
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 export default function HRPage() {
@@ -103,23 +103,23 @@ export default function HRPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>HRMS & Payroll</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Attendance, shifts, payroll & statutory compliance</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>HRMS & Payroll</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Attendance, shifts, payroll & statutory compliance</p>
         </div>
         <div className="flex items-center gap-2">
           {isLoading && (
-            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "#F5F7FA", color: "#64748B" }}>
+            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
               <Loader2 className="w-3 h-3 animate-spin" /> Syncing
             </div>
           )}
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" />
           Could not load live employee data. Displaying mock data.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
@@ -129,35 +129,35 @@ export default function HRPage() {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         {isLoadingDisplay ? (
           Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}>
-              <div className="w-12 h-8 rounded mb-2" style={{ background: "#CBD5E1" }} />
-              <div className="w-16 h-3 rounded" style={{ background: "#CBD5E1" }} />
+            <div key={i} className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}>
+              <div className="w-12 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} />
+              <div className="w-16 h-3 rounded" style={{ background: "var(--color-border-strong)" }} />
             </div>
           ))
         ) : (
           <>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-2xl font-bold">{activeEmployees.length}</div>
                 <Users className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">Total Employees</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-2xl font-bold">{displayEmployees.length === 0 ? 0 : 52}</div>
                 <UserCheck className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs opacity-80">On Duty Today</div>
             </div>
-            <div className="rounded-xl p-4" style={{ background: "#F5A623" }}>
+            <div className="rounded-xl p-4" style={{ background: "var(--color-warning)" }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="text-2xl font-bold" style={{ color: "#1A2E44" }}>{displayEmployees.length === 0 ? 0 : 8}</div>
+                <div className="text-2xl font-bold" style={{ color: "var(--color-text)" }}>{displayEmployees.length === 0 ? 0 : 8}</div>
                 <UserX className="w-5 h-5 opacity-60" />
               </div>
               <div className="text-xs" style={{ color: "rgba(0,0,0,0.6)" }}>On Leave</div>
             </div>
-            <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-2xl font-bold">{displayEmployees.length === 0 ? "₹0" : "₹12.5L"}</div>
                 <Briefcase className="w-5 h-5 opacity-60" />
@@ -170,13 +170,13 @@ export default function HRPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
         {[
-          { label: "Directory", icon: Users, href: "/dashboard/hr/employees", color: "#1A3C5E" },
-          { label: "Timesheets", icon: Clock, href: "/dashboard/hr/timesheet", color: "#2BAE8E" },
-          { label: "Leave", icon: Calendar, href: "/dashboard/hr/leave", color: "#F5A623" },
-          { label: "Payroll", icon: DollarSign, href: "/dashboard/hr/payroll", color: "#E53E3E" },
-          { label: "Compliance", icon: BadgePercent, href: "/dashboard/hr/compliance", color: "#2BAE8E" },
-          { label: "Shifts", icon: Clock, href: "/dashboard/hr/shifts", color: "#64748B" },
-          { label: "Settings", icon: Settings, href: "/dashboard/hr/settings", color: "#1A3C5E" },
+          { label: "Directory", icon: Users, href: "/dashboard/hr/employees", color: "var(--color-navy)" },
+          { label: "Timesheets", icon: Clock, href: "/dashboard/hr/timesheet", color: "var(--color-primary)" },
+          { label: "Leave", icon: Calendar, href: "/dashboard/hr/leave", color: "var(--color-warning)" },
+          { label: "Payroll", icon: DollarSign, href: "/dashboard/hr/payroll", color: "var(--color-danger)" },
+          { label: "Compliance", icon: BadgePercent, href: "/dashboard/hr/compliance", color: "var(--color-primary)" },
+          { label: "Shifts", icon: Clock, href: "/dashboard/hr/shifts", color: "var(--color-text-muted)" },
+          { label: "Settings", icon: Settings, href: "/dashboard/hr/settings", color: "var(--color-navy)" },
         ].map((item) => (
           <a key={item.label} href={item.href}
             className="flex flex-col items-center justify-center p-3 rounded-xl text-center transition-all hover:scale-105"
@@ -193,12 +193,12 @@ export default function HRPage() {
           subtitle={`${activeEmployees.length} active \u00B7 ${uniqueDepts.length} departments`}
           action={
             <div className="relative">
-              <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#64748B" }} />
+              <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
               <input
                 type="text" value={search} onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search employees..."
                 className="pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none border w-40"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }}
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }}
               />
             </div>
           }
@@ -209,24 +209,24 @@ export default function HRPage() {
           </div>
         ) : displayEmployees.length === 0 ? (
           <div className="text-center py-8">
-            <Users className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No employees found</p>
+            <Users className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No employees found</p>
           </div>
         ) : (
           <Table
             data={displayEmployees}
             keyExtractor={(e) => e.employee_code || e.id || Math.random().toString()}
             columns={[
-              { key: "employee_code", header: "Code", render: (e) => <span className="font-mono text-xs" style={{ color: "#64748B" }}>{e.employee_code}</span> },
+              { key: "employee_code", header: "Code", render: (e) => <span className="font-mono text-xs" style={{ color: "var(--color-text-muted)" }}>{e.employee_code}</span> },
               { key: "name", header: "Name", render: (e) => <span className="font-medium text-sm">{e.name || `${e.user?.first_name || ""} ${e.user?.last_name || ""}`}</span> },
-              { key: "dept", header: "Department", render: (e) => <span className="text-xs" style={{ color: "#64748B" }}>{e.dept || e.department?.name || "\u2014"}</span> },
+              { key: "dept", header: "Department", render: (e) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{e.dept || e.department?.name || "\u2014"}</span> },
               { key: "designation", header: "Role", render: (e) => <span className="text-xs">{e.designation || "\u2014"}</span> },
               { key: "attendance_pct", header: "Attendance", render: (e) => (
                 <div className="flex items-center gap-1.5">
-                  <div className="w-16 h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                    <div className="h-full rounded-full" style={{ width: `${e.attendance_pct || 0}%`, background: (e.attendance_pct || 0) >= 90 ? "#2BAE8E" : (e.attendance_pct || 0) >= 75 ? "#F5A623" : "#E53E3E" }} />
+                  <div className="w-16 h-1.5 rounded-full" style={{ background: "var(--color-border)" }}>
+                    <div className="h-full rounded-full" style={{ width: `${e.attendance_pct || 0}%`, background: (e.attendance_pct || 0) >= 90 ? "var(--color-primary)" : (e.attendance_pct || 0) >= 75 ? "var(--color-warning)" : "var(--color-danger)" }} />
                   </div>
-                  <span className="text-xs" style={{ color: "#64748B" }}>{e.attendance_pct || e.attendance || 0}%</span>
+                  <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{e.attendance_pct || e.attendance || 0}%</span>
                 </div>
               )},
               { key: "status", header: "Status", render: () => <Badge variant="teal">Active</Badge> },
@@ -243,13 +243,13 @@ export default function HRPage() {
               <div className="text-center py-6 text-xs text-slate-400">No active shifts scheduled</div>
             ) : (
               SHIFT_DATA.map((s, i) => (
-                <div key={i} className="flex items-center justify-between py-3 text-sm" style={{ borderBottom: i < SHIFT_DATA.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                <div key={i} className="flex items-center justify-between py-3 text-sm" style={{ borderBottom: i < SHIFT_DATA.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                   <div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" style={{ color: "#2BAE8E" }} />
-                      <span className="font-medium" style={{ color: "#1A2E44" }}>{s.shift}</span>
+                      <Clock className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
+                      <span className="font-medium" style={{ color: "var(--color-text)" }}>{s.shift}</span>
                     </div>
-                    <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{s.dept}</div>
+                    <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{s.dept}</div>
                   </div>
                   <Badge variant="teal">{s.staff} staff</Badge>
                 </div>
@@ -264,13 +264,13 @@ export default function HRPage() {
               <div className="text-center py-6 text-xs text-slate-400">No compliance data recorded</div>
             ) : (
               COMPLIANCE_DATA.map((c, i) => (
-                <div key={i} className="flex items-center justify-between py-2" style={{ borderBottom: i < COMPLIANCE_DATA.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                <div key={i} className="flex items-center justify-between py-2" style={{ borderBottom: i < COMPLIANCE_DATA.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                   <div className="flex items-center gap-2">
-                    <BadgePercent className="w-4 h-4" style={{ color: i < 2 ? "#2BAE8E" : i < 3 ? "#F5A623" : "#E53E3E" }} />
-                    <span style={{ color: "#1A2E44" }}>{c.label}</span>
+                    <BadgePercent className="w-4 h-4" style={{ color: i < 2 ? "var(--color-primary)" : i < 3 ? "var(--color-warning)" : "var(--color-danger)" }} />
+                    <span style={{ color: "var(--color-text)" }}>{c.label}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-medium" style={{ color: "#1A3C5E" }}>{c.amount}</span>
+                    <span className="font-medium" style={{ color: "var(--color-navy)" }}>{c.amount}</span>
                     <Badge variant={c.status === "Processed" ? "teal" : c.status === "Pending" ? "amber" : "red"}>{c.status}</Badge>
                   </div>
                 </div>
@@ -286,9 +286,9 @@ export default function HRPage() {
           {["Front Office", "Housekeeping", "Maintenance", "Finance", "HR", "F&B"].map((dept) => {
             const count = displayEmployees.filter((e: any) => (e.dept || e.department?.name) === dept).length;
             return (
-               <div key={dept} className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
-                 <div className="text-lg font-bold" style={{ color: "#1A3C5E" }}>{count || "—"}</div>
-                 <div className="text-xs" style={{ color: "#64748B" }}>{dept}</div>
+               <div key={dept} className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
+                 <div className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>{count || "—"}</div>
+                 <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{dept}</div>
                </div>
             );
           })}
@@ -306,25 +306,25 @@ export default function HRPage() {
                 const pct = (stage.count / RECRUITMENT_PIPELINE[0].count) * 100;
                 return (
                   <div key={stage.stage} className="flex items-center gap-3 text-sm">
-                    <div className="w-24 text-xs font-medium" style={{ color: "#64748B" }}>{stage.stage}</div>
-                    <div className="flex-1 h-2.5 rounded-full" style={{ background: "#E2E8F0" }}>
+                    <div className="w-24 text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>{stage.stage}</div>
+                    <div className="flex-1 h-2.5 rounded-full" style={{ background: "var(--color-border)" }}>
                       <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: stage.color }} />
                     </div>
-                    <div className="w-8 text-right font-bold text-xs" style={{ color: "#1A2E44" }}>{stage.count}</div>
+                    <div className="w-8 text-right font-bold text-xs" style={{ color: "var(--color-text)" }}>{stage.count}</div>
                   </div>
                 );
               })
             )}
           </div>
           {displayEmployees.length > 0 && (
-            <div className="mt-4 pt-3 grid grid-cols-2 gap-2 text-xs" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <div className="p-2 rounded text-center" style={{ background: "#F5F7FA" }}>
-                <div className="font-bold" style={{ color: "#1A3C5E" }}>5</div>
-                <span style={{ color: "#64748B" }}>Open Positions</span>
+            <div className="mt-4 pt-3 grid grid-cols-2 gap-2 text-xs" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <div className="p-2 rounded text-center" style={{ background: "var(--color-light)" }}>
+                <div className="font-bold" style={{ color: "var(--color-navy)" }}>5</div>
+                <span style={{ color: "var(--color-text-muted)" }}>Open Positions</span>
               </div>
-              <div className="p-2 rounded text-center" style={{ background: "#F5F7FA" }}>
-                <div className="font-bold" style={{ color: "#2BAE8E" }}>12</div>
-                <span style={{ color: "#64748B" }}>This Month Hires</span>
+              <div className="p-2 rounded text-center" style={{ background: "var(--color-light)" }}>
+                <div className="font-bold" style={{ color: "var(--color-primary)" }}>12</div>
+                <span style={{ color: "var(--color-text-muted)" }}>This Month Hires</span>
               </div>
             </div>
           )}
@@ -337,20 +337,20 @@ export default function HRPage() {
               <div className="text-center py-6 text-xs text-slate-400">No upcoming training sessions</div>
             ) : (
               TRAINING_SESSIONS.slice(0, 4).map((t, i) => (
-                <div key={i} className="p-3 rounded-lg text-sm" style={{ background: "#F5F7FA" }}>
+                <div key={i} className="p-3 rounded-lg text-sm" style={{ background: "var(--color-light)" }}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="font-medium flex items-center gap-1.5" style={{ color: "#1A2E44" }}>
-                        <BookOpen className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+                      <div className="font-medium flex items-center gap-1.5" style={{ color: "var(--color-text)" }}>
+                        <BookOpen className="w-3.5 h-3.5" style={{ color: "var(--color-primary)" }} />
                         {t.title}
                       </div>
-                      <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "#64748B" }}>
+                      <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: "var(--color-text-muted)" }}>
                         <Calendar className="w-3 h-3" /> {t.date}
                       </div>
-                      <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+                      <div className="flex items-center gap-2 text-xs" style={{ color: "var(--color-text-muted)" }}>
                         <Clock className="w-3 h-3" /> {t.time}
                       </div>
-                      <div className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>{t.dept} \u00B7 {t.enrolled} enrolled</div>
+                      <div className="text-xs mt-0.5" style={{ color: "var(--color-text-faint)" }}>{t.dept} \u00B7 {t.enrolled} enrolled</div>
                     </div>
                     <Badge variant={t.status === "upcoming" ? "teal" : "gray"}>{t.status}</Badge>
                   </div>
@@ -359,9 +359,9 @@ export default function HRPage() {
             )}
           </div>
           {displayEmployees.length > 0 && (
-            <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
+            <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
               <span>{TRAINING_SESSIONS.length} total sessions</span>
-              <button className="font-medium hover:underline" style={{ color: "#2BAE8E" }}>View Calendar</button>
+              <button className="font-medium hover:underline" style={{ color: "var(--color-primary)" }}>View Calendar</button>
             </div>
           )}
         </Card>
@@ -375,17 +375,17 @@ export default function HRPage() {
               LEAVE_BALANCES.map((l, i) => {
                 const usedPct = (l.used / l.total) * 100;
                 return (
-                  <div key={l.type} className="flex items-center justify-between py-1.5 text-sm" style={{ borderBottom: i < LEAVE_BALANCES.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                  <div key={l.type} className="flex items-center justify-between py-1.5 text-sm" style={{ borderBottom: i < LEAVE_BALANCES.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs" style={{ color: "#1A2E44" }}>{l.type}</span>
-                        <span className="text-xs font-medium" style={{ color: "#1A3C5E" }}>{l.remaining} left</span>
+                        <span className="text-xs" style={{ color: "var(--color-text)" }}>{l.type}</span>
+                        <span className="text-xs font-medium" style={{ color: "var(--color-navy)" }}>{l.remaining} left</span>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <div className="flex-1 h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                          <div className="h-full rounded-full" style={{ width: `${usedPct}%`, background: usedPct > 60 ? "#F5A623" : usedPct > 80 ? "#E53E3E" : "#2BAE8E" }} />
+                        <div className="flex-1 h-1.5 rounded-full" style={{ background: "var(--color-border)" }}>
+                          <div className="h-full rounded-full" style={{ width: `${usedPct}%`, background: usedPct > 60 ? "var(--color-warning)" : usedPct > 80 ? "var(--color-danger)" : "var(--color-primary)" }} />
                         </div>
-                        <span className="text-[10px]" style={{ color: "#94A3B8" }}>{l.used}/{l.total}</span>
+                        <span className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>{l.used}/{l.total}</span>
                       </div>
                     </div>
                   </div>
@@ -406,20 +406,20 @@ export default function HRPage() {
               TOP_PERFORMERS.map((p, i) => {
                 const badgeColor = p.badge === "Excellent" ? "teal" as const : p.badge === "Great" ? "navy" as const : "amber" as const;
                 return (
-                  <div key={p.name} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < TOP_PERFORMERS.length - 1 ? "1px solid #E2E8F0" : "none" }}>
+                  <div key={p.name} className="flex items-center justify-between py-2 text-sm" style={{ borderBottom: i < TOP_PERFORMERS.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: i === 0 ? "#F5A623" : i < 3 ? "#2BAE8E" : "#1A3C5E" }}>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: i === 0 ? "var(--color-warning)" : i < 3 ? "var(--color-primary)" : "var(--color-navy)" }}>
                         {i + 1}
                       </div>
                       <div>
-                        <div className="font-medium" style={{ color: "#1A2E44" }}>{p.name}</div>
-                        <div className="text-xs" style={{ color: "#64748B" }}>{p.dept} \u00B7 {p.achievements} achievements</div>
+                        <div className="font-medium" style={{ color: "var(--color-text)" }}>{p.name}</div>
+                        <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{p.dept} \u00B7 {p.achievements} achievements</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-0.5">
-                        <Star className="w-3 h-3" style={{ color: "#F5A623", fill: "#F5A623" }} />
-                        <span className="text-xs font-bold" style={{ color: "#1A2E44" }}>{p.rating.toFixed(1)}</span>
+                        <Star className="w-3 h-3" style={{ color: "var(--color-warning)", fill: "var(--color-warning)" }} />
+                        <span className="text-xs font-bold" style={{ color: "var(--color-text)" }}>{p.rating.toFixed(1)}</span>
                       </div>
                       <Badge variant={badgeColor}>{p.badge}</Badge>
                     </div>
@@ -429,8 +429,8 @@ export default function HRPage() {
             )}
           </div>
           {displayEmployees.length > 0 && (
-            <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+            <div className="mt-3 pt-3 text-center" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button className="text-xs font-medium hover:underline" style={{ color: "var(--color-primary)" }}>
                 View Full Performance Report
               </button>
             </div>
@@ -444,30 +444,30 @@ export default function HRPage() {
               <div className="text-center py-6 text-xs text-slate-400">No payroll runs recorded yet</div>
             ) : (
               PAYROLL_HISTORY.map((pr, i) => (
-                <div key={pr.run} className="flex items-center justify-between p-3 rounded-lg text-sm" style={{ background: i === 0 ? "rgba(42,157,143,0.06)" : "#F5F7FA" }}>
+                <div key={pr.run} className="flex items-center justify-between p-3 rounded-lg text-sm" style={{ background: i === 0 ? "rgba(var(--color-primary-dark-rgb),0.06)" : "var(--color-light)" }}>
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: i === 0 ? "rgba(42,157,143,0.15)" : "#E2E8F0" }}>
-                      <DollarSign className="w-4 h-4" style={{ color: i === 0 ? "#2BAE8E" : "#64748B" }} />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: i === 0 ? "rgba(var(--color-primary-dark-rgb),0.15)" : "var(--color-border)" }}>
+                      <DollarSign className="w-4 h-4" style={{ color: i === 0 ? "var(--color-primary)" : "var(--color-text-muted)" }} />
                     </div>
                     <div>
-                      <div className="font-medium" style={{ color: "#1A2E44" }}>{pr.run}</div>
-                      <div className="text-xs flex items-center gap-2" style={{ color: "#64748B" }}>
+                      <div className="font-medium" style={{ color: "var(--color-text)" }}>{pr.run}</div>
+                      <div className="text-xs flex items-center gap-2" style={{ color: "var(--color-text-muted)" }}>
                         <Calendar className="w-3 h-3" /> {pr.period}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold" style={{ color: "#1A3C5E" }}>{pr.amount}</div>
-                    <div className="text-xs" style={{ color: "#64748B" }}>{pr.employees} employees</div>
+                    <div className="font-semibold" style={{ color: "var(--color-navy)" }}>{pr.amount}</div>
+                    <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{pr.employees} employees</div>
                   </div>
                 </div>
               ))
             )}
           </div>
           {displayEmployees.length > 0 && (
-            <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid #E2E8F0", color: "#64748B" }}>
-              <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" style={{ color: "#2BAE8E" }} /> +3.2% vs last month</span>
-              <button className="font-medium hover:underline" style={{ color: "#2BAE8E" }}>Run Payroll</button>
+            <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
+              <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" style={{ color: "var(--color-primary)" }} /> +3.2% vs last month</span>
+              <button className="font-medium hover:underline" style={{ color: "var(--color-primary)" }}>Run Payroll</button>
             </div>
           )}
         </Card>
@@ -481,24 +481,24 @@ export default function HRPage() {
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
               {[
-                { label: "Overall Satisfaction", score: "4.2/5", change: "+0.3", color: "#2BAE8E" },
-                { label: "Work Environment", score: "4.4/5", change: "+0.2", color: "#2BAE8E" },
-                { label: "Growth Opportunities", score: "3.8/5", change: "+0.1", color: "#F5A623" },
-                { label: "Management Support", score: "4.1/5", change: "+0.4", color: "#2BAE8E" },
+                { label: "Overall Satisfaction", score: "4.2/5", change: "+0.3", color: "var(--color-primary)" },
+                { label: "Work Environment", score: "4.4/5", change: "+0.2", color: "var(--color-primary)" },
+                { label: "Growth Opportunities", score: "3.8/5", change: "+0.1", color: "var(--color-warning)" },
+                { label: "Management Support", score: "4.1/5", change: "+0.4", color: "var(--color-primary)" },
               ].map((s) => (
-                <div key={s.label} className="p-3 rounded-lg text-center" style={{ background: "#F5F7FA" }}>
+                <div key={s.label} className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
                   <div className="text-lg font-bold" style={{ color: s.color }}>{s.score}</div>
-                  <div className="text-xs" style={{ color: "#64748B" }}>{s.label}</div>
+                  <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{s.label}</div>
                   <div className="text-[10px] mt-0.5 flex items-center justify-center gap-0.5" style={{ color: s.color }}>
                     <TrendingUp className="w-2.5 h-2.5" /> {s.change} vs Q1
                   </div>
                 </div>
               ))}
             </div>
-            <div className="text-xs" style={{ color: "#64748B" }}>
-              <div className="flex items-center justify-between p-2 rounded" style={{ background: "#F5F7FA" }}>
+            <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+              <div className="flex items-center justify-between p-2 rounded" style={{ background: "var(--color-light)" }}>
                 <span>Survey participation rate</span>
-                <span className="font-semibold" style={{ color: "#1A3C5E" }}>78% (42 of 54 employees)</span>
+                <span className="font-semibold" style={{ color: "var(--color-navy)" }}>78% (42 of 54 employees)</span>
               </div>
             </div>
           </>
@@ -520,24 +520,24 @@ export default function HRPage() {
               ].map((d) => (
                 <div key={d.dept}>
                   <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="font-medium" style={{ color: "#1A2E44" }}>{d.dept}</span>
-                    <span className="text-xs" style={{ color: "#64748B" }}>{d.coverage}% coverage</span>
+                    <span className="font-medium" style={{ color: "var(--color-text)" }}>{d.dept}</span>
+                    <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{d.coverage}% coverage</span>
                   </div>
                   <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
                     {d.skills.map((skill) => (
-                      <span key={skill} className="px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: "rgba(42,157,143,0.1)", color: "#2BAE8E" }}>
+                      <span key={skill} className="px-2 py-0.5 rounded text-[10px] font-medium" style={{ background: "rgba(var(--color-primary-dark-rgb),0.1)", color: "var(--color-primary)" }}>
                         {skill}
                       </span>
                     ))}
                   </div>
-                  <div className="h-1.5 rounded-full" style={{ background: "#E2E8F0" }}>
-                    <div className="h-full rounded-full" style={{ width: `${d.coverage}%`, background: d.coverage >= 85 ? "#2BAE8E" : d.coverage >= 75 ? "#F5A623" : "#E53E3E" }} />
+                  <div className="h-1.5 rounded-full" style={{ background: "var(--color-border)" }}>
+                    <div className="h-full rounded-full" style={{ width: `${d.coverage}%`, background: d.coverage >= 85 ? "var(--color-primary)" : d.coverage >= 75 ? "var(--color-warning)" : "var(--color-danger)" }} />
                   </div>
                 </div>
               ))}
             </div>
-            <div className="mt-4 pt-3 text-center" style={{ borderTop: "1px solid #E2E8F0" }}>
-              <button className="text-xs font-medium hover:underline" style={{ color: "#2BAE8E" }}>
+            <div className="mt-4 pt-3 text-center" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button className="text-xs font-medium hover:underline" style={{ color: "var(--color-primary)" }}>
                 Manage Skills Matrix
               </button>
             </div>
@@ -557,13 +557,13 @@ export default function HRPage() {
               { name: "Kavya Menon", event: "Birthday", date: "28 Jun", icon: Star },
               { name: "Rajesh Mehta", event: "Work Anniversary - 10 years", date: "30 Jun", icon: Star },
             ].map((item) => (
-              <div key={item.name} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(42,157,143,0.15)" }}>
-                  <item.icon className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+              <div key={item.name} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(var(--color-primary-dark-rgb),0.15)" }}>
+                  <item.icon className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
                 </div>
                 <div>
-                  <div className="font-medium text-sm" style={{ color: "#1A2E44" }}>{item.name}</div>
-                  <div className="text-xs" style={{ color: "#64748B" }}>{item.event} \u00B7 {item.date}</div>
+                  <div className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{item.name}</div>
+                  <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{item.event} \u00B7 {item.date}</div>
                 </div>
               </div>
             ))
@@ -573,3 +573,4 @@ export default function HRPage() {
     </div>
   );
 }
+

@@ -14,14 +14,14 @@ import { useMaintenance, useMaintenanceStats, useMaintenanceTicketParts, useMain
 import { useJourney } from "@/components/providers/JourneyProvider";
 
 function SkeletonRow() {
-  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "#F5F7FA" }} />;
+  return <div className="h-10 rounded animate-pulse mb-2" style={{ background: "var(--color-light)" }} />;
 }
 
 const PRIORITY_CONFIG: Record<string, { badge: "red" | "amber" | "gray" | "teal"; color: string }> = {
-  critical: { badge: "red", color: "#E53E3E" },
-  high: { badge: "amber", color: "#F5A623" },
-  medium: { badge: "gray", color: "#64748B" },
-  low: { badge: "teal", color: "#2BAE8E" },
+  critical: { badge: "red", color: "var(--color-danger)" },
+  high: { badge: "amber", color: "var(--color-warning)" },
+  medium: { badge: "gray", color: "var(--color-text-muted)" },
+  low: { badge: "teal", color: "var(--color-primary)" },
 };
 
 const STATUS_BADGE: Record<string, "red" | "amber" | "teal" | "gray" | "navy"> = {
@@ -127,14 +127,14 @@ export default function TicketsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Ticket Management</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>Track and manage maintenance requests</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Ticket Management</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Track and manage maintenance requests</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+          <button onClick={() => mutate()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={openAdd} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+          <button onClick={openAdd} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
             <Plus className="w-3.5 h-3.5" /> Create Ticket
           </button>
         </div>
@@ -142,9 +142,9 @@ export default function TicketsPage() {
 
       {feedback && (
         <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{
-          background: feedback.type === "success" ? "rgba(43,174,142,0.08)" : "rgba(229,62,62,0.08)",
-          color: feedback.type === "success" ? "#2BAE8E" : "#E53E3E",
-          border: feedback.type === "success" ? "1px solid rgba(43,174,142,0.2)" : "1px solid rgba(229,62,62,0.2)",
+          background: feedback.type === "success" ? "rgba(var(--color-primary-rgb),0.08)" : "rgba(var(--color-danger-rgb),0.08)",
+          color: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+          border: feedback.type === "success" ? "1px solid rgba(var(--color-primary-rgb),0.2)" : "1px solid rgba(var(--color-danger-rgb),0.2)",
         }}>
           {feedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}
@@ -152,7 +152,7 @@ export default function TicketsPage() {
       )}
 
       {isError && (
-        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.08)", color: "#E53E3E", border: "1px solid rgba(229,62,62,0.2)" }}>
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
           <AlertCircle className="w-4 h-4" /> Failed to load tickets.
           <button onClick={() => mutate()} className="ml-auto underline text-xs">Retry</button>
         </div>
@@ -161,36 +161,36 @@ export default function TicketsPage() {
       {(isLoading || statsLoading) && !tickets ? (
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl p-4 animate-pulse" style={{ background: "#E2E8F0" }}>
-              <div className="w-12 h-8 rounded mb-2" style={{ background: "#CBD5E1" }} />
-              <div className="w-16 h-3 rounded" style={{ background: "#CBD5E1" }} />
+            <div key={i} className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}>
+              <div className="w-12 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} />
+              <div className="w-16 h-3 rounded" style={{ background: "var(--color-border-strong)" }} />
             </div>
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="rounded-xl p-4 text-white" style={{ background: "#E53E3E" }}>
+          <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-danger)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-2xl font-bold">{stats.open ?? displayTickets.filter((t: any) => t.status === "open").length}</div>
               <TicketCheck className="w-5 h-5 opacity-60" />
             </div>
             <div className="text-xs opacity-80">Open</div>
           </div>
-          <div className="rounded-xl p-4 text-white" style={{ background: "#F5A623" }}>
+          <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-warning)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-2xl font-bold">{stats.in_progress ?? displayTickets.filter((t: any) => t.status === "in_progress").length}</div>
               <Clock className="w-5 h-5 opacity-60" />
             </div>
             <div className="text-xs opacity-80">In Progress</div>
           </div>
-          <div className="rounded-xl p-4 text-white" style={{ background: "#2BAE8E" }}>
+          <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-2xl font-bold">{stats.resolved_today ?? displayTickets.filter((t: any) => t.status === "resolved").length}</div>
               <CheckCircle className="w-5 h-5 opacity-60" />
             </div>
             <div className="text-xs opacity-80">Resolved Today</div>
           </div>
-          <div className="rounded-xl p-4 text-white" style={{ background: "#1A3C5E" }}>
+          <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
             <div className="flex items-center justify-between mb-2">
               <div className="text-2xl font-bold">{stats.avg_resolution_hours ? `${stats.avg_resolution_hours}h` : "—"}</div>
               <Clock className="w-5 h-5 opacity-60" />
@@ -207,15 +207,15 @@ export default function TicketsPage() {
           action={
             <div className="flex items-center gap-2 flex-wrap">
               <div className="relative">
-                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "#64748B" }} />
+                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
                 <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search tickets..."
                   className="pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none border w-40"
-                  style={{ borderColor: "#E2E8F0", background: "#F5F7FA" }} />
+                  style={{ borderColor: "var(--color-border)", background: "var(--color-light)" }} />
               </div>
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs outline-none border"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
                 <option value="">All Status</option>
                 <option value="open">Open</option>
                 <option value="assigned">Assigned</option>
@@ -225,13 +225,13 @@ export default function TicketsPage() {
               </select>
               <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs outline-none border"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
                 <option value="">All Priority</option>
                 {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
               <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}
                 className="px-2 py-1.5 rounded-lg text-xs outline-none border"
-                style={{ borderColor: "#E2E8F0", background: "#F5F7FA", color: "#1A2E44" }}>
+                style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
                 <option value="">All Categories</option>
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -244,37 +244,37 @@ export default function TicketsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-8">
-            <TicketCheck className="w-6 h-6 mx-auto mb-2" style={{ color: "#64748B" }} />
-            <p className="text-sm" style={{ color: "#64748B" }}>No tickets found</p>
+            <TicketCheck className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} />
+            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No tickets found</p>
           </div>
         ) : (
           <Table
             data={filtered}
             keyExtractor={(t: any) => t.id}
             columns={[
-              { key: "id", header: "Ticket#", render: (t: any) => <span className="font-mono text-xs" style={{ color: "#2C3547" }}>#{t.id?.slice(0, 8)}</span> },
+              { key: "id", header: "Ticket#", render: (t: any) => <span className="font-mono text-xs" style={{ color: "var(--color-sidebar)" }}>#{t.id?.slice(0, 8)}</span> },
               { key: "title", header: "Issue", render: (t: any) => <span className="text-sm font-medium">{t.title}</span> },
-              { key: "unit_label", header: "Unit", render: (t: any) => <span className="text-xs" style={{ color: "#667085" }}>{t.unit_label || "—"}</span> },
-              { key: "category", header: "Category", render: (t: any) => t.category ? <Badge variant="gray">{t.category}</Badge> : <span style={{ color: "#667085" }}>—</span> },
+              { key: "unit_label", header: "Unit", render: (t: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{t.unit_label || "—"}</span> },
+              { key: "category", header: "Category", render: (t: any) => t.category ? <Badge variant="gray">{t.category}</Badge> : <span style={{ color: "var(--color-text-muted)" }}>—</span> },
               { key: "priority", header: "Priority", render: (t: any) => <Badge variant={PRIORITY_CONFIG[t.priority]?.badge || "gray"}>{t.priority}</Badge> },
               { key: "status", header: "Status", render: (t: any) => <Badge variant={STATUS_BADGE[t.status] || "gray"}>{t.status.replace("_", " ")}</Badge> },
-              { key: "assigned_name", header: "Assigned To", render: (t: any) => <span className="text-xs" style={{ color: "#667085" }}>{t.assigned_name || "—"}</span> },
-              { key: "created_at", header: "Created", render: (t: any) => <span className="text-xs" style={{ color: "#667085" }}>{formatDate(t.created_at)}</span> },
+              { key: "assigned_name", header: "Assigned To", render: (t: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{t.assigned_name || "—"}</span> },
+              { key: "created_at", header: "Created", render: (t: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{formatDate(t.created_at)}</span> },
               { key: "actions", header: "Actions", render: (t: any) => (
                 <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                   <button onClick={() => setExpandedTicket(expandedTicket === t.id ? null : t.id)} className="p-1 rounded hover:bg-gray-100" title="Details">
-                    {expandedTicket === t.id ? <ChevronDown className="w-3.5 h-3.5" style={{ color: "#2C3547" }} /> : <ChevronRight className="w-3.5 h-3.5" style={{ color: "#2C3547" }} />}
+                    {expandedTicket === t.id ? <ChevronDown className="w-3.5 h-3.5" style={{ color: "var(--color-sidebar)" }} /> : <ChevronRight className="w-3.5 h-3.5" style={{ color: "var(--color-sidebar)" }} />}
                   </button>
                   {(t.status === "open" || t.status === "assigned") && (
                     <div className="relative">
                       <button onClick={() => setAssigning(assigning === t.id ? null : t.id)} className="p-1 rounded hover:bg-gray-100" title="Assign">
-                        <User className="w-3.5 h-3.5" style={{ color: "#2C3547" }} />
+                        <User className="w-3.5 h-3.5" style={{ color: "var(--color-sidebar)" }} />
                       </button>
                       {assigning === t.id && (
-                        <div className="absolute top-full left-0 z-20 mt-1 w-48 bg-white rounded-lg shadow-xl" style={{ border: "1px solid #E5E7EB" }}>
+                        <div className="absolute top-full left-0 z-20 mt-1 w-48 bg-white rounded-lg shadow-xl" style={{ border: "1px solid var(--color-border)" }}>
                           <div className="p-2">
-                            <p className="text-[10px] font-medium mb-1" style={{ color: "#667085" }}>Assign to:</p>
-                            <select onChange={(e) => { if (e.target.value) handleAssign(t.id, e.target.value); }} className="w-full px-2 py-1 rounded text-xs border outline-none" style={{ borderColor: "#E5E7EB", background: "#F5F7FA", color: "#1A2E44" }}>
+                            <p className="text-[10px] font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Assign to:</p>
+                            <select onChange={(e) => { if (e.target.value) handleAssign(t.id, e.target.value); }} className="w-full px-2 py-1 rounded text-xs border outline-none" style={{ borderColor: "var(--color-border)", background: "var(--color-light)", color: "var(--color-text)" }}>
                               <option value="">Select Assignee...</option>
                               <optgroup label="Maintenance Vendors">
                                 {vendors?.map((v: any) => <option key={`v-${v.id}`} value={v.id}>{v.name}</option>)}
@@ -295,17 +295,17 @@ export default function TicketsPage() {
                   )}
                   {t.status === "assigned" && (
                     <button onClick={() => updateTicket(t.id, { status: "in_progress" }, "Ticket started")} className="p-1 rounded hover:bg-gray-100" title="Start">
-                      <Play className="w-3.5 h-3.5" style={{ color: "#F5A623" }} />
+                      <Play className="w-3.5 h-3.5" style={{ color: "var(--color-warning)" }} />
                     </button>
                   )}
                   {t.status === "in_progress" && (
                     <button onClick={() => updateTicket(t.id, { status: "resolved", resolved_at: new Date().toISOString() }, "Ticket resolved")} className="p-1 rounded hover:bg-gray-100" title="Resolve">
-                      <CheckCircle className="w-3.5 h-3.5" style={{ color: "#2BAE8E" }} />
+                      <CheckCircle className="w-3.5 h-3.5" style={{ color: "var(--color-primary)" }} />
                     </button>
                   )}
                   {(t.status === "resolved" || t.status === "in_progress") && (
                     <button onClick={() => updateTicket(t.id, { status: "closed" }, "Ticket closed")} className="p-1 rounded hover:bg-gray-100" title="Close">
-                      <X className="w-3.5 h-3.5" style={{ color: "#667085" }} />
+                      <X className="w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
                     </button>
                   )}
                 </div>
@@ -322,48 +322,48 @@ export default function TicketsPage() {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/20" onClick={() => setShowCreateModal(false)} />
-          <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl max-h-[90vh] overflow-y-auto" style={{ border: "1px solid #E5E7EB" }}>
-            <div className="sticky top-0 bg-white z-10 px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid #E5E7EB" }}>
-              <h2 className="text-base font-semibold" style={{ color: "#2C3547" }}>Create Ticket</h2>
-              <button onClick={() => setShowCreateModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#667085" }} /></button>
+          <div className="relative w-full max-w-lg bg-white rounded-xl shadow-xl max-h-[90vh] overflow-y-auto" style={{ border: "1px solid var(--color-border)" }}>
+            <div className="sticky top-0 bg-white z-10 px-6 py-4 flex items-center justify-between rounded-t-xl" style={{ borderBottom: "1px solid var(--color-border)" }}>
+              <h2 className="text-base font-semibold" style={{ color: "var(--color-sidebar)" }}>Create Ticket</h2>
+              <button onClick={() => setShowCreateModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>
             </div>
             <div className="p-6 space-y-4 text-sm">
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Title *</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Title *</label>
                 <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Description</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Description</label>
                 <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} rows={3} />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} rows={3} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Category</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Category</label>
                   <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "#1A2E44" }}>
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "var(--color-text)" }}>
                     <option value="">Select</option>
                     {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Priority</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Priority</label>
                   <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                    style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "#1A2E44" }}>
+                    style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "var(--color-text)" }}>
                     {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Unit ID</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Unit ID</label>
                 <input type="text" value={formData.unit_id} onChange={(e) => setFormData({ ...formData, unit_id: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%" }} />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: "#667085" }}>Assign To</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Assign To</label>
                 <select value={formData.assigned_to} onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
-                  style={{ border: "1px solid #E5E7EB", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "#1A2E44" }}>
+                  style={{ border: "1px solid var(--color-border)", borderRadius: "8px", padding: "8px 12px", width: "100%", color: "var(--color-text)" }}>
                   <option value="">Unassigned</option>
                   <optgroup label="Maintenance Vendors">
                     {vendors?.map((v: any) => <option key={`v-${v.id}`} value={v.id}>{v.name}</option>)}
@@ -379,9 +379,9 @@ export default function TicketsPage() {
                 </select>
               </div>
             </div>
-            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid #E5E7EB" }}>
-              <button onClick={() => setShowCreateModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "#667085", background: "#F5F7FA" }}>Cancel</button>
-              <button onClick={handleCreateTicket} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "#2BAE8E" }}>
+            <div className="px-6 py-4 flex items-center justify-end gap-2" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <button onClick={() => setShowCreateModal(false)} className="px-4 py-1.5 rounded-lg text-xs font-medium" style={{ color: "var(--color-text-muted)", background: "var(--color-light)" }}>Cancel</button>
+              <button onClick={handleCreateTicket} disabled={saving} className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-colors" style={{ background: "var(--color-primary)" }}>
                 {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                 {saving ? "Saving..." : "Create"}
               </button>
@@ -402,15 +402,15 @@ function TicketDetail({ ticketId, onClose }: { ticketId: string; onClose: () => 
     <Card>
       <CardHeader
         title={`Ticket Details: #${ticketId.slice(0, 8)}`}
-        action={<button onClick={onClose} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "#667085" }} /></button>}
+        action={<button onClick={onClose} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>}
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-          <h4 className="text-xs font-semibold uppercase mb-2" style={{ color: "#667085" }}>
+        <div className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+          <h4 className="text-xs font-semibold uppercase mb-2" style={{ color: "var(--color-text-muted)" }}>
             <Package className="w-3 h-3 inline mr-1" />Parts Used
           </h4>
           {partsLoading ? <SkeletonRow /> : !ticketParts?.length ? (
-            <p className="text-xs" style={{ color: "#667085" }}>No parts used</p>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>No parts used</p>
           ) : (
             <div className="space-y-1">
               {ticketParts.map((p: any) => (
@@ -422,12 +422,12 @@ function TicketDetail({ ticketId, onClose }: { ticketId: string; onClose: () => 
             </div>
           )}
         </div>
-        <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-          <h4 className="text-xs font-semibold uppercase mb-2" style={{ color: "#667085" }}>
+        <div className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+          <h4 className="text-xs font-semibold uppercase mb-2" style={{ color: "var(--color-text-muted)" }}>
             <Clock className="w-3 h-3 inline mr-1" />Time Logged
           </h4>
           {timeLoading ? <SkeletonRow /> : !timeEntries?.length ? (
-            <p className="text-xs" style={{ color: "#667085" }}>No time entries</p>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>No time entries</p>
           ) : (
             <div className="space-y-1">
               {timeEntries.map((e: any) => (
@@ -439,12 +439,12 @@ function TicketDetail({ ticketId, onClose }: { ticketId: string; onClose: () => 
             </div>
           )}
         </div>
-        <div className="p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-          <h4 className="text-xs font-semibold uppercase mb-2" style={{ color: "#667085" }}>
+        <div className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+          <h4 className="text-xs font-semibold uppercase mb-2" style={{ color: "var(--color-text-muted)" }}>
             <CheckCircle className="w-3 h-3 inline mr-1" />Approval History
           </h4>
           {approvalsLoading ? <SkeletonRow /> : !approvals?.length ? (
-            <p className="text-xs" style={{ color: "#667085" }}>No approvals</p>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>No approvals</p>
           ) : (
             <div className="space-y-1">
               {approvals.map((a: any) => (
@@ -462,3 +462,4 @@ function TicketDetail({ ticketId, onClose }: { ticketId: string; onClose: () => 
 }
 
 
+

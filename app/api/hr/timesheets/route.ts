@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
     const propertyId = searchParams.get("property_id");
 
-    const rows = await sql`
+    let query = `
       SELECT
         t.*,
         json_build_object('id', e.id, 'employee_code', e.employee_code, 'designation', e.designation, 'property_id', e.property_id) AS employee,
@@ -24,13 +24,22 @@ export async function GET(req: NextRequest) {
       LEFT JOIN employees e ON e.id = t.employee_id
       LEFT JOIN users u ON u.id = e.user_id
       WHERE 1=1
-        ${employeeId  ? sql`AND t.employee_id = ${employeeId}` : sql``}
-        ${dateFrom    ? sql`AND t.date >= ${dateFrom}::date` : sql``}
-        ${dateTo      ? sql`AND t.date <= ${dateTo}::date` : sql``}
-        ${status      ? sql`AND t.status = ${status}` : sql``}
-        ${propertyId  ? sql`AND e.property_id = ${propertyId}` : scope.assignedPropertyIds.length > 0 ? sql`AND e.property_id = ANY(${scope.assignedPropertyIds})` : sql``}
-      ORDER BY t.date DESC, t.created_at DESC
     `;
+    const params: unknown[] = [];
+    if (employeeId) { params.push(employeeId); query += ` AND t.employee_id = $${params.length}`; }
+    if (dateFrom) { params.push(dateFrom); query += ` AND t.date >= $${params.length}::date`; }
+    if (dateTo) { params.push(dateTo); query += ` AND t.date <= $${params.length}::date`; }
+    if (status) { params.push(status); query += ` AND t.status = $${params.length}`; }
+    if (propertyId) {
+      params.push(propertyId);
+      query += ` AND e.property_id = $${params.length}`;
+    } else if (scope.assignedPropertyIds.length > 0) {
+      params.push(scope.assignedPropertyIds);
+      query += ` AND e.property_id = ANY($${params.length})`;
+    }
+    query += " ORDER BY t.date DESC, t.created_at DESC";
+
+    const rows = await sql.query(query, params);
 
     return NextResponse.json({ data: rows });
   } catch (error) {

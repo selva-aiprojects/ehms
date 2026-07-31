@@ -108,12 +108,12 @@ export default function FAndBPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "#1A3C5E" }}>
-            <Coffee className="w-6 h-6 text-[#2BAE8E]" /> Food & Beverage
+          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: "var(--color-navy)" }}>
+            <Coffee className="w-6 h-6 text-[var(--color-primary)]" /> Food & Beverage
           </h1>
-          <p className="text-[#64748B] mt-1 text-sm">Manage room service orders and post charges to guest folios.</p>
+          <p className="text-[var(--color-text-muted)] mt-1 text-sm">Manage room service orders and post charges to guest folios.</p>
         </div>
-        <Button className="bg-[#2BAE8E] hover:bg-[#239B7E] text-white" onClick={() => setShowOrderForm(true)}>
+        <Button className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white" onClick={() => setShowOrderForm(true)}>
           <Plus className="w-4 h-4 mr-2" /> New Order
         </Button>
       </div>
@@ -127,34 +127,34 @@ export default function FAndBPage() {
               subtitle={`${orders.filter(o => o.status !== "delivered" && o.status !== "cancelled").length} in progress`}
             />
             {loading ? (
-              <div className="flex justify-center p-12"><Loader2 className="w-7 h-7 animate-spin text-[#64748B]" /></div>
+              <div className="flex justify-center p-12"><Loader2 className="w-7 h-7 animate-spin text-[var(--color-text-muted)]" /></div>
             ) : orders.length === 0 ? (
-              <div className="p-12 text-center text-[#64748B]">
+              <div className="p-12 text-center text-[var(--color-text-muted)]">
                 <ShoppingBag className="w-8 h-8 mx-auto mb-3 text-gray-300" />
                 No orders yet. Create one using the button above.
               </div>
             ) : (
-              <div className="divide-y divide-[#E2E8F0]">
+              <div className="divide-y divide-[var(--color-border)]">
                 {orders.map(order => (
-                  <div key={order.id} className="p-4 hover:bg-[#F5F7FA] transition-colors flex flex-col md:flex-row justify-between md:items-center gap-3">
+                  <div key={order.id} className="p-4 hover:bg-[var(--color-light)] transition-colors flex flex-col md:flex-row justify-between md:items-center gap-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="font-semibold text-[#1A3C5E]">Room {order.unit_label || "—"}</span>
+                        <span className="font-semibold text-[var(--color-navy)]">Room {order.unit_label || "—"}</span>
                         <Badge variant={getStatusVariant(order.status)} className="capitalize">
                           {order.status.replace(/_/g, " ")}
                         </Badge>
                         {order.is_complimentary && <Badge variant="teal" className="text-[10px]">Complimentary</Badge>}
                       </div>
-                      <div className="text-sm text-[#1A2E44]">
+                      <div className="text-sm text-[var(--color-text)]">
                         {order.items?.map((item: any) => `${item.quantity}x ${item.item_name}`).join(", ") || "—"}
                       </div>
-                      <div className="text-xs text-[#64748B] mt-1 flex items-center gap-1">
+                      <div className="text-xs text-[var(--color-text-muted)] mt-1 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {new Date(order.created_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-[#1A3C5E]">₹{Number(order.total_amount).toLocaleString("en-IN")}</div>
+                      <div className="font-bold text-[var(--color-navy)]">₹{Number(order.total_amount).toLocaleString("en-IN")}</div>
                       {order.status === "pending" && (
                         <button
                           onClick={async () => {
@@ -165,7 +165,7 @@ export default function FAndBPage() {
                             });
                             await mutateOrders();
                           }}
-                          className="text-xs mt-1 text-[#2BAE8E] border border-[#2BAE8E] rounded px-2 py-0.5 hover:bg-[#2BAE8E]/10 transition-colors"
+                          className="text-xs mt-1 text-[var(--color-primary)] border border-[var(--color-primary)] rounded px-2 py-0.5 hover:bg-[color:var(--color-primary)]/10 transition-colors"
                         >
                           Accept
                         </button>
@@ -190,8 +190,8 @@ export default function FAndBPage() {
                   onClick={() => setActiveCategory(cat)}
                   className="text-xs px-2.5 py-1 rounded-full font-medium transition-all"
                   style={{
-                    background: activeCategory === cat ? "#1A3C5E" : "#F5F7FA",
-                    color: activeCategory === cat ? "#fff" : "#64748B"
+                    background: activeCategory === cat ? "var(--color-navy)" : "var(--color-light)",
+                    color: activeCategory === cat ? "var(--color-white)" : "var(--color-text-muted)"
                   }}
                 >
                   {cat}
@@ -200,17 +200,17 @@ export default function FAndBPage() {
             </div>
             <div className="space-y-1.5 max-h-96 overflow-y-auto">
               {loading ? (
-                <div className="text-center text-sm text-[#64748B] py-4">Loading menu...</div>
+                <div className="text-center text-sm text-[var(--color-text-muted)] py-4">Loading menu...</div>
               ) : filteredMenu.length === 0 ? (
-                <div className="text-center text-sm text-[#64748B] py-4">No items.</div>
+                <div className="text-center text-sm text-[var(--color-text-muted)] py-4">No items.</div>
               ) : (
                 filteredMenu.map(item => (
-                  <div key={item.id} className="flex justify-between items-center p-2 rounded bg-[#F5F7FA] text-sm">
+                  <div key={item.id} className="flex justify-between items-center p-2 rounded bg-[var(--color-light)] text-sm">
                     <div>
-                      <div className="font-medium text-[#1A2E44]">{item.item_name}</div>
-                      <div className="text-xs text-[#64748B]">{item.category}</div>
+                      <div className="font-medium text-[var(--color-text)]">{item.item_name}</div>
+                      <div className="text-xs text-[var(--color-text-muted)]">{item.category}</div>
                     </div>
-                    <span className="text-[#2BAE8E] font-semibold">₹{item.price}</span>
+                    <span className="text-[var(--color-primary)] font-semibold">₹{item.price}</span>
                   </div>
                 ))
               )}
@@ -225,7 +225,7 @@ export default function FAndBPage() {
           <div className="fixed inset-0 bg-black/20 z-40" onClick={() => setShowOrderForm(false)} />
           <div className="fixed inset-y-0 right-0 w-full max-w-lg bg-white shadow-2xl z-50 animate-in slide-in-from-right duration-300 flex flex-col">
             <div className="px-6 py-4 border-b flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#1A3C5E]">New Room Service Order</h2>
+              <h2 className="text-lg font-semibold text-[var(--color-navy)]">New Room Service Order</h2>
               <button onClick={() => setShowOrderForm(false)} className="text-gray-400 hover:text-gray-600 p-1">
                 <XCircle className="w-5 h-5" />
               </button>
@@ -234,7 +234,7 @@ export default function FAndBPage() {
             <div className="p-6 flex-1 overflow-y-auto space-y-5">
               {/* Guest selector */}
               <div>
-                <label className="block text-sm font-medium text-[#1A3C5E] mb-1">Guest / Room</label>
+                <label className="block text-sm font-medium text-[var(--color-navy)] mb-1">Guest / Room</label>
                 <ActiveBookingSelector
                   value={formData.booking_id}
                   onChange={(bId) => setFormData({ ...formData, booking_id: bId })}
@@ -243,7 +243,7 @@ export default function FAndBPage() {
 
               {/* Category tabs */}
               <div>
-                <label className="block text-sm font-medium text-[#1A3C5E] mb-2">Menu Items</label>
+                <label className="block text-sm font-medium text-[var(--color-navy)] mb-2">Menu Items</label>
                 <div className="flex gap-1.5 flex-wrap mb-3">
                   {["All", ...MENU_CATEGORIES].map(cat => (
                     <button
@@ -252,8 +252,8 @@ export default function FAndBPage() {
                       onClick={() => setActiveCategory(cat)}
                       className="text-xs px-2.5 py-1 rounded-full font-medium transition-all"
                       style={{
-                        background: activeCategory === cat ? "#1A3C5E" : "#F5F7FA",
-                        color: activeCategory === cat ? "#fff" : "#64748B"
+                        background: activeCategory === cat ? "var(--color-navy)" : "var(--color-light)",
+                        color: activeCategory === cat ? "var(--color-white)" : "var(--color-text-muted)"
                       }}
                     >
                       {cat}
@@ -266,10 +266,10 @@ export default function FAndBPage() {
                   {filteredMenu.map(item => {
                     const qty = formData.items.find(i => i.item_id === item.id)?.quantity || 0;
                     return (
-                      <div key={item.id} className="flex items-center justify-between bg-[#F5F7FA] p-2.5 rounded-lg border border-[#E2E8F0]">
+                      <div key={item.id} className="flex items-center justify-between bg-[var(--color-light)] p-2.5 rounded-lg border border-[var(--color-border)]">
                         <div>
-                          <div className="text-sm font-medium text-[#1A2E44]">{item.item_name}</div>
-                          <div className="text-xs text-[#64748B]">
+                          <div className="text-sm font-medium text-[var(--color-text)]">{item.item_name}</div>
+                          <div className="text-xs text-[var(--color-text-muted)]">
                             ₹{item.price}
                             {item.is_veg
                               ? <span className="ml-1.5 text-green-600">🟢 Veg</span>
@@ -279,10 +279,10 @@ export default function FAndBPage() {
                         </div>
                         <div className="flex items-center gap-2 bg-white border rounded-lg overflow-hidden">
                           <button type="button" onClick={() => updateQty(item, -1)}
-                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-lg font-bold text-[#64748B]">−</button>
-                          <span className="text-sm font-semibold w-5 text-center text-[#1A3C5E]">{qty}</span>
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-lg font-bold text-[var(--color-text-muted)]">−</button>
+                          <span className="text-sm font-semibold w-5 text-center text-[var(--color-navy)]">{qty}</span>
                           <button type="button" onClick={() => updateQty(item, +1)}
-                            className="w-8 h-8 flex items-center justify-center hover:bg-[#2BAE8E]/10 text-lg font-bold text-[#2BAE8E]">+</button>
+                            className="w-8 h-8 flex items-center justify-center hover:bg-[color:var(--color-primary)]/10 text-lg font-bold text-[var(--color-primary)]">+</button>
                         </div>
                       </div>
                     );
@@ -292,16 +292,16 @@ export default function FAndBPage() {
             </div>
 
             {/* Footer with total and submit */}
-            <div className="p-4 border-t bg-[#F5F7FA]">
+            <div className="p-4 border-t bg-[var(--color-light)]">
               {formData.items.length > 0 && (
                 <div className="mb-3 space-y-1">
                   {formData.items.map(i => (
-                    <div key={i.item_id} className="flex justify-between text-sm text-[#1A2E44]">
+                    <div key={i.item_id} className="flex justify-between text-sm text-[var(--color-text)]">
                       <span>{i.quantity}× {i.item_name}</span>
                       <span>₹{(i.price * i.quantity).toLocaleString("en-IN")}</span>
                     </div>
                   ))}
-                  <div className="flex justify-between font-bold text-[#1A3C5E] border-t pt-2 mt-1">
+                  <div className="flex justify-between font-bold text-[var(--color-navy)] border-t pt-2 mt-1">
                     <span>Total</span>
                     <span>₹{orderTotal.toLocaleString("en-IN")}</span>
                   </div>
@@ -311,7 +311,7 @@ export default function FAndBPage() {
                 type="button"
                 onClick={handleCreateOrder}
                 disabled={isSubmitting || !formData.booking_id || formData.items.length === 0}
-                className="w-full bg-[#1A3C5E] hover:bg-[#132d47] text-white px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[var(--color-navy)] hover:bg-[var(--color-dark-navy)] text-white px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</> : "Post to Guest Folio"}
               </button>
@@ -322,3 +322,4 @@ export default function FAndBPage() {
     </div>
   );
 }
+

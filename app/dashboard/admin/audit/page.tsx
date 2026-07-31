@@ -8,10 +8,10 @@ import Button from "@/components/ui/button";
 import { useAuditLogs, useAdminAuditEvents } from "@/lib/hooks";
 
 const SEVERITY_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  critical: { bg: "rgba(229,62,62,0.1)", text: "#E53E3E", dot: "#E53E3E" },
-  error: { bg: "rgba(229,62,62,0.08)", text: "#E53E3E", dot: "#E53E3E" },
-  warning: { bg: "rgba(245,166,35,0.1)", text: "#F5A623", dot: "#F5A623" },
-  info: { bg: "rgba(42,157,143,0.1)", text: "#2BAE8E", dot: "#2BAE8E" },
+  critical: { bg: "rgba(var(--color-danger-rgb),0.1)", text: "var(--color-danger)", dot: "var(--color-danger)" },
+  error: { bg: "rgba(var(--color-danger-rgb),0.08)", text: "var(--color-danger)", dot: "var(--color-danger)" },
+  warning: { bg: "rgba(var(--color-warning-rgb),0.1)", text: "var(--color-warning)", dot: "var(--color-warning)" },
+  info: { bg: "rgba(var(--color-primary-dark-rgb),0.1)", text: "var(--color-primary)", dot: "var(--color-primary)" },
 };
 
 export default function AuditPage() {
@@ -38,12 +38,12 @@ export default function AuditPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "#1A3C5E" }}>Audit Trail</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>System-wide activity monitoring and event tracking</p>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Audit Trail</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>System-wide activity monitoring and event tracking</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => { mutateLogs(); mutateEvents(); }}
-            className="p-1.5 rounded-lg transition-colors" style={{ color: "#64748B" }} aria-label="Refresh">
+            className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -60,7 +60,7 @@ export default function AuditPage() {
           return (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap"
-              style={{ background: isActive ? "#1A3C5E" : "#F5F7FA", color: isActive ? "#FFFFFF" : "#64748B" }}>
+              style={{ background: isActive ? "var(--color-navy)" : "var(--color-light)", color: isActive ? "var(--color-white)" : "var(--color-text-muted)" }}>
               <Icon className="w-4 h-4" /> {tab.label}
             </button>
           );
@@ -72,25 +72,25 @@ export default function AuditPage() {
           <CardHeader title="Activity Log" subtitle="User actions across the system"
             action={
               <div className="relative">
-                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "#94A3B8" }} />
+                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-faint)" }} />
                 <input type="text" value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by user or action..."
                   className="pl-8 pr-3 py-1.5 text-xs rounded-lg border outline-none w-48"
-                  style={{ borderColor: "#E2E8F0" }} />
+                  style={{ borderColor: "var(--color-border)" }} />
                 {searchQuery && (
                   <button onClick={() => setSearchQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2">
-                    <X className="w-3 h-3" style={{ color: "#94A3B8" }} />
+                    <X className="w-3 h-3" style={{ color: "var(--color-text-faint)" }} />
                   </button>
                 )}
               </div>
             } />
           {loadingLogs ? (
-            <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "#94A3B8" }} /></div>
+            <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-text-faint)" }} /></div>
           ) : filteredLogs.length === 0 ? (
             <div className="text-center py-8">
-              <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "#94A3B8" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No activity logs found</p>
+              <FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-faint)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No activity logs found</p>
             </div>
           ) : (
             <div className="space-y-0">
@@ -100,17 +100,17 @@ export default function AuditPage() {
                 const timeStr = a.created_at ? new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : a.time;
                 return (
                   <div key={a.id || i} className="flex items-center justify-between py-2.5 px-1"
-                    style={{ borderBottom: i < filteredLogs.length - 1 ? "1px solid #F1F5F9" : "none" }}>
+                    style={{ borderBottom: i < filteredLogs.length - 1 ? "1px solid var(--color-light)" : "none" }}>
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ background: "#2C3547" }}>
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ background: "var(--color-sidebar)" }}>
                         {initial}
                       </div>
                       <div>
-                        <span className="font-medium text-sm" style={{ color: "#1A2E44" }}>{userName}</span>
-                        <span className="ml-1 text-xs" style={{ color: "#64748B" }}>{a.action} {a.entity_type}</span>
+                        <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{userName}</span>
+                        <span className="ml-1 text-xs" style={{ color: "var(--color-text-muted)" }}>{a.action} {a.entity_type}</span>
                       </div>
                     </div>
-                    <span className="text-xs shrink-0 ml-2" style={{ color: "#94A3B8" }}>{timeStr}</span>
+                    <span className="text-xs shrink-0 ml-2" style={{ color: "var(--color-text-faint)" }}>{timeStr}</span>
                   </div>
                 );
               })}
@@ -128,8 +128,8 @@ export default function AuditPage() {
                   <button key={s || "all"} onClick={() => setSeverityFilter(s)}
                     className="px-2 py-1 text-[10px] font-medium rounded transition-all"
                     style={{
-                      background: severityFilter === s ? "#1A3C5E" : "#F5F7FA",
-                      color: severityFilter === s ? "#FFFFFF" : "#64748B",
+                      background: severityFilter === s ? "var(--color-navy)" : "var(--color-light)",
+                      color: severityFilter === s ? "var(--color-white)" : "var(--color-text-muted)",
                     }}>
                     {s || "All"}
                   </button>
@@ -137,11 +137,11 @@ export default function AuditPage() {
               </div>
             } />
           {loadingEvents ? (
-            <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "#94A3B8" }} /></div>
+            <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-text-faint)" }} /></div>
           ) : filteredEvents.length === 0 ? (
             <div className="text-center py-8">
-              <Activity className="w-6 h-6 mx-auto mb-2" style={{ color: "#94A3B8" }} />
-              <p className="text-sm" style={{ color: "#64748B" }}>No system events recorded</p>
+              <Activity className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-faint)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No system events recorded</p>
             </div>
           ) : (
             <div className="space-y-0">
@@ -150,17 +150,17 @@ export default function AuditPage() {
                 const SevIcon = e.severity === "error" || e.severity === "critical" ? AlertTriangle : Info;
                 return (
                   <div key={e.id || i} className="flex items-start gap-3 py-3 px-1"
-                    style={{ borderBottom: i < filteredEvents.length - 1 ? "1px solid #F1F5F9" : "none" }}>
+                    style={{ borderBottom: i < filteredEvents.length - 1 ? "1px solid var(--color-light)" : "none" }}>
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: colors.bg }}>
                       <SevIcon className="w-4 h-4" style={{ color: colors.text }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium" style={{ color: "#1A2E44" }}>{e.title}</div>
-                      <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{e.description || e.event_type}</div>
+                      <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{e.title}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{e.description || e.event_type}</div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <Badge variant={e.severity === "critical" ? "red" : e.severity === "error" ? "red" : e.severity === "warning" ? "amber" : "teal"}>{e.severity}</Badge>
-                      <span className="text-[10px]" style={{ color: "#94A3B8" }}>
+                      <span className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>
                         {new Date(e.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                       </span>
                     </div>
@@ -178,12 +178,12 @@ export default function AuditPage() {
             <CardHeader title="Activity Stats" subtitle="Last 7 days" />
             <div className="space-y-3 text-sm">
               {[
-                { label: "Total Actions", value: (logs || []).length, color: "#1A3C5E" },
-                { label: "Unique Users", value: [...new Set((logs || []).map((l: any) => l.user_id))].length, color: "#2BAE8E" },
-                { label: "System Events", value: (auditEvents || []).length, color: "#F5A623" },
+                { label: "Total Actions", value: (logs || []).length, color: "var(--color-navy)" },
+                { label: "Unique Users", value: [...new Set((logs || []).map((l: any) => l.user_id))].length, color: "var(--color-primary)" },
+                { label: "System Events", value: (auditEvents || []).length, color: "var(--color-warning)" },
               ].map((s) => (
-                <div key={s.label} className="flex justify-between items-center p-3 rounded-lg" style={{ background: "#F5F7FA" }}>
-                  <span style={{ color: "#64748B" }}>{s.label}</span>
+                <div key={s.label} className="flex justify-between items-center p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                  <span style={{ color: "var(--color-text-muted)" }}>{s.label}</span>
                   <span className="font-bold text-lg" style={{ color: s.color }}>{s.value}</span>
                 </div>
               ))}
@@ -218,7 +218,7 @@ export default function AuditPage() {
                 }, {} as Record<string, number>)
               ) as [string, number][]).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([action, count]) => (
                 <div key={action} className="flex items-center justify-between py-1">
-                  <span className="text-sm" style={{ color: "#1A2E44" }}>{action}</span>
+                  <span className="text-sm" style={{ color: "var(--color-text)" }}>{action}</span>
                   <Badge variant="gray">{count}</Badge>
                 </div>
               ))}

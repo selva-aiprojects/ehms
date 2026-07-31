@@ -44,8 +44,8 @@ export default function CalendarPage() {
   if (isLoading) {
     return (
       <div className="p-6 flex items-center justify-center" style={{ minHeight: "60vh" }}>
-        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "#3B82F6" }} />
-        <span className="ml-2 text-sm" style={{ color: "#64748B" }}>Loading calendar...</span>
+        <Loader2 className="w-6 h-6 animate-spin" style={{ color: "var(--color-info)" }} />
+        <span className="ml-2 text-sm" style={{ color: "var(--color-text-muted)" }}>Loading calendar...</span>
       </div>
     );
   }
@@ -55,34 +55,34 @@ export default function CalendarPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(59,130,246,0.10)" }}>
-            <GanttChart className="w-5 h-5" style={{ color: "#3B82F6" }} />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(var(--color-info-rgb),0.10)" }}>
+            <GanttChart className="w-5 h-5" style={{ color: "var(--color-info)" }} />
           </div>
           <div>
-            <h1 className="text-lg font-bold" style={{ color: "#1A3C5E" }}>Reservation Calendar</h1>
-            <p className="text-xs" style={{ color: "#64748B" }}>
+            <h1 className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>Reservation Calendar</h1>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
               Drag bookings to move between rooms. Click empty cells to create new bookings.
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <label className="text-xs font-medium" style={{ color: "#64748B" }}>From:</label>
+            <label className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>From:</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="text-xs border rounded-lg px-3 py-1.5"
-              style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+              style={{ borderColor: "var(--color-border)", color: "var(--color-navy)" }}
             />
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-xs font-medium" style={{ color: "#64748B" }}>Days:</label>
+            <label className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Days:</label>
             <select
               value={days}
               onChange={(e) => setDays(parseInt(e.target.value))}
               className="text-xs border rounded-lg px-3 py-1.5"
-              style={{ borderColor: "#E2E8F0", color: "#1A3C5E" }}
+              style={{ borderColor: "var(--color-border)", color: "var(--color-navy)" }}
             >
               <option value={7}>7 days</option>
               <option value={14}>14 days</option>

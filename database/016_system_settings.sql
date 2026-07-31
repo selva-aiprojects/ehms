@@ -1,12 +1,12 @@
 -- 016_system_settings.sql
--- Creates the global configuration table for eHMS
+-- Creates the global configuration table for HostSphere
 
 CREATE TABLE IF NOT EXISTS system_settings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    company_name VARCHAR(255) NOT NULL DEFAULT 'eHMS',
-    logo_url VARCHAR(255) NOT NULL DEFAULT '/eHMS_logo.png',
-    primary_color VARCHAR(50) NOT NULL DEFAULT '#1A3C5E',
-    secondary_color VARCHAR(50) NOT NULL DEFAULT '#2BAE8E',
+    company_name VARCHAR(255) NOT NULL DEFAULT 'HostSphere',
+    logo_url VARCHAR(255) NOT NULL DEFAULT '/hostsphere-logo.png',
+    primary_color VARCHAR(50) NOT NULL DEFAULT '#D4AF37',
+    secondary_color VARCHAR(50) NOT NULL DEFAULT '#0F172A',
     currency_symbol VARCHAR(10) NOT NULL DEFAULT '₹',
     timezone VARCHAR(100) NOT NULL DEFAULT 'Asia/Kolkata',
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -23,10 +23,10 @@ INSERT INTO system_settings (
     timezone
 )
 SELECT 
-    'eHMS', 
-    '/eHMS_logo.png', 
-    '#1A3C5E', 
-    '#2BAE8E', 
+    'HostSphere', 
+    '/hostsphere-logo.png', 
+    '#D4AF37', 
+    '#0F172A', 
     '₹', 
     'Asia/Kolkata'
 WHERE NOT EXISTS (

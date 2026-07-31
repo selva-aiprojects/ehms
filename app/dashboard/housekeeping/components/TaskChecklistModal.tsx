@@ -106,24 +106,24 @@ export default function TaskChecklistModal({ isOpen, onClose, task, onResolve }:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between p-4 border-b border-[#E2E8F0]">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(42,157,143,0.1)" }}>
-              <CheckCircle className="w-4 h-4" style={{ color: "#2BAE8E" }} />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(var(--color-primary-dark-rgb),0.1)" }}>
+              <CheckCircle className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
             </div>
             <div>
-              <h2 className="font-semibold text-[#1A3C5E]">Quality Assurance Checklist</h2>
-              <p className="text-xs text-[#64748B]">Room {task.unit?.unit_label || "Unknown"} • {taskType.replace("_", " ")}</p>
+              <h2 className="font-semibold text-[var(--color-navy)]">Quality Assurance Checklist</h2>
+              <p className="text-xs text-[var(--color-text-muted)]">Room {task.unit?.unit_label || "Unknown"} • {taskType.replace("_", " ")}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-[#64748B] hover:bg-[#F5F7FA] rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-light)] rounded-full transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-4 overflow-y-auto bg-[#F8FAFC]">
+        <div className="p-4 overflow-y-auto bg-[var(--color-light)]">
           {error && (
-            <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: "rgba(229,62,62,0.1)", color: "#E53E3E" }}>
+            <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.1)", color: "var(--color-danger)" }}>
               <AlertCircle className="w-4 h-4 shrink-0" />
               {error}
             </div>
@@ -131,17 +131,17 @@ export default function TaskChecklistModal({ isOpen, onClose, task, onResolve }:
 
           <div className="mb-4">
             <div className="flex justify-between text-xs font-medium mb-2">
-              <span style={{ color: "#1A3C5E" }}>Progress</span>
-              <span style={{ color: isAllChecked ? "#2BAE8E" : "#64748B" }}>
+              <span style={{ color: "var(--color-navy)" }}>Progress</span>
+              <span style={{ color: isAllChecked ? "var(--color-primary)" : "var(--color-text-muted)" }}>
                 {checkedItems.size} / {items.length} completed
               </span>
             </div>
-            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "#E2E8F0" }}>
+            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "var(--color-border)" }}>
               <div 
                 className="h-full transition-all duration-300 ease-out" 
                 style={{ 
                   width: `${(checkedItems.size / items.length) * 100}%`,
-                  background: isAllChecked ? "#2BAE8E" : "#1A3C5E" 
+                  background: isAllChecked ? "var(--color-primary)" : "var(--color-navy)" 
                 }} 
               />
             </div>
@@ -154,18 +154,18 @@ export default function TaskChecklistModal({ isOpen, onClose, task, onResolve }:
                 <label 
                   key={index} 
                   className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                    checked ? "bg-white border-[#2BAE8E]/30" : "bg-white border-[#E2E8F0] hover:border-[#CBD5E1]"
+                    checked ? "bg-white border-[color:var(--color-primary)]/30" : "bg-white border-[var(--color-border)] hover:border-[var(--color-border-strong)]"
                   }`}
                 >
                   <div className="pt-0.5">
                     <input 
                       type="checkbox" 
-                      className="w-4 h-4 rounded accent-[#2BAE8E] cursor-pointer"
+                      className="w-4 h-4 rounded accent-[var(--color-primary)] cursor-pointer"
                       checked={checked}
                       onChange={() => toggleCheck(index)}
                     />
                   </div>
-                  <span className={`text-sm ${checked ? "text-[#64748B] line-through" : "text-[#1A2E44]"}`}>
+                  <span className={`text-sm ${checked ? "text-[var(--color-text-muted)] line-through" : "text-[var(--color-text)]"}`}>
                     {item}
                   </span>
                 </label>
@@ -174,14 +174,14 @@ export default function TaskChecklistModal({ isOpen, onClose, task, onResolve }:
           </div>
         </div>
 
-        <div className="p-4 border-t border-[#E2E8F0] flex justify-between items-center bg-white">
-          <div className="text-xs text-[#64748B]">
+        <div className="p-4 border-t border-[var(--color-border)] flex justify-between items-center bg-white">
+          <div className="text-xs text-[var(--color-text-muted)]">
             All items must be checked before resolving.
           </div>
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-[#64748B] bg-white border border-[#E2E8F0] rounded-lg hover:bg-[#F5F7FA] transition-colors"
+              className="px-4 py-2 text-sm font-medium text-[var(--color-text-muted)] bg-white border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-light)] transition-colors"
               disabled={isSubmitting}
             >
               Close
@@ -189,7 +189,7 @@ export default function TaskChecklistModal({ isOpen, onClose, task, onResolve }:
             <button
               onClick={handleResolve}
               className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors flex items-center gap-2 ${
-                isAllChecked && !isSubmitting ? "bg-[#2BAE8E] hover:bg-[#23997C]" : "bg-[#CBD5E1] cursor-not-allowed"
+                isAllChecked && !isSubmitting ? "bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)]" : "bg-[var(--color-border-strong)] cursor-not-allowed"
               }`}
               disabled={!isAllChecked || isSubmitting}
             >
@@ -205,3 +205,4 @@ export default function TaskChecklistModal({ isOpen, onClose, task, onResolve }:
     </div>
   );
 }
+

@@ -277,12 +277,12 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
         onClick={onMobileClose}
         className="flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative"
         style={{
-          background: active ? "rgba(255,255,255,0.10)" : "transparent",
-          color: active ? "#FFFFFF" : "rgba(255,255,255,0.60)",
-          borderLeft: active ? "3px solid var(--tenant-sidebar-active, #2BAE8E)" : "3px solid transparent",
+          background: active ? "rgba(var(--color-white-rgb),0.10)" : "transparent",
+          color: active ? "var(--color-white)" : "rgba(var(--color-white-rgb),0.60)",
+          borderLeft: active ? "3px solid var(--tenant-sidebar-active, var(--color-primary))" : "3px solid transparent",
         }}
         onMouseEnter={(e) => {
-          if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+          if (!active) e.currentTarget.style.background = "rgba(var(--color-white-rgb),0.06)";
         }}
         onMouseLeave={(e) => {
           if (!active) e.currentTarget.style.background = "transparent";
@@ -307,14 +307,14 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
     <>
       <div
         className="flex flex-col items-center justify-center py-6 px-3 shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+        style={{ borderBottom: "1px solid rgba(var(--color-white-rgb),0.08)" }}
       >
         {settings.logo_url && (
           <Image
             src={settings.logo_url}
-            alt={settings.company_name || "CybeHMS"}
+            alt={settings.company_name || "HostSphere"}
             width={collapsed ? 36 : 120}
-            height={collapsed ? 36 : 80}
+            height={collapsed ? 36 : 44}
             className="object-contain transition-all duration-300"
             style={{ filter: "brightness(1.05)" }}
             priority
@@ -331,7 +331,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
                 setExpandedGroups(allExpanded ? new Set() : new Set(NAV_GROUPS.map(g => g.label)));
               }}
               className="text-xs px-2 py-1 rounded transition-all hover:opacity-70"
-              style={{ color: "rgba(255,255,255,0.35)" }}
+              style={{ color: "rgba(var(--color-white-rgb),0.35)" }}
               title="Toggle all groups"
             >
               {NAV_GROUPS.every(g => expandedGroups.has(g.label)) ? "− Collapse all" : "+ Expand all"}
@@ -351,8 +351,8 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
                 onClick={onMobileClose}
                 className="flex items-center justify-center mx-1 p-2 rounded-lg text-sm font-medium transition-all relative"
                 style={{
-                  background: active ? "rgba(255,255,255,0.10)" : "transparent",
-                  color: active ? "#FFFFFF" : "rgba(255,255,255,0.60)",
+                  background: active ? "rgba(var(--color-white-rgb),0.10)" : "transparent",
+                  color: active ? "var(--color-white)" : "rgba(var(--color-white-rgb),0.60)",
                 }}
                 title={item.label}
               >
@@ -370,7 +370,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
                 <button
                   onClick={() => toggleGroup(group.label)}
                   className="flex items-center gap-2 w-full mx-2 px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all"
-                  style={{ color: "rgba(255,255,255,0.35)" }}
+                  style={{ color: "rgba(var(--color-white-rgb),0.35)" }}
                 >
                   <group.icon className="w-3.5 h-3.5 shrink-0" />
                   <span className="truncate">{group.label}</span>
@@ -386,10 +386,10 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
       </nav>
 
       {user && !collapsed && (
-        <div className="p-3 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="p-3 shrink-0" style={{ borderTop: "1px solid rgba(var(--color-white-rgb),0.08)" }}>
           <div className="flex items-center gap-2 px-2 py-1.5">
-            <Shield className="w-3 h-3" style={{ color: "var(--color-primary, #2BAE8E)" }} />
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <Shield className="w-3 h-3" style={{ color: "var(--color-primary, var(--color-primary))" }} />
+            <span className="text-xs" style={{ color: "rgba(var(--color-white-rgb),0.5)" }}>
               {user.email}
             </span>
           </div>
@@ -409,17 +409,17 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 flex flex-col transition-transform duration-300 md:hidden ${
+        className={`sidebar fixed top-0 left-0 z-50 flex flex-col transition-transform duration-300 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: "var(--color-sidebar, #2C3547)",
+          background: "var(--color-sidebar, var(--color-bg-surface))",
           width: 280,
           height: "100dvh",
         }}
       >
         <div className="flex items-center justify-end p-3">
-          <button onClick={onMobileClose} className="p-1.5 rounded-lg" style={{ color: "rgba(255,255,255,0.6)" }}>
+          <button onClick={onMobileClose} className="p-1.5 rounded-lg" style={{ color: "rgba(var(--color-white-rgb),0.6)" }}>
             <ChevronLeft className="w-5 h-5" />
           </button>
         </div>
@@ -428,9 +428,9 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
 
       {/* Desktop sidebar */}
       <aside
-        className="relative flex-col transition-all duration-300 select-none hidden md:flex"
+        className="sidebar relative flex-col transition-all duration-300 select-none hidden md:flex"
         style={{
-          background: "var(--color-sidebar, #2C3547)",
+          background: "var(--color-sidebar, var(--color-bg-surface))",
           width: collapsed ? 64 : 240,
           minWidth: collapsed ? 64 : 240,
         }}
@@ -441,9 +441,9 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
           onClick={() => setCollapsed(!collapsed)}
           className="absolute -right-3 top-24 w-6 h-6 rounded-full flex items-center justify-center z-10 transition-all hover:scale-110"
           style={{
-            background: "var(--color-primary, #2BAE8E)",
-            border: "2px solid var(--color-light, #F5F7FA)",
-            color: "#fff",
+            background: "var(--color-primary, var(--color-gold-dark))",
+            border: "2px solid var(--color-light, var(--color-light))",
+            color: "var(--color-white)",
           }}
         >
           <ChevronLeft className={`w-3 h-3 transition-transform ${collapsed ? "rotate-180" : ""}`} />
