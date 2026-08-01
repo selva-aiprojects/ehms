@@ -34,4 +34,10 @@ export default defineConfig({
   expect: {
     timeout: 10_000,
   },
+  webServer: {
+    command: "npm run dev",
+    url: BASE_URL,
+    reuseExistingServer: true,
+    timeout: 120_000,
+  },
 });
