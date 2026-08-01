@@ -91,7 +91,7 @@
   --color-gold-light:      var(--hs-gold-light);
   --color-gold-dark:       var(--hs-gold-dark);
   --color-navy:            var(--hs-navy);
-  --color-dark-navy:       #0F172A;
+  --color-dark-navy:       #1A3D24;
   --color-bg-surface:      var(--hs-navy);
 
   /* ─── Standard Surfaces & Elements ─── */
@@ -108,7 +108,7 @@
   --color-primary-rgb:        var(--hs-gold-rgb);
   --color-primary-dark-rgb:   var(--hs-gold-dark-rgb);
   --color-navy-rgb:           var(--hs-navy-rgb);
-  --color-dark-navy-rgb:      15, 23, 42;
+  --color-dark-navy-rgb:      26, 61, 36;
   --color-gold-rgb:           var(--hs-gold-rgb);
   --color-white-rgb:          var(--hs-surface-white-rgb);
   --color-text-rgb:           var(--hs-text-dark-rgb);

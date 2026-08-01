@@ -233,7 +233,7 @@ function LoginContent() {
           {/* Mini nav */}
           <nav className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
             <Link href="/">
-              <Image src="/hostsphere-logo.png" alt="HostSphere" width={180} height={44} className="object-contain" priority />
+              <Image src="/hostsphere-logo.png" alt="HostSphere" width={220} height={52} className="object-contain" priority />
             </Link>
             <Link href="/" className="text-sm font-medium transition-colors" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}
               onMouseEnter={e => e.currentTarget.style.color = "var(--color-primary)"}
@@ -518,12 +518,12 @@ function LoginContent() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 30% 70%, rgba(var(--color-gold-rgb),0.16) 0%, transparent 60%)" }} />
         <div className="relative z-10">
           <div className="mb-10">
-            <Image src="/hostsphere-logo.png" alt="HostSphere" width={220} height={54} className="object-contain" />
+            <Image src="/hostsphere-logo.png" alt="HostSphere" width={280} height={66} className="object-contain" />
           </div>
           <p className="text-xs font-medium mb-6 tracking-widest uppercase" style={{ color: "var(--hs-secondary-gold)" }}>
             HostSphere Hospitality Management
           </p>
-          <h1 className="text-4xl font-bold leading-tight mb-4">Unified Multi-Vertical Hospitality & Space Management</h1>
+          <h1 className="text-4xl font-bold leading-tight mb-4" style={{ color: "#FACC15" }}>Unified Multi-Vertical Hospitality & Space Management</h1>
           <p className="text-lg max-w-md" style={{ color: "rgba(var(--color-white-rgb),0.65)" }}>
             Hotels · Service Apartments · Rental & Tenancy · Workplace & Managed Offices
           </p>
@@ -539,7 +539,7 @@ function LoginContent() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex justify-center mb-8">
-            <Image src="/hostsphere-logo.png" alt="HostSphere" width={180} height={44} className="object-contain" />
+            <Image src="/hostsphere-logo.png" alt="HostSphere" width={220} height={52} className="object-contain" />
           </div>
 
           {/* Tenant badge — click to switch shard */}

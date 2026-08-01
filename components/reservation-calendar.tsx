@@ -351,7 +351,7 @@ export default function ReservationCalendar({
                 if (todayIdx >= 0) scrollRef.current.scrollLeft = todayIdx * cellWidth;
               }
             }}
-            className="px-2 py-1 text-xs rounded-md border cursor-pointer hover:bg-gray-50"
+            className="px-2 py-1 text-xs rounded-md border cursor-pointer hover:bg-[var(--color-light)]"
             style={{ borderColor: "var(--color-border)", color: "var(--color-navy)" }}
           >
             Today
@@ -362,14 +362,14 @@ export default function ReservationCalendar({
         <div className="flex items-center gap-1 ml-2">
           <button
             onClick={() => setZoom("day")}
-            className={`p-1 rounded cursor-pointer ${zoom === "day" ? "bg-blue-100" : "hover:bg-gray-100"}`}
+            className={`p-1 rounded cursor-pointer ${zoom === "day" ? "bg-[rgba(var(--color-info-rgb),0.12)]" : "hover:bg-[var(--color-light)]"}`}
             title="Day view"
           >
             <ZoomIn className="w-3.5 h-3.5" style={{ color: zoom === "day" ? "var(--color-info)" : "var(--color-text-muted)" }} />
           </button>
           <button
             onClick={() => setZoom("week")}
-            className={`p-1 rounded cursor-pointer ${zoom === "week" ? "bg-blue-100" : "hover:bg-gray-100"}`}
+            className={`p-1 rounded cursor-pointer ${zoom === "week" ? "bg-[rgba(var(--color-info-rgb),0.12)]" : "hover:bg-[var(--color-light)]"}`}
             title="Week view"
           >
             <ZoomOut className="w-3.5 h-3.5" style={{ color: zoom === "week" ? "var(--color-info)" : "var(--color-text-muted)" }} />

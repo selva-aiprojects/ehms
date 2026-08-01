@@ -223,7 +223,7 @@ export default function TenantsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center gap-3">
-              <Image src="/hostsphere-logo.png" alt="HostSphere" width={180} height={44} className="object-contain" priority />
+              <Image src="/hostsphere-logo.png" alt="HostSphere" width={220} height={52} className="object-contain" priority />
             </Link>
             <div className="flex items-center gap-3">
               {platformAuthed && (

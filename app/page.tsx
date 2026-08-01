@@ -50,7 +50,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             <Link href="/" className="flex items-center gap-3">
-              <Image src="/hostsphere-logo.png" alt="HostSphere" width={180} height={44} className="object-contain" priority />
+              <Image src="/hostsphere-logo.png" alt="HostSphere" width={220} height={52} className="object-contain" priority />
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
@@ -142,7 +142,7 @@ export default function LandingPage() {
                 style={{ background: "rgba(var(--color-primary-rgb),0.1)", borderColor: "rgba(var(--color-primary-rgb),0.25)", color: "var(--color-primary)" }}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                Multi-Tenant Platform
+                SaaS Model Platform
               </div>
 
               <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4 opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-200" : ""}`}>
@@ -153,9 +153,9 @@ export default function LandingPage() {
               <p className={`text-lg sm:text-xl mb-8 max-w-xl leading-relaxed opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-300" : ""}`}
                 style={{ color: "rgba(var(--color-light-rgb),0.6)" }}
               >
-                A unified multi-tenant platform powering hotels, serviced apartments,
-                rental properties, and workplace management — with isolated tenant
-                architecture for enterprise-grade security.
+                A unified SaaS platform powering hotels, serviced apartments,
+                rental properties, and workplace management — with dedicated,
+                isolated architecture for enterprise-grade security.
               </p>
 
               <div className={`flex flex-wrap gap-4 opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-400" : ""}`}>
@@ -189,14 +189,14 @@ export default function LandingPage() {
                   <div className="text-center mb-6">
                     <div className="text-4xl font-bold mb-2" style={{ color: "var(--color-gold-light)" }}>HostSphere</div>
                     <div className="text-xs tracking-widest uppercase" style={{ color: "rgba(var(--color-light-rgb),0.4)" }}>
-                      Multi-Tenant Platform
+                      SaaS Model Platform
                     </div>
                   </div>
                   <div className="space-y-3">
                     {[
-                      { label: "Tenants Secured", value: "1+" },
+                      { label: "Organizations Onboarded", value: "1+" },
                       { label: "Verticals", value: "4" },
-                      { label: "Tables per Tenant", value: "136" },
+                      { label: "Tables per Organization", value: "136" },
                       { label: "API Routes", value: "100+" },
                     ].map((s) => (
                       <div key={s.label} className="flex justify-between items-center px-4 py-2 rounded-lg"
@@ -302,7 +302,7 @@ export default function LandingPage() {
             <p className={`text-lg opacity-0 animate-slide-up ${visibleSections["product"] ? "animation-delay-300" : ""}`}
               style={{ color: "rgba(var(--color-light-rgb),0.55)" }}>
               From luxury hotels to coworking spaces — HostSphere unifies operations across
-              all hospitality verticals with a single, secure, multi-tenant architecture.
+              all hospitality verticals with a single, secure, isolated architecture.
             </p>
           </div>
 
@@ -329,35 +329,35 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── PLATFORM (Multi-Tenant Architecture) ─── */}
+      {/* ─── PLATFORM (SaaS Model Architecture) ─── */}
       <section id="platform" data-section="platform" ref={observeRef} className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase mb-4 border opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-100" : ""}`}
                 style={{ background: "rgba(var(--color-gold-rgb),0.1)", borderColor: "rgba(var(--color-gold-rgb),0.25)", color: "var(--color-gold)" }}>
-                <Shield className="w-3.5 h-3.5" /> Multi-Tenant by Design
+                <Shield className="w-3.5 h-3.5" /> SaaS Model by Design
               </div>
 
               <h2 className={`text-3xl sm:text-4xl font-bold mb-4 opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-200" : ""}`}
                 style={{ color: "var(--color-white)" }}>
                 Schema-Isolated{" "}
-                <span style={{ color: "var(--color-gold)" }}>Tenant Architecture</span>
+                <span style={{ color: "var(--color-gold)" }}>Organization Architecture</span>
               </h2>
 
               <p className={`text-base leading-relaxed mb-8 opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-300" : ""}`}
                 style={{ color: "rgba(var(--color-light-rgb),0.55)" }}>
-                Every tenant gets their own PostgreSQL schema — complete data isolation
-                without the operational overhead of separate databases. Each tenant also
+                Every organization gets its own dedicated PostgreSQL schema — complete data isolation
+                without the operational overhead of separate databases. Each organization also
                 picks which verticals to subscribe to, paying only for what they use.
               </p>
 
               <div className={`space-y-4 opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-400" : ""}`}>
                 {[
-                  { icon: Shield, title: "Complete Data Isolation", desc: "Each tenant operates in an isolated PostgreSQL schema with its own tables, indexes, and sequences." },
-                  { icon: Server, title: "Single Database, Infinite Tenants", desc: "All tenants share one database connection. New tenants provisioned in seconds via schema cloning." },
-                  { icon: Key, title: "Per-Tenant Feature Selection", desc: "Tenants subscribe only to the verticals they need — Hotels, Apartments, Rental, Workplace, or any combination." },
-                  { icon: Globe, title: "Lifecycle Management", desc: "Provision, suspend, or remove tenants independently. Suspended tenants block all access while preserving data." },
+                  { icon: Shield, title: "Complete Data Isolation", desc: "Each organization operates in a dedicated, isolated PostgreSQL schema with its own tables, indexes, and sequences." },
+                  { icon: Server, title: "Single Database, Infinite Organizations", desc: "All organizations connect to one managed database. New organizations are provisioned in seconds via schema cloning." },
+                  { icon: Key, title: "Per-Organization Feature Selection", desc: "Organizations subscribe only to the verticals they need — Hotels, Apartments, Rental, Workplace, or any combination." },
+                  { icon: Globe, title: "Lifecycle Management", desc: "Provision, suspend, or remove organizations independently. Suspended organizations block all access while preserving data." },
                 ].map((f, i) => (
                   <div key={f.title} className="flex gap-4 p-4 rounded-xl"
                     style={{ background: "rgba(var(--color-white-rgb),0.02)", border: "1px solid rgba(var(--color-white-rgb),0.04)" }}
@@ -379,7 +379,7 @@ export default function LandingPage() {
               <div className="rounded-2xl p-6 font-mono text-xs leading-relaxed"
                 style={{ background: "rgba(var(--color-dark-navy-rgb),0.8)", border: "1px solid rgba(var(--color-primary-rgb),0.1)" }}
               >
-                <div style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>── tenant architecture ──</div>
+                <div style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>── organization architecture ──</div>
                 <br/>
                 <span style={{ color: "var(--color-gold)" }}>PostgreSQL</span> Cluster<br/>
                 ├── <span style={{ color: "var(--color-primary)" }}>public</span> schema<br/>
@@ -485,7 +485,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
             <div>
-              <Image src="/hostsphere-logo.png" alt="HostSphere" width={180} height={44} className="object-contain mb-4" />
+              <Image src="/hostsphere-logo.png" alt="HostSphere" width={220} height={52} className="object-contain mb-4" />
               <p className="text-xs leading-relaxed" style={{ color: "rgba(var(--color-light-rgb),0.35)" }}>
                 HostSphere hospitality management — powering multi-vertical,
                 multi-tenant hospitality operations worldwide.

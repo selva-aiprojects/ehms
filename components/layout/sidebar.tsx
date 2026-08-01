@@ -263,13 +263,22 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
     return visibleItemSet.has(label);
   }
 
+  const activeHref = ALL_NAV_ITEMS.reduce<string | null>((best, item) => {
+    if (!visibleItemSet.has(item.label)) return best;
+    const href = item.label === "Dashboard"
+      ? (activeJourney === "all" ? "/dashboard" : `/dashboard/${activeJourney}`)
+      : item.href;
+    if (isActive(href) && (!best || href.length > best.length)) return href;
+    return best;
+  }, null);
+
   function renderItem(label: string) {
     const def = navItemMap.get(label);
     if (!def) return null;
     const href = label === "Dashboard"
       ? (activeJourney === "all" ? "/dashboard" : `/dashboard/${activeJourney}`)
       : def.href;
-    const active = isActive(href);
+    const active = href === activeHref;
     return (
       <Link
         key={href + label}
@@ -313,8 +322,8 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
           <Image
             src={settings.logo_url}
             alt={settings.company_name || "HostSphere"}
-            width={collapsed ? 36 : 120}
-            height={collapsed ? 36 : 44}
+            width={collapsed ? 40 : 160}
+            height={collapsed ? 40 : 56}
             className="object-contain transition-all duration-300"
             style={{ filter: "brightness(1.05)" }}
             priority
@@ -343,7 +352,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen?: bo
             const href = item.label === "Dashboard"
               ? (activeJourney === "all" ? "/dashboard" : `/dashboard/${activeJourney}`)
               : item.href;
-            const active = isActive(href);
+            const active = href === activeHref;
             return (
               <Link
                 key={href + item.label}
