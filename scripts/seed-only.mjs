@@ -185,6 +185,7 @@ async function main() {
   await runSeedFile(join(DATABASE_DIR, "seed_v7_payments_backfill.sql"), "seed_v7_payments_backfill.sql (Payments backfill + live activity data)");
   await runSeedFile(join(DATABASE_DIR, "seed_v8_workflow_certification.sql"), "seed_v8_workflow_certification.sql (Workflow Certification — 50 Rooms, 25 Bookings, All Personas)");
   await runSeedFile(join(DATABASE_DIR, "seed_v9_complete_gaps.sql"), "seed_v9_complete_gaps.sql (Fill remaining data gaps: rate_plans, HR, revenue-ai, promotions, etc.)");
+  await runSeedFile(join(DATABASE_DIR, "seed_v10_all_modules.sql"), "seed_v10_all_modules.sql (Seed all remaining empty module tables)");
 
   // Final verification
   console.log("\n\uD83D\uDCC8 Final counts:");

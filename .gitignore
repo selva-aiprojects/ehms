@@ -42,3 +42,10 @@ next-env.d.ts
 
 # nested clone (used for dev server)
 /frontend
+
+# temporary / logs
+*.log
+*.tmp.mjs
+/scratch
+/playwright-report
+/test-results

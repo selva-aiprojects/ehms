@@ -6,7 +6,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const sql = getDb();
 
-    const rows = await sql`
+    const query = `
       SELECT
         p.*, r.name AS region_name, r.city, r.state, r.country,
         COALESCE(
@@ -18,22 +18,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           '[]'
         ) AS buildings
       FROM properties p
-      JOIN regions r ON r.id = p.region_id
+      LEFT JOIN regions r ON r.id = p.region_id
       LEFT JOIN buildings b ON b.property_id = p.id
       LEFT JOIN units u ON u.floor_id IN (SELECT f.id FROM floors f WHERE f.building_id = b.id)
-      WHERE p.id = ${id}
+      WHERE p.id = $1::uuid
       GROUP BY p.id, r.name, r.city, r.state, r.country
       LIMIT 1
     `;
 
-    if ((rows as any[]).length === 0) {
+    const rows = await sql.query(query, [id]);
+
+    if (!rows || (rows as any[]).length === 0) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ data: rows[0] });
+    return NextResponse.json({ data: (rows as any[])[0] });
   } catch (error: any) {
     console.error("[properties/:id GET]", error);
-    return NextResponse.json({ error: "Failed to fetch property" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Failed to fetch property" }, { status: 500 });
   }
 }
 

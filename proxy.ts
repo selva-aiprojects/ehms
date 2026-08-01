@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { verifyToken, type JwtPayload } from "@/lib/auth";
 import { ROLE_ACCESS } from "@/lib/role-access";
 
-const PUBLIC_ROUTES = ["/", "/tenants", "/login", "/_next/", "/favicon.ico", "/hostsphere-logo.png", "/favicon.png"];
+const PUBLIC_ROUTES = ["/", "/tenants", "/login", "/_next/", "/favicon.ico", "/hostsphere-logo.png", "/favicon.png", "/manifest.json"];
 
 const PUBLIC_API_PREFIXES = [
   "/api/auth/login",
@@ -120,6 +120,6 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next|favicon.ico|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json|ico)$).*)",
   ],
 };

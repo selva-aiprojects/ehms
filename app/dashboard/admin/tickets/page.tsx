@@ -73,7 +73,13 @@ export default function AdminTicketsPage() {
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { loadTickets(); }, [statusFilter, priorityFilter]);
+  useEffect(() => {
+    if (user?.is_platform_admin) {
+      loadTickets();
+    } else {
+      setLoading(false);
+    }
+  }, [user, statusFilter, priorityFilter]);
 
   function handleSearch() { loadTickets(); }
 
