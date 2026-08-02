@@ -6,7 +6,7 @@ const databaseUrl = process.env.DATABASE_URL || "";
 
 type SqlFn = NeonQueryFunction<false, false>;
 
-interface WrappedSql {
+export interface WrappedSql {
   (strings: TemplateStringsArray, ...values: unknown[]): Promise<Record<string, unknown>[]>;
   query: SqlFn["query"];
   unsafe: (rawSQL: string, params?: unknown[]) => Promise<Record<string, unknown>[]>;

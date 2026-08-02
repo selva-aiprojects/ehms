@@ -5,6 +5,7 @@ import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import MobileNav from "@/components/layout/mobile-nav";
 import PlatformBroadcastBanner from "@/components/common/PlatformBroadcastBanner";
+import ChatWidget from "@/components/chat/ChatWidget";
 import { AuthProvider } from "@/lib/auth-context";
 import { TenantThemeProvider } from "@/components/providers/TenantThemeProvider";
 
@@ -24,6 +25,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </main>
         </div>
         <MobileNav />
+        <ChatWidget />
       </div>
       </TenantThemeProvider>
     </AuthProvider>
