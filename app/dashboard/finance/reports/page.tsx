@@ -111,7 +111,7 @@ export default function ReportsPage() {
             <div className="text-center py-8 text-sm" style={{ color: "var(--color-text-muted)" }}>No trial balance data available</div>
           ) : (
             <>
-              <div className="flex items-center text-xs font-semibold py-2 px-3 rounded-t-lg" style={{ background: "var(--color-navy)", color: "var(--color-white)" }}>
+              <div className="flex items-center text-xs font-semibold py-2 px-3 rounded-t-lg" style={{ background: "var(--color-navy)", color: "var(--color-on-dark)" }}>
                 <span className="w-24">Code</span>
                 <span className="flex-1">Account</span>
                 <span className="w-28 text-right">Debit</span>

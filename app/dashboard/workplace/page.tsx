@@ -131,7 +131,7 @@ export default function WorkplacePage() {
                 <div className="text-2xl font-bold" style={{ color: (s as any).text || "var(--color-white)" }}>{s.value}</div>
                 <Icon className="w-5 h-5 opacity-60" style={{ color: (s as any).text || "var(--color-white)" }} />
               </div>
-              <div className="text-xs" style={{ color: (s as any).text ? "rgba(0,0,0,0.6)" : "rgba(var(--color-white-rgb),0.8)" }}>{s.label}</div>
+              <div className="text-xs" style={{ color: (s as any).text ? "rgba(0,0,0,0.6)" : "rgba(var(--color-on-dark-rgb),0.8)" }}>{s.label}</div>
             </div>
           );
         })}

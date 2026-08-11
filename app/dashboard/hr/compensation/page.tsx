@@ -571,7 +571,7 @@ export default function CompensationPage() {
       {feedback && (
         <div className="fixed bottom-6 right-6 z-[100] rounded-lg px-4 py-2.5 text-sm flex items-center gap-2 shadow-lg" style={{
           background: feedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
-          color: "var(--color-white)",
+          color: "var(--color-on-dark)",
         }}>
           {feedback.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {feedback.message}

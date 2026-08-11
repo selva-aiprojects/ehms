@@ -1,47 +1,77 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ═══════════════════════════════════════════════════════════════════
-   HostSphere Design System — Single Source of Truth for Colors
-   Brand: Deep Green (#255230 from Branding Kit) + Fresh Green (#7BB347)
+   HostSphere Design System — Dual-Theme Token System
+   Theme A (default) : Green + White + Golden
+   Theme B (.dark)    : Dark + Golden
+   Activate dark mode by adding `.dark` to <html> (see layout.tsx init).
    ═══════════════════════════════════════════════════════════════════ */
+
 :root {
+  color-scheme: light;
+
   /* ─── Brand Palette (literal) ─── */
   --hs-navy:           #255230;
   --hs-navy-rgb:       37, 82, 48;
   --hs-navy-dark:      #1A3D24;
   --hs-navy-dark-rgb:  26, 61, 36;
+  --hs-green:          #7BB347;
+  --hs-green-rgb:      123, 179, 71;
 
-  --hs-gold:           #7BB347;
-  --hs-gold-rgb:       123, 179, 71;
-  --hs-gold-light:     #A5D375;
-  --hs-gold-light-rgb: 165, 211, 117;
-  --hs-gold-dark:      #5C9138;
-  --hs-gold-dark-rgb:  92, 145, 56;
+  --hs-gold:           #C9A227;
+  --hs-gold-rgb:       201, 162, 39;
+  --hs-gold-light:     #DFC04F;
+  --hs-gold-light-rgb: 223, 192, 79;
+  --hs-gold-dark:      #A8861E;
+  --hs-gold-dark-rgb:  168, 134, 30;
 
-  --hs-bg-light:       #F8F9FA;
-  --hs-bg-light-rgb:   248, 249, 250;
+  /* ─── Always-Dark Brand Pages (marketing + auth) ───
+     Landing, login and tenants pages keep this green/gold brand in
+     BOTH themes — pinned via the .landing-page/.auth-page scope. */
+  --hs-brand-bg:            #1A3D24;
+  --hs-brand-bg-rgb:        26, 61, 36;
+  --hs-brand-navy:          #255230;
+  --hs-brand-navy-rgb:      37, 82, 48;
+  --hs-brand-gold:          #7BB347;
+  --hs-brand-gold-rgb:      123, 179, 71;
+  --hs-brand-gold-light:    #A5D375;
+  --hs-brand-gold-dark:     #5C9138;
+  --hs-brand-gold-dark-rgb: 92, 145, 56;
+
+  --hs-bg-light:       #F8FAF8;
+  --hs-bg-light-rgb:   248, 250, 248;
   --hs-bg-cream:       #FBF7EC;
   --hs-bg-cream-rgb:   251, 247, 236;
 
-  /* ─── Global Surface Fallbacks ─── */
+  /* ─── Global Surface Fallbacks (flip in .dark) ─── */
   --hs-surface-white:  #FFFFFF;
   --hs-surface-white-rgb: 255, 255, 255;
-  --hs-text-dark:      #1A2E44;
-  --hs-text-dark-rgb:  26, 46, 68;
-  --hs-text-muted:     #64748B;
-  --hs-text-muted-rgb: 100, 116, 139;
-  --hs-text-faint:     #94A3B8;
-  --hs-border-light:   #E2E8F0;
-  --hs-border-strong:  #CBD5E1;
+  --hs-surface-muted:  #F1F5F1;
+  --hs-surface-muted-rgb: 241, 245, 241;
+  --hs-text-dark:      #17241B;
+  --hs-text-dark-rgb:  23, 36, 27;
+  --hs-text-muted:     #55685C;
+  --hs-text-muted-rgb: 85, 104, 92;
+  --hs-text-faint:     #84978C;
+  --hs-border-light:   #E3E9E4;
+  --hs-border-strong:  #C9D4CB;
+
+  /* ─── Stable "text on dark/colored surface" tokens ───
+     These NEVER flip — used for white text over navy, gold, gradients,
+     and the always-dark marketing/login pages. */
+  --color-on-dark:       #FFFFFF;
+  --color-on-dark-rgb:   255, 255, 255;
 
   /* ─── Typography Tokens ─── */
   --hs-font-sans:  var(--font-plus-jakarta), var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   --hs-font-serif: var(--font-playfair), Georgia, serif;
 
   /* ─── Shadows & Layout Elements ─── */
-  --hs-shadow-sm: 0 2px 4px rgba(37, 82, 48, 0.05);
-  --hs-shadow-md: 0 10px 15px -3px rgba(37, 82, 48, 0.08), 0 4px 6px -2px rgba(37, 82, 48, 0.04);
-  --hs-shadow-lg: 0 20px 25px -5px rgba(37, 82, 48, 0.1), 0 10px 10px -5px rgba(37, 82, 48, 0.04);
+  --hs-shadow-sm: 0 2px 4px rgba(23, 36, 27, 0.05);
+  --hs-shadow-md: 0 10px 15px -3px rgba(23, 36, 27, 0.08), 0 4px 6px -2px rgba(23, 36, 27, 0.04);
+  --hs-shadow-lg: 0 20px 25px -5px rgba(23, 36, 27, 0.1), 0 10px 10px -5px rgba(23, 36, 27, 0.04);
   --hs-radius-sm: 6px;
   --hs-radius-md: 12px;
   --hs-radius-lg: 24px;
@@ -90,13 +120,15 @@
   --color-gold:            var(--hs-gold);
   --color-gold-light:      var(--hs-gold-light);
   --color-gold-dark:       var(--hs-gold-dark);
+  --color-green:           var(--hs-green);
   --color-navy:            var(--hs-navy);
   --color-dark-navy:       #1A3D24;
   --color-bg-surface:      var(--hs-navy);
 
-  /* ─── Standard Surfaces & Elements ─── */
+  /* ─── Standard Surfaces & Elements (flip in .dark) ─── */
   --color-light:          var(--bg);
   --color-white:          var(--surface);
+  --color-surface-muted:  var(--hs-surface-muted);
   --color-border:         var(--border);
   --color-border-strong:  var(--border-strong);
   --color-text:           var(--text);
@@ -113,9 +145,10 @@
   --color-white-rgb:          var(--hs-surface-white-rgb);
   --color-text-rgb:           var(--hs-text-dark-rgb);
   --color-text-muted-rgb:     var(--hs-text-muted-rgb);
-  --color-text-faint-rgb:     148, 163, 184;
-  --color-border-rgb:         226, 232, 240;
+  --color-text-faint-rgb:     132, 151, 140;
+  --color-border-rgb:         227, 233, 228;
   --color-bg-cream-rgb:       var(--hs-bg-cream-rgb);
+  --color-surface-muted-rgb:  var(--hs-surface-muted-rgb);
 
   /* ─── Global Status ─── */
   --color-danger:          var(--danger);
@@ -134,14 +167,227 @@
   --color-info-dark:       #1E40AF;
   --color-info-rgb:        59, 130, 246;
   --color-info-soft:       #EFF6FF;
-  --color-border-strong-rgb: 203, 213, 225;
+  --color-violet:          #7C3AED;
+  --color-violet-dark:     #6D28D9;
+  --color-violet-rgb:      124, 58, 237;
+  --color-violet-soft:     rgba(124, 58, 237, 0.10);
+  --color-border-strong-rgb: 201, 212, 203;
 
   /* Legacy alias used by components during the migration */
   --hs-primary-navy:       var(--hs-navy);
   --hs-secondary-gold:     var(--hs-gold);
 }
 
-/* Component Overrides & Framework Utilities */
+/* ═══════════════════════════════════════════════════════════════════
+   Dark + Aurora Theme  (.dark on <html>)
+   Palette: Rich Purple · Cyan · Blue · White
+   ═══════════════════════════════════════════════════════════════════ */
+.dark {
+  color-scheme: dark;
+
+  /* Warm charcoal-black page background + charcoal surfaces */
+  --hs-bg-light:            #0F0E0C;
+  --hs-bg-light-rgb:        15, 14, 12;
+  --hs-bg-cream:            #141310;
+  --hs-bg-cream-rgb:        20, 19, 16;
+  --hs-surface-white:       #1B1916;
+  --hs-surface-white-rgb:   27, 25, 22;
+  --hs-surface-muted:       #24211C;
+  --hs-surface-muted-rgb:   36, 33, 28;
+  --hs-text-dark:           #F7F3EC;
+  --hs-text-dark-rgb:       247, 243, 236;
+  --hs-text-muted:          #C9BFAE;
+  --hs-text-muted-rgb:      201, 191, 174;
+  --hs-text-faint:          #8C8170;
+  --hs-border-light:        #2E2A22;
+  --hs-border-strong:       #40392E;
+
+  /* Amber — brand accent for text AND colored surfaces */
+  --hs-navy:                #E6A23C;
+  --hs-navy-rgb:            230, 162, 60;
+  --hs-navy-dark:           #C47F1F;
+  --hs-navy-dark-rgb:       196, 127, 31;
+
+  /* Warm gold — CTA & highlight accent */
+  --hs-gold:                #E9B84A;
+  --hs-gold-rgb:            233, 184, 74;
+  --hs-gold-light:          #F5D485;
+  --hs-gold-light-rgb:      245, 212, 133;
+  --hs-gold-dark:           #C98F26;
+  --hs-gold-dark-rgb:       201, 143, 38;
+
+  /* Extra ember accents */
+  --hs-blue:                #3B82F6;
+  --hs-blue-rgb:            59, 130, 246;
+  --hs-purple-soft:         #E7C68F;
+
+  /* Always-Dark Brand Pages — unchanged from light theme so the
+     marketing/auth pages keep the green/gold brand in dark mode too. */
+  --hs-brand-bg:            #1A3D24;
+  --hs-brand-bg-rgb:        26, 61, 36;
+  --hs-brand-navy:          #255230;
+  --hs-brand-navy-rgb:      37, 82, 48;
+  --hs-brand-gold:          #7BB347;
+  --hs-brand-gold-rgb:      123, 179, 71;
+  --hs-brand-gold-light:    #A5D375;
+  --hs-brand-gold-dark:     #5C9138;
+  --hs-brand-gold-dark-rgb: 92, 145, 56;
+
+  --hs-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.45);
+  --hs-shadow-md: 0 10px 24px -4px rgba(0, 0, 0, 0.5), 0 4px 10px -2px rgba(0, 0, 0, 0.35);
+  --hs-shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6), 0 10px 20px -6px rgba(0, 0, 0, 0.4);
+
+  --bg:                   var(--hs-bg-light);
+  --surface:              var(--hs-surface-white);
+  --text:                 var(--hs-text-dark);
+  --text-light:           var(--hs-text-muted);
+  --text-faint:           var(--hs-text-faint);
+  --border:               var(--hs-border-light);
+  --border-strong:        var(--hs-border-strong);
+  --shadow:               var(--hs-shadow-md);
+
+  /* Deep warm charcoal for the sidebar shell — sits just above the page
+     background instead of competing with it */
+  --sidebar:              #171310;
+
+  /* Status softs become translucent so they read on dark surfaces */
+  --color-danger-soft:     rgba(239, 68, 68, 0.16);
+  --color-success-soft:    rgba(16, 185, 129, 0.16);
+  --color-warning-soft:    rgba(245, 158, 11, 0.16);
+  --color-info-soft:       rgba(59, 130, 246, 0.20);
+  --color-violet:          #8B5CF6;
+  --color-violet-dark:     #C4B5FD;
+  --color-violet-rgb:      139, 92, 246;
+  --color-violet-soft:     rgba(139, 92, 246, 0.16);
+
+  --color-light:          var(--bg);
+  --color-white:          var(--surface);
+  --color-surface-muted:  var(--hs-surface-muted);
+  --color-border:         var(--border);
+  --color-border-strong:  var(--border-strong);
+  --color-text:           var(--text);
+  --color-text-muted:     var(--text-light);
+  --color-text-faint:     var(--text-faint);
+
+  --color-light-rgb:          var(--hs-bg-light-rgb);
+  --color-white-rgb:          var(--hs-surface-white-rgb);
+  --color-text-rgb:           var(--hs-text-dark-rgb);
+  --color-text-muted-rgb:     var(--hs-text-muted-rgb);
+  --color-text-faint-rgb:     140, 129, 112;
+  --color-border-rgb:         46, 42, 34;
+  --color-bg-cream-rgb:       var(--hs-bg-cream-rgb);
+  --color-surface-muted-rgb:  var(--hs-surface-muted-rgb);
+  --color-border-strong-rgb:  64, 57, 46;
+
+  /* Re-anchor brand accents onto the ember palette when unset */
+  --color-bg-surface:      var(--hs-navy);
+  --color-dark-navy:       var(--hs-navy-dark);
+  --color-gold:            var(--hs-gold);
+  --color-gold-light:      var(--hs-gold-light);
+  --color-gold-dark:       var(--hs-gold-dark);
+
+  --hs-primary-navy:       var(--hs-navy);
+  --hs-secondary-gold:     var(--hs-gold);
+}
+
+/* Legacy literal-class overrides for dark mode — components not yet
+   migrated to CSS tokens still hardcode Tailwind bg/border utilities.
+   As surfaces get tokenized, these can be removed. */
+.dark .bg-white { background-color: var(--color-white); }
+.dark .bg-gray-50 { background-color: var(--color-surface-muted); }
+.dark .bg-gray-100 { background-color: var(--color-surface-muted); }
+.dark .bg-gray-200 { background-color: var(--color-border); }
+.dark .bg-amber-100 { background-color: var(--color-warning-soft); }
+.dark .bg-blue-50 { background-color: var(--color-info-soft); }
+.dark .bg-orange-50 { background-color: var(--color-warning-soft); }
+.dark .bg-red-50 { background-color: var(--color-danger-soft); }
+.dark .bg-emerald-50 { background-color: var(--color-success-soft); }
+.dark .hover\:bg-gray-50:hover { background-color: var(--color-surface-muted); }
+.dark .hover\:bg-gray-100:hover { background-color: var(--color-surface-muted); }
+.dark .hover\:bg-gray-200:hover { background-color: var(--color-border); }
+.dark .border-gray-200 { border-color: var(--color-border); }
+.dark .border-gray-300 { border-color: var(--color-border-strong); }
+
+/* ─── Always-dark brand pages (landing + auth): green/gold ───
+   Pins the generic color variables to the --hs-brand-* tokens (defined
+   in BOTH :root and .dark above) so neither the `.dark` aurora theme
+   nor tenant-branding overrides (inline vars on <html>) can change them. */
+.landing-page,
+.landing-page *,
+.auth-page,
+.auth-page * {
+  --color-dark-navy:         var(--hs-brand-bg);
+  --color-dark-navy-rgb:     var(--hs-brand-bg-rgb);
+  --color-navy:              var(--hs-brand-navy);
+  --color-navy-rgb:          var(--hs-brand-navy-rgb);
+  --color-bg-surface:        var(--hs-brand-navy);
+  --color-primary:           var(--hs-brand-gold);
+  --color-primary-rgb:       var(--hs-brand-gold-rgb);
+  --color-primary-dark:      var(--hs-brand-gold-dark);
+  --color-primary-dark-rgb:  var(--hs-brand-gold-dark-rgb);
+  --color-gold:              var(--hs-brand-gold);
+  --color-gold-rgb:          var(--hs-brand-gold-rgb);
+  --color-gold-light:        var(--hs-brand-gold-light);
+  --hs-primary-navy:         var(--hs-brand-navy);
+  --hs-secondary-gold:       var(--hs-brand-gold);
+}
+
+/* ─── Dark-mode richness helpers ─── */
+
+/* Ambient amber / gold glows behind the app */
+.dark body {
+  background-image:
+    radial-gradient(1100px 750px at 12% -10%, rgba(230, 162, 60, 0.09), transparent 60%),
+    radial-gradient(950px 700px at 108% 8%, rgba(233, 184, 74, 0.06), transparent 55%),
+    radial-gradient(900px 800px at 50% 115%, rgba(196, 127, 31, 0.08), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Flip hardcoded white cards / inputs to the dark violet surface */
+.dark .bg-white { background-color: var(--hs-surface-white); }
+
+/* Ember gradient text (amber → gold → bronze) */
+.hs-grad-text {
+  background: linear-gradient(120deg, #E6A23C 0%, #E9B84A 50%, #C47F1F 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Ember gradient primary buttons in dark mode */
+.dark .hs-btn-primary,
+.dark .btn-primary {
+  background: linear-gradient(135deg, #C47F1F 0%, #E6A23C 45%, #E9B84A 135%);
+  color: var(--hs-surface-white);
+  box-shadow: 0 8px 24px -6px rgba(230, 162, 60, 0.4), 0 4px 12px -4px rgba(233, 184, 74, 0.3);
+}
+.dark .hs-btn-primary:hover,
+.dark .btn-primary:hover {
+  background: linear-gradient(135deg, #D98F28 0%, #EFB24F 45%, #F2C45E 135%);
+  color: var(--hs-surface-white);
+  box-shadow: 0 12px 30px -6px rgba(230, 162, 60, 0.5), 0 6px 16px -4px rgba(233, 184, 74, 0.4);
+}
+
+/* Ember secondary + accent buttons in dark mode — gold fill with dark text */
+.dark .hs-btn-secondary {
+  background-color: var(--hs-gold);
+  border-color: transparent;
+  color: var(--hs-surface-white);
+}
+.dark .hs-btn-secondary:hover {
+  background-color: var(--hs-gold-dark);
+  color: var(--hs-surface-white);
+}
+.dark .hs-btn-accent {
+  color: var(--hs-surface-white);
+}
+.dark .hs-btn-accent:hover {
+  color: var(--hs-surface-white);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Component Overrides & Framework Utilities
+   ═══════════════════════════════════════════════════════════════════ */
 .hs-btn, .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -156,28 +402,34 @@
   text-decoration: none;
   transition: var(--hs-transition);
 }
+
 .hs-btn-primary, .btn-primary {
   background-color: var(--hs-navy);
-  color: var(--hs-surface-white);
+  color: var(--color-on-dark);
 }
+
 .hs-btn-primary:hover, .btn-primary:hover {
   background-color: var(--hs-navy-dark);
   transform: translateY(-2px);
   box-shadow: var(--hs-shadow-md);
 }
+
 .hs-btn-secondary {
-  background-color: transparent;
-  border-color: var(--hs-gold);
+  background-color: var(--hs-gold);
+  border-color: transparent;
   color: var(--hs-navy);
 }
+
 .hs-btn-secondary:hover {
-  background-color: rgba(var(--hs-gold-rgb), 0.08);
+  background-color: var(--hs-gold-dark);
   transform: translateY(-2px);
 }
+
 .hs-btn-accent {
   background-color: var(--hs-gold);
   color: var(--hs-navy);
 }
+
 .hs-btn-accent:hover {
   background-color: var(--hs-gold-dark);
   transform: translateY(-2px);
@@ -192,23 +444,27 @@
   box-shadow: var(--hs-shadow-sm);
   transition: var(--hs-transition);
 }
+
 .hs-card:hover, .card:hover {
   transform: translateY(-4px);
   box-shadow: var(--hs-shadow-lg);
   border-color: rgba(var(--hs-gold-rgb), 0.25);
 }
+
 .hs-glass {
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(var(--color-on-dark-rgb), 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(var(--color-on-dark-rgb), 0.3);
   border-radius: var(--hs-radius-md);
 }
+
 .sidebar {
   background: var(--hs-navy);
-  color: var(--hs-surface-white);
+  color: var(--color-on-dark);
 }
 
+/* Tailwind CSS v4 @theme configuration mapping definitions */
 @theme inline {
   --color-ehms-primary:      var(--color-primary);
   --color-ehms-primary-dark: var(--color-primary-dark);
@@ -228,6 +484,7 @@
   --color-ehms-danger:       var(--color-danger);
   --color-ehms-success:      var(--color-success);
   --color-ehms-info:         var(--color-info);
+  --color-ehms-on-dark:      var(--color-on-dark);
 }
 
 body {
@@ -237,13 +494,16 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
 h1, h2, h3, .hs-display {
   font-family: var(--hs-font-sans);
-  color: var(--hs-navy);
+  color: var(--color-text);
   font-weight: 700;
   margin-top: 0;
 }
+
 p, .hs-body {
   font-family: var(--hs-font-sans);
   line-height: 1.6;
@@ -316,7 +576,7 @@ p, .hs-body {
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-light); }
-::-webkit-scrollbar-thumb { background: var(--hs-text-muted); border-radius: var(--hs-radius-sm); }
+::-webkit-scrollbar-thumb { background: var(--hs-text-faint); border-radius: var(--hs-radius-sm); }
 
 /* ─── Smooth Scroll ─── */
 html { scroll-behavior: smooth; }

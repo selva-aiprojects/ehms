@@ -236,7 +236,7 @@ export default function InventoryItemsPage() {
                 <tr>
                   {["SKU", "Name", "Category", "Warehouse", "Unit", "Qty On Hand", "Reserved", "Reorder", "Unit Cost", "Total Value", "Status", "Actions"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                      style={{ color: "var(--color-white)", background: "var(--color-navy)" }}>{h}</th>
+                      style={{ color: "var(--color-on-dark)", background: "var(--color-navy)" }}>{h}</th>
                   ))}
                 </tr>
               </thead>

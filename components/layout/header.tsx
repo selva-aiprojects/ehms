@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, ChevronDown, Menu, LogOut, User, Shield, LayoutDashboard, Hotel, Building2, Home, Briefcase } from "lucide-react";
+import { Bell, Search, ChevronDown, Menu, LogOut, User, Shield, LayoutDashboard, Hotel, Building2, Home, Briefcase, Sun, Moon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ROLE_LABELS } from "@/lib/role-access";
@@ -13,8 +13,10 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { properties = [] } = useProperties();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
+    setDark(document.documentElement.classList.contains("dark"));
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
@@ -23,6 +25,14 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const toggleTheme = () => {
+    const next = !document.documentElement.classList.contains("dark");
+    document.documentElement.classList.toggle("dark", next);
+    try { localStorage.setItem("hs-theme", next ? "dark" : "light"); } catch {}
+    setDark(next);
+    window.dispatchEvent(new CustomEvent("hs:themechange", { detail: { dark: next } }));
+  };
 
   const initials = user
     ? (user.first_name?.charAt(0)?.toUpperCase() || "") +
@@ -67,22 +77,22 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
               Welcome, {user.first_name || user.email.split('@')[0]}!
             </span>
             {user.tenant_name && (
-              <span className="text-[10px] text-slate-500 font-medium mt-0.5">
+              <span className="text-[10px] font-medium mt-0.5" style={{ color: "var(--hs-text-muted)" }}>
                 {user.tenant_name}
               </span>
             )}
           </div>
         )}
-        <div className="h-4 w-px bg-slate-200 hidden md:block" />
+        <div className="h-4 w-px hidden md:block" style={{ background: "var(--hs-border-light)" }} />
         
         {isGlobalAdmin && (
-          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1">
+          <div className="flex items-center gap-1.5 rounded-lg px-2.5 py-1" style={{ background: "var(--hs-bg-cream)", border: "1px solid var(--hs-border-light)" }}>
             <span className="text-[10px] uppercase font-bold tracking-wider opacity-60" style={{ color: "var(--hs-text-muted)" }}>Active Property:</span>
             <select
               value={selectedPropertyId}
               onChange={(e) => setSelectedPropertyId(e.target.value)}
-              className="px-2 py-1 text-xs font-semibold rounded bg-white outline-none cursor-pointer border border-slate-200 hover:border-slate-300 transition-colors"
-              style={{ color: "var(--hs-primary-navy)" }}
+              className="px-2 py-1 text-xs font-semibold rounded outline-none cursor-pointer transition-colors"
+              style={{ color: "var(--hs-primary-navy)", background: "var(--color-white)", border: "1px solid var(--color-border)" }}
             >
               <option value="">All Workspaces</option>
               {filteredProperties.map((p: any) => (
@@ -151,6 +161,20 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
       </div>
 
       <div className="flex items-center gap-3 shrink-0">
+        <button
+          onClick={toggleTheme}
+          className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
+          style={{ background: "var(--hs-bg-cream)", border: "1px solid var(--hs-border-light)" }}
+          aria-label="Toggle dark mode"
+          title={dark ? "Switch to light theme" : "Switch to dark theme"}
+        >
+          {dark ? (
+            <Sun className="w-4 h-4" style={{ color: "var(--hs-secondary-gold)" }} />
+          ) : (
+            <Moon className="w-4 h-4" style={{ color: "var(--hs-primary-navy)" }} />
+          )}
+        </button>
+
         <button className="relative w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "var(--hs-bg-cream)" }}>
           <Bell className="w-4 h-4" style={{ color: "var(--hs-primary-navy)" }} />
           <span
@@ -170,7 +194,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
               className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
               style={{
                 background: "var(--hs-primary-navy)",
-                boxShadow: "0 0 0 2px var(--color-white), 0 0 0 3px var(--hs-secondary-gold)",
+                boxShadow: "0 0 0 2px var(--color-on-dark), 0 0 0 3px var(--hs-secondary-gold)",
               }}
             >
               {initials}

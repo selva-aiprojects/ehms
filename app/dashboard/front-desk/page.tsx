@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, UserPlus, LogIn, LogOut, RefreshCw, AlertCircle, Loader2, Users, Calendar, DoorOpen, BedDouble, Phone, Mail, MapPin, Clock, Star, MessageSquare, Bell, Settings, ClipboardList, ArrowRight, MoreHorizontal, Home, Wifi, Coffee, ChevronRight, BarChart3, Download, Utensils, Trash2, RotateCcw, Send, ChevronDown, ChevronUp, Building2 } from "lucide-react";
+import type { ReactNode } from "react";import { Search, UserPlus, LogIn, LogOut, RefreshCw, AlertCircle, Loader2, Users, Calendar, DoorOpen, BedDouble, Phone, Mail, MapPin, Clock, Star, MessageSquare, Bell, Settings, ClipboardList, ArrowRight, MoreHorizontal, Home, Wifi, Coffee, ChevronRight, BarChart3, Download, Utensils, Trash2, RotateCcw, Send, Building2 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Card, { CardHeader } from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 import Button from "@/components/ui/button";
@@ -21,7 +22,7 @@ const ROOM_STATUS_STYLES: Record<string, { bg: string; border: string; dot: stri
   vacant: { bg: "var(--color-success-soft)", border: "var(--color-success)", dot: "var(--color-success)", label: "Available", text: "var(--color-success-dark)", pillBg: "var(--color-success-soft)", pillText: "var(--color-success-dark)" },
   occupied: { bg: "var(--color-info-soft)", border: "var(--color-info)", dot: "var(--color-info)", label: "Occupied", text: "var(--color-info-dark)", pillBg: "var(--color-info-soft)", pillText: "var(--color-info)" },
   dirty: { bg: "var(--color-warning-soft)", border: "var(--color-warning)", dot: "var(--color-warning)", label: "Dirty", text: "var(--color-warning-dark)", pillBg: "var(--color-warning-soft)", pillText: "var(--color-warning-dark)" },
-  cleaning: { bg: "#F5F3FF", border: "#8B5CF6", dot: "#8B5CF6", label: "Cleaning", text: "#5B21B6", pillBg: "#EDE9FE", pillText: "#6D28D9" },
+  cleaning: { bg: "var(--color-violet-soft)", border: "var(--color-violet)", dot: "var(--color-violet)", label: "Cleaning", text: "var(--color-violet-dark)", pillBg: "var(--color-violet-soft)", pillText: "var(--color-violet-dark)" },
   maintenance: { bg: "var(--color-danger-soft)", border: "var(--color-danger)", dot: "var(--color-danger)", label: "Maintenance", text: "var(--color-danger-dark)", pillBg: "var(--color-danger-soft)", pillText: "var(--color-danger-dark)" },
   reserved: { bg: "var(--color-light)", border: "var(--color-text-muted)", dot: "var(--color-text-muted)", label: "Reserved", text: "var(--color-text)", pillBg: "var(--color-border)", pillText: "var(--color-text)" },
   inspection: { bg: "var(--color-success-soft)", border: "var(--color-success)", dot: "var(--color-success)", label: "Inspection", text: "var(--color-success-dark)", pillBg: "var(--color-success-soft)", pillText: "var(--color-success-dark)" },
@@ -51,6 +52,20 @@ function SkeletonPanel() {
   );
 }
 
+function StatTile({ icon: Icon, label, value, accent, bg }: { icon: LucideIcon; label: string; value: ReactNode; accent: string; bg: string }) {
+  return (
+    <div className="rounded-xl p-3.5 flex items-center gap-3 transition-transform hover:-translate-y-0.5" style={{ background: bg }}>
+      <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: `color-mix(in srgb, ${accent} 16%, transparent)`, color: accent }}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="min-w-0">
+        <div className="text-lg font-bold leading-none" style={{ color: accent }}>{value}</div>
+        <div className="text-xs mt-1 truncate" style={{ color: "var(--color-text-muted)" }}>{label}</div>
+      </div>
+    </div>
+  );
+}
+
 import { toast } from "react-hot-toast";
 
 export default function FrontDeskPage() {
@@ -63,7 +78,6 @@ export default function FrontDeskPage() {
   const [applyingAction, setApplyingAction] = useState<string | null>(null);
   const [showWalkInModal, setShowWalkInModal] = useState(false);
   const [logRequestModalData, setLogRequestModalData] = useState<{ isOpen: boolean, roomId?: string, unitLabel?: string } | null>(null);
-  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set());
   const router = useRouter();
 
   const today = new Date().toISOString().split("T")[0];
@@ -72,6 +86,10 @@ export default function FrontDeskPage() {
   const { guests, isLoading: loadingGuests } = useGuests();
   const checkInMutation = useCheckIn();
   const checkOutMutation = useCheckOut();
+  const [checkInModalData, setCheckInModalData] = useState<{ isOpen: boolean, roomId: string, bookingId: string, guestName: string, unitLabel: string } | null>(null);
+  const [folioModalData, setFolioModalData] = useState<{ isOpen: boolean, roomId: string, bookingId: string, guestName: string } | null>(null);
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
 
   useEffect(() => {
     if (!selectedPropertyId) return;
@@ -83,11 +101,6 @@ export default function FrontDeskPage() {
       .finally(() => setLoadingDashboard(false));
   }, [selectedPropertyId]);
 
-  const [checkInModalData, setCheckInModalData] = useState<{ isOpen: boolean, roomId: string, bookingId: string, guestName: string, unitLabel: string } | null>(null);
-  const [folioModalData, setFolioModalData] = useState<{ isOpen: boolean, roomId: string, bookingId: string, guestName: string } | null>(null);
-  const [dashboardData, setDashboardData] = useState<any>(null);
-  const [loadingDashboard, setLoadingDashboard] = useState(true);
-
   const rooms = matrixRooms || [];
   const distinctBuildings = Array.from(new Set(rooms.map((r: any) => r.building_code || "A"))).sort() as string[];
   const activeBuilding = selectedBuilding || distinctBuildings[0] || "A";
@@ -96,9 +109,6 @@ export default function FrontDeskPage() {
   const activeFloor = distinctFloors.includes(floor) ? floor : (distinctFloors[0] || 1);
 
   const floorRooms = buildingRooms.filter((r: any) => r.floor_number === activeFloor);
-  const parentUnits = floorRooms.filter((r: any) => r.unit_type === 'apartment' && !r.parent_unit_id);
-  const standaloneUnits = floorRooms.filter((r: any) => !r.parent_unit_id && r.unit_type !== 'apartment');
-  const childUnitIds = new Set(floorRooms.filter((r: any) => r.parent_unit_id).map((r: any) => r.id));
 
   function computeFlatStatus(parent: any): string {
     if (!parent.children || parent.children.length === 0) return parent.status || 'vacant';
@@ -113,17 +123,7 @@ export default function FrontDeskPage() {
     return 'vacant';
   }
 
-  function toggleParentExpand(parentId: string) {
-    setExpandedParents(prev => {
-      const next = new Set(prev);
-      if (next.has(parentId)) next.delete(parentId);
-      else next.add(parentId);
-      return next;
-    });
-  }
-
   const filtered = floorRooms.filter((r: any) => {
-    if (childUnitIds.has(r.id) && !parentUnits.some((p: any) => p.id === r.parent_unit_id && expandedParents.has(p.id))) return false;
     if (statusFilter === "all") return true;
     const st = r.unit_type === 'apartment' && !r.parent_unit_id ? computeFlatStatus(r) : r.status;
     if (statusFilter === "vacant") return st === "vacant";
@@ -132,7 +132,16 @@ export default function FrontDeskPage() {
     if (statusFilter === "maintenance") return st === "maintenance";
     return true;
   });
+  const unitStatus = (r: any) => (r.unit_type === 'apartment' && !r.parent_unit_id ? computeFlatStatus(r) : r.status);
+  const statusCounts = {
+    all: floorRooms.length,
+    vacant: floorRooms.filter((r: any) => unitStatus(r) === "vacant").length,
+    occupied: floorRooms.filter((r: any) => unitStatus(r) === "occupied").length,
+    dirty: floorRooms.filter((r: any) => { const st = unitStatus(r); return st === "dirty" || st === "cleaning"; }).length,
+    maintenance: floorRooms.filter((r: any) => unitStatus(r) === "maintenance").length,
+  };
   const selected = rooms.find((r: any) => r.id === selectedRoom);
+  const isParentSelected = selected?.unit_type === "apartment" && !selected?.parent_unit_id;
 
   const arrivalsData = reservations
     ? (reservations as any[])?.filter((b: any) => b.status === "confirmed" || b.status === "pending") || []
@@ -214,6 +223,23 @@ export default function FrontDeskPage() {
     }
   }
 
+  const occupiedCount = rooms.filter((r: any) => {
+    if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'occupied';
+    return r.status === "occupied";
+  }).length;
+  const vacantCount = rooms.filter((r: any) => {
+    if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'vacant';
+    return r.status === "vacant";
+  }).length;
+  const dirtyCount = rooms.filter((r: any) => {
+    if (r.unit_type === 'apartment' && !r.parent_unit_id) { const s = computeFlatStatus(r); return s === 'dirty' || s === 'cleaning'; }
+    return r.status === "dirty" || r.status === "cleaning";
+  }).length;
+  const maintCount = rooms.filter((r: any) => {
+    if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'maintenance';
+    return r.status === "maintenance";
+  }).length;
+
   const isLoadingDisplay = loadingMatrix && !matrixRooms;
 
   if (isLoadingDisplay) {
@@ -231,7 +257,7 @@ export default function FrontDeskPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Front Desk Command Center</h1>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-text)" }}>Front Desk Command Center</h1>
           <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>{currentProperty?.name || (activeJourney === "apartments" ? "Viswa Service Apartments" : "Oceanview Hotel")} · {new Date().toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}</p>
         </div>
         <div className="flex items-center gap-2">
@@ -254,15 +280,22 @@ export default function FrontDeskPage() {
         </div>
       )}
 
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatTile icon={BedDouble} label="Occupied Rooms" value={occupiedCount} accent="var(--color-info)" bg="var(--color-info-soft)" />
+        <StatTile icon={DoorOpen} label="Vacant Rooms" value={vacantCount} accent="var(--color-success)" bg="var(--color-success-soft)" />
+        <StatTile icon={RefreshCw} label="Dirty / Cleaning" value={dirtyCount} accent="var(--color-warning)" bg="var(--color-warning-soft)" />
+        <StatTile icon={Settings} label="Maintenance" value={maintCount} accent="var(--color-danger)" bg="var(--color-danger-soft)" />
+      </div>
+
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <Card className="xl:col-span-2">
+        <Card className="xl:col-span-2 flex flex-col">
           <CardHeader title="Room Matrix" subtitle={`${buildingRooms.length} rooms in building`} action={
             <div className="flex flex-wrap items-center gap-2">
               {distinctBuildings.length > 1 && (
                 <div className="flex gap-1 border-r pr-2" style={{ borderColor: "var(--color-border)" }}>
                   {distinctBuildings.map((b) => (
                     <button key={b} onClick={() => { setSelectedBuilding(b); setSelectedRoom(null); }}
-                      className="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all"
+                      className="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all"
                       style={{ background: activeBuilding === b ? "var(--color-primary)" : "var(--color-light)", color: activeBuilding === b ? "var(--color-white)" : "var(--color-navy)" }}
                     >Tower {b}</button>
                   ))}
@@ -271,7 +304,7 @@ export default function FrontDeskPage() {
               <div className="flex gap-1">
                 {(distinctFloors.length > 0 ? distinctFloors : [1, 2, 3]).map((f) => (
                   <button key={f} onClick={() => { setFloor(f); setSelectedRoom(null); }}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all"
                     style={{ background: activeFloor === f ? "var(--color-navy)" : "var(--color-light)", color: activeFloor === f ? "var(--color-white)" : "var(--color-text-muted)" }}
                   >Floor {f}</button>
                 ))}
@@ -279,21 +312,21 @@ export default function FrontDeskPage() {
             </div>
           } />
           
-          <div className="px-4 py-2.5 bg-slate-50 border-b flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "var(--color-border)" }}>
+          <div className="px-4 py-2.5 border-b flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "var(--color-border)", background: "var(--color-surface-muted)" }}>
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-xs font-bold uppercase tracking-wider mr-1.5 flex items-center gap-1" style={{ color: "var(--color-text-muted)" }}>
                 Status Filter:
               </span>
               {[
-                { id: "all", label: `All (${parentUnits.length + standaloneUnits.length})`, bg: statusFilter === "all" ? "var(--color-navy)" : "var(--color-white)", color: statusFilter === "all" ? "var(--color-white)" : "var(--color-text)", border: statusFilter === "all" ? "var(--color-navy)" : "var(--color-border-strong)" },
-                { id: "vacant", label: `Available (${parentUnits.filter((r: any) => computeFlatStatus(r) === "vacant").length + standaloneUnits.filter((r: any) => r.status === "vacant").length})`, bg: statusFilter === "vacant" ? "var(--color-success)" : "var(--color-success-soft)", color: statusFilter === "vacant" ? "var(--color-white)" : "var(--color-success-dark)", border: "var(--color-success)" },
-                { id: "occupied", label: `Occupied (${parentUnits.filter((r: any) => computeFlatStatus(r) === "occupied").length + standaloneUnits.filter((r: any) => r.status === "occupied").length})`, bg: statusFilter === "occupied" ? "var(--color-info)" : "var(--color-info-soft)", color: statusFilter === "occupied" ? "var(--color-white)" : "var(--color-info-dark)", border: "var(--color-info)" },
-                { id: "dirty", label: `Dirty/Cleaning (${parentUnits.filter((r: any) => { const s = computeFlatStatus(r); return s === "dirty" || s === "cleaning"; }).length + standaloneUnits.filter((r: any) => r.status === "dirty" || r.status === "cleaning").length})`, bg: statusFilter === "dirty" ? "var(--color-warning)" : "var(--color-warning-soft)", color: statusFilter === "dirty" ? "var(--color-white)" : "var(--color-warning-dark)", border: "var(--color-warning)" },
-                { id: "maintenance", label: `Maint. (${parentUnits.filter((r: any) => computeFlatStatus(r) === "maintenance").length + standaloneUnits.filter((r: any) => r.status === "maintenance").length})`, bg: statusFilter === "maintenance" ? "var(--color-danger)" : "var(--color-danger-soft)", color: statusFilter === "maintenance" ? "var(--color-white)" : "var(--color-danger-dark)", border: "#FCA5A5" },
+                { id: "all", label: `All (${statusCounts.all})`, bg: statusFilter === "all" ? "var(--color-navy)" : "var(--color-light)", color: statusFilter === "all" ? "var(--color-white)" : "var(--color-text)", border: statusFilter === "all" ? "var(--color-navy)" : "var(--color-border)" },
+                { id: "vacant", label: `Available (${statusCounts.vacant})`, bg: statusFilter === "vacant" ? "var(--color-success)" : "var(--color-success-soft)", color: statusFilter === "vacant" ? "var(--color-white)" : "var(--color-success-dark)", border: "var(--color-success)" },
+                { id: "occupied", label: `Occupied (${statusCounts.occupied})`, bg: statusFilter === "occupied" ? "var(--color-info)" : "var(--color-info-soft)", color: statusFilter === "occupied" ? "var(--color-white)" : "var(--color-info-dark)", border: "var(--color-info)" },
+                { id: "dirty", label: `Dirty/Cleaning (${statusCounts.dirty})`, bg: statusFilter === "dirty" ? "var(--color-warning)" : "var(--color-warning-soft)", color: statusFilter === "dirty" ? "var(--color-white)" : "var(--color-warning-dark)", border: "var(--color-warning)" },
+                { id: "maintenance", label: `Maint. (${statusCounts.maintenance})`, bg: statusFilter === "maintenance" ? "var(--color-danger)" : "var(--color-danger-soft)", color: statusFilter === "maintenance" ? "var(--color-white)" : "var(--color-danger-dark)", border: "var(--color-danger)" },
               ].map((f) => (
                 <button key={f.id} onClick={() => { setStatusFilter(f.id); setSelectedRoom(null); }}
-                  className="px-2.5 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 shadow-2xs hover:scale-[1.02]"
-                  style={{ background: f.bg, color: f.color, border: `1.5px solid ${f.border}` }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1"
+                  style={{ background: f.bg, color: f.color, border: `1px solid ${f.border}` }}
                 >
                   {f.label}
                 </button>
@@ -301,7 +334,7 @@ export default function FrontDeskPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 p-4 flex-1">
             {loadingRes
               ? Array.from({ length: 4 }).map((_, i) => <SkeletonRoomCard key={i} />)
               : filtered.map((room: any) => {
@@ -309,15 +342,13 @@ export default function FrontDeskPage() {
                   const flatStatus = isParent ? computeFlatStatus(room) : null;
                   const s = ROOM_STATUS_STYLES[flatStatus || room.status] || ROOM_STATUS_STYLES.vacant;
                   const isSelected = selectedRoom === room.id;
-                  const isExpanded = expandedParents.has(room.id);
-                  const children = room.children || [];
-                  const childCount = room.child_count || children.length;
+                  const childCount = room.child_count || (room.children?.length || 0);
                   const isAc = room.attributes?.ac;
 
                   if (isParent) {
                     return (
-                      <div key={room.id}
-                        className={`rounded-xl p-3.5 text-left transition-all border-2 flex flex-col justify-between shadow-2xs relative overflow-hidden group hover:shadow-md col-span-1 sm:col-span-2 md:col-span-2`}
+                      <button key={room.id} onClick={() => setSelectedRoom(isSelected ? null : room.id)}
+                        className="rounded-xl p-3.5 text-left transition-all border-2 flex flex-col justify-between h-full shadow-2xs relative overflow-hidden group hover:shadow-md"
                         style={{
                           background: s.bg,
                           borderColor: isSelected ? "var(--color-navy)" : s.border,
@@ -332,50 +363,26 @@ export default function FrontDeskPage() {
                               <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: "rgba(var(--color-primary-dark-rgb),0.18)", color: "var(--color-success-dark)" }}>
                                 {room.layout_type || 'Apartment'}
                               </span>
-                              {isAc !== undefined && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase flex-shrink-0" style={{ background: isAc ? "rgba(var(--color-success-rgb),0.18)" : "rgba(var(--color-text-muted-rgb),0.15)", color: isAc ? "var(--color-success-dark)" : "var(--color-text)" }}>
-                                  {isAc ? "AC" : "Non-AC"}
-                                </span>
-                              )}
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs flex-shrink-0" style={{ background: s.pillBg, color: s.pillText }}>
-                                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.dot }} />
-                                {s.label}
-                              </span>
-                              <button onClick={(e) => { e.stopPropagation(); toggleParentExpand(room.id); }}
-                                className="w-6 h-6 flex items-center justify-center rounded-md transition-all hover:bg-black/5"
-                              >
-                                {isExpanded ? <ChevronUp className="w-4 h-4" style={{ color: s.text }} /> : <ChevronDown className="w-4 h-4" style={{ color: s.text }} />}
-                              </button>
-                            </div>
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs flex-shrink-0" style={{ background: s.pillBg, color: s.pillText }}>
+                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.dot }} />
+                              {s.label}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-3 text-xs font-semibold mb-2" style={{ color: "var(--color-text)" }}>
-                            <span>{childCount} room{childCount !== 1 ? 's' : ''}</span>
-                            <span>·</span>
-                            <span>{room.occupied_children || 0} occupied</span>
-                            <span>·</span>
-                            <span className="font-bold" style={{ color: s.text }}>₹{room.base_rate}/night (total)</span>
+                          <div className="text-xs font-semibold mb-3 truncate" style={{ color: "var(--color-text)" }}>
+                            {childCount} room{childCount !== 1 ? 's' : ''} · {room.occupied_children || 0} occupied
                           </div>
-                          {children.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 mt-1">
-                              {children.map((child: any) => {
-                                const cs = ROOM_STATUS_STYLES[child.status] || ROOM_STATUS_STYLES.vacant;
-                                return (
-                                  <button key={child.id}
-                                    onClick={(e) => { e.stopPropagation(); setSelectedRoom(child.id); }}
-                                    className="text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 transition-all hover:scale-[1.03] shadow-2xs"
-                                    style={{ background: cs.pillBg, color: cs.pillText, border: `1.5px solid ${cs.border}` }}
-                                  >
-                                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cs.dot }} />
-                                    {child.unit_label}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
                         </div>
-                      </div>
+                        <div className="pt-2.5 border-t flex items-center justify-between mt-auto" style={{ borderColor: "var(--color-border)" }}>
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-medium" style={{ color: "var(--color-text-muted)" }}>Total / Night</span>
+                            <span className="text-xs font-bold" style={{ color: s.text }}>₹{room.base_rate}</span>
+                          </div>
+                          <span className="text-[11px] font-bold px-2 py-1 rounded-md" style={{ background: s.pillBg, color: s.pillText, border: `1px solid ${s.border}` }}>
+                            {room.occupied_children || 0}/{childCount} Occupied
+                          </span>
+                        </div>
+                      </button>
                     );
                   }
 
@@ -405,7 +412,7 @@ export default function FrontDeskPage() {
                         </div>
                         <div className="text-xs font-semibold mb-3 truncate" style={{ color: "var(--color-text)" }}>{room.layout_type || room.unit_type}</div>
                       </div>
-                      <div className="pt-2.5 border-t flex items-center justify-between mt-auto" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
+                      <div className="pt-2.5 border-t flex items-center justify-between mt-auto" style={{ borderColor: "var(--color-border)" }}>
                         <div className="flex flex-col">
                           <span className="text-[10px] font-medium" style={{ color: "var(--color-text-muted)" }}>Nightly Rate</span>
                           <span className="text-xs font-bold" style={{ color: s.text }}>₹{room.base_rate}</span>
@@ -416,11 +423,11 @@ export default function FrontDeskPage() {
                             <div className="text-xs font-bold truncate" style={{ color: s.text }}>{room.guest_name}</div>
                           </div>
                         ) : room.status === "vacant" ? (
-                          <span className="text-[11px] font-bold px-2 py-1 rounded-md bg-white/90 text-emerald-700 border border-emerald-300 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-2xs">
+                          <span className="text-[11px] font-bold px-2 py-1 rounded-md transition-all" style={{ background: "var(--color-success-soft)", color: "var(--color-success-dark)", border: "1px solid var(--color-success)" }}>
                             + Book
                           </span>
                         ) : room.status === "dirty" || room.status === "cleaning" ? (
-                          <span className="text-[11px] font-bold px-2 py-1 rounded-md bg-white/90 text-amber-700 border border-amber-300 shadow-2xs">
+                          <span className="text-[11px] font-bold px-2 py-1 rounded-md" style={{ background: "var(--color-warning-soft)", color: "var(--color-warning-dark)", border: "1px solid var(--color-warning)" }}>
                             Dirty
                           </span>
                         ) : null}
@@ -429,25 +436,25 @@ export default function FrontDeskPage() {
                   );
                 })}
           </div>
-          <div className="flex flex-wrap items-center gap-4 px-4 py-3 text-xs bg-slate-50/60" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
+          <div className="flex flex-wrap items-center gap-4 px-4 py-3 text-xs" style={{ background: "var(--color-surface-muted)", borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
             {Object.entries(ROOM_STATUS_STYLES).map(([k, v]) => (
               <span key={k} className="flex items-center gap-1.5 font-semibold" style={{ color: v.text }}>
-                <span className="w-2.5 h-2.5 rounded-full shadow-2xs" style={{ background: v.dot }} /> {v.label}
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: v.dot }} /> {v.label}
               </span>
             ))}
           </div>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col overflow-hidden" style={{ maxHeight: "min(50vh, 560px)" }}>
           {selected ? (
-            <div>
+            <div className="flex flex-col flex-1 min-h-0">
               <CardHeader title={`Room ${selected.unit_label}`} subtitle={selected.building_name ? `${selected.building_name} · Floor ${selected.floor_number}` : `Floor ${selected.floor_number}`} />
-              <div className="space-y-4">
+              <div className="space-y-4 overflow-y-auto pr-1 flex-1 min-h-0">
                 <div className="flex items-center justify-between">
                   <Badge variant={selected.vip ? "amber" : "gray"}>
-                    {(ROOM_STATUS_STYLES[selected.status] || ROOM_STATUS_STYLES.vacant).label}
+                    {(ROOM_STATUS_STYLES[isParentSelected ? computeFlatStatus(selected) : selected.status] || ROOM_STATUS_STYLES.vacant).label}
                   </Badge>
-                  <span className="font-bold text-sm" style={{ color: "var(--color-navy)" }}>₹{selected.base_rate}/night</span>
+                  <span className="font-bold text-sm" style={{ color: "var(--color-navy)" }}>₹{selected.base_rate}/night{isParentSelected ? " total" : ""}</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   <Badge variant="teal">{selected.layout_type || selected.unit_type}</Badge>
@@ -479,6 +486,28 @@ export default function FrontDeskPage() {
                     <DoorOpen className="w-3 h-3" /> Currently checked in
                   </div>
                 )}
+                {isParentSelected && (selected.children?.length > 0) && (
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "var(--color-text-muted)" }}>Rooms in this apartment</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {selected.children.map((child: any) => {
+                        const cs = ROOM_STATUS_STYLES[child.status] || ROOM_STATUS_STYLES.vacant;
+                        return (
+                          <button key={child.id} onClick={() => setSelectedRoom(child.id)}
+                            className="px-2.5 py-2 rounded-lg text-left border transition-all hover:shadow-md flex flex-col gap-1"
+                            style={{ background: cs.bg, borderColor: cs.border }}
+                          >
+                            <span className="text-xs font-bold truncate" style={{ color: cs.text }}>{child.unit_label}</span>
+                            <span className="text-[10px] font-semibold flex items-center gap-1" style={{ color: cs.text }}>
+                              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cs.dot }} /> {cs.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {!isParentSelected && (
                 <div className="space-y-2">
                   <Button
                     variant="primary" size="sm" className="w-full"
@@ -546,6 +575,7 @@ export default function FrontDeskPage() {
                     </Button>
                   )}
                 </div>
+                )}
               </div>
             </div>
           ) : (
@@ -556,7 +586,9 @@ export default function FrontDeskPage() {
             </div>
           )}
         </Card>
-        
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <AiRevenueManagerCard propertyId={selectedPropertyId} />
         <ChannelPartnersCard propertyId={selectedPropertyId} />
         <OffersCard propertyId={selectedPropertyId} />
@@ -631,48 +663,6 @@ export default function FrontDeskPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader title="Today's Overview" subtitle="Quick stats at a glance" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
-            <div className="text-lg font-bold" style={{ color: "var(--color-navy)" }}>
-              {rooms.filter((r: any) => {
-                if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'occupied';
-                return r.status === "occupied";
-              }).length}
-            </div>
-            <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Occupied Rooms</div>
-          </div>
-          <div className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
-            <div className="text-lg font-bold" style={{ color: "var(--color-primary)" }}>
-              {rooms.filter((r: any) => {
-                if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'vacant';
-                return r.status === "vacant";
-              }).length}
-            </div>
-            <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Vacant Rooms</div>
-          </div>
-          <div className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
-            <div className="text-lg font-bold" style={{ color: "var(--color-warning)" }}>
-              {rooms.filter((r: any) => {
-                if (r.unit_type === 'apartment' && !r.parent_unit_id) { const s = computeFlatStatus(r); return s === 'dirty' || s === 'cleaning'; }
-                return r.status === "dirty" || r.status === "cleaning";
-              }).length}
-            </div>
-            <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Dirty / Cleaning</div>
-          </div>
-          <div className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
-            <div className="text-lg font-bold" style={{ color: "var(--color-danger)" }}>
-              {rooms.filter((r: any) => {
-                if (r.unit_type === 'apartment' && !r.parent_unit_id) return computeFlatStatus(r) === 'maintenance';
-                return r.status === "maintenance";
-              }).length}
-            </div>
-            <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Maintenance</div>
-          </div>
-        </div>
-      </Card>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader title="Quick Actions" subtitle="Common front desk tasks" />
@@ -741,7 +731,7 @@ export default function FrontDeskPage() {
                         <div className="text-xs truncate" style={{ color: "var(--color-text-muted)" }}>{req.description}</div>
                       </div>
                       <div className="text-right">
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${req.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={req.status === 'pending' ? { background: "var(--color-warning-soft)", color: "var(--color-warning-dark)" } : { background: "var(--color-info-soft)", color: "var(--color-info-dark)" }}>
                           {req.status}
                         </span>
                         <span className="text-[10px] block mt-0.5" style={{ color: "var(--color-text-muted)" }}>{timeAgo}</span>
@@ -761,7 +751,7 @@ export default function FrontDeskPage() {
                   readOnly
                 />
               </div>
-              <button className="px-4 py-2 rounded-lg text-sm font-medium" style={{ background: "var(--color-navy)", color: "var(--color-white)" }}>
+              <button className="px-4 py-2 rounded-lg text-sm font-medium" style={{ background: "var(--color-navy)", color: "var(--color-on-dark)" }}>
                 <Send className="w-4 h-4" />
               </button>
             </div>

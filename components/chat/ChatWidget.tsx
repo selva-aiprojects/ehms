@@ -96,7 +96,7 @@ export default function ChatWidget() {
           <div className="flex items-center justify-between px-4 py-3" style={{ background: "var(--hs-navy)" }}>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--hs-gold)" }} />
-              <span className="text-sm font-semibold" style={{ color: "var(--hs-surface-white)" }}>
+              <span className="text-sm font-semibold" style={{ color: "var(--color-on-dark)" }}>
                 HostSphere AI Co-Pilot
               </span>
             </div>
@@ -104,7 +104,7 @@ export default function ChatWidget() {
               onClick={() => setOpen(false)}
               aria-label="Close chat"
               className="text-lg leading-none"
-              style={{ color: "var(--hs-surface-white)", opacity: 0.8 }}
+              style={{ color: "var(--color-on-dark)", opacity: 0.8 }}
             >
               ×
             </button>
@@ -142,7 +142,7 @@ export default function ChatWidget() {
                   }`}
                   style={{
                     background: m.role === "user" ? "var(--hs-navy)" : "var(--hs-surface-white)",
-                    color: m.role === "user" ? "var(--hs-surface-white)" : "var(--hs-text)",
+                    color: m.role === "user" ? "var(--color-on-dark)" : "var(--hs-text)",
                     border: m.role === "user" ? "none" : "1px solid rgba(0,0,0,0.06)",
                   }}
                 >
@@ -162,7 +162,7 @@ export default function ChatWidget() {
                     <button
                       onClick={onConfirm}
                       className="px-2 py-0.5 rounded text-[11px] font-semibold cursor-pointer"
-                      style={{ background: "var(--hs-navy)", color: "var(--hs-surface-white)" }}
+                      style={{ background: "var(--hs-navy)", color: "var(--color-on-dark)" }}
                     >
                       Yes, proceed
                     </button>
@@ -224,7 +224,7 @@ export default function ChatWidget() {
           width: "3.25rem",
           height: "3.25rem",
           background: "var(--hs-navy)",
-          color: "var(--hs-surface-white)",
+          color: "var(--color-on-dark)",
         }}
       >
         {open ? (

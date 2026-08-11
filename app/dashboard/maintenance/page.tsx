@@ -220,7 +220,7 @@ export default function MaintenancePage() {
             </div>
           )}
           {criticalCount > 0 && (
-            <div className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: "var(--color-danger)", color: "var(--color-white)" }}>
+            <div className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: "var(--color-danger)", color: "var(--color-on-dark)" }}>
               <AlertTriangle className="w-3.5 h-3.5" /> {criticalCount} Critical
             </div>
           )}

@@ -139,13 +139,13 @@ export default function KioskPage() {
             <div className="flex items-center gap-1 mb-6">
               {steps.map((s, i) => (
                 <div key={s} className="flex-1 h-1 rounded-full" style={{
-                  background: i <= currentIdx ? "var(--color-warning)" : "rgba(var(--color-white-rgb),0.3)"
+                  background: i <= currentIdx ? "var(--color-warning)" : "rgba(var(--color-on-dark-rgb),0.3)"
                 }} />
               ))}
             </div>
           )}
 
-          <div className="rounded-2xl p-6" style={{ background: "rgba(var(--color-white-rgb),0.95)", backdropFilter: "blur(10px)" }}>
+          <div className="rounded-2xl p-6" style={{ background: "rgba(var(--color-on-dark-rgb),0.95)", backdropFilter: "blur(10px)" }}>
             {/* Welcome */}
             {step === "welcome" && (
               <div className="text-center space-y-4">
@@ -351,7 +351,7 @@ export default function KioskPage() {
           </div>
 
           {/* Footer */}
-          <p className="text-center text-[10px] mt-4" style={{ color: "rgba(var(--color-white-rgb),0.6)" }}>
+          <p className="text-center text-[10px] mt-4" style={{ color: "rgba(var(--color-on-dark-rgb),0.6)" }}>
             Powered by HostSphere • Digital Check-in
           </p>
         </div>

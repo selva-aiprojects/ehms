@@ -39,7 +39,7 @@ export default function LandingPage() {
     `opacity-0 animate-slide-up ${visibleSections["hero"] ? delay : "animation-delay-500"}`;
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--color-dark-navy)", color: "var(--color-light)" }}>
+    <div className="landing-page min-h-screen" style={{ background: "var(--color-dark-navy)", color: "var(--color-on-dark)" }}>
       {/* ─── NAV ─── */}
       <nav
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
@@ -59,9 +59,9 @@ export default function LandingPage() {
                   key={item}
                   href={`#${item.toLowerCase()}`}
                   className="text-sm font-medium transition-colors duration-200 hover:opacity-100"
-                  style={{ color: "rgba(var(--color-light-rgb),0.7)" }}
+                  style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}
                   onMouseEnter={e => e.currentTarget.style.color = "var(--color-primary)"}
-                  onMouseLeave={e => e.currentTarget.style.color = "rgba(var(--color-light-rgb),0.7)"}
+                  onMouseLeave={e => e.currentTarget.style.color = "rgba(var(--color-on-dark-rgb),0.7)"}
                 >
                   {item}
                 </Link>
@@ -78,7 +78,7 @@ export default function LandingPage() {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="md:hidden p-2 rounded-lg"
-              style={{ color: "rgba(var(--color-light-rgb),0.7)" }}
+              style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}
             >
               {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -96,7 +96,7 @@ export default function LandingPage() {
                 href={`#${item.toLowerCase()}`}
                 onClick={() => setMenuOpen(false)}
                 className="block py-2 text-sm font-medium transition-colors"
-                style={{ color: "rgba(var(--color-light-rgb),0.7)" }}
+                style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}
               >
                 {item}
               </Link>
@@ -122,7 +122,7 @@ export default function LandingPage() {
         <div
           className="absolute inset-0 animate-gradient"
           style={{
-            background: "linear-gradient(-45deg, var(--color-dark-navy) 0%, var(--color-bg-surface) 25%, var(--color-text) 50%, var(--color-dark-navy) 75%, var(--color-bg-surface) 100%)",
+            background: "linear-gradient(-45deg, var(--color-dark-navy) 0%, var(--color-bg-surface) 25%, var(--color-dark-navy) 50%, var(--color-dark-navy) 75%, var(--color-bg-surface) 100%)",
             backgroundSize: "400% 400%",
           }}
         />
@@ -146,12 +146,12 @@ export default function LandingPage() {
               </div>
 
               <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4 opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-200" : ""}`}>
-                <span style={{ color: "var(--color-white)" }}>Elevated hospitality,<br/>powered by </span>
+                <span style={{ color: "var(--color-on-dark)" }}>Elevated hospitality,<br/>powered by </span>
                 <span style={{ color: "var(--color-gold-light)" }}>HostSphere</span>
               </h1>
 
               <p className={`text-lg sm:text-xl mb-8 max-w-xl leading-relaxed opacity-0 animate-slide-up ${visibleSections["hero"] ? "animation-delay-300" : ""}`}
-                style={{ color: "rgba(var(--color-light-rgb),0.6)" }}
+                style={{ color: "rgba(var(--color-on-dark-rgb),0.6)" }}
               >
                 A unified SaaS platform powering hotels, serviced apartments,
                 rental properties, and workplace management — with dedicated,
@@ -169,7 +169,7 @@ export default function LandingPage() {
                 <Link
                   href="#product"
                   className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105"
-                  style={{ border: "1px solid rgba(var(--color-primary-rgb),0.3)", color: "rgba(var(--color-light-rgb),0.8)" }}
+                  style={{ border: "1px solid rgba(var(--color-primary-rgb),0.3)", color: "rgba(var(--color-on-dark-rgb),0.8)" }}
                 >
                   Explore Platform <ChevronRight className="w-4 h-4" />
                 </Link>
@@ -188,7 +188,7 @@ export default function LandingPage() {
                 <div className="p-8 flex flex-col justify-center h-full">
                   <div className="text-center mb-6">
                     <div className="text-4xl font-bold mb-2" style={{ color: "var(--color-gold-light)" }}>HostSphere</div>
-                    <div className="text-xs tracking-widest uppercase" style={{ color: "rgba(var(--color-light-rgb),0.4)" }}>
+                    <div className="text-xs tracking-widest uppercase" style={{ color: "rgba(var(--color-on-dark-rgb),0.4)" }}>
                       SaaS Model Platform
                     </div>
                   </div>
@@ -200,9 +200,9 @@ export default function LandingPage() {
                       { label: "API Routes", value: "100+" },
                     ].map((s) => (
                       <div key={s.label} className="flex justify-between items-center px-4 py-2 rounded-lg"
-                        style={{ background: "rgba(var(--color-white-rgb),0.03)" }}
+                        style={{ background: "rgba(var(--color-on-dark-rgb),0.03)" }}
                       >
-                        <span className="text-xs" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>{s.label}</span>
+                        <span className="text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>{s.label}</span>
                         <span className="text-sm font-bold" style={{ color: "var(--color-gold)" }}>{s.value}</span>
                       </div>
                     ))}
@@ -228,7 +228,7 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-semibold tracking-widest uppercase mb-8"
-            style={{ color: "rgba(var(--color-light-rgb),0.3)" }}
+            style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}
           >
             Trusted By Leading Hospitality Groups
           </p>
@@ -241,8 +241,8 @@ export default function LandingPage() {
             ].map((t) => (
               <div key={t.code} className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all hover:scale-105"
                 style={{
-                  background: "rgba(var(--color-white-rgb),0.03)",
-                  border: "1px solid rgba(var(--color-white-rgb),0.06)",
+                  background: "rgba(var(--color-on-dark-rgb),0.03)",
+                  border: "1px solid rgba(var(--color-on-dark-rgb),0.06)",
                 }}
               >
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -251,8 +251,8 @@ export default function LandingPage() {
                   <Building2 className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
                 </div>
                 <div className="text-left">
-                  <div className="text-sm font-semibold" style={{ color: "var(--color-white)" }}>{t.name}</div>
-                  <div className="text-xs" style={{ color: "rgba(var(--color-light-rgb),0.35)" }}>
+                  <div className="text-sm font-semibold" style={{ color: "var(--color-on-dark)" }}>{t.name}</div>
+                  <div className="text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.35)" }}>
                     <span className="font-mono" style={{ color: "var(--color-gold)" }}>{t.code}</span> &middot; {t.vert}
                   </div>
                 </div>
@@ -276,8 +276,8 @@ export default function LandingPage() {
                 className={`text-center opacity-0 animate-slide-up ${visibleSections["stats"] ? `animation-delay-${(i + 1) * 100}` : ""}`}
               >
                 <stat.icon className="w-6 h-6 mx-auto mb-3" style={{ color: "var(--color-primary)" }} />
-                <div className="text-3xl lg:text-4xl font-bold mb-1" style={{ color: "var(--color-white)" }}>{stat.value}</div>
-                <div className="text-sm" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>{stat.label}</div>
+                <div className="text-3xl lg:text-4xl font-bold mb-1" style={{ color: "var(--color-on-dark)" }}>{stat.value}</div>
+                <div className="text-sm" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>{stat.label}</div>
               </div>
             ))}
           </div>
@@ -295,12 +295,12 @@ export default function LandingPage() {
               <Sparkles className="w-3.5 h-3.5" /> Powered by HostSphere
             </div>
             <h2 className={`text-3xl sm:text-4xl font-bold mb-4 opacity-0 animate-slide-up ${visibleSections["product"] ? "animation-delay-200" : ""}`}
-              style={{ color: "var(--color-white)" }}>
+              style={{ color: "var(--color-on-dark)" }}>
               One Platform.{" "}
               <span style={{ color: "var(--color-primary)" }}>Every Vertical.</span>
             </h2>
             <p className={`text-lg opacity-0 animate-slide-up ${visibleSections["product"] ? "animation-delay-300" : ""}`}
-              style={{ color: "rgba(var(--color-light-rgb),0.55)" }}>
+              style={{ color: "rgba(var(--color-on-dark-rgb),0.55)" }}>
               From luxury hotels to coworking spaces — HostSphere unifies operations across
               all hospitality verticals with a single, secure, isolated architecture.
             </p>
@@ -315,14 +315,14 @@ export default function LandingPage() {
             ].map((v, i) => (
               <div key={v.title}
                 className={`group p-6 rounded-2xl transition-all duration-300 hover:scale-[1.03] opacity-0 animate-slide-up ${visibleSections["product"] ? `animation-delay-${(i + 1) * 100 + 200}` : ""}`}
-                style={{ background: "rgba(var(--color-white-rgb),0.03)", border: "1px solid rgba(var(--color-white-rgb),0.06)" }}
+                style={{ background: "rgba(var(--color-on-dark-rgb),0.03)", border: "1px solid rgba(var(--color-on-dark-rgb),0.06)" }}
               >
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300"
                   style={{ background: "rgba(var(--color-primary-rgb),0.1)" }}>
                   <v.icon className="w-6 h-6" style={{ color: "var(--color-primary)" }} />
                 </div>
-                <h3 className="text-lg font-semibold mb-2" style={{ color: "var(--color-white)" }}>{v.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>{v.desc}</p>
+                <h3 className="text-lg font-semibold mb-2" style={{ color: "var(--color-on-dark)" }}>{v.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>{v.desc}</p>
               </div>
             ))}
           </div>
@@ -340,13 +340,13 @@ export default function LandingPage() {
               </div>
 
               <h2 className={`text-3xl sm:text-4xl font-bold mb-4 opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-200" : ""}`}
-                style={{ color: "var(--color-white)" }}>
+                style={{ color: "var(--color-on-dark)" }}>
                 Schema-Isolated{" "}
                 <span style={{ color: "var(--color-gold)" }}>Organization Architecture</span>
               </h2>
 
               <p className={`text-base leading-relaxed mb-8 opacity-0 animate-slide-up ${visibleSections["platform"] ? "animation-delay-300" : ""}`}
-                style={{ color: "rgba(var(--color-light-rgb),0.55)" }}>
+                style={{ color: "rgba(var(--color-on-dark-rgb),0.55)" }}>
                 Every organization gets its own dedicated PostgreSQL schema — complete data isolation
                 without the operational overhead of separate databases. Each organization also
                 picks which verticals to subscribe to, paying only for what they use.
@@ -360,15 +360,15 @@ export default function LandingPage() {
                   { icon: Globe, title: "Lifecycle Management", desc: "Provision, suspend, or remove organizations independently. Suspended organizations block all access while preserving data." },
                 ].map((f, i) => (
                   <div key={f.title} className="flex gap-4 p-4 rounded-xl"
-                    style={{ background: "rgba(var(--color-white-rgb),0.02)", border: "1px solid rgba(var(--color-white-rgb),0.04)" }}
+                    style={{ background: "rgba(var(--color-on-dark-rgb),0.02)", border: "1px solid rgba(var(--color-on-dark-rgb),0.04)" }}
                   >
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                       style={{ background: "rgba(var(--color-gold-rgb),0.1)" }}>
                       <f.icon className="w-5 h-5" style={{ color: "var(--color-gold)" }} />
                     </div>
                     <div>
-                      <div className="font-medium text-sm mb-0.5" style={{ color: "var(--color-white)" }}>{f.title}</div>
-                      <div className="text-xs leading-relaxed" style={{ color: "rgba(var(--color-light-rgb),0.45)" }}>{f.desc}</div>
+                      <div className="font-medium text-sm mb-0.5" style={{ color: "var(--color-on-dark)" }}>{f.title}</div>
+                      <div className="text-xs leading-relaxed" style={{ color: "rgba(var(--color-on-dark-rgb),0.45)" }}>{f.desc}</div>
                     </div>
                   </div>
                 ))}
@@ -379,23 +379,23 @@ export default function LandingPage() {
               <div className="rounded-2xl p-6 font-mono text-xs leading-relaxed"
                 style={{ background: "rgba(var(--color-dark-navy-rgb),0.8)", border: "1px solid rgba(var(--color-primary-rgb),0.1)" }}
               >
-                <div style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>── organization architecture ──</div>
+                <div style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>── organization architecture ──</div>
                 <br/>
                 <span style={{ color: "var(--color-gold)" }}>PostgreSQL</span> Cluster<br/>
                 ├── <span style={{ color: "var(--color-primary)" }}>public</span> schema<br/>
-                │   ├── tenants &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>← registry + config</span><br/>
+                │   ├── tenants &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>← registry + config</span><br/>
                 │   └── extensions<br/>
                 │<br/>
-                ├── <span style={{ color: "var(--color-primary-dark)" }}>viswa</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>← Viswa Group — all 4 verticals</span><br/>
+                ├── <span style={{ color: "var(--color-primary-dark)" }}>viswa</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>← Viswa Group — all 4 verticals</span><br/>
                 │<br/>
-                ├── <span style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>grt</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-light-rgb),0.2)" }}>← GRT — Hotels only</span><br/>
+                ├── <span style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>grt</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-on-dark-rgb),0.2)" }}>← GRT — Hotels only</span><br/>
                 │<br/>
-                ├── <span style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>raintree</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-light-rgb),0.2)" }}>← Raintree — Hotels, Apartments</span><br/>
+                ├── <span style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>raintree</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-on-dark-rgb),0.2)" }}>← Raintree — Hotels, Apartments</span><br/>
                 │<br/>
-                └── <span style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>dlf</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-light-rgb),0.2)" }}>← DLF — Rental, Workplace</span><br/>
+                └── <span style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>dlf</span> schema &nbsp;&nbsp;<span style={{ color: "rgba(var(--color-on-dark-rgb),0.2)" }}>← DLF — Rental, Workplace</span><br/>
                 <br/>
-                <span style={{ color: "var(--color-gold)" }}>$</span> <span style={{ color: "var(--color-white)" }}>SELECT provision_tenant_schema('ABC Corp', 'ABC', 'abc');</span><br/>
-                <span style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>  → New schema cloned from viswa template</span>
+                <span style={{ color: "var(--color-gold)" }}>$</span> <span style={{ color: "var(--color-on-dark)" }}>SELECT provision_tenant_schema('ABC Corp', 'ABC', 'abc');</span><br/>
+                <span style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>  → New schema cloned from viswa template</span>
               </div>
             </div>
           </div>
@@ -409,7 +409,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className={`text-3xl sm:text-4xl font-bold mb-4 opacity-0 animate-slide-up ${visibleSections["verticals"] ? "animation-delay-100" : ""}`}
-              style={{ color: "var(--color-white)" }}>
+              style={{ color: "var(--color-on-dark)" }}>
               Everything You Need to{" "}
               <span style={{ color: "var(--color-primary)" }}>Run Hospitality</span>
             </h2>
@@ -429,13 +429,13 @@ export default function LandingPage() {
             ].map((f, i) => (
               <div key={f.title}
                 className={`p-5 rounded-xl transition-all duration-200 hover:scale-[1.02] opacity-0 animate-slide-up ${visibleSections["verticals"] ? `animation-delay-${(i % 6 + 1) * 100}` : ""}`}
-                style={{ background: "rgba(var(--color-white-rgb),0.02)", border: "1px solid rgba(var(--color-white-rgb),0.05)" }}
+                style={{ background: "rgba(var(--color-on-dark-rgb),0.02)", border: "1px solid rgba(var(--color-on-dark-rgb),0.05)" }}
               >
                 <div className="flex items-center gap-3 mb-2">
                   <f.icon className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
-                  <span className="text-sm font-semibold" style={{ color: "var(--color-white)" }}>{f.title}</span>
+                  <span className="text-sm font-semibold" style={{ color: "var(--color-on-dark)" }}>{f.title}</span>
                 </div>
-                <p className="text-xs leading-relaxed" style={{ color: "rgba(var(--color-light-rgb),0.45)" }}>{f.desc}</p>
+                <p className="text-xs leading-relaxed" style={{ color: "rgba(var(--color-on-dark-rgb),0.45)" }}>{f.desc}</p>
               </div>
             ))}
           </div>
@@ -452,11 +452,11 @@ export default function LandingPage() {
           }}
         />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: "var(--color-white)" }}>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4" style={{ color: "var(--color-on-dark)" }}>
             Ready to Transform Your{" "}
             <span style={{ color: "var(--color-primary)" }}>Hospitality Operations</span>?
           </h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto" style={{ color: "rgba(var(--color-light-rgb),0.55)" }}>
+          <p className="text-lg mb-8 max-w-2xl mx-auto" style={{ color: "rgba(var(--color-on-dark-rgb),0.55)" }}>
             Join forward-thinking hospitality groups already running on HostSphere.
             Experience enterprise-grade multi-tenant hospitality management with
             per-tenant feature selection.
@@ -472,7 +472,7 @@ export default function LandingPage() {
             <Link
               href="#product"
               className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-200"
-              style={{ border: "1px solid rgba(var(--color-primary-rgb),0.3)", color: "rgba(var(--color-light-rgb),0.8)" }}
+              style={{ border: "1px solid rgba(var(--color-primary-rgb),0.3)", color: "rgba(var(--color-on-dark-rgb),0.8)" }}
             >
               Learn More
             </Link>
@@ -481,12 +481,12 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer style={{ background: "rgba(var(--color-dark-navy-rgb),0.8)", borderTop: "1px solid rgba(var(--color-white-rgb),0.05)" }}>
+      <footer style={{ background: "rgba(var(--color-dark-navy-rgb),0.8)", borderTop: "1px solid rgba(var(--color-on-dark-rgb),0.05)" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
             <div>
               <Image src="/hostsphere-logo.png" alt="HostSphere" width={220} height={52} className="object-contain mb-4" />
-              <p className="text-xs leading-relaxed" style={{ color: "rgba(var(--color-light-rgb),0.35)" }}>
+              <p className="text-xs leading-relaxed" style={{ color: "rgba(var(--color-on-dark-rgb),0.35)" }}>
                 HostSphere hospitality management — powering multi-vertical,
                 multi-tenant hospitality operations worldwide.
               </p>
@@ -497,14 +497,14 @@ export default function LandingPage() {
               { title: "Legal", links: ["Privacy", "Terms", "Security", "Compliance"] },
             ].map(col => (
               <div key={col.title}>
-                <h4 className="text-sm font-semibold mb-3" style={{ color: "var(--color-white)" }}>{col.title}</h4>
+                <h4 className="text-sm font-semibold mb-3" style={{ color: "var(--color-on-dark)" }}>{col.title}</h4>
                 <ul className="space-y-2">
                   {col.links.map(link => (
                     <li key={link}>
                       <Link href="#" className="text-xs transition-colors"
-                        style={{ color: "rgba(var(--color-light-rgb),0.35)" }}
+                        style={{ color: "rgba(var(--color-on-dark-rgb),0.35)" }}
                         onMouseEnter={e => e.currentTarget.style.color = "var(--color-primary)"}
-                        onMouseLeave={e => e.currentTarget.style.color = "rgba(var(--color-light-rgb),0.35)"}>
+                        onMouseLeave={e => e.currentTarget.style.color = "rgba(var(--color-on-dark-rgb),0.35)"}>
                         {link}
                       </Link>
                     </li>
@@ -513,7 +513,7 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-          <div className="pt-8 text-center text-xs" style={{ borderTop: "1px solid rgba(var(--color-white-rgb),0.05)", color: "rgba(var(--color-light-rgb),0.25)" }}>
+          <div className="pt-8 text-center text-xs" style={{ borderTop: "1px solid rgba(var(--color-on-dark-rgb),0.05)", color: "rgba(var(--color-on-dark-rgb),0.25)" }}>
             &copy; {new Date().getFullYear()} HostSphere — Luxury Hospitality Management. All rights reserved.
             <span className="mx-2">·</span>
             Multi-Tenant v2.0

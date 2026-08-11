@@ -27,7 +27,7 @@ function luminance(hex: string) {
 }
 
 function contrastColor(hex: string) {
-  return luminance(hex) > 0.5 ? "var(--color-text)" : "var(--color-white)";
+  return luminance(hex) > 0.5 ? "var(--color-text)" : "var(--color-on-dark)";
 }
 
 interface BrandingForm {
@@ -289,36 +289,36 @@ export default function BrandingSettingsPage() {
               {/* Mini sidebar preview */}
               <div className="p-3 space-y-2">
                 {/* Logo area */}
-                <div className="flex items-center justify-center py-4 px-2" style={{ borderBottom: "1px solid rgba(var(--color-white-rgb),0.08)" }}>
+                <div className="flex items-center justify-center py-4 px-2" style={{ borderBottom: "1px solid rgba(var(--color-on-dark-rgb),0.08)" }}>
                   <div className="flex items-center gap-2">
                     {form.logo_url && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={form.logo_url} alt="" className="h-8 w-auto object-contain" style={{ filter: "brightness(1.05)" }} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     )}
                     {!form.logo_url && (
-                      <span className="font-bold text-sm" style={{ color: "rgba(var(--color-white-rgb),0.8)" }}>{form.company_name || "eHMS"}</span>
+                      <span className="font-bold text-sm" style={{ color: "rgba(var(--color-on-dark-rgb),0.8)" }}>{form.company_name || "eHMS"}</span>
                     )}
                   </div>
                 </div>
                 {/* Nav items */}
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: activeItemBg, color: "var(--color-white)", borderLeft: `3px solid ${form.primary_color}` }}>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: activeItemBg, color: "var(--color-on-dark)", borderLeft: `3px solid ${form.primary_color}` }}>
                   <LayoutDashboard className="w-4 h-4" />
                   <span>Dashboard</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: "transparent", color: "rgba(var(--color-white-rgb),0.6)" }}>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: "transparent", color: "rgba(var(--color-on-dark-rgb),0.6)" }}>
                   <Users className="w-4 h-4" />
                   <span>Users</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: "transparent", color: "rgba(var(--color-white-rgb),0.6)" }}>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative" style={{ background: "transparent", color: "rgba(var(--color-on-dark-rgb),0.6)" }}>
                   <Settings className="w-4 h-4" />
                   <span>Settings</span>
                 </div>
               </div>
               {/* Bottom user area */}
-              <div className="p-3" style={{ borderTop: "1px solid rgba(var(--color-white-rgb),0.08)" }}>
+              <div className="p-3" style={{ borderTop: "1px solid rgba(var(--color-on-dark-rgb),0.08)" }}>
                 <div className="flex items-center gap-2 px-2 py-1.5">
                   <Shield className="w-3 h-3" style={{ color: form.primary_color }} />
-                  <span className="text-xs" style={{ color: "rgba(var(--color-white-rgb),0.5)" }}>admin@company.com</span>
+                  <span className="text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>admin@company.com</span>
                 </div>
               </div>
             </div>
@@ -344,7 +344,7 @@ export default function BrandingSettingsPage() {
                     update("accent_color", p.accent);
                   }}
                   className="p-2 rounded-lg transition-all hover:scale-105 text-[10px] font-medium text-center"
-                  style={{ background: p.sidebar, color: "var(--color-white)", border: "1px solid rgba(var(--color-white-rgb),0.1)" }}
+                  style={{ background: p.sidebar, color: "var(--color-on-dark)", border: "1px solid rgba(var(--color-on-dark-rgb),0.1)" }}
                   title={p.name}
                 >
                   <div className="flex gap-0.5 justify-center mb-1">

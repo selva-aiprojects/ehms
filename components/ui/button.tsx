@@ -18,8 +18,8 @@ export default function Button({
   const base = "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all cursor-pointer disabled:opacity-50";
 
   const styles: Record<string, React.CSSProperties> = {
-    primary:   { background: "var(--hs-navy)", color: "var(--hs-surface-white)" },
-    secondary: { background: "var(--hs-gold)", color: "var(--hs-navy)" },
+    primary:   {},
+    secondary: {},
     outline:   { background: "transparent", color: "var(--hs-navy)", border: "1px solid var(--hs-gold)" },
     ghost:     { background: "transparent", color: "var(--hs-text-muted)" },
   };

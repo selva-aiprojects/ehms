@@ -38,6 +38,8 @@ export function useTenantTheme() {
 
 function applyVariables(b: TenantBranding) {
   const root = document.documentElement;
+  // Dark mode owns the palette — tenant brand colors apply only in light mode.
+  if (root.classList.contains("dark")) return;
   const primaryRgb = hexToRgb(b.primary_color);
   root.style.setProperty("--tenant-primary", b.primary_color);
   root.style.setProperty("--tenant-primary-dark", darken(b.primary_color, 0.1));
@@ -55,6 +57,26 @@ function applyVariables(b: TenantBranding) {
     root.style.setProperty("--color-primary-rgb", primaryRgb);
     root.style.setProperty("--color-gold-rgb", primaryRgb);
   }
+}
+
+function clearVariables() {
+  const root = document.documentElement;
+  [
+    "--tenant-primary",
+    "--tenant-primary-dark",
+    "--tenant-secondary",
+    "--tenant-accent",
+    "--tenant-sidebar",
+    "--tenant-sidebar-hover",
+    "--tenant-sidebar-active",
+    "--color-primary",
+    "--color-primary-dark",
+    "--color-sidebar",
+    "--color-gold",
+    "--color-navy",
+    "--color-primary-rgb",
+    "--color-gold-rgb",
+  ].forEach((p) => root.style.removeProperty(p));
 }
 
 function hexToRgb(hex: string): string | null {
@@ -110,6 +132,21 @@ export function TenantThemeProvider({ children }: { children: React.ReactNode })
   useEffect(() => {
     fetchBranding();
   }, [fetchBranding]);
+
+  // Keep theme + tenant branding in sync across light/dark switches
+  useEffect(() => {
+    const sync = (dark: boolean) => {
+      if (dark) clearVariables();
+      else if (!loading) applyVariables(branding);
+    };
+    const onThemeChange = (e: Event) => {
+      const dark = (e as CustomEvent).detail?.dark ?? document.documentElement.classList.contains("dark");
+      sync(dark);
+    };
+    window.addEventListener("hs:themechange", onThemeChange);
+    sync(document.documentElement.classList.contains("dark"));
+    return () => window.removeEventListener("hs:themechange", onThemeChange);
+  }, [branding, loading]);
 
   return (
     <TenantThemeContext.Provider value={{ branding, loading, refresh: fetchBranding }}>

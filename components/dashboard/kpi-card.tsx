@@ -24,7 +24,7 @@ export default function KPICard({ title, value, change, changeDirection = "up", 
       />
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-medium" style={{ color: "rgba(var(--color-white-rgb), 0.65)" }}>{title}</span>
+          <span className="text-xs font-medium" style={{ color: "rgba(var(--color-on-dark-rgb), 0.65)" }}>{title}</span>
           <div
             className="w-9 h-9 rounded-lg flex items-center justify-center"
             style={{ background: "rgba(var(--color-gold-rgb), 0.25)" }}
@@ -38,7 +38,7 @@ export default function KPICard({ title, value, change, changeDirection = "up", 
             <span style={{ color: changeDirection === "up" ? "var(--color-gold-light)" : "var(--color-warning)" }}>
               {changeDirection === "up" ? "↑" : "↓"} {change}
             </span>
-            {subtitle && <span style={{ color: "rgba(var(--color-white-rgb), 0.45)" }}>vs last month</span>}
+            {subtitle && <span style={{ color: "rgba(var(--color-on-dark-rgb), 0.45)" }}>vs last month</span>}
           </div>
         )}
       </div>

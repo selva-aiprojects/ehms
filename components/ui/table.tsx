@@ -1,4 +1,4 @@
-﻿import { ReactNode } from "react";
+import { ReactNode } from "react";
 
 interface Column<T> {
   key: string;
@@ -25,7 +25,7 @@ export default function Table<T>({ columns, data, keyExtractor, onRowClick, clas
               <th
                 key={col.key}
                 className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                style={{ color: "var(--color-white)", background: "var(--color-navy)" }}
+                style={{ color: "var(--color-on-dark)", background: "var(--color-navy)" }}
               >
                 {col.header}
               </th>

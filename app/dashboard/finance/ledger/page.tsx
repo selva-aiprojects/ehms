@@ -132,7 +132,7 @@ export default function GeneralLedgerPage() {
                 <tr>
                   {["Date", "Description", "Ref Type", "Debit", "Credit", "Running Balance"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                      style={{ color: "var(--color-white)", background: "var(--color-navy)" }}>{h}</th>
+                      style={{ color: "var(--color-on-dark)", background: "var(--color-navy)" }}>{h}</th>
                   ))}
                 </tr>
               </thead>

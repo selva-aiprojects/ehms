@@ -26,7 +26,7 @@ const ALL_VERTICAL_KEYS = Object.keys(VERTICAL_META) as VerticalKey[];
 export default function LoginPageWrapper() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
+      <div className="auth-page min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
         <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin" />
       </div>
     }>
@@ -229,15 +229,15 @@ function LoginContent() {
   if (!tenantCode) {
     return (
       <>
-        <div className="min-h-screen flex flex-col" style={{ background: "var(--color-dark-navy)" }}>
+        <div className="auth-page min-h-screen flex flex-col" style={{ background: "var(--color-dark-navy)" }}>
           {/* Mini nav */}
           <nav className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
             <Link href="/">
               <Image src="/hostsphere-logo.png" alt="HostSphere" width={220} height={52} className="object-contain" priority />
             </Link>
-            <Link href="/" className="text-sm font-medium transition-colors" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}
+            <Link href="/" className="text-sm font-medium transition-colors" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}
               onMouseEnter={e => e.currentTarget.style.color = "var(--color-primary)"}
-              onMouseLeave={e => e.currentTarget.style.color = "rgba(var(--color-light-rgb),0.5)"}>
+              onMouseLeave={e => e.currentTarget.style.color = "rgba(var(--color-on-dark-rgb),0.5)"}>
               ← Back to Home
             </Link>
           </nav>
@@ -249,10 +249,10 @@ function LoginContent() {
                   style={{ background: "rgba(var(--color-primary-rgb),0.1)", borderColor: "rgba(var(--color-primary-rgb),0.25)", color: "var(--color-primary)" }}>
                   <Database className="w-3.5 h-3.5" /> Multi-Tenant Shard Selection
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: "var(--color-light)" }}>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: "var(--color-on-dark)" }}>
                   Select Your Organization
                 </h1>
-                <p className="text-sm" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>
+                <p className="text-sm" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>
                   Choose an organization shard to sign in. Each shard has isolated data and subscribed features.
                 </p>
               </div>
@@ -299,7 +299,7 @@ function LoginContent() {
                           style={{ background: "rgba(var(--color-primary-rgb),0.12)" }}>
                           <Building2 className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
                         </div>
-                        <h3 className="text-base font-bold mb-0.5" style={{ color: "var(--color-light)" }}>{t.name}</h3>
+                        <h3 className="text-base font-bold mb-0.5" style={{ color: "var(--color-on-dark)" }}>{t.name}</h3>
                         <span className="inline-block text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded mb-3"
                           style={{ background: "rgba(var(--color-primary-rgb),0.1)", color: "var(--color-primary)", border: "1px solid rgba(var(--color-primary-rgb),0.2)" }}>
                           {t.code}
@@ -345,8 +345,8 @@ function LoginContent() {
 
               {!tenantLoading && !tenantsError && tenants.length === 0 && (
                 <div className="text-center py-16">
-                  <Server className="w-12 h-12 mx-auto mb-3" style={{ color: "rgba(var(--color-light-rgb),0.1)" }} />
-                  <p className="text-sm" style={{ color: "rgba(var(--color-light-rgb),0.4)" }}>No organizations found.</p>
+                  <Server className="w-12 h-12 mx-auto mb-3" style={{ color: "rgba(var(--color-on-dark-rgb),0.1)" }} />
+                  <p className="text-sm" style={{ color: "rgba(var(--color-on-dark-rgb),0.4)" }}>No organizations found.</p>
                 </div>
               )}
 
@@ -354,9 +354,9 @@ function LoginContent() {
               {!tenantLoading && (
                 <div className="mt-12 text-center">
                   <div className="flex items-center justify-center gap-3 mb-4">
-                    <div style={{ flex: 1, height: "1px", background: "rgba(var(--color-white-rgb),0.06)" }} />
+                    <div style={{ flex: 1, height: "1px", background: "rgba(var(--color-on-dark-rgb),0.06)" }} />
                     <UserCog className="w-4 h-4" style={{ color: "rgba(var(--color-gold-rgb),0.4)" }} />
-                    <div style={{ flex: 1, height: "1px", background: "rgba(var(--color-white-rgb),0.06)" }} />
+                    <div style={{ flex: 1, height: "1px", background: "rgba(var(--color-on-dark-rgb),0.06)" }} />
                   </div>
                   <button
                     onClick={() => setShowPlatformLogin(true)}
@@ -365,7 +365,7 @@ function LoginContent() {
                   >
                     <Lock className="w-4 h-4" /> Platform Admin Sign In
                   </button>
-                  <p className="mt-2 text-xs" style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>
+                  <p className="mt-2 text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>
                     Authenticate as the HostSphere platform superadmin to manage tenant shards
                   </p>
                 </div>
@@ -382,7 +382,7 @@ function LoginContent() {
               style={{ background: "var(--color-bg-surface)", border: "1px solid rgba(var(--color-gold-rgb),0.15)" }}>
               <button onClick={() => setShowPlatformLogin(false)}
                 className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors cursor-pointer"
-                style={{ color: "rgba(var(--color-light-rgb),0.4)" }}>
+                style={{ color: "rgba(var(--color-on-dark-rgb),0.4)" }}>
                 <X className="w-5 h-5" />
               </button>
 
@@ -392,8 +392,8 @@ function LoginContent() {
                   <UserCog className="w-5 h-5" style={{ color: "var(--color-gold)" }} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold" style={{ color: "var(--color-light)" }}>Platform Admin</h3>
-                  <p className="text-xs" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>
+                  <h3 className="text-lg font-bold" style={{ color: "var(--color-on-dark)" }}>Platform Admin</h3>
+                  <p className="text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>
                     Sign in to manage HostSphere tenant shards
                   </p>
                 </div>
@@ -401,28 +401,28 @@ function LoginContent() {
 
               <form onSubmit={handlePlatformLogin} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                     Platform Email
                   </label>
                   <input type="email" value={plEmail} required
                     onChange={(e) => setPlEmail(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
-                    style={{ borderColor: "rgba(var(--color-gold-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }}
+                    style={{ borderColor: "rgba(var(--color-gold-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }}
                     placeholder="admin@cybelinx.com" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                  <label className="block text-sm font-medium mb-1" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                     Password
                   </label>
                   <div className="relative">
                     <input type={plShowPwd ? "text" : "password"} value={plPassword} required
                       onChange={(e) => setPlPassword(e.target.value)}
                       className="w-full px-4 py-2.5 pr-10 rounded-lg border text-sm outline-none transition-colors"
-                      style={{ borderColor: "rgba(var(--color-gold-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }}
+                      style={{ borderColor: "rgba(var(--color-gold-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }}
                       placeholder="••••••••" />
                     <button type="button" onClick={() => setPlShowPwd(!plShowPwd)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-                      style={{ color: "rgba(var(--color-light-rgb),0.4)" }}>
+                      style={{ color: "rgba(var(--color-on-dark-rgb),0.4)" }}>
                       {plShowPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
@@ -451,10 +451,10 @@ function LoginContent() {
   // ── Loading / Error / Suspended states ──
   if (tenantLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
+      <div className="auth-page min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>Loading organization...</p>
+          <p className="text-sm" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>Loading organization...</p>
         </div>
       </div>
     );
@@ -462,11 +462,11 @@ function LoginContent() {
 
   if (!tenant) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
+      <div className="auth-page min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
         <div className="text-center max-w-sm">
-          <Server className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(var(--color-light-rgb),0.15)" }} />
-          <h2 className="text-xl font-bold mb-2" style={{ color: "var(--color-light)" }}>Organization Not Found</h2>
-          <p className="text-sm mb-6" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>
+          <Server className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(var(--color-on-dark-rgb),0.15)" }} />
+          <h2 className="text-xl font-bold mb-2" style={{ color: "var(--color-on-dark)" }}>Organization Not Found</h2>
+          <p className="text-sm mb-6" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>
             No organization with code &quot;{tenantCode}&quot; exists.
           </p>
           <button
@@ -486,14 +486,14 @@ function LoginContent() {
 
   if (tenantSuspended) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
+      <div className="auth-page min-h-screen flex items-center justify-center" style={{ background: "var(--color-dark-navy)" }}>
         <div className="text-center max-w-sm">
           <Ban className="w-12 h-12 mx-auto mb-4" style={{ color: "var(--color-danger)" }} />
-          <h2 className="text-xl font-bold mb-2" style={{ color: "var(--color-light)" }}>Account Suspended</h2>
-          <p className="text-sm mb-2" style={{ color: "rgba(var(--color-light-rgb),0.6)" }}>
+          <h2 className="text-xl font-bold mb-2" style={{ color: "var(--color-on-dark)" }}>Account Suspended</h2>
+          <p className="text-sm mb-2" style={{ color: "rgba(var(--color-on-dark-rgb),0.6)" }}>
             <strong>{tenant.name}</strong> has been suspended.
           </p>
-          <p className="text-sm mb-6" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>
+          <p className="text-sm mb-6" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>
             Contact your platform administrator for assistance.
           </p>
           <button
@@ -510,7 +510,7 @@ function LoginContent() {
 
   // ── Login form (tenant selected) ──
   return (
-    <div className="min-h-screen flex" style={{ background: "var(--hs-bg-cream)" }}>
+    <div className="auth-page min-h-screen flex" style={{ background: "var(--hs-bg-cream)" }}>
       <div
         className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 text-white relative overflow-hidden"
         style={{ background: "var(--hs-primary-navy)" }}
@@ -524,11 +524,11 @@ function LoginContent() {
             HostSphere Hospitality Management
           </p>
           <h1 className="text-4xl font-bold leading-tight mb-4" style={{ color: "#FACC15" }}>Unified Multi-Vertical Hospitality & Space Management</h1>
-          <p className="text-lg max-w-md" style={{ color: "rgba(var(--color-white-rgb),0.65)" }}>
+          <p className="text-lg max-w-md" style={{ color: "rgba(var(--color-on-dark-rgb),0.65)" }}>
             Hotels · Service Apartments · Rental & Tenancy · Workplace & Managed Offices
           </p>
         </div>
-        <div className="relative z-10 flex items-center gap-4 text-sm" style={{ color: "rgba(var(--color-white-rgb),0.45)" }}>
+        <div className="relative z-10 flex items-center gap-4 text-sm" style={{ color: "rgba(var(--color-on-dark-rgb),0.45)" }}>
           <span>Star Hotels & Resorts</span><span>·</span>
           <span>Service Apartments</span><span>·</span>
           <span>Apartment Rental</span><span>·</span>

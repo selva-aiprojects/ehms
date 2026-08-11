@@ -101,7 +101,7 @@ export default function CheckoutDashboardPage() {
               {sessions.map((s: any) => {
                 const meta = STATUS_META[s.status] || STATUS_META.pending;
                 return (
-                  <tr key={s.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={s.id} className="transition-colors hover:opacity-80">
                     <td className="px-4 py-2.5">
                       <p className="text-xs font-medium" style={{ color: "var(--color-navy)" }}>{s.guest_full_name || "—"}</p>
                     </td>
@@ -133,7 +133,8 @@ export default function CheckoutDashboardPage() {
                     <td className="px-4 py-2.5">
                       <button
                         onClick={() => setSelectedSession(s)}
-                        className="text-[10px] px-2 py-0.5 rounded bg-orange-50 text-orange-600 cursor-pointer hover:bg-orange-100"
+                        className="text-[10px] px-2 py-0.5 rounded cursor-pointer transition-colors hover:opacity-80"
+                        style={{ background: "var(--color-warning-soft)", color: "var(--color-warning-dark)", border: "1px solid var(--color-warning)" }}
                       >
                         View
                       </button>

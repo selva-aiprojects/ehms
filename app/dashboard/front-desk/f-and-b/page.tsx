@@ -277,9 +277,9 @@ export default function FAndBPage() {
                             }
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 bg-white border rounded-lg overflow-hidden">
+                        <div className="flex items-center gap-2 rounded-lg overflow-hidden" style={{ background: "var(--color-light)", border: "1px solid var(--color-border)" }}>
                           <button type="button" onClick={() => updateQty(item, -1)}
-                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-lg font-bold text-[var(--color-text-muted)]">−</button>
+                            className="w-8 h-8 flex items-center justify-center hover:bg-[color:var(--color-primary)]/10 text-lg font-bold text-[var(--color-text-muted)]">−</button>
                           <span className="text-sm font-semibold w-5 text-center text-[var(--color-navy)]">{qty}</span>
                           <button type="button" onClick={() => updateQty(item, +1)}
                             className="w-8 h-8 flex items-center justify-center hover:bg-[color:var(--color-primary)]/10 text-lg font-bold text-[var(--color-primary)]">+</button>

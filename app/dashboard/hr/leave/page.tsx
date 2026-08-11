@@ -181,7 +181,7 @@ export default function LeavePage() {
         <button onClick={() => setTab("my")} className="px-4 py-2 transition-colors" style={{ background: tab === "my" ? "var(--color-navy)" : "var(--color-light)", color: tab === "my" ? "var(--color-white)" : "var(--color-text-muted)" }}>My Leaves</button>
         {(isHrOrManager) && (
           <button onClick={() => setTab("approvals")} className="px-4 py-2 transition-colors flex items-center gap-1.5" style={{ background: tab === "approvals" ? "var(--color-navy)" : "var(--color-light)", color: tab === "approvals" ? "var(--color-white)" : "var(--color-text-muted)" }}>
-            Pending Approvals {pendingRequests.length > 0 && <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: tab === "approvals" ? "rgba(var(--color-white-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.15)", color: tab === "approvals" ? "var(--color-white)" : "var(--color-danger)" }}>{pendingRequests.length}</span>}
+            Pending Approvals {pendingRequests.length > 0 && <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: tab === "approvals" ? "rgba(var(--color-on-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.15)", color: tab === "approvals" ? "var(--color-white)" : "var(--color-danger)" }}>{pendingRequests.length}</span>}
           </button>
         )}
       </div>

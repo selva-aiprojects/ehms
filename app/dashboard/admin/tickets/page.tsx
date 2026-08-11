@@ -108,7 +108,7 @@ export default function AdminTicketsPage() {
           </button>
           <button onClick={() => setShowCreateModal(true)}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105"
-            style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)", color: "var(--color-white)" }}
+            style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)", color: "var(--color-on-dark)" }}
           >
             <Plus className="w-4 h-4" /> New Ticket
           </button>

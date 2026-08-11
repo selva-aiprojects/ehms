@@ -151,7 +151,8 @@ export default function CheckinDashboardPage() {
                           const url = qrUrl(s.session_token);
                           navigator.clipboard.writeText(url);
                         }}
-                        className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-600 cursor-pointer hover:bg-blue-100"
+                        className="text-[10px] px-2 py-0.5 rounded cursor-pointer transition-colors hover:opacity-80"
+                        style={{ background: "var(--color-info-soft)", color: "var(--color-info-dark)", border: "1px solid var(--color-info)" }}
                       >
                         Copy QR
                       </button>

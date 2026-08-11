@@ -154,7 +154,7 @@ export default function FeedbacksPage() {
           <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 animate-in slide-in-from-right duration-300 flex flex-col">
             <div className="px-6 py-4 border-b flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[var(--color-navy)]">Log New Feedback</h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-500 hover:bg-gray-100 p-2 rounded-full transition-colors">
+              <button onClick={() => setShowForm(false)} className="p-2 rounded-full transition-colors hover:opacity-70" style={{ color: "var(--color-text-muted)" }}>
                 <X className="w-5 h-5" />
               </button>
             </div>

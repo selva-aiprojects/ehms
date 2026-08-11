@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 160" width="100%" height="100%">
+  <defs>
+    <!-- Luminous Cyan Gradient -->
+    <linearGradient id="svgCyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+
+    <!-- Radial Core Sphere Gradient -->
+    <radialGradient id="svgCoreGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#00f0ff" />
+      <stop offset="80%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0c081d" />
+    </radialGradient>
+
+    <!-- Soft Glow Filter -->
+    <filter id="svgGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Dark Background (Optional for Standalone Viewer) -->
+  <rect width="100%" height="100%" fill="transparent" />
+
+  <!-- 3D Intersecting Atomic Orbital Emblem Group -->
+  <g transform="translate(70, 80)">
+    <!-- Ambient Aura Glow -->
+    <circle cx="0" cy="0" r="45" fill="#00f0ff" fill-opacity="0.15" filter="url(#svgGlow)" />
+
+    <!-- Orbital Ring 1 (Tilted Left) -->
+    <ellipse cx="0" cy="0" rx="42" ry="16" stroke="url(#svgCyanGrad)" stroke-width="4" transform="rotate(-35)" filter="url(#svgGlow)" />
+
+    <!-- Orbital Ring 2 (Tilted Right) -->
+    <ellipse cx="0" cy="0" rx="42" ry="16" stroke="url(#svgCyanGrad)" stroke-width="4" transform="rotate(35)" filter="url(#svgGlow)" />
+
+    <!-- Orbital Ring 3 (Vertical) -->
+    <ellipse cx="0" cy="0" rx="42" ry="16" stroke="#00f0ff" stroke-width="3" transform="rotate(85)" opacity="0.9" />
+
+    <!-- Floating Luminous Core Orb -->
+    <circle cx="0" cy="0" r="14" fill="url(#svgCoreGrad)" stroke="#ffffff" stroke-width="2" filter="url(#svgGlow)" />
+    <circle cx="-4" cy="-4" r="4" fill="#ffffff" fill-opacity="0.95" />
+  </g>
+
+  <!-- Razor-Sharp Vector Typography -->
+  <g transform="translate(150, 75)">
+    <!-- Main Brand Title -->
+    <text x="0" y="10" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="46" font-weight="800" fill="#ffffff" letter-spacing="-1">
+      HostSphere
+    </text>
+
+    <!-- Tagline -->
+    <text x="0" y="38" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#00f0ff" letter-spacing="1">
+      Luxury Hospitality
+    </text>
+  </g>
+</svg>

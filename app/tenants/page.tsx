@@ -210,7 +210,7 @@ export default function TenantsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--color-dark-navy)", color: "var(--color-light)" }}>
+    <div className="auth-page min-h-screen" style={{ background: "var(--color-dark-navy)", color: "var(--color-on-dark)" }}>
       {/* NAV */}
       <nav
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
@@ -234,7 +234,7 @@ export default function TenantsPage() {
                 </span>
               )}
               <Link href="/" className="flex items-center gap-1.5 text-sm font-medium transition-colors"
-                style={{ color: "rgba(var(--color-light-rgb),0.6)" }}>
+                style={{ color: "rgba(var(--color-on-dark-rgb),0.6)" }}>
                 <ArrowLeft className="w-4 h-4" /> Back
               </Link>
             </div>
@@ -258,7 +258,7 @@ export default function TenantsPage() {
             Choose Your <span style={{ color: "var(--color-primary)" }}>Organization</span>
           </h1>
           <p className="text-base sm:text-lg max-w-2xl mx-auto leading-relaxed"
-            style={{ color: "rgba(var(--color-light-rgb),0.6)" }}>
+            style={{ color: "rgba(var(--color-on-dark-rgb),0.6)" }}>
             Each organization runs on an isolated platform shard with its own data,
             users, and subscribed features. Select yours below.
           </p>
@@ -335,7 +335,7 @@ export default function TenantsPage() {
                         );
                       })}
                     </div>
-                    <p className="text-xs" style={{ color: "rgba(var(--color-light-rgb),0.35)" }}>
+                    <p className="text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.35)" }}>
                       Created {new Date(tenant.created_at).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" })}
                     </p>
                     {!suspended && (
@@ -363,25 +363,25 @@ export default function TenantsPage() {
               <>
                 <div className="mb-4">
                   <p className="text-xs font-semibold tracking-widest uppercase mb-3"
-                    style={{ color: "rgba(var(--color-light-rgb),0.25)" }}>
+                    style={{ color: "rgba(var(--color-on-dark-rgb),0.25)" }}>
                     Platform Administration
                   </p>
                   <div className="flex items-center justify-center gap-2">
-                    <div style={{ flex: 1, height: "1px", background: "rgba(var(--color-white-rgb),0.06)" }} />
+                    <div style={{ flex: 1, height: "1px", background: "rgba(var(--color-on-dark-rgb),0.06)" }} />
                     <UserCog className="w-4 h-4" style={{ color: "rgba(var(--color-gold-rgb),0.4)" }} />
-                    <div style={{ flex: 1, height: "1px", background: "rgba(var(--color-white-rgb),0.06)" }} />
+                    <div style={{ flex: 1, height: "1px", background: "rgba(var(--color-on-dark-rgb),0.06)" }} />
                   </div>
                 </div>
 
                 <button
                   onClick={openProvision}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105"
-                  style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)", color: "var(--color-white)" }}
+                  style={{ background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)", color: "var(--color-on-dark)" }}
                 >
                   <Plus className="w-4 h-4" />
                   {platformAuthed ? "Provision New Shard" : "Platform Admin — Sign In to Provision"}
                 </button>
-                <p className="mt-2 text-xs" style={{ color: "rgba(var(--color-light-rgb),0.35)" }}>
+                <p className="mt-2 text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.35)" }}>
                   {platformAuthed
                     ? "Creates an isolated PostgreSQL schema with selected platform features."
                     : "Authenticate as the HostSphere platform superadmin to create and manage tenant shards."}
@@ -400,7 +400,7 @@ export default function TenantsPage() {
             style={{ background: "var(--color-bg-surface)", border: "1px solid rgba(var(--color-gold-rgb),0.15)" }}>
             <button onClick={() => setShowPlatformLogin(false)}
               className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors"
-              style={{ color: "rgba(var(--color-light-rgb),0.4)" }}>
+              style={{ color: "rgba(var(--color-on-dark-rgb),0.4)" }}>
               <X className="w-5 h-5" />
             </button>
 
@@ -411,7 +411,7 @@ export default function TenantsPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold">Platform Admin</h3>
-                <p className="text-xs" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>
+                <p className="text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>
                   Sign in to manage HostSphere tenant shards
                 </p>
               </div>
@@ -419,28 +419,28 @@ export default function TenantsPage() {
 
             <form onSubmit={handlePlatformLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                <label className="block text-sm font-medium mb-1" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                   Platform Email
                 </label>
                 <input type="email" value={plEmail} required
                   onChange={(e) => setPlEmail(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
-                  style={{ borderColor: "rgba(var(--color-gold-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }}
+                  style={{ borderColor: "rgba(var(--color-gold-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }}
                   placeholder="admin@cybelinx.com" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                <label className="block text-sm font-medium mb-1" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                   Password
                 </label>
                 <div className="relative">
                   <input type={plShowPwd ? "text" : "password"} value={plPassword} required
                     onChange={(e) => setPlPassword(e.target.value)}
                     className="w-full px-4 py-2.5 pr-10 rounded-lg border text-sm outline-none transition-colors"
-                    style={{ borderColor: "rgba(var(--color-gold-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }}
+                    style={{ borderColor: "rgba(var(--color-gold-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }}
                     placeholder="••••••••" />
                   <button type="button" onClick={() => setPlShowPwd(!plShowPwd)}
                     className="absolute right-3 top-1/2 -translate-y-1/2"
-                    style={{ color: "rgba(var(--color-light-rgb),0.4)" }}>
+                    style={{ color: "rgba(var(--color-on-dark-rgb),0.4)" }}>
                     {plShowPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -472,7 +472,7 @@ export default function TenantsPage() {
             
             {/* LEFT COLUMN: WIZARD STEPS */}
             <div className="w-full md:w-64 shrink-0 flex flex-row md:flex-col justify-between md:justify-start gap-4 md:gap-8 pb-4 md:pb-0 border-b md:border-b-0 md:border-r"
-              style={{ borderColor: "rgba(var(--color-white-rgb),0.08)" }}>
+              style={{ borderColor: "rgba(var(--color-on-dark-rgb),0.08)" }}>
               <div className="flex items-center gap-3 mb-6 hidden md:flex">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{ background: "rgba(var(--color-primary-rgb),0.12)" }}>
@@ -480,7 +480,7 @@ export default function TenantsPage() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white">Provision Shard</h3>
-                  <p className="text-[10px]" style={{ color: "rgba(var(--color-light-rgb),0.5)" }}>
+                  <p className="text-[10px]" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>
                     Admin: {platformEmail}
                   </p>
                 </div>
@@ -500,23 +500,23 @@ export default function TenantsPage() {
                       <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all border-2"
                         style={{
                           background: isCompleted ? "var(--color-primary)" : isActive ? "rgba(var(--color-primary-rgb),0.12)" : "transparent",
-                          borderColor: isCompleted || isActive ? "var(--color-primary)" : "rgba(var(--color-white-rgb),0.15)",
-                          color: isCompleted ? "var(--color-dark-navy)" : isActive ? "var(--color-primary)" : "rgba(var(--color-light-rgb),0.4)"
+                          borderColor: isCompleted || isActive ? "var(--color-primary)" : "rgba(var(--color-on-dark-rgb),0.15)",
+                          color: isCompleted ? "var(--color-dark-navy)" : isActive ? "var(--color-primary)" : "rgba(var(--color-on-dark-rgb),0.4)"
                         }}
                       >
                         {isCompleted ? "✓" : s.number}
                       </div>
                       {/* Vertical line connector (desktop only) */}
                       {s.number < 3 && (
-                        <div className="w-0.5 h-10 hidden md:block" style={{ background: isCompleted ? "var(--color-primary)" : "rgba(var(--color-white-rgb),0.08)" }} />
+                        <div className="w-0.5 h-10 hidden md:block" style={{ background: isCompleted ? "var(--color-primary)" : "rgba(var(--color-on-dark-rgb),0.08)" }} />
                       )}
                     </div>
                     <div className="hidden md:block">
                       <p className="text-xs font-bold transition-all"
-                        style={{ color: isActive || isCompleted ? "var(--color-light)" : "rgba(var(--color-light-rgb),0.4)" }}>
+                        style={{ color: isActive || isCompleted ? "var(--color-light)" : "rgba(var(--color-on-dark-rgb),0.4)" }}>
                         {s.title}
                       </p>
-                      <p className="text-[10px]" style={{ color: "rgba(var(--color-light-rgb),0.3)" }}>
+                      <p className="text-[10px]" style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>
                         {s.desc}
                       </p>
                     </div>
@@ -529,7 +529,7 @@ export default function TenantsPage() {
             <div className="flex-1 flex flex-col min-h-0">
               <button onClick={() => { setShowProvision(false); setProvisionResult(null); }}
                 className="absolute top-6 right-6 p-1.5 rounded-lg transition-colors hover:bg-white/5"
-                style={{ color: "rgba(var(--color-light-rgb),0.4)" }}>
+                style={{ color: "rgba(var(--color-on-dark-rgb),0.4)" }}>
                 <X className="w-5 h-5" />
               </button>
 
@@ -544,49 +544,49 @@ export default function TenantsPage() {
                         <h4 className="text-sm font-semibold mb-3 uppercase tracking-wider text-teal-400">Step 1: Organization Profile</h4>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                        <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                           Organization / Corporate Name <span style={{ color: "var(--color-danger)" }}>*</span>
                         </label>
                         <input type="text" value={form.name} required onChange={(e) => setForm({ ...form, name: e.target.value })}
                           placeholder="e.g. Grand Hyatt Hotels Group" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
-                          style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }} />
+                          style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }} />
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                             Unique Code (e.g. OMEGA) <span style={{ color: "var(--color-danger)" }}>*</span>
                           </label>
                           <input type="text" value={form.code} required onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                             placeholder="Code (e.g. ABC)" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors font-mono uppercase"
-                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }} />
+                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }} />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                             Database Schema Name <span style={{ color: "var(--color-danger)" }}>*</span>
                           </label>
                           <input type="text" value={form.schema} required onChange={(e) => setForm({ ...form, schema: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "") })}
                             placeholder="Schema (e.g. abc)" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors font-mono"
-                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }} />
+                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }} />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                             <User className="w-3.5 h-3.5 inline mr-1" /> Primary Contact Name
                           </label>
                           <input type="text" value={form.primary_contact_name} onChange={(e) => setForm({ ...form, primary_contact_name: e.target.value })}
                             placeholder="e.g. John Doe" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
-                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }} />
+                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }} />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                             <Mail className="w-3.5 h-3.5 inline mr-1" /> Contact Email <span style={{ color: "var(--color-danger)" }}>*</span>
                           </label>
                           <input type="email" value={form.contact_email} required onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
                             placeholder="admin@org.com" className="w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-colors"
-                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }} />
+                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }} />
                         </div>
                       </div>
                     </div>
@@ -607,12 +607,12 @@ export default function TenantsPage() {
                       <div className="space-y-3 max-h-[35vh] overflow-y-auto pr-1">
                         {form.workspaces.map((ws, idx) => (
                           <div key={idx} className="flex items-center gap-3 p-3.5 rounded-xl transition-all"
-                            style={{ background: "rgba(var(--color-white-rgb),0.02)", border: "1px solid rgba(var(--color-white-rgb),0.05)" }}>
+                            style={{ background: "rgba(var(--color-on-dark-rgb),0.02)", border: "1px solid rgba(var(--color-on-dark-rgb),0.05)" }}>
                             <div className="flex-1 space-y-2">
                               <select value={ws.type} required
                                 onChange={(e) => updateWorkspace(idx, "type", e.target.value)}
                                 className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors cursor-pointer"
-                                style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.7)", color: "var(--color-light)" }}>
+                                style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.7)", color: "var(--color-on-dark)" }}>
                                 <option value="" disabled>Select Property Type</option>
                                 {ALL_VERTICAL_KEYS.map((vk) => (
                                   <option key={vk} value={vk}>{VERTICAL_META[vk].label}</option>
@@ -621,14 +621,14 @@ export default function TenantsPage() {
                               <input type="text" value={ws.name} required
                                 onChange={(e) => updateWorkspace(idx, "name", e.target.value)}
                                 placeholder="e.g. Hyderabad Hitech City Hotel" className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors"
-                                style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.7)", color: "var(--color-light)" }} />
+                                style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.7)", color: "var(--color-on-dark)" }} />
                             </div>
                             <div className="flex flex-col items-center gap-1.5 shrink-0 px-2">
                               <button type="button" onClick={() => setPrimary(idx)}
                                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${ws.is_primary ? "border-[var(--color-primary)]" : "border-gray-500"}`}>
                                 {ws.is_primary && <div className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--color-primary)" }} />}
                               </button>
-                              <span className="text-[9px] font-medium" style={{ color: "rgba(var(--color-light-rgb),0.4)" }}>Primary</span>
+                              <span className="text-[9px] font-medium" style={{ color: "rgba(var(--color-on-dark-rgb),0.4)" }}>Primary</span>
                               {form.workspaces.length > 1 && (
                                 <button type="button" onClick={() => removeWorkspace(idx)}
                                   className="p-1 rounded-lg transition-colors hover:bg-red-500/10 text-xs mt-1"
@@ -652,12 +652,12 @@ export default function TenantsPage() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                             <CreditCard className="w-3.5 h-3.5 inline mr-1" /> Payment Cycle
                           </label>
                           <select value={form.payment_mode} onChange={(e) => setForm({ ...form, payment_mode: e.target.value })}
                             className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors"
-                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }}>
+                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }}>
                             <option value="monthly">Monthly</option>
                             <option value="quarterly">Quarterly</option>
                             <option value="yearly">Yearly</option>
@@ -665,12 +665,12 @@ export default function TenantsPage() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                             <DollarSign className="w-3.5 h-3.5 inline mr-1" /> Charge Type
                           </label>
                           <select value={form.subscription_charges_type} onChange={(e) => setForm({ ...form, subscription_charges_type: e.target.value })}
                             className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors"
-                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }}>
+                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }}>
                             <option value="Free">Free</option>
                             <option value="Monthly">Per-Month</option>
                             <option value="Quarterly">Per-Quarter</option>
@@ -679,12 +679,12 @@ export default function TenantsPage() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-light-rgb),0.7)" }}>
+                          <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(var(--color-on-dark-rgb),0.7)" }}>
                             Base Price (₹)
                           </label>
                           <input type="number" min="0" value={form.price} onChange={(e) => setForm({ ...form, price: parseInt(e.target.value) || 0 })}
                             className="w-full px-3 py-2.5 rounded-lg border text-xs outline-none transition-colors"
-                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-light)" }} />
+                            style={{ borderColor: "rgba(var(--color-primary-rgb),0.2)", background: "rgba(var(--color-dark-navy-rgb),0.5)", color: "var(--color-on-dark)" }} />
                         </div>
                       </div>
 
@@ -713,11 +713,11 @@ export default function TenantsPage() {
 
                 {/* BOTTOM NAVIGATION BUTTONS */}
                 <div className="flex items-center justify-between pt-4 mt-4 border-t"
-                  style={{ borderColor: "rgba(var(--color-white-rgb),0.08)" }}>
+                  style={{ borderColor: "rgba(var(--color-on-dark-rgb),0.08)" }}>
                   
                   <button type="button" onClick={() => { setShowProvision(false); setProvisionResult(null); }}
                     className="px-5 py-2.5 rounded-xl text-sm font-medium transition-all hover:bg-white/5 border border-slate-700"
-                    style={{ color: "rgba(var(--color-light-rgb),0.6)" }}>
+                    style={{ color: "rgba(var(--color-on-dark-rgb),0.6)" }}>
                     Cancel
                   </button>
 
@@ -761,7 +761,7 @@ export default function TenantsPage() {
       )}
 
       <footer className="relative z-10 border-t py-6"
-        style={{ borderColor: "rgba(var(--color-primary-rgb),0.08)", color: "rgba(var(--color-light-rgb),0.3)" }}>
+        style={{ borderColor: "rgba(var(--color-primary-rgb),0.08)", color: "rgba(var(--color-on-dark-rgb),0.3)" }}>
         <div className="max-w-5xl mx-auto px-4 text-center text-xs">
           &copy; {new Date().getFullYear()} HostSphere &mdash; Luxury Hospitality Management
         </div>
