@@ -179,47 +179,48 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   Dark + Aurora Theme  (.dark on <html>)
-   Palette: Rich Purple · Cyan · Blue · White
+   Dark + Lavender Theme  (.dark on <html>)
+   Palette: Lavender · Iris · Pale Gray
    ═══════════════════════════════════════════════════════════════════ */
 .dark {
   color-scheme: dark;
 
-  /* Warm charcoal-black page background + charcoal surfaces */
-  --hs-bg-light:            #0F0E0C;
-  --hs-bg-light-rgb:        15, 14, 12;
-  --hs-bg-cream:            #141310;
-  --hs-bg-cream-rgb:        20, 19, 16;
-  --hs-surface-white:       #1B1916;
-  --hs-surface-white-rgb:   27, 25, 22;
-  --hs-surface-muted:       #24211C;
-  --hs-surface-muted-rgb:   36, 33, 28;
-  --hs-text-dark:           #F7F3EC;
-  --hs-text-dark-rgb:       247, 243, 236;
-  --hs-text-muted:          #C9BFAE;
-  --hs-text-muted-rgb:      201, 191, 174;
-  --hs-text-faint:          #8C8170;
-  --hs-border-light:        #2E2A22;
-  --hs-border-strong:       #40392E;
+  /* Soft lavender-slate surfaces — low glare, gentle on the eyes */
+  --hs-bg-light:            #131320;
+  --hs-bg-light-rgb:        19, 19, 32;
+  --hs-bg-cream:            #181828;
+  --hs-bg-cream-rgb:        24, 24, 40;
+  --hs-surface-white:       #1C1C2E;
+  --hs-surface-white-rgb:   28, 28, 46;
+  --hs-surface-muted:       #232336;
+  --hs-surface-muted-rgb:   35, 35, 54;
+  --hs-text-dark:           #E3E3E9;
+  --hs-text-dark-rgb:       227, 227, 233;
+  --hs-text-muted:          #C7C7D4;
+  --hs-text-muted-rgb:      199, 199, 212;
+  --hs-text-faint:          #ACAABE;
+  --hs-text-faint-rgb:      172, 170, 190;
+  --hs-border-light:        #2B2B3F;
+  --hs-border-strong:       #3A3A54;
 
-  /* Amber — brand accent for text AND colored surfaces */
-  --hs-navy:                #E6A23C;
-  --hs-navy-rgb:            230, 162, 60;
-  --hs-navy-dark:           #C47F1F;
-  --hs-navy-dark-rgb:       196, 127, 31;
+  /* Lavender periwinkle — brand accent for text AND colored surfaces */
+  --hs-navy:                #908EA9;
+  --hs-navy-rgb:            144, 142, 169;
+  --hs-navy-dark:           #747293;
+  --hs-navy-dark-rgb:       116, 114, 147;
 
-  /* Warm gold — CTA & highlight accent */
-  --hs-gold:                #E9B84A;
-  --hs-gold-rgb:            233, 184, 74;
-  --hs-gold-light:          #F5D485;
-  --hs-gold-light-rgb:      245, 212, 133;
-  --hs-gold-dark:           #C98F26;
-  --hs-gold-dark-rgb:       201, 143, 38;
+  /* Iris — CTA & highlight accent */
+  --hs-gold:                #747293;
+  --hs-gold-rgb:            116, 114, 147;
+  --hs-gold-light:          #908EA9;
+  --hs-gold-light-rgb:      144, 142, 169;
+  --hs-gold-dark:           #5C5A7C;
+  --hs-gold-dark-rgb:       92, 90, 124;
 
-  /* Extra ember accents */
-  --hs-blue:                #3B82F6;
-  --hs-blue-rgb:            59, 130, 246;
-  --hs-purple-soft:         #E7C68F;
+  /* Extra lavender accents */
+  --hs-blue:                #ACAABE;
+  --hs-blue-rgb:            172, 170, 190;
+  --hs-purple-soft:         #C7C7D4;
 
   /* Always-Dark Brand Pages — unchanged from light theme so the
      marketing/auth pages keep the green/gold brand in dark mode too. */
@@ -233,9 +234,9 @@
   --hs-brand-gold-dark:     #5C9138;
   --hs-brand-gold-dark-rgb: 92, 145, 56;
 
-  --hs-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.45);
-  --hs-shadow-md: 0 10px 24px -4px rgba(0, 0, 0, 0.5), 0 4px 10px -2px rgba(0, 0, 0, 0.35);
-  --hs-shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6), 0 10px 20px -6px rgba(0, 0, 0, 0.4);
+  --hs-shadow-sm: 0 2px 6px rgba(8, 8, 16, 0.5);
+  --hs-shadow-md: 0 10px 24px -4px rgba(8, 8, 16, 0.55), 0 4px 10px -2px rgba(8, 8, 16, 0.4);
+  --hs-shadow-lg: 0 24px 48px -12px rgba(8, 8, 16, 0.65), 0 10px 20px -6px rgba(8, 8, 16, 0.45);
 
   --bg:                   var(--hs-bg-light);
   --surface:              var(--hs-surface-white);
@@ -246,9 +247,9 @@
   --border-strong:        var(--hs-border-strong);
   --shadow:               var(--hs-shadow-md);
 
-  /* Deep warm charcoal for the sidebar shell — sits just above the page
+  /* Deep indigo for the sidebar shell — sits just above the page
      background instead of competing with it */
-  --sidebar:              #171310;
+  --sidebar:              #10101D;
 
   /* Status softs become translucent so they read on dark surfaces */
   --color-danger-soft:     rgba(239, 68, 68, 0.16);
@@ -273,13 +274,225 @@
   --color-white-rgb:          var(--hs-surface-white-rgb);
   --color-text-rgb:           var(--hs-text-dark-rgb);
   --color-text-muted-rgb:     var(--hs-text-muted-rgb);
-  --color-text-faint-rgb:     140, 129, 112;
-  --color-border-rgb:         46, 42, 34;
+  --color-text-faint-rgb:     172, 170, 190;
+  --color-border-rgb:         43, 43, 63;
   --color-bg-cream-rgb:       var(--hs-bg-cream-rgb);
   --color-surface-muted-rgb:  var(--hs-surface-muted-rgb);
-  --color-border-strong-rgb:  64, 57, 46;
+  --color-border-strong-rgb:  58, 58, 84;
 
-  /* Re-anchor brand accents onto the ember palette when unset */
+  /* Re-anchor brand accents onto the lavender palette when unset */
+  --color-bg-surface:      var(--hs-navy);
+  --color-dark-navy:       var(--hs-navy-dark);
+  --color-gold:            var(--hs-gold);
+  --color-gold-light:      var(--hs-gold-light);
+  --color-gold-dark:       var(--hs-gold-dark);
+
+  --hs-primary-navy:       var(--hs-navy);
+  --hs-secondary-gold:     var(--hs-gold);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Alternate Dark Themes (selector: html.dark[data-dark-theme="..."])
+   ── aurora : Cool Slate + Aurora Blue (low-glare, eye-friendly)
+   ── satrana: Satrana Hotel — Midnight Navy + Champagne Gold
+   ── regal  : Deep Navy + Gold + Coral
+   The base `.dark` block above is the default lavender theme.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.dark[data-dark-theme="aurora"] {
+  color-scheme: dark;
+
+  /* Cool blue-slate surfaces — deep, smooth, low glare */
+  --hs-bg-light:            #0E1218;
+  --hs-bg-light-rgb:        14, 18, 24;
+  --hs-bg-cream:            #141924;
+  --hs-bg-cream-rgb:        20, 25, 36;
+  --hs-surface-white:       #161B24;
+  --hs-surface-white-rgb:   22, 27, 36;
+  --hs-surface-muted:       #1E2531;
+  --hs-surface-muted-rgb:   30, 37, 49;
+  --hs-text-dark:           #E3E8F0;
+  --hs-text-dark-rgb:       227, 232, 240;
+  --hs-text-muted:          #A7B1C2;
+  --hs-text-muted-rgb:      167, 177, 194;
+  --hs-text-faint:          #707B8C;
+  --hs-border-light:        #252D3B;
+  --hs-border-strong:       #343E4E;
+
+  --hs-shadow-sm: 0 2px 6px rgba(4, 7, 12, 0.5);
+  --hs-shadow-md: 0 10px 24px -4px rgba(4, 7, 12, 0.55), 0 4px 10px -2px rgba(4, 7, 12, 0.4);
+  --hs-shadow-lg: 0 24px 48px -12px rgba(4, 7, 12, 0.65), 0 10px 20px -6px rgba(4, 7, 12, 0.45);
+
+  /* Periwinkle-blue — headings + navy buttons (calm, low saturation) */
+  --hs-navy:                #6393CE;
+  --hs-navy-rgb:            99, 147, 206;
+  --hs-navy-dark:           #4378B5;
+  --hs-navy-dark-rgb:       67, 120, 181;
+
+  /* Aurora azure — CTA & highlight accent */
+  --hs-gold:                #4E9BFF;
+  --hs-gold-rgb:            78, 155, 255;
+  --hs-gold-light:          #83B8FF;
+  --hs-gold-light-rgb:      131, 184, 255;
+  --hs-gold-dark:           #2F74E2;
+  --hs-gold-dark-rgb:       47, 116, 226;
+
+  /* Sky cyan — extra accent */
+  --hs-blue:                #38BDF8;
+  --hs-blue-rgb:            56, 189, 248;
+  --hs-purple-soft:         #A8CCF5;
+
+  --sidebar:                #0F131A;
+
+  --color-danger-soft:     rgba(248, 113, 113, 0.14);
+  --color-success-soft:    rgba(52, 211, 153, 0.16);
+  --color-warning-soft:    rgba(251, 191, 36, 0.15);
+  --color-info-soft:       rgba(56, 189, 248, 0.18);
+  --color-violet:          #8FA3F8;
+  --color-violet-dark:     #C7D0FC;
+  --color-violet-rgb:      143, 163, 248;
+  --color-violet-soft:     rgba(143, 163, 248, 0.15);
+
+  --color-text-faint-rgb:     112, 123, 140;
+  --color-border-rgb:         37, 45, 59;
+  --color-border-strong-rgb:  52, 62, 78;
+
+  --color-bg-surface:      var(--hs-navy);
+  --color-dark-navy:       var(--hs-navy-dark);
+  --color-gold:            var(--hs-gold);
+  --color-gold-light:      var(--hs-gold-light);
+  --color-gold-dark:       var(--hs-gold-dark);
+
+  --hs-primary-navy:       var(--hs-navy);
+  --hs-secondary-gold:     var(--hs-gold);
+}
+
+.dark[data-dark-theme="satrana"] {
+  color-scheme: dark;
+
+  /* Richer midnight navy surfaces — luxe, warm, low-glare */
+  --hs-bg-light:            #0A1124;
+  --hs-bg-light-rgb:        10, 17, 36;
+  --hs-bg-cream:            #0F1830;
+  --hs-bg-cream-rgb:        15, 24, 48;
+  --hs-surface-white:       #131E36;
+  --hs-surface-white-rgb:   19, 30, 54;
+  --hs-surface-muted:       #1B2842;
+  --hs-surface-muted-rgb:   27, 40, 66;
+  --hs-text-dark:           #ECE7DB;
+  --hs-text-dark-rgb:       236, 231, 219;
+  --hs-text-muted:          #B5B0A0;
+  --hs-text-muted-rgb:      181, 176, 160;
+  --hs-text-faint:          #7C7768;
+  --hs-border-light:        #243355;
+  --hs-border-strong:       #33446F;
+
+  --hs-shadow-sm: 0 2px 6px rgba(3, 5, 12, 0.5);
+  --hs-shadow-md: 0 10px 24px -4px rgba(3, 5, 12, 0.55), 0 4px 10px -2px rgba(3, 5, 12, 0.4);
+  --hs-shadow-lg: 0 24px 48px -12px rgba(3, 5, 12, 0.65), 0 10px 20px -6px rgba(3, 5, 12, 0.45);
+
+  /* Champagne gold — headings + navy buttons */
+  --hs-navy:                #D3AC52;
+  --hs-navy-rgb:            211, 172, 82;
+  --hs-navy-dark:           #B08B33;
+  --hs-navy-dark-rgb:       176, 139, 51;
+
+  /* Champagne — CTA & highlight accent */
+  --hs-gold:                #D8B45C;
+  --hs-gold-rgb:            216, 180, 92;
+  --hs-gold-light:          #E9CE82;
+  --hs-gold-light-rgb:      233, 206, 130;
+  --hs-gold-dark:           #B9973F;
+  --hs-gold-dark-rgb:       185, 151, 63;
+
+  /* Softer periwinkle-blue accent */
+  --hs-blue:                #92B6E8;
+  --hs-blue-rgb:            146, 182, 232;
+  --hs-purple-soft:         #E3CE9C;
+
+  --sidebar:                #0B1326;
+
+  --color-danger-soft:     rgba(248, 113, 113, 0.15);
+  --color-success-soft:    rgba(94, 178, 138, 0.15);
+  --color-warning-soft:    rgba(245, 158, 11, 0.16);
+  --color-info-soft:       rgba(96, 165, 250, 0.18);
+  --color-violet:          #C89DB8;
+  --color-violet-dark:     #E3C2D6;
+  --color-violet-rgb:      200, 157, 184;
+  --color-violet-soft:     rgba(200, 157, 184, 0.16);
+
+  --color-text-faint-rgb:     124, 119, 104;
+  --color-border-rgb:         36, 51, 85;
+  --color-border-strong-rgb:  51, 68, 111;
+
+  --color-bg-surface:      var(--hs-navy);
+  --color-dark-navy:       var(--hs-navy-dark);
+  --color-gold:            var(--hs-gold);
+  --color-gold-light:      var(--hs-gold-light);
+  --color-gold-dark:       var(--hs-gold-dark);
+
+  --hs-primary-navy:       var(--hs-navy);
+  --hs-secondary-gold:     var(--hs-gold);
+}
+
+.dark[data-dark-theme="regal"] {
+  color-scheme: dark;
+
+  /* Deep navy surfaces — the base of the regal palette */
+  --hs-bg-light:            #182849;
+  --hs-bg-light-rgb:        24, 40, 73;
+  --hs-bg-cream:            #1D2C4E;
+  --hs-bg-cream-rgb:        29, 44, 78;
+  --hs-surface-white:       #1E2C4D;
+  --hs-surface-white-rgb:   30, 44, 77;
+  --hs-surface-muted:       #253556;
+  --hs-surface-muted-rgb:   37, 53, 86;
+  --hs-text-dark:           #D1DAC9;
+  --hs-text-dark-rgb:       209, 218, 201;
+  --hs-text-muted:          #AAB6A2;
+  --hs-text-muted-rgb:      170, 182, 162;
+  --hs-text-faint:          #7F8C77;
+  --hs-border-light:        #2C3D60;
+  --hs-border-strong:       #3A4E75;
+
+  --hs-shadow-sm: 0 2px 6px rgba(8, 14, 28, 0.5);
+  --hs-shadow-md: 0 10px 24px -4px rgba(8, 14, 28, 0.55), 0 4px 10px -2px rgba(8, 14, 28, 0.4);
+  --hs-shadow-lg: 0 24px 48px -12px rgba(8, 14, 28, 0.65), 0 10px 20px -6px rgba(8, 14, 28, 0.45);
+
+  /* Antique gold — headings + navy buttons */
+  --hs-navy:                #E0AB4D;
+  --hs-navy-rgb:            224, 171, 77;
+  --hs-navy-dark:           #C38D2F;
+  --hs-navy-dark-rgb:       195, 141, 47;
+
+  /* Gold — CTA & highlight accent */
+  --hs-gold:                #E0AB4D;
+  --hs-gold-rgb:            224, 171, 77;
+  --hs-gold-light:          #EDC77A;
+  --hs-gold-light-rgb:      237, 199, 122;
+  --hs-gold-dark:           #B8892F;
+  --hs-gold-dark-rgb:       184, 137, 47;
+
+  /* Coral + wine — complementary accents */
+  --hs-blue:                #C43C2C;
+  --hs-blue-rgb:            196, 60, 44;
+  --hs-purple-soft:         #7D1844;
+
+  --sidebar:                #131F38;
+
+  --color-danger-soft:     rgba(196, 60, 44, 0.22);
+  --color-success-soft:    rgba(134, 178, 118, 0.18);
+  --color-warning-soft:    rgba(224, 171, 77, 0.20);
+  --color-info-soft:       rgba(94, 145, 220, 0.20);
+  --color-violet:          #C0487C;
+  --color-violet-dark:     #E8A2C3;
+  --color-violet-rgb:      192, 72, 124;
+  --color-violet-soft:     rgba(125, 24, 68, 0.28);
+
+  --color-text-faint-rgb:     127, 140, 119;
+  --color-border-rgb:         44, 61, 96;
+  --color-border-strong-rgb:  58, 78, 117;
+
   --color-bg-surface:      var(--hs-navy);
   --color-dark-navy:       var(--hs-navy-dark);
   --color-gold:            var(--hs-gold);

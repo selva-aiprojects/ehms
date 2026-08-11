@@ -1,11 +1,18 @@
 "use client";
 
-import { Bell, Search, ChevronDown, Menu, LogOut, User, Shield, LayoutDashboard, Hotel, Building2, Home, Briefcase, Sun, Moon } from "lucide-react";
+import { Bell, Search, ChevronDown, Menu, LogOut, User, Shield, LayoutDashboard, Hotel, Building2, Home, Briefcase, Sun, Moon, Check } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ROLE_LABELS } from "@/lib/role-access";
 import { useJourney } from "@/components/providers/JourneyProvider";
 import { useProperties } from "@/lib/hooks";
+
+const DARK_THEMES = [
+  { id: "ember", label: "Lavender", desc: "Soft lavender + iris", bg: "#131320", accent: "#908EA9" },
+  { id: "aurora", label: "Aurora", desc: "Cool slate + blue", bg: "#0E1116", accent: "#4E9BFF" },
+  { id: "satrana", label: "Satrana Hotel", desc: "Midnight navy + champagne", bg: "#0A0F1C", accent: "#D1A94F" },
+  { id: "regal", label: "Regal", desc: "Deep navy + gold + coral", bg: "#182849", accent: "#E0AB4D" },
+] as const;
 
 export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user, signOut } = useAuth();
@@ -14,24 +21,40 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [dark, setDark] = useState(false);
+  const [darkTheme, setDarkTheme] = useState<string>("ember");
+  const [themeOpen, setThemeOpen] = useState(false);
+  const themeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setDark(document.documentElement.classList.contains("dark"));
+    setDarkTheme(document.documentElement.getAttribute("data-dark-theme") || "ember");
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
+      }
+      if (themeRef.current && !themeRef.current.contains(e.target as Node)) {
+        setThemeOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const toggleTheme = () => {
-    const next = !document.documentElement.classList.contains("dark");
-    document.documentElement.classList.toggle("dark", next);
-    try { localStorage.setItem("hs-theme", next ? "dark" : "light"); } catch {}
-    setDark(next);
-    window.dispatchEvent(new CustomEvent("hs:themechange", { detail: { dark: next } }));
+  const applyTheme = (themeId: string) => {
+    const nextDark = themeId !== "light";
+    if (nextDark) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.setAttribute("data-dark-theme", themeId);
+      try { localStorage.setItem("hs-theme", "dark"); localStorage.setItem("hs-dark-theme", themeId); } catch {}
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.removeAttribute("data-dark-theme");
+      try { localStorage.setItem("hs-theme", "light"); } catch {}
+    }
+    setDark(nextDark);
+    setDarkTheme(nextDark ? themeId : "ember");
+    setThemeOpen(false);
+    window.dispatchEvent(new CustomEvent("hs:themechange", { detail: { dark: nextDark } }));
   };
 
   const initials = user
@@ -161,19 +184,76 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
       </div>
 
       <div className="flex items-center gap-3 shrink-0">
+      <div className="relative" ref={themeRef}>
         <button
-          onClick={toggleTheme}
+          onClick={() => setThemeOpen(!themeOpen)}
           className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
           style={{ background: "var(--hs-bg-cream)", border: "1px solid var(--hs-border-light)" }}
-          aria-label="Toggle dark mode"
-          title={dark ? "Switch to light theme" : "Switch to dark theme"}
+          aria-label="Change theme"
+          title="Change theme"
         >
           {dark ? (
             <Sun className="w-4 h-4" style={{ color: "var(--hs-secondary-gold)" }} />
           ) : (
             <Moon className="w-4 h-4" style={{ color: "var(--hs-primary-navy)" }} />
           )}
+          <span
+            className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
+            style={{
+              background: dark ? (DARK_THEMES.find((t) => t.id === darkTheme)?.accent || "#908EA9") : "var(--color-gold)",
+              borderColor: "var(--color-white)",
+            }}
+          />
         </button>
+
+        {themeOpen && (
+          <div
+            className="absolute right-0 top-full mt-2 w-64 rounded-xl shadow-lg z-50 overflow-hidden"
+            style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}
+          >
+            <div className="px-4 py-3 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--color-text-muted)", borderBottom: "1px solid var(--color-border)" }}>
+              Color Theme
+            </div>
+            <div className="py-1.5">
+              <button
+                onClick={() => applyTheme("light")}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all hover:opacity-80"
+                style={{ color: "var(--color-text)" }}
+              >
+                <span className="w-8 h-8 rounded-lg border flex items-center justify-center shrink-0"
+                  style={{ background: "linear-gradient(135deg,#F8FAF8 50%,#255230 50%)", borderColor: "var(--color-border)" }}>
+                  {!dark && <Check className="w-4 h-4" style={{ color: "var(--color-navy)" }} />}
+                </span>
+                <span className="flex flex-col items-start leading-tight">
+                  <span className="font-semibold">Light</span>
+                  <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Green + white + gold</span>
+                </span>
+              </button>
+
+              {DARK_THEMES.map((t) => {
+                const active = dark && darkTheme === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => applyTheme(t.id)}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all hover:opacity-80"
+                    style={{ color: "var(--color-text)" }}
+                  >
+                    <span className="w-8 h-8 rounded-lg border flex items-center justify-center shrink-0"
+                      style={{ background: `linear-gradient(135deg, ${t.bg} 50%, ${t.accent} 50%)`, borderColor: "var(--color-border)" }}>
+                      {active && <Check className="w-4 h-4 text-white" />}
+                    </span>
+                    <span className="flex flex-col items-start leading-tight">
+                      <span className="font-semibold">{t.label}</span>
+                      <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{t.desc}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
 
         <button className="relative w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "var(--hs-bg-cream)" }}>
           <Bell className="w-4 h-4" style={{ color: "var(--hs-primary-navy)" }} />
