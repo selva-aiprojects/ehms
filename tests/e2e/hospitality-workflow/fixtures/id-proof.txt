@@ -1,0 +1,6 @@
+TEST ID PROOF - E2E WORKFLOW
+Name: Sample Guest
+ID Type: Passport
+Number: E2E-TEST-0001
+Issued: 2024-01-01
+This file simulates an uploaded ID document for the walk-in check-in KYC step.
