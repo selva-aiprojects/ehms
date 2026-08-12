@@ -153,7 +153,7 @@ test.describe("Full Guest Lifecycle - End-to-End Demo Flow", () => {
       await page.locator("main").waitFor({ timeout: 15000 });
       await page.waitForTimeout(2000);
 
-      const filter = page.locator("select").first();
+      const filter = page.locator("main select").first();
       if (await filter.isVisible({ timeout: 5000 }).catch(() => false)) {
         await filter.selectOption("Upcoming Arrivals");
         await page.waitForTimeout(1000);
@@ -520,7 +520,8 @@ test.describe("Full Guest Lifecycle - End-to-End Demo Flow", () => {
     test("LIFECYCLE-022: Departures today panel shows checkout-ready guests", async ({
       page,
     }) => {
-      await page.waitForTimeout(3000);
+      await page.goto("/dashboard/front-desk");
+      await page.waitForLoadState("domcontentloaded");
 
       await expect(
         page.locator("main").getByText("Departures Today").first()

@@ -3,7 +3,7 @@
  * with notes attached at each transition.
  */
 import { type Page, expect } from "@playwright/test";
-import { state } from "../helpers/state";
+import { state, addWarning } from "../helpers/state";
 import { go, reload } from "../helpers/navigation";
 import { fillByLabel, pickSelectOption, retryClick, waitForToast } from "../helpers/actions";
 import { randomTicketTitle } from "../helpers/test-data";
@@ -34,7 +34,7 @@ export class MaintenancePage {
       const unitInput = modal.getByLabel("Unit ID");
       await unitInput.fill(unitNumber);
     } else {
-      state.addWarning("Could not map unit label to numeric Unit ID");
+      addWarning("Could not map unit label to numeric Unit ID");
     }
 
     const respPromise = this.page.waitForResponse(

@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
 import { JourneyProvider } from "@/components/providers/JourneyProvider";
+import PwaRegister from "@/components/pwa/pwa-register";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -15,9 +16,25 @@ export const metadata: Metadata = {
   description: "HostSphere multi-vertical hospitality and space management suite.",
   icons: [
     { rel: "icon", url: "/favicon.png", type: "image/png" },
-    { rel: "apple-touch-icon", url: "/favicon.png" },
+    { rel: "apple-touch-icon", url: "/apple-touch-icon.png" },
   ],
   manifest: "/manifest.json",
+  applicationName: "HostSphere",
+  appleWebApp: {
+    capable: true,
+    title: "HostSphere",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F8FAF8" },
+    { media: "(prefers-color-scheme: dark)", color: "#131320" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -35,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <JourneyProvider>
             {children}
             <Toaster position="top-right" />
+            <PwaRegister />
           </JourneyProvider>
         </SettingsProvider>
       </body>

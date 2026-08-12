@@ -21,7 +21,7 @@ export class FeedbackPage {
     await expect(modal).toBeVisible({ timeout: 15_000 });
 
     await this.page.waitForFunction(() => {
-      const selects = Array.from(document.querySelectorAll("div.fixed select"));
+      const selects = Array.from(document.querySelectorAll("div.fixed select")) as HTMLSelectElement[];
       return selects.some((s) => s.options.length > 1);
     }, undefined, { timeout: 20_000 });
 

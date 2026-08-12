@@ -3,10 +3,10 @@
  * checked-in state assertions, and guest request logging.
  */
 import { type Page, expect } from "@playwright/test";
-import { state } from "../helpers/state";
+import { state, addWarning } from "../helpers/state";
 import { go, reload } from "../helpers/navigation";
-import { fillByLabel, pickSelectOption, waitForToast, idProofPath, extractNumber, expectText } from "../helpers/actions";
-import { randomFirstName, randomLastName, randomGuestEmail, randomPhone, todayISO, daysFromNowISO } from "../helpers/test-data";
+import { fillByLabel, pickSelectOption, waitForToast, idProofPath, expectText } from "../helpers/actions";
+import { randomFirstName, randomLastName, randomGuestEmail, randomPhone, todayISO, daysFromNowISO, extractNumber } from "../helpers/test-data";
 
 export class FrontDeskPage {
   constructor(private readonly page: Page) {}
@@ -47,7 +47,7 @@ export class FrontDeskPage {
       const raw = await totalInput.inputValue();
       state.totalAmount = extractNumber(raw);
     } catch {
-      state.addWarning("Walk-in total_amount input did not auto-fill");
+      addWarning("Walk-in total_amount input did not auto-fill");
     }
 
     // Upload ID proof (KYC) — walk-in requires a file to be chosen.
@@ -117,7 +117,7 @@ async function softAssertGuestInPanel(page: Page): Promise<void> {
     const guestLink = page.locator("text=" + state.guestName).first();
     await expect(guestLink).toBeVisible({ timeout: 10_000 });
   } catch {
-    state.addWarning(`Guest "${state.guestName}" not visible in panel`);
+    addWarning(`Guest "${state.guestName}" not visible in panel`);
   }
 }
 

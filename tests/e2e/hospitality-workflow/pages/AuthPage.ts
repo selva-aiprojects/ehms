@@ -40,7 +40,7 @@ export class AuthPage {
     const select = this.page.locator("header select").first();
     await expect(select).toBeVisible({ timeout: 20_000 });
     await this.page.waitForFunction(() => {
-      const el = document.querySelector("header select");
+      const el = document.querySelector("header select") as HTMLSelectElement | null;
       return !!el && el.options.length > 1;
     }, undefined, { timeout: 20_000 });
 
@@ -74,6 +74,6 @@ export class AuthPage {
   }
 
   async gotoDashboard(): Promise<void> {
-    await go(this.page, "/dashboard");
+    await go(this.page, "/dashboard", /Dashboard/);
   }
 }
