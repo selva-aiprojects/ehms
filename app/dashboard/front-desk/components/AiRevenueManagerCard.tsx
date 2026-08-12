@@ -307,21 +307,17 @@ export default function AiRevenueManagerCard({ propertyId: propPropertyId }: AiR
 
   return (
     <>
-      <Card className="flex flex-col h-full overflow-hidden border border-[color:var(--color-navy)]/20 shadow-md">
-        {/* Header Banner */}
-        <div className="bg-gradient-to-r from-[var(--color-navy)] to-[var(--color-dark-navy)] p-4 text-white flex items-center justify-between gap-2">
+      <Card className="flex flex-col h-full overflow-hidden border border-[var(--color-border)]" padding={false}>
+        <div className="p-4 border-b border-[var(--color-border)] bg-[var(--color-surface-muted)] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-[color:var(--color-primary)]/20 flex items-center justify-center border border-[color:var(--color-primary)]/40 shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-[var(--color-success-soft)] flex items-center justify-center border border-[color:var(--color-primary)]/20 shrink-0">
               <Sparkles className="w-4 h-4 text-[var(--color-primary)]" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-sm font-bold flex items-center gap-1.5 flex-wrap">
+              <h3 className="text-sm font-bold text-[var(--color-navy)] flex items-center gap-1.5 flex-wrap">
                 AI Revenue Manager & Dynamic Yield
-                <span className="text-[10px] bg-[var(--color-primary)] text-white px-1.5 py-0.5 rounded font-mono font-semibold">
-                  REV-AI v2.0
-                </span>
               </h3>
-              <p className="text-[11px] text-gray-300">Algorithmic occupancy scaling & weekend rate optimization</p>
+              <p className="text-[11px] text-[var(--color-text-muted)]">Demand-aware rate recommendations</p>
             </div>
           </div>
 
@@ -329,23 +325,23 @@ export default function AiRevenueManagerCard({ propertyId: propPropertyId }: AiR
             <Button
               size="sm"
               onClick={() => setShowFull(true)}
-              className="h-8 px-2.5 text-xs bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white whitespace-nowrap"
+              className="h-8 px-2.5 text-xs bg-[var(--color-navy)] hover:bg-[var(--color-dark-navy)] text-white whitespace-nowrap"
             >
               <Maximize2 className="w-3.5 h-3.5 mr-1" /> Full View
             </Button>
 
             {/* Dynamic Auto-Pilot Toggle */}
-            <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/15">
+            <div className="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-lg border border-[var(--color-border)]">
               <div className="text-right hidden sm:block">
-                <p className="text-[11px] font-semibold leading-tight">Dynamic Auto-Pilot</p>
-                <p className="text-[9px] text-gray-300">Auto-scale rates across OTAs</p>
+                <p className="text-[11px] font-semibold leading-tight text-[var(--color-text)]">Auto-Pilot</p>
+                <p className="text-[9px] text-[var(--color-text-muted)]">Rate automation</p>
               </div>
               <button
                 type="button"
                 onClick={handleToggleAutoPilot}
                 disabled={togglingPilot || loading}
                 className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-300 focus:outline-none ${
-                  data?.auto_pilot_enabled ? "bg-[var(--color-primary)]" : "bg-gray-500"
+                    data?.auto_pilot_enabled ? "bg-[var(--color-success)]" : "bg-gray-400"
                 }`}
               >
                 <div
@@ -363,7 +359,7 @@ export default function AiRevenueManagerCard({ propertyId: propPropertyId }: AiR
         ) : !data ? (
           <div className="text-center p-8 text-gray-500 text-sm">Could not load revenue metrics.</div>
         ) : (
-          <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+          <div className="p-4 space-y-4 flex-1 overflow-y-auto bg-white">
             {renderStats(false)}
 
             {/* Recommendations List */}

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe, Loader2, CheckCircle2, Clock, XCircle, RefreshCw, Radio, X, DoorOpen, PlusCircle } from "lucide-react";
-import Card, { CardHeader } from "@/components/ui/card";
+import { Globe, Loader2, CheckCircle2, Clock, XCircle, RefreshCw, Radio, X, PlusCircle } from "lucide-react";
+import Card from "@/components/ui/card";
 import Button from "@/components/ui/button";
 import { useProperties, useRoomMatrix } from "@/lib/hooks";
 import { toast } from "react-hot-toast";
@@ -112,22 +112,23 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
   };
 
   return (
-    <Card className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
+    <Card className="flex flex-col h-full overflow-hidden border border-[var(--color-border)]" padding={false}>
+      <div className="p-4 border-b border-[var(--color-border)] bg-[var(--color-surface-muted)]">
+        <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold text-[var(--color-navy)] flex items-center gap-1.5">
             <Globe className="w-4 h-4 text-[var(--color-primary)]" /> Channel Manager & OTAs
           </h3>
-          <p className="text-[11px] text-[var(--color-text-muted)]">2-Way Real-time availability & rate bridge</p>
+          <p className="text-[11px] text-[var(--color-text-muted)]">Availability and rate delivery</p>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           <Button
             size="sm"
             variant="outline"
             onClick={() => setShowSimulator(true)}
             className="text-xs h-7 px-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-success-soft)]"
           >
-            <Radio className="w-3 h-3 mr-1" /> Webhook Simulator
+            <Radio className="w-3 h-3 mr-1" /> Test
           </Button>
           <Button
             size="sm"
@@ -136,8 +137,9 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
             className="text-xs h-7 px-2.5 bg-[var(--color-navy)] hover:bg-[var(--color-dark-navy)] text-white"
           >
             <RefreshCw className={`w-3 h-3 mr-1 ${syncing ? "animate-spin" : ""}`} />
-            {syncing ? "Broadcasting..." : "Sync All"}
+            {syncing ? "Syncing..." : "Sync"}
           </Button>
+        </div>
         </div>
       </div>
 
@@ -149,7 +151,7 @@ export default function ChannelPartnersCard({ propertyId: propPropertyId }: Chan
           <p className="text-sm text-[var(--color-text-muted)]">No active OTA channels found.</p>
         </div>
       ) : (
-        <div className="divide-y divide-[var(--color-border)] overflow-y-auto max-h-[300px]">
+        <div className="divide-y divide-[var(--color-border)] overflow-y-auto max-h-[360px] bg-white">
           {channels.map(channel => (
             <div key={channel.id} className="flex items-center justify-between p-3 text-sm hover:bg-[var(--color-light)] transition-colors">
               <div className="flex items-center gap-2.5">

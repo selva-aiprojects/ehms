@@ -588,11 +588,22 @@ export default function FrontDeskPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <AiRevenueManagerCard propertyId={selectedPropertyId} />
-        <ChannelPartnersCard propertyId={selectedPropertyId} />
-        <OffersCard propertyId={selectedPropertyId} />
-      </div>
+      <section aria-labelledby="revenue-distribution-heading" className="space-y-3">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <h2 id="revenue-distribution-heading" className="text-base font-semibold" style={{ color: "var(--color-text)" }}>Revenue &amp; distribution</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>Pricing decisions, channel health, and sellable offers in one operational view.</p>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "var(--color-success-soft)", color: "var(--color-success-dark)" }}>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--color-success)" }} /> Live controls
+          </span>
+        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-stretch">
+          <div className="xl:col-span-5"><AiRevenueManagerCard propertyId={selectedPropertyId} /></div>
+          <div className="xl:col-span-4"><ChannelPartnersCard propertyId={selectedPropertyId} /></div>
+          <div className="xl:col-span-3"><OffersCard propertyId={selectedPropertyId} /></div>
+        </div>
+      </section>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
@@ -954,4 +965,4 @@ export default function FrontDeskPage() {
     </div>
   );
 }
-
+

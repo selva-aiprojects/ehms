@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Tag, Loader2, Sparkles } from "lucide-react";
-import Card, { CardHeader } from "@/components/ui/card";
+import Card from "@/components/ui/card";
 import Badge from "@/components/ui/badge";
 
 interface OffersCardProps {
@@ -26,8 +26,11 @@ export default function OffersCard({ propertyId }: OffersCardProps) {
   }, [propertyId]);
 
   return (
-    <Card>
-      <CardHeader title="Active Promotions" subtitle="Upsell Opportunities" />
+      <Card className="h-full border border-[var(--color-border)]" padding={false}>
+        <div className="p-4 border-b border-[var(--color-border)] bg-[var(--color-surface-muted)]">
+          <h3 className="text-base font-semibold" style={{ color: "var(--text)" }}>Active Promotions</h3>
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-light)" }}>Sell more from every stay</p>
+        </div>
       {loading ? (
         <div className="flex justify-center p-6"><Loader2 className="w-5 h-5 animate-spin text-[var(--color-text-muted)]" /></div>
       ) : offers.length === 0 ? (
@@ -36,9 +39,9 @@ export default function OffersCard({ propertyId }: OffersCardProps) {
           <p className="text-sm text-[var(--color-text-muted)]">No active offers.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="p-3 space-y-2.5">
           {offers.slice(0, 4).map(offer => (
-            <div key={offer.id} className="p-3 rounded-lg border border-[var(--color-border)] bg-gradient-to-br from-white to-[var(--color-light)]">
+            <div key={offer.id} className="p-3 rounded-lg border border-[var(--color-border)] bg-white hover:bg-[var(--color-light)] transition-colors">
               <div className="flex justify-between items-start mb-1">
                 <p className="font-semibold text-sm text-[var(--color-navy)] flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5 text-[var(--color-warning)]" /> {offer.title}
