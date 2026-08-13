@@ -7,7 +7,7 @@
 import { useEffect, useState, useContext, createContext } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useJourney, type VerticalJourney } from '@/components/providers/JourneyProvider';
-import type { FeatureFlagContext, FeatureCheckResult } from './types';
+import type { FeatureFlagContext, FeatureCheckResult, FeatureFlagMetrics } from './types';
 import type { FEATURE_FLAGS } from './types';
 
 function getFeatureVertical(activeJourney: VerticalJourney | 'all') {
@@ -440,7 +440,7 @@ interface FeatureRolloutProgressProps {
 export function FeatureRolloutProgress({
   flag,
 }: FeatureRolloutProgressProps) {
-  const [metrics, setMetrics] = useState<any>(null);
+  const [metrics, setMetrics] = useState<FeatureFlagMetrics[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

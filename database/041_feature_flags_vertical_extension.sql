@@ -8,12 +8,12 @@
 -- ============================================================
 
 -- Add subscribed_verticals column to tenants table
-ALTER TABLE IF EXISTS tenants 
+ALTER TABLE IF EXISTS public.tenants 
 ADD COLUMN IF NOT EXISTS subscribed_verticals JSONB DEFAULT '["hospitality_hotels"]';
 
 -- Add index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_tenants_subscribed_verticals 
-ON tenants USING GIN (subscribed_verticals);
+ON public.tenants USING GIN (subscribed_verticals);
 
 -- ============================================================
 -- STEP 2: Define Vertical Constants (in config.jsonb)
@@ -31,6 +31,23 @@ ON tenants USING GIN (subscribed_verticals);
 -- ============================================================
 -- STEP 3: Populate Feature Availability Matrix
 -- ============================================================
+
+-- Ensure vertical_name column exists (added in 040, kept idempotent here)
+ALTER TABLE feature_availability ADD COLUMN IF NOT EXISTS vertical_name VARCHAR(100);
+
+-- module_name is legacy; 041 maps availability by vertical_name
+ALTER TABLE feature_availability ALTER COLUMN module_name DROP NOT NULL;
+
+-- Unique constraint matching the ON CONFLICT target (idempotent)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'uq_feature_availability_flag_vertical'
+    ) THEN
+        ALTER TABLE feature_availability
+        ADD CONSTRAINT uq_feature_availability_flag_vertical UNIQUE (feature_flag_id, vertical_name);
+    END IF;
+END $$;
 
 -- Clear existing data
 DELETE FROM feature_availability;
@@ -106,9 +123,9 @@ ON CONFLICT(feature_flag_id, vertical_name) DO NOTHING;
 -- ============================================================
 
 -- Drop and recreate the function with vertical awareness
-DROP FUNCTION IF EXISTS is_feature_enabled(VARCHAR, UUID, UUID, UUID);
+DROP FUNCTION IF EXISTS public.is_feature_enabled(VARCHAR, UUID, UUID, UUID);
 
-CREATE OR REPLACE FUNCTION is_feature_enabled(
+CREATE OR REPLACE FUNCTION public.is_feature_enabled(
     p_flag_key VARCHAR,
     p_user_id UUID DEFAULT NULL,
     p_property_id UUID DEFAULT NULL,
@@ -151,6 +168,7 @@ BEGIN
         WHERE feature_flag_id = v_flag_id
           AND scope = 'user'
           AND user_id = p_user_id
+          AND (approval_status IS NULL OR approval_status = 'approved')
           AND (enabled_from IS NULL OR enabled_from <= now())
           AND (enabled_until IS NULL OR enabled_until > now())
         LIMIT 1;
@@ -167,6 +185,7 @@ BEGIN
         WHERE feature_flag_id = v_flag_id
           AND scope = 'property'
           AND property_id = p_property_id
+          AND (approval_status IS NULL OR approval_status = 'approved')
           AND (enabled_from IS NULL OR enabled_from <= now())
           AND (enabled_until IS NULL OR enabled_until > now())
         LIMIT 1;
@@ -183,6 +202,7 @@ BEGIN
         WHERE feature_flag_id = v_flag_id
           AND scope = 'enterprise'
           AND enterprise_id = p_enterprise_id
+          AND (approval_status IS NULL OR approval_status = 'approved')
           AND (enabled_from IS NULL OR enabled_from <= now())
           AND (enabled_until IS NULL OR enabled_until > now())
         LIMIT 1;
@@ -197,6 +217,7 @@ BEGIN
     FROM feature_flag_overrides
     WHERE feature_flag_id = v_flag_id
       AND scope = 'global'
+      AND (approval_status IS NULL OR approval_status = 'approved')
       AND (enabled_from IS NULL OR enabled_from <= now())
       AND (enabled_until IS NULL OR enabled_until > now())
     LIMIT 1;
@@ -215,7 +236,7 @@ $$ LANGUAGE plpgsql STABLE;
 -- ============================================================
 
 -- Update demo tenant subscriptions
-UPDATE tenants SET subscribed_verticals = '["hospitality_hotels", "hospitality_serviced_apartments"]' 
+UPDATE public.tenants SET subscribed_verticals = '["hospitality_hotels", "hospitality_serviced_apartments"]' 
 WHERE name LIKE '%Hospitality%' OR name LIKE '%Hotel%';
 
 -- Create test tenants if needed (this will be done via app UI)

@@ -35,7 +35,7 @@ export interface FeatureFlag {
   default_enabled: boolean;
   rollout_strategy: RolloutStrategy;
   rollout_percentage: number;
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   documentation_url?: string;
   changelog: ChangelogEntry[];
   created_at: string;
@@ -224,7 +224,7 @@ export interface CreateFeatureFlagRequest {
   default_enabled: boolean;
   rollout_strategy: RolloutStrategy;
   rollout_percentage?: number;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
   documentation_url?: string;
 }
 
@@ -235,7 +235,7 @@ export interface UpdateFeatureFlagRequest {
   default_enabled?: boolean;
   rollout_strategy?: RolloutStrategy;
   rollout_percentage?: number;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 export interface CreateOverrideRequest {
@@ -266,7 +266,7 @@ export interface FeatureFlagAuditLog {
   id: string;
   feature_flag_id: string;
   action: string;
-  change_details?: Record<string, any>;
+  change_details?: Record<string, unknown>;
   changed_by?: string;
   changed_at: string;
   impact_estimate?: 'low' | 'medium' | 'high';

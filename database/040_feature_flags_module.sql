@@ -7,33 +7,39 @@
 -- FEATURE FLAG ENUMS & TYPES
 -- ============================================================
 
-CREATE TYPE feature_flag_scope AS ENUM (
-    'global',          -- Platform-wide flag (all tenants, all properties)
-    'enterprise',      -- Enterprise-level (affects all properties in tenant)
-    'property',        -- Property-level (single property only)
-    'user',            -- User-level (individual user override)
-    'beta'             -- Beta/experimental flag (opt-in only)
-);
+DO $$ BEGIN
+    CREATE TYPE feature_flag_scope AS ENUM (
+        'global',          -- Platform-wide flag (all tenants, all properties)
+        'enterprise',      -- Enterprise-level (affects all properties in tenant)
+        'property',        -- Property-level (single property only)
+        'user',            -- User-level (individual user override)
+        'beta'             -- Beta/experimental flag (opt-in only)
+    );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TYPE feature_flag_status AS ENUM (
-    'planning',        -- Not yet built
-    'in_development',  -- Currently being built
-    'beta',            -- Available to beta testers only
-    'active',          -- Live and available
-    'deprecated',      -- Phasing out
-    'archived'         -- No longer available
-);
+DO $$ BEGIN
+    CREATE TYPE feature_flag_status AS ENUM (
+        'planning',        -- Not yet built
+        'in_development',  -- Currently being built
+        'beta',            -- Available to beta testers only
+        'active',          -- Live and available
+        'deprecated',      -- Phasing out
+        'archived'         -- No longer available
+    );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-CREATE TYPE rollout_strategy AS ENUM (
-    'all',                    -- Enabled for everyone
-    'none',                   -- Disabled for everyone
-    'percentage',             -- Enabled for X% of users (gradual rollout)
-    'whitelist',              -- Enabled for specific users/properties/enterprises
-    'blacklist',              -- Disabled for specific users/properties/enterprises
-    'time_based',             -- Enabled at specific dates/times
-    'geo_based',              -- Enabled for specific regions/cities
-    'custom_rule'             -- Custom evaluation logic
-);
+DO $$ BEGIN
+    CREATE TYPE rollout_strategy AS ENUM (
+        'all',                    -- Enabled for everyone
+        'none',                   -- Disabled for everyone
+        'percentage',             -- Enabled for X% of users (gradual rollout)
+        'whitelist',              -- Enabled for specific users/properties/enterprises
+        'blacklist',              -- Disabled for specific users/properties/enterprises
+        'time_based',             -- Enabled at specific dates/times
+        'geo_based',              -- Enabled for specific regions/cities
+        'custom_rule'             -- Custom evaluation logic
+    );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- ============================================================
 -- FEATURE FLAG DEFINITIONS & REGISTRY
@@ -72,9 +78,9 @@ CREATE TABLE IF NOT EXISTS feature_flags (
     updated_by UUID
 );
 
-CREATE INDEX idx_feature_flags_key ON feature_flags(flag_key);
-CREATE INDEX idx_feature_flags_category ON feature_flags(category);
-CREATE INDEX idx_feature_flags_status ON feature_flags(status);
+CREATE INDEX IF NOT EXISTS idx_feature_flags_key ON feature_flags(flag_key);
+CREATE INDEX IF NOT EXISTS idx_feature_flags_category ON feature_flags(category);
+CREATE INDEX IF NOT EXISTS idx_feature_flags_status ON feature_flags(status);
 
 -- ============================================================
 -- FEATURE FLAG OVERRIDES (Multi-Level Configuration)
@@ -115,11 +121,11 @@ CREATE TABLE IF NOT EXISTS feature_flag_overrides (
     UNIQUE(feature_flag_id, scope, enterprise_id, property_id, user_id)
 );
 
-CREATE INDEX idx_flag_overrides_feature_flag_id ON feature_flag_overrides(feature_flag_id);
-CREATE INDEX idx_flag_overrides_enterprise_id ON feature_flag_overrides(enterprise_id);
-CREATE INDEX idx_flag_overrides_property_id ON feature_flag_overrides(property_id);
-CREATE INDEX idx_flag_overrides_user_id ON feature_flag_overrides(user_id);
-CREATE INDEX idx_flag_overrides_scope ON feature_flag_overrides(scope);
+CREATE INDEX IF NOT EXISTS idx_flag_overrides_feature_flag_id ON feature_flag_overrides(feature_flag_id);
+CREATE INDEX IF NOT EXISTS idx_flag_overrides_enterprise_id ON feature_flag_overrides(enterprise_id);
+CREATE INDEX IF NOT EXISTS idx_flag_overrides_property_id ON feature_flag_overrides(property_id);
+CREATE INDEX IF NOT EXISTS idx_flag_overrides_user_id ON feature_flag_overrides(user_id);
+CREATE INDEX IF NOT EXISTS idx_flag_overrides_scope ON feature_flag_overrides(scope);
 
 -- ============================================================
 -- FEATURE FLAG USAGE AUDIT LOG
@@ -135,8 +141,8 @@ CREATE TABLE IF NOT EXISTS feature_flag_audit_log (
     impact_estimate VARCHAR(255) -- 'low', 'medium', 'high'
 );
 
-CREATE INDEX idx_flag_audit_log_feature_flag_id ON feature_flag_audit_log(feature_flag_id);
-CREATE INDEX idx_flag_audit_log_changed_at ON feature_flag_audit_log(changed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_flag_audit_log_feature_flag_id ON feature_flag_audit_log(feature_flag_id);
+CREATE INDEX IF NOT EXISTS idx_flag_audit_log_changed_at ON feature_flag_audit_log(changed_at DESC);
 
 -- ============================================================
 -- FEATURE FLAG DEPENDENCIES
@@ -165,18 +171,20 @@ CREATE TABLE IF NOT EXISTS feature_availability (
     feature_flag_id UUID NOT NULL REFERENCES feature_flags(id) ON DELETE CASCADE,
     
     -- What this feature is available for
-    module_name VARCHAR(100) NOT NULL, -- 'hospitality', 'commercial', 'industrial', 'land_promo', 'maintenance'
+    module_name VARCHAR(100), -- 'hospitality', 'commercial', 'industrial', 'land_promo', 'maintenance'
+    vertical_name VARCHAR(100), -- Business vertical: hospitality_hotels, commercial, industrial, etc.
     min_tier VARCHAR(50), -- 'basic', 'professional', 'enterprise'
     
     -- Compatibility
     requires_modules JSONB DEFAULT '[]', -- ["module1", "module2"]
     conflicts_with JSONB DEFAULT '[]', -- ["module3"]
     
-    created_at TIMESTAMPTZ DEFAULT now()
+    created_at TIMESTAMPTZ DEFAULT now(),
+    UNIQUE(feature_flag_id, vertical_name)
 );
 
-CREATE INDEX idx_feature_availability_feature_flag_id ON feature_availability(feature_flag_id);
-CREATE INDEX idx_feature_availability_module ON feature_availability(module_name);
+CREATE INDEX IF NOT EXISTS idx_feature_availability_feature_flag_id ON feature_availability(feature_flag_id);
+CREATE INDEX IF NOT EXISTS idx_feature_availability_module ON feature_availability(module_name);
 
 -- ============================================================
 -- FEATURE METRICS & MONITORING
@@ -256,8 +264,8 @@ CREATE TABLE IF NOT EXISTS beta_testers (
     enrolled_by UUID
 );
 
-CREATE INDEX idx_beta_testers_user_id ON beta_testers(user_id);
-CREATE INDEX idx_beta_testers_enterprise_id ON beta_testers(enterprise_id);
+CREATE INDEX IF NOT EXISTS idx_beta_testers_user_id ON beta_testers(user_id);
+CREATE INDEX IF NOT EXISTS idx_beta_testers_enterprise_id ON beta_testers(enterprise_id);
 
 CREATE TABLE IF NOT EXISTS beta_feature_access (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -312,14 +320,14 @@ CREATE TABLE IF NOT EXISTS feature_flag_cache (
     UNIQUE(feature_flag_id, scope, scope_id)
 );
 
-CREATE INDEX idx_feature_flag_cache_expires ON feature_flag_cache(cache_expires_at);
+CREATE INDEX IF NOT EXISTS idx_feature_flag_cache_expires ON feature_flag_cache(cache_expires_at);
 
 -- ============================================================
 -- HELPER FUNCTIONS
 -- ============================================================
 
 -- Function: Get effective enabled state for a feature (resolving hierarchy)
-CREATE OR REPLACE FUNCTION is_feature_enabled(
+CREATE OR REPLACE FUNCTION public.is_feature_enabled(
     p_flag_key VARCHAR,
     p_user_id UUID DEFAULT NULL,
     p_property_id UUID DEFAULT NULL,
@@ -409,7 +417,7 @@ END;
 $$ LANGUAGE plpgsql STABLE;
 
 -- Function: Log feature flag usage
-CREATE OR REPLACE FUNCTION log_feature_flag_usage(
+CREATE OR REPLACE FUNCTION public.log_feature_flag_usage(
     p_flag_key VARCHAR,
     p_user_id UUID DEFAULT NULL,
     p_property_id UUID DEFAULT NULL,
@@ -424,7 +432,7 @@ BEGIN
         INSERT INTO feature_flag_metrics (feature_flag_id, metric_date, feature_actions_performed)
         VALUES (v_flag_id, CURRENT_DATE, 1)
         ON CONFLICT (feature_flag_id, metric_date) DO UPDATE
-        SET feature_actions_performed = feature_actions_performed + 1;
+        SET feature_actions_performed = feature_flag_metrics.feature_actions_performed + 1;
     END IF;
 END;
 $$ LANGUAGE plpgsql;

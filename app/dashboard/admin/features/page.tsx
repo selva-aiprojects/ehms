@@ -277,7 +277,7 @@ export default function FeaturesPage() {
                                 </Badge>
                               )}
                               {isEnabled && (
-                                <Badge variant="green" className="text-[10px]">
+                                <Badge variant="teal" className="text-[10px]">
                                   <CheckCircle className="w-3 h-3 mr-1" /> Active
                                 </Badge>
                               )}
@@ -293,7 +293,7 @@ export default function FeaturesPage() {
                                   <div className="flex items-start gap-2">
                                     <AlertTriangle className="w-3 h-3 mt-0.5" style={{ color: "#F59E0B" }} />
                                     <span className="text-[11px]" style={{ color: "#F59E0B" }}>
-                                      Requires: {feature.blocking_flags.join(", ")}
+                                      Requires: {(feature.blocking_flags || []).join(", ")}
                                     </span>
                                   </div>
                                 )}
@@ -301,7 +301,7 @@ export default function FeaturesPage() {
                                   <div className="flex items-start gap-2">
                                     <AlertCircle className="w-3 h-3 mt-0.5" style={{ color: "#EF4444" }} />
                                     <span className="text-[11px]" style={{ color: "#EF4444" }}>
-                                      Conflicts with: {feature.conflicting_flags.join(", ")}
+                                      Conflicts with: {(feature.conflicting_flags || []).join(", ")}
                                     </span>
                                   </div>
                                 )}

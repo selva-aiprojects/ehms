@@ -35,7 +35,8 @@ if (!DB_URL) {
 const pool = new pg.Pool({ connectionString: DB_URL, max: 1 });
 
 function splitStatements(content) {
-  const noComments = content.replace(/--.*$/gm, "").trim();
+  const noBlockComments = content.replace(/\/\*[\s\S]*?\*\//g, "");
+  const noComments = noBlockComments.replace(/--.*$/gm, "").trim();
   const statements = [];
   let current = "";
   let inDollar = false;
@@ -177,6 +178,10 @@ async function run() {
       "035_restaurant_pos.sql",
       "036_revenue_ai.sql",
       "037_push_subscriptions.sql",
+      "039_asset_agnostic_model.sql",
+      "040_feature_flags_module.sql",
+      "041_feature_flags_vertical_extension.sql",
+      "042_viswa_vertical_mapping.sql",
     ];
 
     for (const file of SQL_FILES) {

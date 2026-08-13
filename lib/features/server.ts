@@ -10,7 +10,7 @@ import {
 import type {
   FeatureFlagContext,
   FeatureCheckResult,
-  FeatureFlag,
+  FeatureFlagScope,
 } from './types';
 
 // ============================================================
@@ -84,7 +84,7 @@ export async function getFeatureCheckResult(
   const isEnabled = await isFeatureEnabled(flagKey, context);
 
   // Get override details (to determine scope matched)
-  let scope_matched: any = 'default';
+  let scope_matched: FeatureFlagScope | 'default' = 'default';
   let reason = `Default: ${flag.default_enabled ? 'enabled' : 'disabled'}`;
 
   // Check hierarchy for which scope matched
@@ -151,7 +151,7 @@ export async function getFeatureCheckResult(
   return {
     flag_key: flagKey,
     is_enabled: isEnabled,
-    scope_matched,
+    scope_matched: scope_matched === 'default' ? 'global' : scope_matched,
     reason,
     rollout_percentage: flag.rollout_percentage,
     available_from: flag.target_release_date,
@@ -197,7 +197,7 @@ export async function canEnableFeature(
   conflicting_flags: string[];
   reason: string;
 }> {
-  const deps = MODULE_DEPENDENCIES[flagKey as any];
+  const deps = MODULE_DEPENDENCIES[flagKey as string];
 
   if (!deps) {
     return {
@@ -210,7 +210,7 @@ export async function canEnableFeature(
 
   // Check required dependencies
   const requiredChecks = await checkFeatures(
-    deps.requires as any,
+    deps.requires as (keyof typeof FEATURE_FLAGS)[],
     context
   );
   const blocking_flags = Object.entries(requiredChecks)
@@ -219,7 +219,7 @@ export async function canEnableFeature(
 
   // Check conflicts
   const conflictsChecks = await checkFeatures(
-    deps.conflicts_with as any,
+    deps.conflicts_with as (keyof typeof FEATURE_FLAGS)[],
     context
   );
   const conflicting_flags = Object.entries(conflictsChecks)
@@ -295,14 +295,31 @@ export async function enableFeature(
 
     const fields = scopeFields[scope];
 
-    await db.query(
-      `INSERT INTO feature_flag_overrides 
-       (feature_flag_id, scope, enterprise_id, property_id, user_id, is_enabled, reason, approval_status)
-       VALUES ($1, $2, $3, $4, $5, TRUE, $6, 'approved')
-       ON CONFLICT(feature_flag_id, scope, enterprise_id, property_id, user_id) DO UPDATE
-       SET is_enabled = TRUE, updated_at = now(), reason = $6`,
-      [flagId, scope, fields.enterprise_id, fields.property_id, fields.user_id, reason || 'Admin enabled']
+    const existing = await db.query(
+      `SELECT id FROM feature_flag_overrides
+       WHERE feature_flag_id = $1 AND scope = $2
+         AND enterprise_id IS NOT DISTINCT FROM $3
+         AND property_id IS NOT DISTINCT FROM $4
+         AND user_id IS NOT DISTINCT FROM $5
+       LIMIT 1`,
+      [flagId, scope, fields.enterprise_id, fields.property_id, fields.user_id]
     );
+
+    if (existing.length > 0) {
+      await db.query(
+        `UPDATE feature_flag_overrides
+         SET is_enabled = TRUE, updated_at = now(), reason = $2, approval_status = 'approved', approved_at = now()
+         WHERE id = $1`,
+        [existing[0].id, reason || 'Admin enabled']
+      );
+    } else {
+      await db.query(
+        `INSERT INTO feature_flag_overrides
+         (feature_flag_id, scope, enterprise_id, property_id, user_id, is_enabled, reason, approval_status)
+         VALUES ($1, $2, $3, $4, $5, TRUE, $6, 'approved')`,
+        [flagId, scope, fields.enterprise_id, fields.property_id, fields.user_id, reason || 'Admin enabled']
+      );
+    }
 
     // Log audit event
     await db.query(
@@ -359,14 +376,31 @@ export async function disableFeature(
 
     const fields = scopeFields[scope];
 
-    await db.query(
-      `INSERT INTO feature_flag_overrides 
-       (feature_flag_id, scope, enterprise_id, property_id, user_id, is_enabled, reason, approval_status)
-       VALUES ($1, $2, $3, $4, $5, FALSE, $6, 'approved')
-       ON CONFLICT(feature_flag_id, scope, enterprise_id, property_id, user_id) DO UPDATE
-       SET is_enabled = FALSE, updated_at = now(), reason = $6`,
-      [flagId, scope, fields.enterprise_id, fields.property_id, fields.user_id, reason || 'Admin disabled']
+    const existing = await db.query(
+      `SELECT id FROM feature_flag_overrides
+       WHERE feature_flag_id = $1 AND scope = $2
+         AND enterprise_id IS NOT DISTINCT FROM $3
+         AND property_id IS NOT DISTINCT FROM $4
+         AND user_id IS NOT DISTINCT FROM $5
+       LIMIT 1`,
+      [flagId, scope, fields.enterprise_id, fields.property_id, fields.user_id]
     );
+
+    if (existing.length > 0) {
+      await db.query(
+        `UPDATE feature_flag_overrides
+         SET is_enabled = FALSE, updated_at = now(), reason = $2, approval_status = 'approved', approved_at = now()
+         WHERE id = $1`,
+        [existing[0].id, reason || 'Admin disabled']
+      );
+    } else {
+      await db.query(
+        `INSERT INTO feature_flag_overrides
+         (feature_flag_id, scope, enterprise_id, property_id, user_id, is_enabled, reason, approval_status)
+         VALUES ($1, $2, $3, $4, $5, FALSE, $6, 'approved')`,
+        [flagId, scope, fields.enterprise_id, fields.property_id, fields.user_id, reason || 'Admin disabled']
+      );
+    }
 
     // Log audit event
     await db.query(
@@ -407,7 +441,7 @@ export async function getAllFeatures(
   const results = await Promise.all(
     flags.map(async (flag) => ({
       flag_key: flag.flag_key,
-      is_enabled: await isFeatureEnabled(flag.flag_key as any, context),
+      is_enabled: await isFeatureEnabled(flag.flag_key as keyof typeof FEATURE_FLAGS, context),
       status: flag.status,
     }))
   );
@@ -442,7 +476,7 @@ export async function getFeaturesForTier(
   const results = await Promise.all(
     features.map(async (feature) => ({
       flag_key: feature.flag_key,
-      is_enabled: await isFeatureEnabled(feature.flag_key as any, context),
+      is_enabled: await isFeatureEnabled(feature.flag_key as keyof typeof FEATURE_FLAGS, context),
     }))
   );
 
