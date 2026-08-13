@@ -79,7 +79,8 @@ export async function GET(req: NextRequest) {
       propWhere = `property_id = $1::uuid`;
       baseParams.push(propertyId);
     } else if (scope.assignedPropertyIds.length > 0) {
-      propWhere = `property_id = ANY($1::text[])`;
+      // property_id is uuid — cast the array to uuid[] so the comparison works.
+      propWhere = `property_id = ANY($1::uuid[])`;
       baseParams.push(scope.assignedPropertyIds);
     }
 

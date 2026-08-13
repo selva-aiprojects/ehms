@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { getDb } from "@/lib/db";
 import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
+import { notifyUser, notifyPropertyUsers } from "@/lib/push-events";
 
 export async function GET(req: NextRequest) {
   try {
@@ -62,6 +63,28 @@ export async function POST(req: NextRequest) {
           RETURNING *
         `;
         await sql`UPDATE units SET status = 'cleaning' WHERE id = ${body.unit_id}`;
+        // PWA: alert the assignee (and housekeeping managers) of the new task
+        if (body.assigned_to) {
+          after(() =>
+            notifyUser(body.assigned_to as string, {
+              title: "New Housekeeping Task",
+              body: `${body.task_type} task assigned to you.`,
+              url: "/dashboard/housekeeping",
+            })
+          );
+        } else if (body.property_id) {
+          after(() =>
+            notifyPropertyUsers(
+              body.property_id as string,
+              {
+                title: "New Housekeeping Task",
+                body: `A ${body.task_type} task was created for this property.`,
+                url: "/dashboard/housekeeping",
+              },
+              { roles: ["housekeeping_supervisor", "housekeeping_staff", "property_manager", "executive", "super_admin"], excludeUserId: req.headers.get("x-user-id") || undefined }
+            )
+          );
+        }
         return NextResponse.json({ data: [singleRow[0]], count: 1 }, { status: 201 });
       }
 
@@ -80,6 +103,29 @@ export async function POST(req: NextRequest) {
         await sql`UPDATE units SET status = 'cleaning' WHERE id = ${child.id}`;
       }
 
+      // PWA: alert the assignee (or housekeeping managers) of the new flat cleaning task
+      if (body.assigned_to) {
+        after(() =>
+          notifyUser(body.assigned_to as string, {
+            title: "New Housekeeping Task",
+            body: `${body.task_type} task assigned to you (${tasks.length} room${tasks.length > 1 ? "s" : ""}).`,
+            url: "/dashboard/housekeeping",
+          })
+        );
+      } else if (body.property_id) {
+        after(() =>
+          notifyPropertyUsers(
+            body.property_id as string,
+            {
+              title: "New Housekeeping Task",
+              body: `${tasks.length} ${body.task_type} task(s) created for this property.`,
+              url: "/dashboard/housekeeping",
+            },
+            { roles: ["housekeeping_supervisor", "housekeeping_staff", "property_manager", "executive", "super_admin"], excludeUserId: req.headers.get("x-user-id") || undefined }
+          )
+        );
+      }
+
       return NextResponse.json({ data: tasks, count: tasks.length }, { status: 201 });
     }
 
@@ -95,6 +141,29 @@ export async function POST(req: NextRequest) {
 
     if (body.unit_id) {
       await sql`UPDATE units SET status = 'cleaning' WHERE id = ${body.unit_id}`;
+    }
+
+    // PWA: alert the assignee (or housekeeping managers) of the new task
+    if (body.assigned_to) {
+      after(() =>
+        notifyUser(body.assigned_to as string, {
+          title: "New Housekeeping Task",
+          body: `${body.task_type} task assigned to you.`,
+          url: "/dashboard/housekeeping",
+        })
+      );
+    } else if (body.property_id) {
+      after(() =>
+        notifyPropertyUsers(
+          body.property_id as string,
+          {
+            title: "New Housekeeping Task",
+            body: `A ${body.task_type} task was created for this property.`,
+            url: "/dashboard/housekeeping",
+          },
+          { roles: ["housekeeping_supervisor", "housekeeping_staff", "property_manager", "executive", "super_admin"], excludeUserId: req.headers.get("x-user-id") || undefined }
+        )
+      );
     }
 
     return NextResponse.json({ data: rows[0] }, { status: 201 });

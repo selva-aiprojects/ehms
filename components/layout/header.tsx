@@ -1,11 +1,12 @@
 "use client";
 
-import { Bell, Search, ChevronDown, Menu, LogOut, User, Shield, LayoutDashboard, Hotel, Building2, Home, Briefcase, Sun, Moon, Check } from "lucide-react";
+import { Search, ChevronDown, Menu, LogOut, User, Shield, LayoutDashboard, Hotel, Building2, Home, Briefcase, Sun, Moon, Check } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ROLE_LABELS } from "@/lib/role-access";
 import { useJourney } from "@/components/providers/JourneyProvider";
 import { useProperties } from "@/lib/hooks";
+import NotificationBell from "@/components/pwa/notification-bell";
 
 const DARK_THEMES = [
   { id: "ember", label: "Lavender", desc: "Soft lavender + iris", bg: "#131320", accent: "#908EA9" },
@@ -81,7 +82,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
 
   return (
     <header
-      className="h-16 flex items-center justify-between px-6 shrink-0 gap-4"
+      className="pwa-header h-16 flex items-center justify-between px-6 shrink-0 gap-4"
       style={{ background: "var(--hs-surface-white)", borderBottom: "1px solid var(--hs-border-light)", boxShadow: "var(--hs-shadow-sm)" }}
     >
       <button
@@ -255,15 +256,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         )}
       </div>
 
-        <button className="relative w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "var(--hs-bg-cream)" }}>
-          <Bell className="w-4 h-4" style={{ color: "var(--hs-primary-navy)" }} />
-          <span
-            className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center text-white"
-            style={{ background: "var(--color-danger)" }}
-          >
-            1
-          </span>
-        </button>
+        <NotificationBell />
 
         <div className="relative" ref={dropdownRef}>
           <div

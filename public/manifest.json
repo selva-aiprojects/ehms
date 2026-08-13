@@ -13,6 +13,36 @@
   "lang": "en",
   "dir": "ltr",
   "categories": ["business", "productivity", "travel"],
+  "shortcuts": [
+    {
+      "name": "Front Desk",
+      "short_name": "Front Desk",
+      "description": "Open the front desk command center",
+      "url": "/dashboard/front-desk",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Housekeeping",
+      "short_name": "Housekeeping",
+      "description": "Open housekeeping tasks",
+      "url": "/dashboard/housekeeping",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Maintenance",
+      "short_name": "Maintenance",
+      "description": "Open maintenance requests",
+      "url": "/dashboard/maintenance",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Finance",
+      "short_name": "Finance",
+      "description": "Open the finance module",
+      "url": "/dashboard/finance",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
       "src": "/pwa-192.png",

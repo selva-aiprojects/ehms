@@ -793,3 +793,48 @@ p, .hs-body {
 
 /* ─── Smooth Scroll ─── */
 html { scroll-behavior: smooth; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PWA & Standalone Mode (iOS safe areas, install UX)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Respect the notch / home indicator when installed as an app
+   (requires <meta name="viewport" content="viewport-fit=cover">). */
+.pwa-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.pwa-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pwa-safe-left {
+  padding-left: env(safe-area-inset-left);
+}
+.pwa-safe-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Full-bleed fallback for the app header when running standalone */
+@media (display-mode: standalone) {
+  .pwa-header {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Prevent double-tap zoom / text selection on app-like surfaces */
+.pwa-touch {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Prevent the pull-to-refresh conflict with the fixed bottom nav */
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
+/* Selection color matches brand */
+::selection {
+  background: var(--hs-gold);
+  color: var(--hs-navy);
+}

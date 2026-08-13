@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { getDb } from "@/lib/db";
 import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
+import { notifyUser, notifyPropertyUsers } from "@/lib/push-events";
 
 export async function GET(req: NextRequest) {
   try {
@@ -63,6 +64,29 @@ export async function POST(req: NextRequest) {
 
     if (body.unit_id) {
       await sql`UPDATE units SET status = 'maintenance' WHERE id = ${body.unit_id}`;
+    }
+
+    // PWA: alert maintenance staff & managers of the new ticket
+    if (body.assigned_to) {
+      after(() =>
+        notifyUser(body.assigned_to as string, {
+          title: "New Maintenance Ticket",
+          body: `${body.title || "Maintenance request"} assigned to you (${ticketNum}).`,
+          url: "/dashboard/maintenance",
+        })
+      );
+    } else if (body.property_id) {
+      after(() =>
+        notifyPropertyUsers(
+          body.property_id as string,
+          {
+            title: "New Maintenance Ticket",
+            body: `${body.title || "A maintenance request"} was filed (${ticketNum}).`,
+            url: "/dashboard/maintenance",
+          },
+          { roles: ["maintenance_staff", "property_manager", "executive", "super_admin"], excludeUserId: req.headers.get("x-user-id") || undefined }
+        )
+      );
     }
 
     return NextResponse.json({ data: rows[0] }, { status: 201 });

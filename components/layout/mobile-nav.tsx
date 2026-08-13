@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, CalendarCheck, Sparkles, Wrench, CreditCard, Briefcase } from "lucide-react";
+import { LayoutDashboard, CalendarCheck, Sparkles, Wrench, CreditCard } from "lucide-react";
 
 const mobileItems = [
   { label: "Home",      icon: LayoutDashboard, href: "/dashboard" },
@@ -17,8 +17,12 @@ export default function MobileNav() {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-16 bg-white border-t px-2"
-      style={{ borderColor: "var(--color-border)" }}
+      className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-white border-t px-2"
+      style={{
+        borderColor: "var(--color-border)",
+        height: "calc(4rem + env(safe-area-inset-bottom))",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
     >
       {mobileItems.map((item) => {
         const active = pathname === item.href;

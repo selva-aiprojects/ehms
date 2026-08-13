@@ -235,9 +235,9 @@ function LoginContent() {
             <Link href="/">
               <Image src="/hostsphere-logo.png" alt="HostSphere" width={220} height={52} className="object-contain" priority />
             </Link>
-            <Link href="/" className="text-sm font-medium transition-colors" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}
+            <Link href="/" className="text-sm font-medium transition-colors" style={{ color: "rgba(var(--color-on-dark-rgb),0.72)" }}
               onMouseEnter={e => e.currentTarget.style.color = "var(--color-primary)"}
-              onMouseLeave={e => e.currentTarget.style.color = "rgba(var(--color-on-dark-rgb),0.5)"}>
+              onMouseLeave={e => e.currentTarget.style.color = "rgba(var(--color-on-dark-rgb),0.72)"}>
               ← Back to Home
             </Link>
           </nav>
@@ -246,13 +246,13 @@ function LoginContent() {
             <div className="w-full max-w-3xl">
               <div className="text-center mb-10">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase mb-4 border"
-                  style={{ background: "rgba(var(--color-primary-rgb),0.1)", borderColor: "rgba(var(--color-primary-rgb),0.25)", color: "var(--color-primary)" }}>
+                  style={{ background: "rgba(var(--color-primary-rgb),0.1)", borderColor: "rgba(var(--color-primary-rgb),0.25)", color: "color-mix(in srgb, var(--color-primary) 45%, #FFFFFF 55%)" }}>
                   <Database className="w-3.5 h-3.5" /> Multi-Tenant Shard Selection
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: "var(--color-on-dark)" }}>
                   Select Your Organization
                 </h1>
-                <p className="text-sm" style={{ color: "rgba(var(--color-on-dark-rgb),0.5)" }}>
+                <p className="text-sm" style={{ color: "rgba(var(--color-on-dark-rgb),0.72)" }}>
                   Choose an organization shard to sign in. Each shard has isolated data and subscribed features.
                 </p>
               </div>
@@ -299,7 +299,7 @@ function LoginContent() {
                           style={{ background: "rgba(var(--color-primary-rgb),0.12)" }}>
                           <Building2 className="w-5 h-5" style={{ color: "var(--color-primary)" }} />
                         </div>
-                        <h3 className="text-base font-bold mb-0.5" style={{ color: "var(--color-on-dark)" }}>{t.name}</h3>
+                        <h2 className="text-base font-bold mb-0.5" style={{ color: "var(--color-on-dark)" }}>{t.name}</h2>
                         <span className="inline-block text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded mb-3"
                           style={{ background: "rgba(var(--color-primary-rgb),0.1)", color: "var(--color-primary)", border: "1px solid rgba(var(--color-primary-rgb),0.2)" }}>
                           {t.code}
@@ -365,7 +365,7 @@ function LoginContent() {
                   >
                     <Lock className="w-4 h-4" /> Platform Admin Sign In
                   </button>
-                  <p className="mt-2 text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.3)" }}>
+                  <p className="mt-2 text-xs" style={{ color: "rgba(var(--color-on-dark-rgb),0.72)" }}>
                     Authenticate as the HostSphere platform superadmin to manage tenant shards
                   </p>
                 </div>

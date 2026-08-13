@@ -1,8 +1,9 @@
 export const dynamic = "force-dynamic";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { getDb } from "@/lib/db";
 import { validatePropertyAccess, validateMutationPropertyAccess } from "@/lib/property-scope";
 import { calculateBookingPrice } from "@/lib/pricing";
+import { notifyPropertyUsers } from "@/lib/push-events";
 
 export async function GET(req: NextRequest) {
   try {
@@ -199,6 +200,21 @@ export async function POST(req: NextRequest) {
       console.error("[reservations POST] invoice auto-create failed:", invErr);
     }
     // ─────────────────────────────────────────────────────────────────────
+
+    // ── PWA: notify front-desk & managers of the new reservation ────────
+    if (body.property_id) {
+      after(() =>
+        notifyPropertyUsers(
+          body.property_id as string,
+          {
+            title: "New Reservation",
+            body: `Booking confirmed for ${body.adults || 1} guest(s) from ${body.check_in} to ${body.check_out}.`,
+            url: "/dashboard/front-desk",
+          },
+          { roles: ["front_desk", "property_manager", "executive", "super_admin"], excludeUserId: req.headers.get("x-user-id") || undefined }
+        )
+      );
+    }
 
     return NextResponse.json({ data: booking }, { status: 201 });
   } catch (error: unknown) {

@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { getDb } from "@/lib/db";
 import { validatePropertyAccess } from "@/lib/property-scope";
+import { notifyPropertyUsers } from "@/lib/push-events";
 
 // GET — list incoming OTA bookings
 export async function GET(req: NextRequest) {
@@ -74,8 +75,27 @@ export async function POST(req: NextRequest) {
         total_amount = EXCLUDED.total_amount,
         status = 'pending',
         raw_payload = EXCLUDED.raw_payload
-      RETURNING *
+      RETURNING *, (xmax = 0) AS _inserted
     `;
+
+    // PWA: alert front desk of an incoming OTA booking.
+    // This is an unauthenticated webhook, so only push when the booking was
+    // actually newly inserted (xmax = 0) — OTA retries / duplicate webhooks
+    // update the existing row and do NOT re-notify, avoiding push storms.
+    const isNew = (rows[0] as Record<string, unknown>)._inserted === true;
+    if (isNew) {
+      after(() =>
+        notifyPropertyUsers(
+          property_id,
+          {
+            title: "New OTA Booking",
+            body: `${body.guest_name || "Guest"} booked via ${channel_code} from ${body.check_in} to ${body.check_out}.`,
+            url: "/dashboard/ota",
+          },
+          { roles: ["front_desk", "property_manager", "executive", "super_admin"] }
+        )
+      );
+    }
 
     return NextResponse.json({ data: rows[0] }, { status: 201 });
   } catch (error) {

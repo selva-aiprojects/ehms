@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { SettingsProvider } from "@/components/providers/SettingsProvider";
 import { JourneyProvider } from "@/components/providers/JourneyProvider";
 import PwaRegister from "@/components/pwa/pwa-register";
+import InstallPrompt from "@/components/pwa/install-prompt";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -35,6 +36,7 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "#F8FAF8" },
     { media: "(prefers-color-scheme: dark)", color: "#131320" },
   ],
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -53,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
             <Toaster position="top-right" />
             <PwaRegister />
+            <InstallPrompt />
           </JourneyProvider>
         </SettingsProvider>
       </body>

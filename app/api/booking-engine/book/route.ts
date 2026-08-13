@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { getDb } from "@/lib/db";
+import { notifyPropertyUsers } from "@/lib/push-events";
 
 // POST — create a booking via the public booking engine
 export async function POST(req: NextRequest) {
@@ -121,6 +122,20 @@ export async function POST(req: NextRequest) {
     } catch (e) {
       // non-critical
     }
+
+    // PWA: notify front desk of the direct booking
+    after(() =>
+      notifyPropertyUsers(
+        propertyId,
+        {
+          title: "New Direct Booking",
+          body: `${guest_name} booked ${unit_type || "room"} from ${check_in} to ${check_out}.`,
+          url: "/dashboard/front-desk",
+        },
+        { roles: ["front_desk", "property_manager", "executive", "super_admin"] },
+        tenants[0].schema_name
+      )
+    );
 
     return NextResponse.json({
       data: {

@@ -176,6 +176,7 @@ async function run() {
       "034_multi_property.sql",
       "035_restaurant_pos.sql",
       "036_revenue_ai.sql",
+      "037_push_subscriptions.sql",
     ];
 
     for (const file of SQL_FILES) {
