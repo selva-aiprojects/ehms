@@ -1,6 +1,6 @@
 // UI route smoke test for NIVESH: fetch key dashboard pages with a valid cookie
 // and confirm they render (200 + app HTML, not redirect/error).
-const BASE = "http://localhost:3000";
+const BASE = process.env.BASE_URL || "http://localhost:3000";
 
 async function tenantLogin(email, password, tenantCode) {
   const res = await fetch(`${BASE}/api/auth/login`, {

@@ -1,6 +1,6 @@
 // Page-by-page content verification: hits the API endpoint backing each dashboard
 // page and confirms it returns actual data (non-empty / non-zero), not zeros.
-const BASE = "http://localhost:3000";
+const BASE = process.env.BASE_URL || "http://localhost:3000";
 const TC = (process.argv[2] || "NIVESH").toUpperCase();
 
 async function login(email, password, tenantCode) {
