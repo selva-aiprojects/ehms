@@ -277,7 +277,6 @@ export async function PUT(req: NextRequest) {
     await sql`
       UPDATE invoices SET
         paid_total = ${newPaid},
-        balance_due = COALESCE(grand_total, 0) - ${newPaid},
         status = ${newStatus}
       WHERE id = ${invId}
     `;

@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
 
     // ── G7 FIX: Auto-create a draft Invoice for this booking ──────────────
     try {
-      const totalAmount = Number(body.total_amount || 0);
+      const totalAmount = Number(booking.total_amount || body.total_amount || 0);
       const checkIn = body.check_in ? new Date(body.check_in) : new Date();
       const checkOut = body.check_out ? new Date(body.check_out) : new Date();
       const nights = Math.max(1, Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24)));
