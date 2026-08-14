@@ -34,7 +34,8 @@ function record(label, r, okMsg = "ok") {
 }
 
 async function main() {
-  const cookie = await tenantLogin("superadmin@ehms.demo", "Demo@1234", "NIVESH");
+  const TC = (process.argv[2] || "NIVESH").toUpperCase();
+  const cookie = await tenantLogin("superadmin@ehms.demo", "Demo@1234", TC);
 
   // Identity
   let r = await api("/api/auth/me", cookie);
@@ -168,7 +169,7 @@ async function main() {
   console.log(`\n==============================`);
   console.log(`PASS: ${passes.length}   WARN(need-params/4xx): ${warns.length}   FAIL: ${fails.length}`);
   for (const f of fails) console.log("FAIL:", f);
-  if (fails.length === 0) console.log("✅ NIVESH API smoke test PASSED");
+  if (fails.length === 0) console.log(`✅ ${TC} API smoke test PASSED`);
   else process.exitCode = 1;
 }
 

@@ -1,7 +1,8 @@
 /**
- * seed-nivesh.mjs — Seed a complete demo dataset for the NIVESH tenant shard.
- * Usage: node scripts/seed-nivesh.mjs
- * Runs against the nivesh schema (search_path = nivesh, public).
+ * seed-nivesh.mjs — Seed a complete demo dataset for a tenant shard.
+ * Usage: node scripts/seed-nivesh.mjs [schema]
+ *   schema defaults to "nivesh"; pass "viswa" to seed the other shard.
+ * Idempotent: truncates business tables before re-seeding.
  */
 import pg from "pg";
 import { readFileSync, existsSync } from "fs";
@@ -14,14 +15,21 @@ const ENV_PATH = resolve(__dirname, "../.env.local");
 const envContent = readFileSync(ENV_PATH, "utf-8");
 const url = envContent.split("\n").find(l => l.startsWith("DATABASE_URL=")).slice("DATABASE_URL=".length).trim();
 
+const SCHEMA = (process.argv[2] || "nivesh").toLowerCase();
+const TC = SCHEMA.toUpperCase();
+const TLabel = TC.charAt(0) + TC.slice(1).toLowerCase();
+
 const pool = new pg.Pool({ connectionString: url, max: 1 });
 const c = await pool.connect();
-await c.query("SET search_path TO nivesh, public");
+await c.query(`SET search_path TO ${SCHEMA}, public`);
 
 const uid = () => crypto.randomUUID();
 const now = () => new Date();
 const iso = (d) => (d instanceof Date ? d.toISOString() : new Date(d).toISOString());
 const dateOnly = (d) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
+const rnd = (n) => Math.floor(Math.random() * n);
+const pick = (a) => a[rnd(a.length)];
+const shuffle = (a) => { const x = [...a]; for (let i = x.length - 1; i > 0; i--) { const j = rnd(i + 1); [x[i], x[j]] = [x[j], x[i]]; } return x; };
 
 // Reference dates (today = 2026-08-14)
 const T = new Date("2026-08-14T10:00:00Z");
@@ -45,8 +53,29 @@ async function ins(table, row) {
   const cols = Object.keys(row).filter((col) => !skip.has(col));
   const vals = cols.map((col) => row[col]);
   const ph = vals.map((_, i) => "$" + (i + 1)).join(", ");
-  await c.query(`INSERT INTO ${table} (${cols.join(", ")}) VALUES (${ph})`, vals);
+  await c.query(`INSERT INTO ${table} (${cols.join(", ")})
+    VALUES (${ph})`, vals);
   inserts++;
+}
+
+async function insMany(table, rows) {
+  if (!rows.length) return;
+  const skip = await getGenerated(table);
+  const cols = Object.keys(rows[0]).filter((col) => !skip.has(col));
+  const MAX_ROW = 400;
+  for (let i = 0; i < rows.length; i += MAX_ROW) {
+    const chunk = rows.slice(i, i + MAX_ROW);
+    const flat = [];
+    for (const r of chunk) for (const col of cols) flat.push(r[col]);
+    const parts = [];
+    for (let r = 0; r < chunk.length; r++) {
+      parts.push("(" + cols.map((_, k) => "$" + (r * cols.length + k + 1)).join(", ") + ")");
+    }
+    const ph = parts.join(", ");
+    await c.query(`INSERT INTO ${table} (${cols.join(", ")})
+      VALUES ${ph}`, flat);
+    inserts += chunk.length;
+  }
 }
 
 let count = 0;
@@ -55,29 +84,86 @@ async function cnt(table) {
   return r.rows[0].n;
 }
 
-console.log("🌱 Seeding NIVESH demo dataset...");
+console.log(`🌱 Seeding ${TC} demo dataset...`);
 
 await c.query("BEGIN");
 
 try {
   // ─────────────────────────────────────────────────────────────
-  // 0. Copy schema-agnostic master catalog from viswa template
+  // 0. Idempotent reset (keep auth/system + master catalog), then
+  //    copy schema-agnostic master catalog from viswa template
   // ─────────────────────────────────────────────────────────────
+  const KEEP = new Set([
+    // auth / rbac
+    "users", "roles", "user_roles", "user_sessions", "login_attempts",
+    // admin / audit / system
+    "admin_notifications", "audit_logs", "system_audit_events", "system_backups",
+    "system_settings", "booking_engine_config", "kiosk_config", "payment_gateway_config",
+    "whatsapp_config", "whatsapp_templates", "notification_templates", "notification_queue",
+    "push_subscriptions",
+    // feature flag platform
+    "feature_flags", "feature_availability", "feature_changelog", "feature_flag_audit_log",
+    "feature_flag_cache", "feature_flag_dependencies", "feature_flag_metrics",
+    "feature_flag_overrides", "feature_rollout_plans", "beta_feature_access", "beta_testers",
+    // master catalog
+    "booking_sources", "channel_partners", "cities", "countries", "document_types",
+    "id_proof_types", "payment_modes", "property_groups", "states", "tax_slabs",
+    "uom", "asset_categories", "leave_types",
+  ]);
+  const allTables = await c.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_type = 'BASE TABLE'`);
+  const toTrunc = allTables.rows.map((r) => r.table_name).filter((t) => !KEEP.has(t));
+  for (let i = 0; i < toTrunc.length; i += 20) {
+    const chunk = toTrunc.slice(i, i + 20).map((t) => `"${t}"`).join(", ");
+    await c.query(`TRUNCATE TABLE ${chunk} CASCADE`);
+  }
+  console.log(`✔ reset: truncated ${toTrunc.length} business tables`);
+
   const masterTables = [
     "booking_sources", "channel_partners", "cities", "countries", "document_types",
     "id_proof_types", "payment_modes", "property_groups", "states", "tax_slabs",
-    "uom", "asset_categories", "notification_templates",
+    "uom", "asset_categories", "notification_templates", "leave_types",
   ];
-  for (const t of masterTables) {
-    await c.query(`INSERT INTO ${t} SELECT * FROM viswa.${t} ON CONFLICT DO NOTHING`).catch((e) => console.warn(`  skip copy ${t}: ${e.message.slice(0, 80)}`));
+  if (SCHEMA !== "viswa") {
+    for (const t of masterTables) {
+      await c.query(`INSERT INTO ${t} SELECT * FROM viswa.${t} ON CONFLICT DO NOTHING`).catch((e) => console.warn(`  skip copy ${t}: ${e.message.slice(0, 80)}`));
+    }
+    console.log("✔ master catalog copied from viswa template");
+  } else {
+    console.log("✔ master catalog kept (viswa already has it)");
   }
-  console.log("✔ master catalog copied");
+
+  // Ensure demo users always have their role assignment (self-heals shards
+  // where user_roles was cleared but users/roles kept).
+  const DEMO_ROLES = {
+    "superadmin@ehms.demo": "super_admin",
+    "admin@ehms.demo": "property_manager",
+    "executive@ehms.demo": "executive",
+    "frontdesk@ehms.demo": "front_desk",
+    "housekeeping@ehms.demo": "housekeeping_staff",
+    "maintenance@ehms.demo": "maintenance_staff",
+    "hr@ehms.demo": "hr_manager",
+    "finance@ehms.demo": "finance_manager",
+  };
+  const urows = await c.query(`SELECT id, email FROM users`);
+  const rrows = await c.query(`SELECT id, name FROM roles`);
+  const roleIdByName = new Map(rrows.rows.map((r) => [r.name, r.id]));
+  const haveRows = await c.query(`SELECT user_id, role_id FROM user_roles`);
+  const haveRoles = new Set(haveRows.rows.map((r) => `${r.user_id}|${r.role_id}`));
+  let rolesAdded = 0;
+  for (const u of urows.rows) {
+    const roleName = DEMO_ROLES[u.email.toLowerCase()];
+    const roleId = roleIdByName.get(roleName);
+    if (!roleId || haveRoles.has(`${u.id}|${roleId}`)) continue;
+    await ins("user_roles", { id: uid(), user_id: u.id, role_id: roleId });
+    rolesAdded++;
+  }
+  if (rolesAdded > 0) console.log(`✔ demo roles: ${rolesAdded} assignments restored`);
 
   // ─────────────────────────────────────────────────────────────
   // 1. Enterprise + Region
   // ─────────────────────────────────────────────────────────────
   const enterpriseId = uid();
-  await ins("enterprises", { id: enterpriseId, name: "Nivesh Resorts & Hotels Ltd", code: "NIVESH", currency: "INR", timezone: "Asia/Kolkata" });
+  await ins("enterprises", { id: enterpriseId, name: `${TLabel} Resorts & Hotels Ltd`, code: TC, currency: "INR", timezone: "Asia/Kolkata" });
   const regionId = uid();
   await ins("regions", { id: regionId, enterprise_id: enterpriseId, name: "Chennai East", code: "CHN-E", country: "India", state: "Tamil Nadu", city: "Chennai" });
 
@@ -90,10 +176,10 @@ try {
   const wpk = uid();  // Nivesh Business Park
 
   const properties = [
-    { id: hot, name: "Nivesh Grand Resorts", code: "NGR", vertical_type: "hotel", booking_model: "nightly", address: "12 East Coast Road, Chennai 600041", latitude: 13.02, longitude: 80.25, phone: "+91-44-4000-1001", email: "reservations@nivesh.demo", check_in_time: "14:00", check_out_time: "11:00", star_rating: 5, config: { features: { rooms_map: { enabled: true }, rate_card: { enabled: true }, restaurant: { enabled: true }, laundry: { enabled: true } } } },
-    { id: ser, name: "Nivesh Service Apartments", code: "NSA", vertical_type: "service_apartment", booking_model: "nightly", address: "45 Anna Salai, Chennai 600002", latitude: 13.06, longitude: 80.26, phone: "+91-44-4000-2001", email: "stay@nivesh.demo", check_in_time: "13:00", check_out_time: "11:00", star_rating: 4, config: { features: { rooms_map: { enabled: true }, rate_card: { enabled: true }, laundry: { enabled: true }, maintenance: { enabled: true } } } },
-    { id: ren, name: "Nivesh Rental Residences", code: "NRR", vertical_type: "rental_apartment", booking_model: "lease", address: "78 GST Road, Guindy, Chennai 600032", latitude: 13.01, longitude: 80.21, phone: "+91-44-4000-3001", email: "rental@nivesh.demo", check_in_time: "12:00", check_out_time: "12:00", star_rating: 3, config: { features: { maintenance: { enabled: true } } } },
-    { id: wpk, name: "Nivesh Business Park", code: "NBP", vertical_type: "workplace", booking_model: "membership", address: "5 OMR, Thoraipakkam, Chennai 600097", latitude: 12.93, longitude: 80.24, phone: "+91-44-4000-4001", email: "workspace@nivesh.demo", check_in_time: "09:00", check_out_time: "21:00", star_rating: 4, config: { features: { maintenance: { enabled: true } } } },
+    { id: hot, name: `${TLabel} Grand Resorts`, code: "NGR", vertical_type: "hotel", booking_model: "nightly", address: "12 East Coast Road, Chennai 600041", latitude: 13.02, longitude: 80.25, phone: "+91-44-4000-1001", email: `reservations@${SCHEMA}.demo`, check_in_time: "14:00", check_out_time: "11:00", star_rating: 5, config: { features: { rooms_map: { enabled: true }, rate_card: { enabled: true }, restaurant: { enabled: true }, laundry: { enabled: true } } } },
+    { id: ser, name: `${TLabel} Service Apartments`, code: "NSA", vertical_type: "service_apartment", booking_model: "nightly", address: "45 Anna Salai, Chennai 600002", latitude: 13.06, longitude: 80.26, phone: "+91-44-4000-2001", email: `stay@${SCHEMA}.demo`, check_in_time: "13:00", check_out_time: "11:00", star_rating: 4, config: { features: { rooms_map: { enabled: true }, rate_card: { enabled: true }, laundry: { enabled: true }, maintenance: { enabled: true } } } },
+    { id: ren, name: `${TLabel} Rental Residences`, code: "NRR", vertical_type: "rental_apartment", booking_model: "lease", address: "78 GST Road, Guindy, Chennai 600032", latitude: 13.01, longitude: 80.21, phone: "+91-44-4000-3001", email: `rental@${SCHEMA}.demo`, check_in_time: "12:00", check_out_time: "12:00", star_rating: 3, config: { features: { maintenance: { enabled: true } } } },
+    { id: wpk, name: `${TLabel} Business Park`, code: "NBP", vertical_type: "workplace", booking_model: "membership", address: "5 OMR, Thoraipakkam, Chennai 600097", latitude: 12.93, longitude: 80.24, phone: "+91-44-4000-4001", email: `workspace@${SCHEMA}.demo`, check_in_time: "09:00", check_out_time: "21:00", star_rating: 4, config: { features: { maintenance: { enabled: true } } } },
   ];
   for (const p of properties) await ins("properties", { id: p.id, region_id: regionId, name: p.name, code: p.code, vertical_type: p.vertical_type, booking_model: p.booking_model, address: p.address, latitude: p.latitude, longitude: p.longitude, phone: p.phone, email: p.email, check_in_time: p.check_in_time, check_out_time: p.check_out_time, star_rating: p.star_rating, is_active: true, config: JSON.stringify(p.config) });
   console.log("✔ 4 properties");
@@ -455,6 +541,7 @@ try {
   await ins("overtime_policies", { property_id: hot, name: "Standard OT", multiplier: 1.5, min_hours: 1, max_hours_per_day: 4, applicable_shifts: "night", is_active: true });
 
   const empMap = {};
+  const userMap = {};
   const empList = [
     ["frontdesk@ehms.demo", "FD-001", "Front Office", "Front Desk Agent", 18000, shift1, band1],
     ["housekeeping@ehms.demo", "HK-001", "Housekeeping", "Housekeeping Staff", 15000, shift2, band1],
@@ -470,17 +557,23 @@ try {
     if (!u.rows[0]) continue;
     const id = uid();
     empMap[email] = id;
+    userMap[email] = u.rows[0].id;
     await ins("employees", { id, user_id: u.rows[0].id, employee_code: code, department_id: deptIds[dept], designation: desig, employment_type: "full_time", doj: daysStr(-400), base_salary: salary, bank_account: "1234567890", bank_ifsc: "HDFC0001234", pan_number: "ABCDE1234F", is_active: true, shift_id: shift, band_id: band, property_id: hot });
   }
-  // Attendance + leaves + timesheets for a couple employees
-  for (const [email, daysBack] of [["frontdesk@ehms.demo", 14], ["housekeeping@ehms.demo", 14], ["maintenance@ehms.demo", 14]]) {
+  // Attendance — every employee, last 3 months, Mon-Sat (bulk)
+  const attendanceRows = [];
+  for (const email of Object.keys(empMap)) {
     const empId = empMap[email];
     if (!empId) continue;
-    for (let d = daysBack; d >= 1; d--) {
+    for (let d = -89; d <= -1; d++) {
       if (new Date(days(d)).getDay() === 0) continue;
-      await ins("attendance_records", { employee_id: empId, property_id: hot, clock_in: iso(new Date(days(d).getTime() + 8.7 * 3600000)), clock_out: iso(new Date(days(d).getTime() + 17.3 * 3600000)), is_geofenced: true, status: "present", created_at: iso(days(d)) });
+      const late = Math.random() < 0.05;
+      const clockIn = new Date(days(d).getTime() + (late ? 9.5 : 8.7) * 3600000);
+      attendanceRows.push({ employee_id: empId, property_id: hot, clock_in: iso(clockIn), clock_out: iso(new Date(days(d).getTime() + 17.3 * 3600000)), is_geofenced: true, status: late ? "late" : "present", created_at: iso(days(d)) });
     }
   }
+  await insMany("attendance_records", attendanceRows);
+  console.log(`✔ attendance: ${attendanceRows.length} records (3 months)`);
   const leaveTypeIds = await c.query(`SELECT id, name FROM leave_types`);
   const ltCasual = leaveTypeIds.rows.find(r => r.name.toLowerCase().includes("casual") || r.name.toLowerCase().includes("leave"));
   if (ltCasual) {
@@ -488,19 +581,41 @@ try {
     await ins("leave_requests", { employee_id: empMap["frontdesk@ehms.demo"], leave_type_id: ltCasual.id, start_date: daysStr(10), end_date: daysStr(11), total_days: 2, reason: "Family function", status: "pending", created_at: iso(days(-1)) });
   }
   await ins("holiday_calendar", { property_id: hot, name: "Independence Day", date: daysStr(1), type: "public", applicable_to: "all", is_active: true });
-  await ins("timesheets", { employee_id: empMap["maintenance@ehms.demo"], date: daysStr(-2), clock_in: iso(days(-2)), clock_out: iso(days(-2)), total_hours: 8, break_hours: 1, net_hours: 7, task: "Preventive maintenance rounds", status: "approved", approved_by: empMap["superadmin@ehms.demo"], approved_at: iso(days(-1)) });
+  await ins("timesheets", { employee_id: empMap["maintenance@ehms.demo"], date: daysStr(-2), clock_in: iso(days(-2)), clock_out: iso(days(-2)), total_hours: 8, break_hours: 1, net_hours: 7, task: "Preventive maintenance rounds", status: "approved", approved_by: userMap["superadmin@ehms.demo"], approved_at: iso(days(-1)) });
 
-  const pr1 = uid();
-  await ins("payroll_runs", { id: pr1, property_id: hot, period_start: daysStr(-30), period_end: daysStr(-1), run_date: daysStr(1), status: "processed", total_gross: 235000, total_deductions: 29400, total_net: 205600, processed_by: empMap["finance@ehms.demo"], approved_by: empMap["superadmin@ehms.demo"], created_at: iso(days(-1)) });
-  for (const [email, gross] of [["frontdesk@ehms.demo", 18000], ["housekeeping@ehms.demo", 15000], ["maintenance@ehms.demo", 20000], ["hr@ehms.demo", 55000], ["finance@ehms.demo", 60000], ["executive@ehms.demo", 32000]]) {
-    if (!empMap[email]) continue;
-    await ins("payroll_lines", { payroll_id: pr1, employee_id: empMap[email], gross_pay: gross, pf_deduction: Math.round(gross * 0.12), esi_deduction: Math.round(gross * 0.0075), pt_deduction: gross > 20000 ? 200 : 0, tds_deduction: gross > 50000 ? Math.round(gross * 0.1) : 0, net_pay: Math.round(gross * 0.85) });
+  // Payroll — 3 full monthly runs + current-month partial run
+  const empPay = [
+    ["frontdesk@ehms.demo", 18000], ["housekeeping@ehms.demo", 15000], ["maintenance@ehms.demo", 20000],
+    ["hr@ehms.demo", 55000], ["finance@ehms.demo", 60000], ["executive@ehms.demo", 32000],
+    ["admin@ehms.demo", 35000], ["superadmin@ehms.demo", 20000],
+  ];
+  const payPeriods = [
+    ["2026-05-01", "2026-05-31", -75],
+    ["2026-06-01", "2026-06-30", -45],
+    ["2026-07-01", "2026-07-31", -14],
+    ["2026-08-01", "2026-08-13", -1],
+  ];
+  for (const [ps, pe, peOff] of payPeriods) {
+    const pr = uid();
+    let totalGross = 0, totalDed = 0;
+    const lines = [];
+    for (const [email, gross] of empPay) {
+      if (!empMap[email]) continue;
+      const pf = Math.round(gross * 0.12), esi = Math.round(gross * 0.0075);
+      const pt = gross > 20000 ? 200 : 0;
+      const tds = gross > 50000 ? Math.round(gross * 0.1) : 0;
+      lines.push({ payroll_id: pr, employee_id: empMap[email], gross_pay: gross, pf_deduction: pf, esi_deduction: esi, pt_deduction: pt, tds_deduction: tds });
+      totalGross += gross; totalDed += pf + esi + pt + tds;
+    }
+    await ins("payroll_runs", { id: pr, property_id: hot, period_start: ps, period_end: pe, run_date: daysStr(Math.min(peOff + 2, 0)), status: "processed", total_gross: totalGross, total_deductions: totalDed, total_net: totalGross - totalDed, processed_by: userMap["finance@ehms.demo"], approved_by: userMap["superadmin@ehms.demo"], created_at: iso(days(peOff)) });
+    await insMany("payroll_lines", lines);
   }
-  await ins("policy_documents", { property_id: hot, category: "HR", title: "Employee Handbook", description: "General policies", department: "Human Resources", file_name: "handbook.pdf", file_type: "application/pdf", file_size: 1024, effective_date: daysStr(-200), version: "2.1", uploaded_by: empMap["hr@ehms.demo"], is_active: true });
+  console.log("✔ payroll: 4 monthly runs");
+  await ins("policy_documents", { property_id: hot, category: "HR", title: "Employee Handbook", description: "General policies", department: "Human Resources", file_name: "handbook.pdf", file_type: "application/pdf", file_size: 1024, effective_date: daysStr(-200), version: "2.1", uploaded_by: userMap["hr@ehms.demo"], is_active: true });
   await ins("compliance_records", { property_id: hot, certificate_type: "Fire Safety", reference_number: "FS-2026-045", issued_date: daysStr(-60), expiry_date: daysStr(305), status: "valid" });
   await ins("compliance_records", { property_id: hot, certificate_type: "FSSAI License", reference_number: "FSS-114455", issued_date: daysStr(-90), expiry_date: daysStr(275), status: "valid" });
   const ac1 = uid();
-  await ins("appraisal_cycles", { id: ac1, property_id: hot, name: "FY 2026 Mid-Year", cycle_type: "mid_year", period_start: daysStr(-120), period_end: daysStr(60), rating_scale: 5, status: "open", created_by: empMap["hr@ehms.demo"] });
+  await ins("appraisal_cycles", { id: ac1, property_id: hot, name: "FY 2026 Mid-Year", cycle_type: "mid_year", period_start: daysStr(-120), period_end: daysStr(60), rating_scale: 5, status: "open", created_by: userMap["hr@ehms.demo"] });
   console.log("✔ HR module");
 
   // ─────────────────────────────────────────────────────────────
@@ -527,21 +642,21 @@ try {
   }
 
   const je1 = uid();
-  await ins("journal_entries", { id: je1, property_id: hot, entry_date: daysStr(-20), reference_type: "opening", description: "Opening entry FY 2026-27", created_by: empMap["finance@ehms.demo"], posted_at: iso(days(-20)), is_posted: true, fiscal_period_id: fy2, journal_type: "opening" });
+  await ins("journal_entries", { id: je1, property_id: hot, entry_date: daysStr(-20), reference_type: "opening", description: "Opening entry FY 2026-27", created_by: userMap["finance@ehms.demo"], posted_at: iso(days(-20)), is_posted: true, fiscal_period_id: fy2, journal_type: "opening" });
   await ins("journal_lines", { journal_id: je1, account_id: acctIds["1000"], debit: 250000, credit: 0, description: "Opening cash" });
   await ins("journal_lines", { journal_id: je1, account_id: acctIds["3000"], debit: 0, credit: 250000, description: "Opening equity" });
   const je2 = uid();
-  await ins("journal_entries", { id: je2, property_id: hot, entry_date: daysStr(-3), reference_type: "revenue", description: "Room revenue accrual (front desk)", created_by: empMap["finance@ehms.demo"], posted_at: iso(days(-3)), is_posted: true, fiscal_period_id: fy2, journal_type: "revenue" });
+  await ins("journal_entries", { id: je2, property_id: hot, entry_date: daysStr(-3), reference_type: "revenue", description: "Room revenue accrual (front desk)", created_by: userMap["finance@ehms.demo"], posted_at: iso(days(-3)), is_posted: true, fiscal_period_id: fy2, journal_type: "revenue" });
   await ins("journal_lines", { journal_id: je2, account_id: acctIds["1200"], debit: 22000, credit: 0, description: "Debtor" });
   await ins("journal_lines", { journal_id: je2, account_id: acctIds["4000"], debit: 0, credit: 22000, description: "Room revenue" });
 
   const vb1 = uid();
-  await ins("vendor_bills", { id: vb1, property_id: hot, vendor_id: vendors[0], bill_number: "VBL-2201", bill_date: daysStr(-4), due_date: daysStr(26), category: "AC Maintenance", subtotal: 4000, tax_total: 720, grand_total: 4720, paid_total: 0, balance_due: 4720, status: "unpaid", created_by: empMap["finance@ehms.demo"] });
+  await ins("vendor_bills", { id: vb1, property_id: hot, vendor_id: vendors[0], bill_number: "VBL-2201", bill_date: daysStr(-4), due_date: daysStr(26), category: "AC Maintenance", subtotal: 4000, tax_total: 720, grand_total: 4720, paid_total: 0, balance_due: 4720, status: "unpaid", created_by: userMap["finance@ehms.demo"] });
   await ins("bill_line_items", { bill_id: vb1, description: "AC service visit", quantity: 1, unit_price: 4000, tax_rate: 18, line_total: 4000, account_id: acctIds["5100"], cost_center_id: cc2 });
   const vb2 = uid();
-  await ins("vendor_bills", { id: vb2, property_id: hot, vendor_id: vendors[3], bill_number: "VBL-2198", bill_date: daysStr(-10), due_date: daysStr(20), category: "Provisions", subtotal: 12000, tax_total: 2160, grand_total: 14160, paid_total: 14160, balance_due: 0, status: "paid", created_by: empMap["finance@ehms.demo"] });
+  await ins("vendor_bills", { id: vb2, property_id: hot, vendor_id: vendors[3], bill_number: "VBL-2198", bill_date: daysStr(-10), due_date: daysStr(20), category: "Provisions", subtotal: 12000, tax_total: 2160, grand_total: 14160, paid_total: 14160, balance_due: 0, status: "paid", created_by: userMap["finance@ehms.demo"] });
   await ins("bill_line_items", { bill_id: vb2, description: "Monthly provisions", quantity: 1, unit_price: 12000, tax_rate: 18, line_total: 12000, account_id: acctIds["5300"], cost_center_id: cc1 });
-  await ins("bill_payments", { property_id: hot, bill_id: vb2, payment_method: "bank_transfer", reference_number: "TR-8877", amount: 14160, payment_date: iso(days(-8)), status: "completed", created_by: empMap["finance@ehms.demo"] });
+  await ins("bill_payments", { property_id: hot, bill_id: vb2, payment_method: "bank_transfer", reference_number: "TR-8877", amount: 14160, payment_date: iso(days(-8)), status: "completed", created_by: userMap["finance@ehms.demo"] });
 
   const bh1 = uid(), bh2 = uid();
   await ins("budget_heads", { id: bh1, property_id: hot, code: "BH-HK", name: "Housekeeping Budget", account_id: acctIds["5000"], is_active: true });
@@ -554,8 +669,8 @@ try {
   await ins("fixed_assets", { id: fa1, property_id: hot, asset_code: "FA-AC-001", asset_name: "AC Split Unit x20", category: "HVAC", purchase_date: daysStr(-400), purchase_cost: 640000, salvage_value: 32000, useful_life_yrs: 10, depreciation_method: "straight_line", accumulated_dep: 64000, book_value: 576000, status: "in_use", location: "Main Tower", account_id: acctIds["5400"] });
   await ins("depreciation_schedule", { asset_id: fa1, period_date: daysStr(0), amount: 5333, is_posted: true, journal_id: je1 });
 
-  await ins("tax_filings", { property_id: hot, tax_type: "GST", return_type: "GSTR-1", period_start: "2026-06-01", period_end: "2026-06-30", due_date: daysStr(7), total_liability: 118000, total_paid: 0, status: "pending", filed_by: empMap["finance@ehms.demo"] });
-  await ins("tax_filings", { property_id: hot, tax_type: "TDS", return_type: "TDS Return Q1", period_start: "2026-04-01", period_end: "2026-06-30", due_date: daysStr(0), total_liability: 24000, total_paid: 24000, filing_date: daysStr(-2), status: "filed", filed_by: empMap["finance@ehms.demo"] });
+  await ins("tax_filings", { property_id: hot, tax_type: "GST", return_type: "GSTR-1", period_start: "2026-06-01", period_end: "2026-06-30", due_date: daysStr(7), total_liability: 118000, total_paid: 0, status: "pending", filed_by: userMap["finance@ehms.demo"] });
+  await ins("tax_filings", { property_id: hot, tax_type: "TDS", return_type: "TDS Return Q1", period_start: "2026-04-01", period_end: "2026-06-30", due_date: daysStr(0), total_liability: 24000, total_paid: 24000, filing_date: daysStr(-2), status: "filed", filed_by: userMap["finance@ehms.demo"] });
   await ins("bank_reconciliation", { property_id: hot, bank_ref: "BR-001", transaction_date: daysStr(-2), amount: 16500, description: "Booking.com payout", matched_payment_id: null, status: "unmatched", created_at: iso(days(-2)) });
   await ins("bank_reconciliation", { property_id: hot, bank_ref: "BR-002", transaction_date: daysStr(-1), amount: 30000, description: "UPI payment - SA booking", matched_payment_id: null, status: "unmatched", created_at: iso(days(-1)) });
   console.log("✔ finance module");
@@ -637,12 +752,15 @@ try {
   const ch1 = uid(), ch2 = uid();
   await ins("ota_channel_config", { id: ch1, property_id: hot, channel_name: "booking.com", api_endpoint: "https://supply.booking.com", property_mapping: JSON.stringify({ room: "NGR-DLX" }), is_active: true });
   await ins("ota_channel_config", { id: ch2, property_id: hot, channel_name: "MakeMyTrip", api_endpoint: "https://connect.makemytrip.com", property_mapping: JSON.stringify({ room: "NGR-DLX" }), is_active: true });
-  await ins("ota_rate_mappings", { property_id: hot, channel_id: ch1, unit_type: "room", channel_room_type_code: "DLX-K", channel_room_name: "Deluxe King", rate_multiplier: 1.05, is_active: true });
-  await ins("ota_settlements", { property_id: hot, channel_id: ch1, settlement_ref: "STL-001", period_start: daysStr(-30), period_end: daysStr(0), gross_amount: 88000, commission: 15840, net_amount: 72160, booking_count: 5, status: "reconciled", paid_at: iso(days(-2)) });
+  const chPartners = await c.query(`SELECT id, name FROM channel_partners`);
+  const cpBooking = chPartners.rows.find(r => r.name.toLowerCase().includes("booking"))?.id;
+  const cpMMT = chPartners.rows.find(r => r.name.toLowerCase().includes("makemytrip"))?.id;
+  await ins("ota_rate_mappings", { property_id: hot, channel_id: cpBooking, unit_type: "room", channel_room_type_code: "DLX-K", channel_room_name: "Deluxe King", rate_multiplier: 1.05, is_active: true });
+  await ins("ota_settlements", { property_id: hot, channel_id: cpBooking, settlement_ref: "STL-001", period_start: daysStr(-30), period_end: daysStr(0), gross_amount: 88000, commission: 15840, net_amount: 72160, booking_count: 5, status: "reconciled", paid_at: iso(days(-2)) });
   await ins("channel_sync_log", { property_id: hot, channel: "booking.com", action: "rate_push", response_status: 200, response_body: "ok", synced_at: iso(days(0)), duration_ms: 450 });
 
-  await ins("visitor_logs", { property_id: hot, host_employee_id: empMap["frontdesk@ehms.demo"], visitor_name: "Naveen Raj", visitor_phone: "+91-90000-77777", purpose: "Business meeting", check_in: iso(days(0)), badge_issued: true });
-  await ins("visitor_logs", { property_id: wpk, host_employee_id: empMap["executive@ehms.demo"], visitor_name: "Kavitha", visitor_phone: "+91-90000-88888", purpose: "Interview", check_in: iso(days(-1)), check_out: iso(days(-1)), badge_issued: true });
+  await ins("visitor_logs", { property_id: hot, host_employee_id: userMap["frontdesk@ehms.demo"], visitor_name: "Naveen Raj", visitor_phone: "+91-90000-77777", purpose: "Business meeting", check_in: iso(days(0)), badge_issued: true });
+  await ins("visitor_logs", { property_id: wpk, host_employee_id: userMap["executive@ehms.demo"], visitor_name: "Kavitha", visitor_phone: "+91-90000-88888", purpose: "Interview", check_in: iso(days(-1)), check_out: iso(days(-1)), badge_issued: true });
 
   await ins("guest_feedback", { property_id: hot, booking_id: b1, department: "front_desk", rating: 5, comments: "Fast check-in", submitted_at: iso(days(-11)) });
   await ins("guest_feedback", { property_id: hot, booking_id: b2, department: "f_and_b", rating: 4, comments: "Great breakfast spread", submitted_at: iso(days(-8)) });
@@ -652,7 +770,7 @@ try {
   await ins("pricing_rules", { property_id: hot, name: "Last minute +15%", rule_type: "last_minute", conditions: JSON.stringify({ lead_days_lt: 1 }), adjustments: JSON.stringify({ pct: 15 }), priority: 1, is_active: true });
   await ins("pricing_rules", { property_id: hot, name: "Stay 7+ nights -10%", rule_type: "length_of_stay", conditions: JSON.stringify({ nights_ge: 7 }), adjustments: JSON.stringify({ pct: -10 }), priority: 2, is_active: true });
   await ins("pricing_seasons", { property_id: hot, name: "Summer", start_date: "2026-04-01", end_date: "2026-06-30", multiplier: 1.05, color: "#F59E0B", is_active: true });
-  await ins("promo_codes", { property_id: hot, code: "NIVESH10", description: "10% off direct", discount_type: "percentage", discount_value: 10, min_nights: 2, used_count: 5, valid_from: "2026-01-01", valid_to: "2026-12-31", is_active: true });
+  await ins("promo_codes", { property_id: hot, code: TC + "10", description: "10% off direct", discount_type: "percentage", discount_value: 10, min_nights: 2, used_count: 5, valid_from: "2026-01-01", valid_to: "2026-12-31", is_active: true });
   await ins("promotions", { property_id: hot, name: "Summer Escape", code: "SUMMER26", discount_pct: 12, start_date: "2026-04-01", end_date: "2026-06-30", is_active: false });
 
   await ins("services", { property_id: hot, name: "Airport Transfer", code: "AIRPORT", price: 1500, is_active: true });
@@ -666,19 +784,327 @@ try {
   await ins("lease_agreements", { id: la1, property_id: ren, unit_id: renUnitIds[0], tenant_id: guests[1], agreement_ref: "LSE-2026-001", status: "active", start_date: daysStr(-120), end_date: daysStr(245), lock_in_period_months: 11, notice_period_days: 60, rent_amount: 24000, security_deposit: 96000, escalation_percent: 5, escalation_frequency_months: 12, furnishing_inventory: JSON.stringify([{ item: "Sofa", condition: "Good" }, { item: "Wardrobe", condition: "Good" }]), signed_at: iso(days(-121)), signed_by_tenant: true, signed_by_owner: true });
   const la2 = uid();
   await ins("lease_agreements", { id: la2, property_id: ren, unit_id: renUnitIds[2], tenant_id: guests[6], agreement_ref: "LSE-2026-002", status: "drafted", start_date: daysStr(10), end_date: daysStr(375), lock_in_period_months: 11, notice_period_days: 60, rent_amount: 24000, security_deposit: 96000, furnishing_inventory: JSON.stringify([]), signed_by_tenant: false, signed_by_owner: false });
-  await ins("deposit_ledger", { lease_id: la1, transaction_type: "deposit", amount: 96000, description: "Security deposit received", transaction_date: iso(days(-120)), created_by: empMap["finance@ehms.demo"] });
+  await ins("deposit_ledger", { lease_id: la1, transaction_type: "deposit", amount: 96000, description: "Security deposit received", transaction_date: iso(days(-120)), created_by: userMap["finance@ehms.demo"] });
   const ri1 = uid();
   await ins("rent_invoices", { id: ri1, lease_id: la1, invoice_number: "RI-2026-001", period_start: daysStr(-30), period_end: daysStr(0), rent_amount: 24000, maintenance_charges: 1000, late_fee: 0, total_amount: 25000, paid_amount: 25000, due_date: daysStr(-2), paid_at: iso(days(-3)), status: "paid" });
   await ins("rent_invoices", { lease_id: la1, invoice_number: "RI-2026-002", period_start: daysStr(0), period_end: daysStr(30), rent_amount: 24000, maintenance_charges: 1000, late_fee: 0, total_amount: 25000, paid_amount: 0, due_date: daysStr(28), status: "sent" });
   await ins("move_out_checklist", { lease_id: la1, item: "Painting", condition: "Good", is_verified: false });
   console.log("✔ rental leases");
 
+  // ─────────────────────────────────────────────────────────────
+  // 16. THREE-MONTH HISTORY (May–Aug 2026)
+  // ─────────────────────────────────────────────────────────────
+  console.log("\n📜 Generating 3-month operational history...");
+  let seq = 10000;
+  const nextNum = (prefix) => prefix + "-" + (seq++);
+
+  const unitRateMap = new Map((await c.query(`SELECT id, base_rate FROM units WHERE id = ANY($1)`, [[...hotelUnitIds, ...saUnitIds]])).rows.map((r) => [r.id, Number(r.base_rate)]));
+
+  // Occupancy tracker seeded with existing stays (past + current + confirmed future)
+  const occ = new Map();
+  for (const u of [...hotelUnitIds, ...saUnitIds]) occ.set(u, daysStr(0));
+  const occSeed = [
+    [hotelUnitIds[0], -11], [hotelUnitIds[4], -8], [hotelUnitIds[3], 4], [hotelUnitIds[5], 2],
+    [hotelUnitIds[8], 7], [hotelUnitIds[1], 15], [saUnitIds[0], -2], [saUnitIds[1], 6], [saUnitIds[2], 12],
+  ];
+  for (const [u, off] of occSeed) occ.set(u, daysStr(off));
+
+  // 16a. Historical bookings across the window
+  const hBookings = [];
+  const hBkgGuests = [];
+  const hInvoices = [], hInvoiceLines = [], hPayments = [];
+  const hCheckin = [], hCheckout = [], hFeedback = [], hLoyalty = [], hTimeline = [];
+  const srcPool = ["direct", "booking.com", "make_my_trip", "agoda", "goibibo"];
+  let cancelledCount = 0;
+
+  for (let d = -89; d <= -2; d++) {
+    const dow = new Date(days(d)).getDay();
+    const hotelTargets = (Math.random() < 0.55 ? 2 : 1) + (dow >= 5 ? 1 : 0);
+    const saTargets = Math.random() < 0.35 ? 1 : 0;
+    for (const [propId, target] of [[hot, hotelTargets], [ser, saTargets]]) {
+      for (let t = 0; t < target; t++) {
+        const pool = propId === hot ? hotelUnitIds : saUnitIds;
+        const avail = pool.filter((u) => occ.get(u) <= daysStr(d));
+        if (!avail.length) continue;
+        const unitId = avail[rnd(avail.length)];
+        const isCancel = Math.random() < 0.08;
+        const status = isCancel ? (Math.random() < 0.5 ? "cancelled" : "no_show") : "checked_out";
+        const maxN = Math.min(propId === hot ? 3 : 7, -d);
+        const nights = 1 + rnd(maxN);
+        const guestId = pick(guests);
+        const rate = unitRateMap.get(unitId);
+        const amount = Math.round(rate * nights);
+        const tax = Math.round(amount * 0.18);
+        const ci = days(d);
+        const co = new Date(ci.getTime() + nights * 86400000);
+        const coOff = Math.round((co - T) / 86400000);
+        const id = uid();
+        const src = pick(srcPool);
+        const row = {
+          id, property_id: propId, unit_id: unitId, guest_id: guestId, booking_model: "nightly",
+          status, source: src, source_booking_ref: src === "direct" ? null : nextNum(src === "booking.com" ? "BO" : src === "make_my_trip" ? "MMT" : src.toUpperCase()),
+          check_in: iso(ci), check_out: iso(co), adults: 1 + rnd(3), children: rnd(2),
+          total_amount: amount, tax_amount: tax, paid_amount: isCancel ? 0 : amount, balance_amount: 0, currency: "INR",
+        };
+        if (status === "checked_out") { row.checked_in_at = iso(new Date(ci.getTime() + 3600000)); row.checked_out_at = iso(co); }
+        await ins("bookings", row);
+        hBkgGuests.push({ booking_id: id, guest_id: guestId, is_primary: true });
+        occ.set(unitId, isCancel ? daysStr(d) : daysStr(coOff));
+        if (!isCancel) {
+          hBookings.push({ id, propId, guestId, amount, d, coOff });
+        } else {
+          cancelledCount++;
+        }
+      }
+    }
+  }
+  await insMany("booking_guests", hBkgGuests);
+  console.log("✔ bookings:", hBookings.length, "completed +", cancelledCount, "cancelled/no_show");
+
+  // 16b. Downstream rows for completed stays
+  for (const b of hBookings) {
+    const invId = uid();
+    hInvoices.push({ id: invId, property_id: b.propId, booking_id: b.id, guest_id: b.guestId, invoice_number: nextNum("INV"), invoice_date: daysStr(b.d + 1), due_date: daysStr(b.coOff - 3), status: "paid", subtotal: Math.round(b.amount / 1.18), tax_total: Math.round(b.amount - b.amount / 1.18), grand_total: b.amount, balance_due: 0, paid_total: b.amount, currency: "INR" });
+    hInvoiceLines.push({ invoice_id: invId, description: "Room charges", quantity: 1, unit_price: b.amount, tax_rate: 18, line_total: b.amount });
+    hPayments.push({ invoice_id: invId, booking_id: b.id, property_id: b.propId, payment_method: pick(["card", "upi", "bank_transfer", "cash"]), amount: b.amount, currency: "INR", payment_date: iso(days(b.coOff - 2)), status: "completed", reconciliation_status: "unmatched" });
+    if (Math.random() < 0.35) {
+      hCheckin.push({ property_id: b.propId, booking_id: b.id, guest_id: b.guestId, session_token: crypto.randomBytes(16).toString("hex"), status: "completed", id_type: pick(["PASSPORT", "AADHAAR"]), id_number: "ID" + (100000 + rnd(899999)), id_verified: true, payment_method: "card", payment_status: "captured", payment_amount: Math.round(b.amount / 2), digital_key_issued: true, opened_at: iso(days(b.d)), completed_at: iso(days(b.d)), expires_at: iso(days(b.coOff)) });
+    }
+    hCheckout.push({ property_id: b.propId, booking_id: b.id, checkin_session_id: null, session_token: crypto.randomBytes(16).toString("hex"), status: "completed", total_charges: b.amount, total_payments: b.amount, balance_due: 0, payment_method: "card", payment_status: "settled", payment_amount: 0, satisfaction_rating: 3 + rnd(3), feedback_text: pick(["Great stay", "Good value", "Clean rooms", "Lovely staff", "Convenient location"]), opened_at: iso(days(b.coOff)), completed_at: iso(days(b.coOff)), expires_at: iso(days(b.coOff)) });
+    if (Math.random() < 0.15) hFeedback.push({ property_id: b.propId, booking_id: b.id, department: pick(["front_desk", "housekeeping", "f_and_b"]), rating: 3 + rnd(3), comments: pick(["Great experience", "Will return", "Very comfortable"]), submitted_at: iso(days(b.coOff)) });
+    if (Math.random() < 0.2) hLoyalty.push({ guest_id: b.guestId, booking_id: b.id, points: Math.round(b.amount / 10), type: "earned", description: "Stay earnings", created_at: iso(days(b.coOff)) });
+    if (Math.random() < 0.2) hTimeline.push({ guest_id: b.guestId, event_type: "checked_out", event_data: JSON.stringify({ booking: b.id }), event_at: iso(days(b.coOff)) });
+  }
+  await insMany("invoices", hInvoices);
+  await insMany("invoice_lines", hInvoiceLines);
+  await insMany("payments", hPayments);
+  await insMany("checkin_sessions", hCheckin);
+  await insMany("checkout_sessions", hCheckout);
+  await insMany("guest_feedback", hFeedback);
+  await insMany("loyalty_transactions", hLoyalty);
+  await insMany("guest_timeline", hTimeline);
+  console.log("✔ invoices/payments:", hInvoices.length, "| checkin:", hCheckin.length, "| checkout:", hCheckout.length);
+
+  // 16c. Routine housekeeping tasks
+  const hkRows = [];
+  for (let d = -89; d <= -1; d++) {
+    const pickedUnits = shuffle([...hotelUnitIds, ...saUnitIds]).slice(0, 2 + rnd(2));
+    for (const unitId of pickedUnits) {
+      const completed = Math.random() < 0.85;
+      hkRows.push({ unit_id: unitId, property_id: hot, assigned_to: hkUserId, assigned_by: hkUserId, task_type: pick(["routine_clean", "deep_clean", "turnover"]), priority: pick(["low", "medium", "high"]), status: completed ? "resolved" : "in_progress", scheduled_at: iso(days(d)), started_at: iso(days(d)), completed_at: completed ? iso(new Date(days(d).getTime() + 4 * 3600000)) : null, notes: completed ? "Cleaned" : "In progress", created_at: iso(days(d)) });
+    }
+  }
+  await insMany("housekeeping_tasks", hkRows);
+  console.log("✔ housekeeping:", hkRows.length, "tasks");
+
+  // 16d. Maintenance tickets
+  const ticketCats = ["HVAC", "Plumbing", "Electrical", "Elevator", "Carpentry"];
+  const ticketUnits = [...hotelUnitIds.slice(0, 6), ...saUnitIds.slice(0, 4)];
+  for (let i = 0; i < 20; i++) {
+    const off = -88 + i * 4;
+    const isResolved = i < 16;
+    const status = isResolved ? "resolved" : (i % 2 ? "in_progress" : "open");
+    const cat = ticketCats[i % ticketCats.length];
+    const unitId = pick(ticketUnits);
+    const assetId = cat === "HVAC" ? asset1 : cat === "Elevator" ? asset2 : null;
+    const cost = isResolved ? 300 + rnd(1200) : 0;
+    const tid = uid();
+    await ins("maintenance_tickets", { id: tid, property_id: hot, unit_id: unitId, asset_id: assetId, ticket_number: nextNum("MNT"), ticket_type: isResolved ? "reactive" : "preventive", category: cat, title: cat + " maintenance", description: cat + " maintenance required", priority: pick(["low", "medium", "high", "critical"]), status, reported_by: hkUserId, assigned_to: maintUserId, vendor_id: vendors[i % vendors.length], cost_parts: cost, cost_labor: isResolved ? 500 : 0, total_cost: isResolved ? cost + 500 : 0, resolved_at: isResolved ? iso(days(off + 2)) : null, resolution_notes: isResolved ? "Fixed and verified" : null, created_at: iso(days(off)) });
+    if (isResolved) await ins("maintenance_time_entries", { ticket_id: tid, technician_id: maintUserId, start_time: iso(days(off + 2)), end_time: iso(days(off + 2)), duration_minutes: 60 + rnd(60), notes: "On-site work" });
+    if (status !== "open") await ins("maintenance_approvals", { ticket_id: tid, action: "quote_approved", performed_by: maintUserId, comment: "Approved within budget" });
+  }
+  console.log("✔ maintenance: 20 tickets");
+
+  // 16e. F&B orders
+  const menuById = new Map(menuSeed.map((s, i) => [menuItems[i], { name: s[0], price: s[2] }]));
+  const fobRows = [], fobItemRows = [];
+  for (let i = 0; i < 26; i++) {
+    const off = -88 + i * 3;
+    const orderType = i % 3 === 0 ? "restaurant_dine_in" : "room_service";
+    const booking = orderType === "room_service" ? hBookings[rnd(hBookings.length)] : null;
+    const oid = uid();
+    let total = 0;
+    for (const mid of shuffle(menuItems).slice(0, 1 + rnd(2))) {
+      const m = menuById.get(mid);
+      const qty = 1 + rnd(2);
+      const sub = m.price * qty;
+      total += sub;
+      fobItemRows.push({ order_id: oid, menu_item_id: mid, quantity: qty, unit_price: m.price, subtotal: sub, item_name: m.name, line_total: sub });
+    }
+    const status = i < 20 ? "delivered" : "preparing";
+    fobRows.push({ id: oid, property_id: hot, booking_id: booking ? booking.id : null, unit_id: null, order_type: orderType, status, total_amount: total, is_complimentary: false, ordered_at: iso(days(off)), delivered_at: status === "delivered" ? iso(days(off)) : null, updated_at: iso(days(off)) });
+  }
+  await insMany("f_and_b_orders", fobRows);
+  await insMany("f_and_b_order_items", fobItemRows);
+  console.log("✔ F&B:", fobRows.length, "orders");
+
+  // 16f. Workplace bookings
+  const wpHistory = [];
+  for (let d = -89; d <= -2; d++) {
+    if (new Date(days(d)).getDay() === 0) continue;
+    const n = 1 + (Math.random() < 0.3 ? 1 : 0);
+    for (let i = 0; i < n; i++) {
+      const isDesk = Math.random() < 0.75;
+      const unitId = isDesk ? pick(deskIds) : pick(meetingIds);
+      const corpId = Math.random() < 0.5 ? corp1 : corp2;
+      const start = new Date(days(d).getTime() + (9 + rnd(4)) * 3600000);
+      const hours = isDesk ? 8 : 2;
+      wpHistory.push({ property_id: wpk, unit_id: unitId, corporate_id: corpId, booking_type: isDesk ? "membership" : "meeting_room", start_time: iso(start), end_time: iso(new Date(start.getTime() + hours * 3600000)), status: "checked_out", total_amount: isDesk ? 4999 : 999 * hours, checked_in_at: iso(new Date(start.getTime() + 600000)), created_at: iso(days(d)) });
+    }
+  }
+  await insMany("workplace_bookings", wpHistory);
+  console.log("✔ workplace:", wpHistory.length, "bookings");
+
+  // 16g. Membership invoices (monthly)
+  const corpMem1 = (await c.query(`SELECT id FROM corporate_memberships WHERE corporate_id=$1 LIMIT 1`, [corp1])).rows[0].id;
+  const corpMem2 = (await c.query(`SELECT id FROM corporate_memberships WHERE corporate_id=$1 LIMIT 1`, [corp2])).rows[0].id;
+  const mRanges = [["2026-05-01", "2026-05-31"], ["2026-06-01", "2026-06-30"], ["2026-07-01", "2026-07-31"], ["2026-08-01", "2026-08-13"]];
+  const mInvoices = [];
+  for (const mem of [corpMem1, corpMem2]) {
+    const base = mem === corpMem1 ? 4999 : 8999;
+    for (const [ps, pe] of mRanges) {
+      const isPaid = ps !== "2026-08-01";
+      mInvoices.push({ membership_id: mem, invoice_number: nextNum("MS-INV"), period_start: ps, period_end: pe, base_amount: base, overage_amount: 0, total_amount: base, status: isPaid ? "paid" : "sent", due_date: pe, paid_at: isPaid ? iso(new Date(pe + "T00:00:00Z")) : null, created_at: iso(new Date(pe + "T00:00:00Z")) });
+    }
+  }
+  await insMany("membership_invoices", mInvoices);
+  console.log("✔ membership invoices:", mInvoices.length);
+
+  // 16h. Rental leases + rent invoices
+  const newLeases = [
+    [renUnitIds[1], guests[3], -80, 36000, 144000, "LSE-2026-011"],
+    [renUnitIds[3], guests[5], -45, 24000, 96000, "LSE-2026-012"],
+    [renUnitIds[4], guests[0], -20, 24000, 96000, "LSE-2026-013"],
+  ];
+  const hLeaseIds = [];
+  for (const [unitId, tenantId, sOff, rent, dep, ref] of newLeases) {
+    const lid = uid();
+    hLeaseIds.push({ lid, sOff, rent });
+    await ins("lease_agreements", { id: lid, property_id: ren, unit_id: unitId, tenant_id: tenantId, agreement_ref: ref, status: "active", start_date: daysStr(sOff), end_date: daysStr(sOff + 335), lock_in_period_months: 11, notice_period_days: 60, rent_amount: rent, security_deposit: dep, escalation_percent: 5, escalation_frequency_months: 12, furnishing_inventory: JSON.stringify([{ item: "Sofa", condition: "Good" }]), signed_at: iso(days(sOff - 1)), signed_by_tenant: true, signed_by_owner: true });
+    await ins("deposit_ledger", { lease_id: lid, transaction_type: "deposit", amount: dep, description: "Security deposit received", transaction_date: iso(days(sOff)), created_by: userMap["finance@ehms.demo"] });
+  }
+  const rentInvRows = [];
+  for (const L of hLeaseIds) {
+    const monthCount = Math.ceil((0 - L.sOff) / 30);
+    for (let m = 0; m < monthCount; m++) {
+      const psOff = L.sOff + m * 30;
+      const peOff = Math.min(psOff + 30, 0);
+      const isPaid = peOff < -2;
+      rentInvRows.push({ lease_id: L.lid, invoice_number: nextNum("RI"), period_start: daysStr(psOff), period_end: daysStr(peOff), rent_amount: L.rent, maintenance_charges: 1000, late_fee: 0, total_amount: L.rent + 1000, paid_amount: isPaid ? L.rent + 1000 : 0, due_date: daysStr(peOff + 28), paid_at: isPaid ? iso(days(peOff + 2)) : null, status: isPaid ? "paid" : "sent" });
+    }
+  }
+  await insMany("rent_invoices", rentInvRows);
+  console.log("✔ rental: leases +", rentInvRows.length, "rent invoices");
+
+  // 16i. OTA settlements (monthly, 2 channels)
+  const otas = [];
+  const otaPeriods = [["2026-05-01", "2026-05-31"], ["2026-06-01", "2026-06-30"], ["2026-07-01", "2026-07-31"], ["2026-08-01", "2026-08-13"]];
+  for (const [chId, mult] of [[cpBooking, 1], [cpMMT, 0.9]]) {
+    for (const [ps, pe] of otaPeriods) {
+      const isRecon = ps !== "2026-08-01";
+      const gross = Math.round((80000 + rnd(40000)) * mult);
+      otas.push({ property_id: hot, channel_id: chId, settlement_ref: nextNum("STL"), period_start: ps, period_end: pe, gross_amount: gross, commission: Math.round(gross * 0.18), net_amount: Math.round(gross * 0.82), booking_count: 3 + rnd(8), status: isRecon ? "reconciled" : "pending", paid_at: isRecon ? iso(new Date(pe + "T00:00:00Z")) : null });
+    }
+  }
+  await insMany("ota_settlements", otas);
+  console.log("✔ OTA settlements:", otas.length);
+
+  // 16j. Vendor bills + payments
+  const billCats = [["HVAC Masters Pvt Ltd", "AC Maintenance", "5100"], ["PlumbCare Services", "Plumbing", "5100"], ["FreshMart Suppliers", "Provisions", "5300"], ["CleanCo Laundry", "Laundry", "5000"], ["SafeTech Security", "Security", "5100"]];
+  for (let i = 0; i < 18; i++) {
+    const [vName, cat, acct] = billCats[i % billCats.length];
+    const vid = vendors[i % vendors.length];
+    const sub = 3000 + rnd(9000);
+    const taxT = Math.round(sub * 0.18);
+    const grand = sub + taxT;
+    const bDate = -89 + i * 5;
+    const isPaid = i % 3 !== 0;
+    const vbid = uid();
+    await ins("vendor_bills", { id: vbid, property_id: hot, vendor_id: vid, bill_number: nextNum("VBL"), bill_date: daysStr(bDate), due_date: daysStr(bDate + 30), category: cat, subtotal: sub, tax_total: taxT, grand_total: grand, paid_total: isPaid ? grand : 0, balance_due: isPaid ? 0 : grand, status: isPaid ? "paid" : (i % 3 === 1 ? "overdue" : "unpaid"), notes: cat + " services", created_by: userMap["finance@ehms.demo"] });
+    await ins("bill_line_items", { bill_id: vbid, description: cat + " services", quantity: 1, unit_price: sub, tax_rate: 18, line_total: sub, account_id: acctIds[acct], cost_center_id: cc2 });
+    if (isPaid) await ins("bill_payments", { property_id: hot, bill_id: vbid, payment_method: "bank_transfer", reference_number: "TR-" + (1000 + rnd(9000)), amount: grand, payment_date: iso(days(bDate + 5)), status: "completed", created_by: userMap["finance@ehms.demo"] });
+  }
+  console.log("✔ vendor bills: 18");
+
+  // 16k. Monthly journal entries
+  for (const [ps, pe, off] of [["2026-05-01", "2026-05-31", -75], ["2026-06-01", "2026-06-30", -45], ["2026-07-01", "2026-07-31", -14]]) {
+    const jeId = uid();
+    await ins("journal_entries", { id: jeId, property_id: hot, entry_date: daysStr(off + 1), reference_type: "revenue", description: "Monthly room revenue accrual", created_by: userMap["finance@ehms.demo"], posted_at: iso(days(off + 1)), is_posted: true, fiscal_period_id: fy2, journal_type: "revenue" });
+    await ins("journal_lines", { journal_id: jeId, account_id: acctIds["1200"], debit: 150000, credit: 0, description: "Debtor accrual" });
+    await ins("journal_lines", { journal_id: jeId, account_id: acctIds["4000"], debit: 0, credit: 150000, description: "Room revenue" });
+    const jsId = uid();
+    await ins("journal_entries", { id: jsId, property_id: hot, entry_date: daysStr(off + 1), reference_type: "payroll", description: "Monthly salary accrual", created_by: userMap["finance@ehms.demo"], posted_at: iso(days(off + 1)), is_posted: true, fiscal_period_id: fy2, journal_type: "expense" });
+    await ins("journal_lines", { journal_id: jsId, account_id: acctIds["5200"], debit: 255000, credit: 0, description: "Salaries & wages" });
+    await ins("journal_lines", { journal_id: jsId, account_id: acctIds["2200"], debit: 0, credit: 255000, description: "Salary payable" });
+  }
+  console.log("✔ journal entries: monthly accruals");
+
+  // 16l. Budget entries (additional months)
+  for (const [bh, months] of [[bh1, [6, 7, 8]], [bh2, [5, 6, 7]]]) {
+    for (const m of months) {
+      await ins("budget_entries", { budget_head_id: bh, fiscal_year_id: fy2, period_month: m, budget_amount: bh === bh1 ? 50000 : 80000, actual_amount: 30000 + rnd(20000) });
+    }
+  }
+
+  // 16m. Tax filings + bank reconciliation + POs + holidays + visitors + misc
+  for (const [tt, rt, ps, pe, dueOff, liab, paid, status, fOff] of [
+    ["GST", "GSTR-1", "2026-05-01", "2026-05-31", -20, 94000, 94000, "filed", -40],
+    ["GST", "GSTR-1", "2026-07-01", "2026-07-31", 14, 121000, 0, "pending", null],
+    ["GST", "GSTR-1", "2026-08-01", "2026-08-13", 42, 0, 0, "draft", null],
+  ]) {
+    await ins("tax_filings", { property_id: hot, tax_type: tt, return_type: rt, period_start: ps, period_end: pe, due_date: daysStr(dueOff), total_liability: liab, total_paid: paid, status, filed_by: status === "filed" ? userMap["finance@ehms.demo"] : null, filing_date: fOff === null ? null : daysStr(fOff) });
+  }
+
+  const bankRows = [];
+  for (let i = 0; i < 10; i++) {
+    const off = -88 + i * 9;
+    bankRows.push({ property_id: hot, bank_ref: nextNum("BR"), transaction_date: daysStr(off), amount: 4000 + rnd(24000), description: pick(["OTA payout", "UPI settlement", "Card settlement", "Bank transfer received"]), matched_payment_id: null, status: Math.random() < 0.7 ? "unmatched" : "matched", created_at: iso(days(off)) });
+  }
+  await insMany("bank_reconciliation", bankRows);
+
+  const poVendors = [vendors[3], vendors[4], vendors[0]];
+  const poItems = [["Bathroom amenities kit", 120], ["Laundry detergent 5L", 350], ["AC filters", 850]];
+  for (let i = 0; i < 3; i++) {
+    const off = -80 + i * 30;
+    const [itemDesc, price] = poItems[i];
+    const qty = 50 + rnd(50);
+    const total = qty * price;
+    const poId = uid();
+    await ins("purchase_orders", { id: poId, property_id: hot, vendor_id: poVendors[i], po_number: nextNum("PO"), po_date: daysStr(off), status: "approved", total_amount: total, notes: "Monthly stock", created_by: hkUserId, approved_by: hkUserId, created_at: iso(days(off)) });
+    const pol = uid();
+    await ins("purchase_order_lines", { id: pol, po_id: poId, item_description: itemDesc, quantity: qty, unit_price: price, line_total: total, received_qty: qty });
+    const grnId = uid();
+    await ins("goods_received_notes", { id: grnId, po_id: poId, grn_number: nextNum("GRN"), received_date: daysStr(off + 3), received_by: hkUserId, notes: "Received OK", created_at: iso(days(off + 3)), property_id: hot });
+    await ins("grn_lines", { grn_id: grnId, po_line_id: pol, received_qty: qty, accepted_qty: qty, rejected_qty: 0 });
+  }
+
+  await ins("holiday_calendar", { property_id: hot, name: "Diwali", date: "2026-11-08", type: "public", applicable_to: "all", is_active: true });
+  await ins("holiday_calendar", { property_id: hot, name: "Christmas", date: "2026-12-25", type: "public", applicable_to: "all", is_active: true });
+  await ins("holiday_calendar", { property_id: hot, name: "New Year", date: "2027-01-01", type: "public", applicable_to: "all", is_active: true });
+
+  const visitorRows = [];
+  const vNames = ["Ravi Shankar", "Neha Gupta", "John Matthews", "Anita Desai", "Kumar Pillai", "Sofia Rodriguez"];
+  for (let i = 0; i < 8; i++) {
+    const off = -80 + i * 10;
+    visitorRows.push({ property_id: hot, host_employee_id: pick(Object.values(userMap)), visitor_name: vNames[i % vNames.length], visitor_phone: "+91-9" + (100000000 + rnd(899999999)), purpose: pick(["Business meeting", "Vendor visit", "Interview", "Guest relation"]), check_in: iso(days(off)), check_out: iso(days(off)), badge_issued: true, created_at: iso(days(off)) });
+  }
+  await insMany("visitor_logs", visitorRows);
+
+  await ins("promotions", { property_id: hot, name: "Monsoon Special", code: "MONSOON26", discount_pct: 15, start_date: "2026-07-01", end_date: "2026-09-30", is_active: true });
+  for (const g of guests.slice(0, 4)) {
+    await ins("loyalty_transactions", { guest_id: g, points: -200, type: "redeemed", description: "Redeemed for dining credit", created_at: iso(days(-30)) });
+  }
+  console.log("✔ finance/ota/rental/f&b/workplace/history complete");
+
   await c.query("COMMIT");
-  console.log(`\n✅ SEED COMPLETE — ${inserts} rows inserted into nivesh`);
+  console.log(`\n✅ SEED COMPLETE — ${inserts} rows inserted into ${SCHEMA}`);
   console.log("Key counts:");
-  for (const [label, t] of [["properties", "properties"], ["units", "units"], ["bookings", "bookings"], ["guests", "guest_profiles"], ["employees", "employees"], ["vendors", "vendors"], ["housekeeping_tasks", "housekeeping_tasks"], ["maintenance_tickets", "maintenance_tickets"], ["journal_entries", "journal_entries"], ["accounts", "chart_of_accounts"], ["lease_agreements", "lease_agreements"], ["workplace_bookings", "workplace_bookings"], ["f_and_b_orders", "f_and_b_orders"]]) {
+  await c.query("BEGIN");
+  await c.query(`SET search_path TO ${SCHEMA}, public`);
+  for (const [label, t] of [["properties", "properties"], ["units", "units"], ["bookings", "bookings"], ["guests", "guest_profiles"], ["employees", "employees"], ["vendors", "vendors"], ["housekeeping_tasks", "housekeeping_tasks"], ["maintenance_tickets", "maintenance_tickets"], ["journal_entries", "journal_entries"], ["accounts", "chart_of_accounts"], ["lease_agreements", "lease_agreements"], ["workplace_bookings", "workplace_bookings"], ["f_and_b_orders", "f_and_b_orders"], ["invoices", "invoices"], ["payments", "payments"], ["attendance_records", "attendance_records"], ["payroll_runs", "payroll_runs"]]) {
     console.log(`  ${label.padEnd(20)} ${await cnt(t)}`);
   }
+  await c.query("COMMIT");
 } catch (err) {
   await c.query("ROLLBACK").catch(() => {});
   console.error("❌ Seed failed:", err.message);
