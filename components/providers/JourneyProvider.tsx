@@ -52,6 +52,22 @@ export function JourneyProvider({ children }: { children: React.ReactNode }) {
     setAllowedJourneys(getAllowedJourneys());
     const savedProp = localStorage.getItem("ehms_active_property_id") || "";
     setSelectedPropertyId(savedProp);
+    // Self-heal a stale persisted property id (e.g. after a re-seed regenerated
+    // property UUIDs). If the stored id no longer exists, drop it so dashboards
+    // fall back to all-property data instead of returning zeros.
+    if (savedProp) {
+      fetch("/api/properties?include_inactive=true")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data) return;
+          const list = data.data || data.properties || [];
+          if (list.length && !list.some((p: { id: string }) => p.id === savedProp)) {
+            setSelectedPropertyId("");
+            localStorage.removeItem("ehms_active_property_id");
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const syncAllowed = useCallback(() => {
