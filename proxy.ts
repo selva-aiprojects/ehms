@@ -57,11 +57,13 @@ export default async function proxy(request: NextRequest) {
   }
 
   if (isPlatformAdmin && pathname.startsWith("/dashboard")) {
-    // Platform admin can access /dashboard/admin/tenants, tickets, broadcasts (and sub-paths)
+    // Platform admin can access /dashboard/admin/tenants, tickets, broadcasts,
+    // provisioning (and sub-paths)
     if (
       !pathname.startsWith("/dashboard/admin/tenants") &&
       !pathname.startsWith("/dashboard/admin/tickets") &&
       !pathname.startsWith("/dashboard/admin/broadcasts") &&
+      !pathname.startsWith("/dashboard/admin/provisioning") &&
       pathname !== "/dashboard/admin" &&
       pathname !== "/dashboard"
     ) {

@@ -129,7 +129,8 @@ async function handleEnable(req: NextRequest, body: FeatureBody) {
     scope,
     scope === "property" ? propertyId : undefined,
     { user_id: auth.userId },
-    body.reason || "Admin enabled from Feature Flags UI"
+    body.reason || "Admin enabled from Feature Flags UI",
+    auth.tenantSchema
   );
 
   return NextResponse.json(result, { status: result.success ? 200 : 400 });

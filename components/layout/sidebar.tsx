@@ -11,6 +11,7 @@ import {
   BookOpen, Receipt, Landmark, BarChart3, PiggyBank, ScrollText, Calculator, FolderOpen, Globe,
   ChevronDown, Palette, GanttChart, Trophy, Tag, Shirt, QrCode, LogOut, MessageSquare,
   UtensilsCrossed, Monitor, Brain,
+  PackageCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth, type UserProfile } from "@/lib/auth-context";
@@ -89,6 +90,7 @@ const ALL_NAV_ITEMS = [
   { label: "Compliance",       icon: Shield,        href: "/dashboard/admin/compliance", roles: ["super_admin","executive"] },
   { label: "Support Tickets",  icon: Ticket,         href: "/dashboard/admin/tickets", roles: ["super_admin","executive","platform_super_admin"] },
   { label: "Broadcasts",       icon: Sparkles,       href: "/dashboard/admin/broadcasts", roles: ["super_admin","executive","platform_super_admin"] },
+  { label: "Provisioning",     icon: PackageCheck,   href: "/dashboard/admin/provisioning", roles: ["platform_super_admin"] },
   { label: "My Tickets",       icon: Ticket,         href: "/dashboard/tickets", roles: ["super_admin","executive","property_manager","front_desk","housekeeping_supervisor","housekeeping_staff","maintenance_staff","maintenance_supervisor","hr_manager","hr_executive","finance_manager","finance_executive","security_staff","vendor_user","workplace_facility_manager"] },
   { label: "Leases",           icon: FileText,      href: "/dashboard/rental/leases", roles: ["super_admin","executive","property_manager"] },
   { label: "Rent Invoices",    icon: Receipt,       href: "/dashboard/rental/invoices", roles: ["super_admin","executive","property_manager","finance_manager"] },
@@ -119,7 +121,7 @@ const NAV_GROUPS = [
   { label: "Maintenance",            icon: Wrench,       items: ["Maintenance","Tickets","Parts","Assets"] },
   { label: "Finance & Accounts",     icon: CreditCard,   items: ["Finance","Chart of Accts","Journal","Ledger","Receivables","Payables","Budget","Tax","Fixed Assets","Reports","Fin Settings","Reconciliation"] },
   { label: "Human Resources",        icon: Users,        items: ["HRMS","Employees","Timesheets","Leave","Payroll","Compliance","Masters","Policies","Appraisal","Compensation","Shifts","HR Settings"] },
-  { label: "Administration",         icon: Shield,       items: ["Admin","Tenants","Workspaces","Roles","Audit Trail","Backup","Users","Settings","Branding","Master Data","Sessions","Compliance","Support Tickets","Broadcasts","My Tickets"] },
+  { label: "Administration",         icon: Shield,       items: ["Admin","Tenants","Workspaces","Roles","Audit Trail","Backup","Users","Settings","Branding","Master Data","Sessions","Compliance","Support Tickets","Broadcasts","Provisioning","My Tickets"] },
   { label: "Procurement",           icon: ClipboardList, items: ["Procurement","Vendors","Vendor Orders","Vendor Services","Purchase Orders","Goods Receipt"] },
   { label: "Inventory",             icon: Package,       items: ["Inventory","Inv Items","Inv Transactions","Warehouses","Inv Categories"] },
   { label: "Revenue & Loyalty",     icon: BarChart3,     items: ["Revenue Dashboard","Revenue AI","Pricing","Loyalty","OTA Channels","WhatsApp","Multi-Property","Menu Mgmt"] },

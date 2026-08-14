@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb, getPublicDb } from "@/lib/db";
 import { verifyToken, hashPassword } from "@/lib/auth";
 import { sendWelcomeEmail } from "@/lib/email";
+import {
+  WORKSPACE_TO_VERTICAL,
+  upsertTenantSubscription,
+} from "@/lib/features/subscription";
 
 export async function GET() {
   try {
@@ -96,6 +100,32 @@ export async function POST(req: NextRequest) {
     await tenantDb.query(`INSERT INTO ${schema}.departments SELECT * FROM viswa.departments ON CONFLICT DO NOTHING`);
     await tenantDb.query(`INSERT INTO ${schema}.leave_types SELECT * FROM viswa.leave_types ON CONFLICT DO NOTHING`);
 
+    // ── Seed feature flag catalog + availability from the viswa template ──
+    await tenantDb.query(
+      `INSERT INTO ${schema}.feature_flags (flag_key, name, description, category, owner_team, status, default_enabled, config)
+       SELECT ff.flag_key, ff.name, ff.description, ff.category, ff.owner_team, ff.status, ff.default_enabled, ff.config
+       FROM viswa.feature_flags ff
+       ON CONFLICT (flag_key) DO NOTHING`
+    );
+    await tenantDb.query(
+      `INSERT INTO ${schema}.feature_availability (feature_flag_id, vertical_name, min_tier)
+       SELECT t.id, va.vertical_name, va.min_tier
+       FROM viswa.feature_availability va
+       JOIN viswa.feature_flags vf ON vf.id = va.feature_flag_id
+       JOIN ${schema}.feature_flags t ON t.flag_key = vf.flag_key
+       ON CONFLICT (feature_flag_id, vertical_name) DO NOTHING`
+    );
+    await tenantDb.query(
+      `INSERT INTO ${schema}.feature_flag_dependencies (dependent_flag_id, required_flag_id, dependency_type, description)
+       SELECT td.id, tr.id, vd.dependency_type, vd.description
+       FROM viswa.feature_flag_dependencies vd
+       JOIN viswa.feature_flags vf ON vf.id = vd.dependent_flag_id
+       JOIN ${schema}.feature_flags td ON td.flag_key = vf.flag_key
+       JOIN viswa.feature_flags vfr ON vfr.id = vd.required_flag_id
+       JOIN ${schema}.feature_flags tr ON tr.flag_key = vfr.flag_key
+       ON CONFLICT (dependent_flag_id, required_flag_id, dependency_type) DO NOTHING`
+    );
+
     await tenantDb`
       INSERT INTO users (email, first_name, password_hash, is_active)
       VALUES (${adminEmail}, ${adminFirstName}, ${passwordHash}, true)
@@ -150,9 +180,23 @@ export async function POST(req: NextRequest) {
     if (subscription_charges_type) config.subscription_charges = subscription_charges_type;
     if (price != null) config.price = price;
 
+    // ── Create the tenant's default subscription (feature verticals derived from workspaces) ──
+    const subscribedVerticals = validWorkspaces
+      .map((w: { type: string }) => WORKSPACE_TO_VERTICAL[w.type])
+      .filter(Boolean);
+    config.subscribed_verticals = subscribedVerticals;
+
+    await upsertTenantSubscription(tenantId, {
+      tier: "professional",
+      status: "active",
+      subscribed_verticals: subscribedVerticals,
+      billing_period: "monthly",
+    });
+
     await publicDb`
       UPDATE public.tenants
-      SET config = ${JSON.stringify(config)}::jsonb
+      SET config = ${JSON.stringify(config)}::jsonb,
+          subscribed_verticals = ${JSON.stringify(subscribedVerticals)}::jsonb
       WHERE id = ${tenantId}
     `;
 

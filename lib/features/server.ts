@@ -12,6 +12,10 @@ import type {
   FeatureCheckResult,
   FeatureFlagScope,
 } from './types';
+import {
+  getTenantSubscriptionBySchema,
+  enforceSubscriptionForFlag,
+} from './subscription';
 
 // ============================================================
 // MAIN FEATURE CHECK FUNCTION
@@ -257,6 +261,7 @@ export async function enableFeature(
   scopeId?: string,
   context?: { user_id?: string; enterprise_id?: string; property_id?: string },
   reason?: string,
+  tenantSchema?: string,
 ): Promise<{ success: boolean; message: string }> {
   try {
     // Check dependencies first
@@ -269,6 +274,20 @@ export async function enableFeature(
     }
 
     const db = await getDb();
+
+    // Subscription gate: the tenant can never exceed their subscribed plan
+    if (tenantSchema) {
+      const subscription = await getTenantSubscriptionBySchema(tenantSchema);
+      if (subscription) {
+        const gate = await enforceSubscriptionForFlag(db, flagKey, subscription);
+        if (!gate.allowed) {
+          return {
+            success: false,
+            message: gate.message || 'Not allowed by subscription',
+          };
+        }
+      }
+    }
 
     // Get feature flag ID
     const flagResult = await db.query(

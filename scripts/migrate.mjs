@@ -261,6 +261,17 @@ async function run() {
       }
     }
 
+    // ── Step 9.4: Run subscription provisioning migration ──
+    console.log("▶ 044_subscription_provisioning.sql (public schema)");
+    const subPath = join(DATABASE_DIR, "044_subscription_provisioning.sql");
+    if (existsSync(subPath)) {
+      await client.query(`SET search_path TO public`);
+      const statements = splitStatements(readFileSync(subPath, "utf-8"));
+      for (const stmt of statements) {
+        await client.query(stmt + ";");
+      }
+    }
+
     // ── Step 9.5: Run flat & room hierarchy migration ──
     console.log(`▶ 028_flat_room_hierarchy.sql (${TENANT_SCHEMA})`);
     const hierarchyPath = join(DATABASE_DIR, "028_flat_room_hierarchy.sql");
