@@ -1096,12 +1096,71 @@ try {
   }
   console.log("✔ finance/ota/rental/f&b/workplace/history complete");
 
+  // ─────────────────────────────────────────────────────────────
+  // 17. Occupancy, guest feedback, and platform support tickets
+  // ─────────────────────────────────────────────────────────────
+  await c.query(
+    `UPDATE units SET status = 'occupied' WHERE id IN (SELECT unit_id FROM bookings WHERE status = 'checked_in')`
+  );
+  console.log("✔ units marked occupied for checked-in bookings");
+
+  const fbDepts = ["front_desk", "housekeeping", "restaurant", "room_service"];
+  const fbComments = [
+    "Excellent service, very responsive staff.",
+    "Great stay, would definitely return.",
+    "Good value for money, room was spotless.",
+    "Staff went above and beyond.",
+    "Lovely property and great location.",
+    "Check-in was quick and smooth.",
+    "Breakfast spread was excellent.",
+    "Room service a bit slow but quality was great.",
+  ];
+  const fbSeed = [];
+  for (const b of hBookings) {
+    if (Math.random() < 0.35) {
+      fbSeed.push({
+        property_id: b.propId,
+        booking_id: b.id,
+        guest_id: b.guestId,
+        department: pick(fbDepts),
+        rating: 3 + rnd(3),
+        comments: pick(fbComments),
+        status: "new",
+        created_at: iso(days(b.coOff)),
+      });
+    }
+  }
+  for (const [bkId, gId, dept, rating, comment, off] of [
+    [b4, guests[2], "front_desk", 5, "Beautiful room, smooth check-in.", -1],
+    [b5, guests[3], "housekeeping", 4, "Very clean and comfortable.", 0],
+    [b1, guests[0], "restaurant", 5, "Breakfast was superb!", -11],
+    [b2, guests[1], "room_service", 4, "Fast and courteous.", -8],
+  ]) {
+    fbSeed.push({ property_id: hot, booking_id: bkId, guest_id: gId, department: dept, rating, comments: comment, status: "new", created_at: iso(days(off)) });
+  }
+  await insMany("guest_feedbacks", fbSeed);
+  console.log("✔ guest_feedbacks:", fbSeed.length);
+
+  const ticketDefs = [
+    ["Unable to access OTA channel sync", "ota", "Booking.com and MakeMyTrip channels stopped syncing this morning. Need help re-establishing the connection.", "open", "high"],
+    ["Question about GST invoice export", "billing", "Need assistance exporting GST-compliant invoices for the July period.", "in_progress", "medium"],
+  ];
+  await c.query(`DELETE FROM public.support_tickets WHERE tenant_code = $1`, [TC]);
+  for (const [subject, category, description, status, priority] of ticketDefs) {
+    await c.query(
+      `INSERT INTO public.support_tickets (tenant_code, subject, description, status, priority, category, contact_name, contact_email, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [TC, subject, description, status, priority, category, TLabel + " Admin", "superadmin@" + TC.toLowerCase() + ".ehms.demo", userMap["superadmin@ehms.demo"]]
+    );
+  }
+  console.log("✔ public.support_tickets: 2 per tenant");
+
   await c.query("COMMIT");
   console.log(`\n✅ SEED COMPLETE — ${inserts} rows inserted into ${SCHEMA}`);
   console.log("Key counts:");
   await c.query("BEGIN");
   await c.query(`SET search_path TO ${SCHEMA}, public`);
-  for (const [label, t] of [["properties", "properties"], ["units", "units"], ["bookings", "bookings"], ["guests", "guest_profiles"], ["employees", "employees"], ["vendors", "vendors"], ["housekeeping_tasks", "housekeeping_tasks"], ["maintenance_tickets", "maintenance_tickets"], ["journal_entries", "journal_entries"], ["accounts", "chart_of_accounts"], ["lease_agreements", "lease_agreements"], ["workplace_bookings", "workplace_bookings"], ["f_and_b_orders", "f_and_b_orders"], ["invoices", "invoices"], ["payments", "payments"], ["attendance_records", "attendance_records"], ["payroll_runs", "payroll_runs"]]) {
+  for (const [label, t] of [["properties", "properties"], ["units", "units"], ["bookings", "bookings"], ["guests", "guest_profiles"], ["employees", "employees"], ["vendors", "vendors"], ["housekeeping_tasks", "housekeeping_tasks"], ["maintenance_tickets", "maintenance_tickets"], ["journal_entries", "journal_entries"], ["accounts", "chart_of_accounts"], ["lease_agreements", "lease_agreements"], ["workplace_bookings", "workplace_bookings"], ["f_and_b_orders", "f_and_b_orders"], ["invoices", "invoices"], ["payments", "payments"], ["attendance_records", "attendance_records"], ["payroll_runs", "payroll_runs"], ["guest_feedbacks", "guest_feedbacks"]]) {
     console.log(`  ${label.padEnd(20)} ${await cnt(t)}`);
   }
   await c.query("COMMIT");

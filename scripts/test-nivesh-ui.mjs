@@ -56,7 +56,8 @@ const routes = [
 ];
 
 async function main() {
-  const cookie = await tenantLogin("superadmin@ehms.demo", "Demo@1234", "NIVESH");
+  const TC = (process.argv[2] || "NIVESH").toUpperCase();
+  const cookie = await tenantLogin("superadmin@ehms.demo", "Demo@1234", TC);
   const results = [];
   for (const route of [...new Set(routes)]) {
     const res = await fetch(`${BASE}${route}`, { headers: { cookie } });
