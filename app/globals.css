@@ -543,6 +543,26 @@
   --color-gold-light:        var(--hs-brand-gold-light);
   --hs-primary-navy:         var(--hs-brand-navy);
   --hs-secondary-gold:       var(--hs-brand-gold);
+
+  /* Form-panel surfaces — pin the cream/white auth form to the light
+     brand look in BOTH themes so it never flips to dark/lavender. */
+  --hs-bg-cream:            #FBF7EC;
+  --hs-bg-cream-rgb:        251, 247, 236;
+  --hs-surface-white:       #FFFFFF;
+  --hs-surface-white-rgb:   255, 255, 255;
+  --hs-text-dark:           #17241B;
+  --hs-text-dark-rgb:       23, 36, 27;
+  --hs-text-muted:          #55685C;
+  --hs-text-muted-rgb:      85, 104, 92;
+  --hs-border-light:        #E3E9E4;
+  --color-white:            #FFFFFF;
+  --color-white-rgb:        255, 255, 255;
+  --color-text:             #17241B;
+  --color-text-rgb:         23, 36, 27;
+  --color-text-muted:       #55685C;
+  --color-text-muted-rgb:   85, 104, 92;
+  --color-border:           #E3E9E4;
+  --color-border-rgb:       227, 233, 228;
 }
 
 /* ─── Dark-mode richness helpers ─── */

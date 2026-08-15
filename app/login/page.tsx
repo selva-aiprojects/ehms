@@ -523,7 +523,7 @@ function LoginContent() {
           <p className="text-xs font-medium mb-6 tracking-widest uppercase" style={{ color: "var(--hs-secondary-gold)" }}>
             HostSphere Hospitality Management
           </p>
-          <h1 className="text-4xl font-bold leading-tight mb-4" style={{ color: "#FACC15" }}>Unified Multi-Vertical Hospitality & Space Management</h1>
+          <h1 className="text-4xl font-bold leading-tight mb-4" style={{ color: "var(--color-gold-light)" }}>Unified Multi-Vertical Hospitality & Space Management</h1>
           <p className="text-lg max-w-md" style={{ color: "rgba(var(--color-on-dark-rgb),0.65)" }}>
             Hotels · Service Apartments · Rental & Tenancy · Workplace & Managed Offices
           </p>
@@ -595,7 +595,7 @@ function LoginContent() {
             })}
           </div>
 
-          <h2 className="text-2xl font-bold mb-1" style={{ color: "var(--secondary)" }}>HostSphere Portal</h2>
+          <h2 className="text-2xl font-bold mb-1" style={{ color: "var(--color-primary)" }}>HostSphere Portal</h2>
           <p className="text-sm mb-6" style={{ color: "var(--color-text-muted)" }}>Access your hospitality workspace</p>
 
           <form onSubmit={handleLogin} className="space-y-4">
