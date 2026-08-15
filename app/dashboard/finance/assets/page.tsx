@@ -39,9 +39,9 @@ export default function AssetsPage() {
   const { depreciation } = useDepreciationSchedule({ asset_id: selectedAsset?.id, is_posted: true });
 
   const assets: any[] = fixedAssets || [];
-  const totalPurchaseCost = assets.reduce((s: number, a: any) => s + (a.purchase_cost ?? 0), 0);
-  const totalBookValue = assets.reduce((s: number, a: any) => s + (a.book_value ?? 0), 0);
-  const totalDepreciation = assets.reduce((s: number, a: any) => s + ((a.purchase_cost ?? 0) - (a.book_value ?? 0)), 0);
+  const totalPurchaseCost = assets.reduce((s: number, a: any) => s + Number(a.purchase_cost ?? 0), 0);
+  const totalBookValue = assets.reduce((s: number, a: any) => s + Number(a.book_value ?? 0), 0);
+  const totalDepreciation = assets.reduce((s: number, a: any) => s + (Number(a.purchase_cost ?? 0) - Number(a.book_value ?? 0)), 0);
 
   useEffect(() => {
     if (actionFeedback) {

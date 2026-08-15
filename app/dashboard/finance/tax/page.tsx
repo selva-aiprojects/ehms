@@ -39,8 +39,8 @@ export default function TaxPage() {
   const fileReturn = useFileTaxReturn();
 
   const filings: any[] = taxFilings || [];
-  const totalLiability = filings.reduce((s: number, f: any) => s + (f.total_liability ?? 0), 0);
-  const totalPaid = filings.reduce((s: number, f: any) => s + (f.total_paid ?? 0), 0);
+  const totalLiability = filings.reduce((s: number, f: any) => s + Number(f.total_liability ?? 0), 0);
+  const totalPaid = filings.reduce((s: number, f: any) => s + Number(f.total_paid ?? 0), 0);
   const pendingCount = filings.filter((f: any) => f.status === "pending" || f.status === "overdue").length;
 
   useEffect(() => {

@@ -40,10 +40,11 @@ export default function PayablesPage() {
     ? bills.filter((b) => b.due_date && daysOverdue(b.due_date) > 0 && b.status !== "paid" && b.status !== "cancelled")
     : bills.filter((b) => b.status === statusFilter);
 
-  const totalPayables = bills.reduce((s, b) => s + (b.balance_due ?? b.grand_total ?? 0), 0);
-  const totalOverdue = bills.filter((b) => b.due_date && daysOverdue(b.due_date) > 0 && b.status !== "paid" && b.status !== "cancelled").reduce((s, b) => s + (b.balance_due ?? b.grand_total ?? 0), 0);
-  const dueThisMonth = bills.filter((b) => b.status !== "paid" && b.status !== "cancelled").reduce((s, b) => s + (b.balance_due ?? b.grand_total ?? 0), 0);
-  const paidThisMonth = bills.filter((b) => b.status === "paid").reduce((s, b) => s + (b.paid_total ?? b.grand_total ?? 0), 0);
+  const amountOf = (b: any) => Number(b.balance_due ?? b.grand_total ?? 0);
+  const totalPayables = bills.reduce((s, b) => s + amountOf(b), 0);
+  const totalOverdue = bills.filter((b) => b.due_date && daysOverdue(b.due_date) > 0 && b.status !== "paid" && b.status !== "cancelled").reduce((s, b) => s + amountOf(b), 0);
+  const dueThisMonth = bills.filter((b) => b.status !== "paid" && b.status !== "cancelled").reduce((s, b) => s + amountOf(b), 0);
+  const paidThisMonth = bills.filter((b) => b.status === "paid").reduce((s, b) => s + Number(b.paid_total ?? b.grand_total ?? 0), 0);
 
   useEffect(() => {
     if (actionFeedback) {

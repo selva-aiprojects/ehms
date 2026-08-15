@@ -1144,3 +1144,19 @@ export function useAiRules(propertyId?: string) {
   return { aiRules: data?.data || [], isLoading, isError: !!error, mutate };
 }
 
+// ── Platform Subscriptions & Billing ─────────────────────────
+export function useAdminSubscriptions() {
+  const { data, error, isLoading, mutate } = useSWR("/api/admin/subscriptions", fetcher, { refreshInterval: 30000 });
+  return {
+    plans: data?.plans || [],
+    subscriptions: data?.subscriptions || [],
+    metrics: data?.metrics || null,
+    invoices: data?.invoices || [],
+    payments: data?.payments || [],
+    trend: data?.trend || [],
+    isLoading,
+    isError: !!error,
+    mutate,
+  };
+}
+

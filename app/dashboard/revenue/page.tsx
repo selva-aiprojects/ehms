@@ -16,7 +16,7 @@ function KPICard({ icon: Icon, label, value, subtext, color, trend }: {
 }) {
   return (
     <Card>
-      <div className="flex items-start gap-3">
+      <div className="flex flex-col items-center gap-2 text-center">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${color}15` }}>
           <Icon className="w-5 h-5" style={{ color }} />
         </div>
@@ -24,7 +24,7 @@ function KPICard({ icon: Icon, label, value, subtext, color, trend }: {
           <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>{label}</p>
           <p className="text-xl font-bold mt-0.5" style={{ color: "var(--color-navy)" }}>{value}</p>
           {subtext && (
-            <div className="flex items-center gap-1 mt-0.5">
+            <div className="flex items-center justify-center gap-1 mt-0.5">
               {trend === "up" && <TrendingUp className="w-3 h-3" style={{ color: "var(--color-success)" }} />}
               {trend === "down" && <TrendingDown className="w-3 h-3" style={{ color: "var(--color-danger)" }} />}
               <p className="text-[10px]" style={{ color: trend === "down" ? "var(--color-danger)" : "var(--color-success)" }}>{subtext}</p>

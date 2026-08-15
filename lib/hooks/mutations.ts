@@ -732,3 +732,62 @@ export function useCreateAiRule() {
   });
   return { trigger: mutation.trigger, isMutating: mutation.isMutating, error: mutation.error };
 }
+
+// ── Platform Subscriptions & Billing Mutations ──
+export function useGenerateSubscriptionInvoice() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/subscriptions", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/admin/subscriptions"));
+    },
+  });
+  return {
+    trigger: async (tenant_id: string) => mutation.trigger({ action: "generate_invoice", tenant_id } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useRecordSubscriptionPayment() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/subscriptions", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/admin/subscriptions"));
+    },
+  });
+  return {
+    trigger: async (body: { invoice_id: string; amount: number; payment_mode?: string; reference?: string }) =>
+      mutation.trigger({ action: "record_payment", ...body } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useUpdateSubscription() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/subscriptions", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/admin/subscriptions"));
+      mutate((k) => typeof k === "string" && k.startsWith("/api/admin/tenants"));
+    },
+  });
+  return {
+    trigger: async (body: { tenant_id: string; tier?: string; status?: string; price?: number | null; billing_period?: string; plan_id?: string | null }) =>
+      mutation.trigger({ action: "update_subscription", ...body } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}
+
+export function useUpsertSubscriptionPlan() {
+  const { mutate } = useSWRConfig();
+  const mutation = useSWRMutation("/api/admin/subscriptions", jsonFetcher, {
+    onSuccess: () => {
+      mutate((k) => typeof k === "string" && k.startsWith("/api/admin/subscriptions"));
+    },
+  });
+  return {
+    trigger: async (body: {
+      id?: string; code: string; name: string; description?: string;
+      tier: string; price?: number | null; billing_period?: string; is_active?: boolean;
+    }) => mutation.trigger({ action: "upsert_plan", ...body } as any),
+    isMutating: mutation.isMutating, error: mutation.error,
+  };
+}

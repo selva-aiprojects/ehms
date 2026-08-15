@@ -58,7 +58,7 @@ export default function BillingFolioPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card className="bg-gradient-to-br from-[var(--color-navy)] to-[var(--color-primary)] text-white">
+        <Card className="text-white" style={{ background: "linear-gradient(135deg, var(--color-navy), var(--color-primary))" }}>
           <div className="p-5 flex flex-col h-full justify-between">
             <div className="flex items-center justify-between mb-4">
               <span className="font-medium opacity-90">Total Outstanding</span>

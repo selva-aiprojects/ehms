@@ -35,8 +35,8 @@ export default function BudgetPage() {
   const heads: any[] = budgetHeads || [];
   const years: any[] = fiscalYears || [];
 
-  const totalBudget = entries.reduce((s: number, e: any) => s + (e.budget_amount ?? 0), 0);
-  const totalActual = entries.reduce((s: number, e: any) => s + (e.actual_amount ?? 0), 0);
+  const totalBudget = entries.reduce((s: number, e: any) => s + Number(e.budget_amount ?? 0), 0);
+  const totalActual = entries.reduce((s: number, e: any) => s + Number(e.actual_amount ?? 0), 0);
   const variancePct = totalBudget > 0 ? ((totalActual - totalBudget) / totalBudget) * 100 : 0;
 
   useEffect(() => {
