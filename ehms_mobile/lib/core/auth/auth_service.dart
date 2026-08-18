@@ -136,8 +136,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         if (data is List) {
           return data.cast<Map<String, dynamic>>();
         }
-        if (data is Map && data.containsKey('data')) {
-          return (data['data'] as List).cast<Map<String, dynamic>>();
+        if (data is Map) {
+          // Handle { tenants: [...] } or { data: [...] } response formats
+          if (data.containsKey('tenants')) {
+            return (data['tenants'] as List).cast<Map<String, dynamic>>();
+          }
+          if (data.containsKey('data')) {
+            return (data['data'] as List).cast<Map<String, dynamic>>();
+          }
         }
       }
       return [];

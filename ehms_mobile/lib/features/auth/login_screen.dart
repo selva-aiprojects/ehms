@@ -24,7 +24,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   // Tenant selection
   List<Map<String, dynamic>> _tenants = [];
   Map<String, dynamic>? _selectedTenant;
-  bool _showTenantPicker = false;
 
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -327,7 +326,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Widget _buildTenantSelector() {
     return GestureDetector(
-      onTap: () => setState(() => _showTenantPicker = !_showTenantPicker),
+      onTap: _showTenantPickerSheet,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
@@ -352,12 +351,97 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
             ),
             Icon(
-              _showTenantPicker ? Icons.expand_less : Icons.expand_more,
+              Icons.expand_more,
               color: Colors.white.withValues(alpha: 0.5),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showTenantPickerSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(ctx).size.height * 0.5,
+          ),
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A2E1A),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Select Organization',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _tenants.length,
+                  itemBuilder: (context, index) {
+                    final tenant = _tenants[index];
+                    final isSelected = _selectedTenant?['id'] == tenant['id'];
+                    return ListTile(
+                      leading: Icon(
+                        Icons.business,
+                        color: isSelected
+                            ? HmsColors.gold
+                            : Colors.white.withValues(alpha: 0.5),
+                      ),
+                      title: Text(
+                        tenant['name'] ?? '',
+                        style: TextStyle(
+                          color: isSelected ? HmsColors.gold : Colors.white,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                      subtitle: Text(
+                        tenant['code'] ?? '',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.4),
+                          fontSize: 12,
+                        ),
+                      ),
+                      trailing: isSelected
+                          ? const Icon(Icons.check_circle, color: HmsColors.gold, size: 20)
+                          : null,
+                      onTap: () {
+                        setState(() => _selectedTenant = tenant);
+                        Navigator.pop(ctx);
+                      },
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
     );
   }
 
