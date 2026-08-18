@@ -1,0 +1,66 @@
+{
+  "name": "HostSphere — Hospitality Management Suite",
+  "short_name": "HostSphere",
+  "description": "HostSphere multi-vertical hospitality and space management suite for hotels, serviced apartments, apartment rentals and workplace services.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#F8FAF8",
+  "theme_color": "#255230",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "travel"],
+  "shortcuts": [
+    {
+      "name": "Front Desk",
+      "short_name": "Front Desk",
+      "description": "Open the front desk command center",
+      "url": "/dashboard/front-desk",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Housekeeping",
+      "short_name": "Housekeeping",
+      "description": "Open housekeeping tasks",
+      "url": "/dashboard/housekeeping",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Maintenance",
+      "short_name": "Maintenance",
+      "description": "Open maintenance requests",
+      "url": "/dashboard/maintenance",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Finance",
+      "short_name": "Finance",
+      "description": "Open the finance module",
+      "url": "/dashboard/finance",
+      "icons": [{ "src": "/pwa-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "icons": [
+    {
+      "src": "/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

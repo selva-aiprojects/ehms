@@ -1,0 +1,773 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Settings, Shield, Users, Activity, AlertCircle, Loader2, RefreshCw, CheckCircle, Eye, EyeOff, UserPlus, Clock, FileText, Key, Globe, Lock, Bell, Sliders, ToggleLeft, Server, Database, Download, Upload, Code, Mail, Smartphone, CreditCard, Ticket, AlertTriangle } from "lucide-react";
+import Card, { CardHeader } from "@/components/ui/card";
+import Badge from "@/components/ui/badge";
+import Button from "@/components/ui/button";
+import Table from "@/components/ui/table";
+import { useAdminUsers, useAuditLogs, useComplianceRecords, useProperties, useAdminTickets } from "@/lib/hooks";
+import Link from "next/link";
+
+const SYSTEM_USERS = [
+  { name: "Rajesh Mehta", email: "rajesh@samp.com", role: "Property Manager", property: "Oceanview Hotel", status: "active" },
+  { name: "Sneha Kapoor", email: "sneha@samp.com", role: "Property Manager", property: "Viswa Service Apts", status: "active" },
+  { name: "Priya Sharma", email: "priya@samp.com", role: "Front Desk", property: "Oceanview Hotel", status: "active" },
+  { name: "Ravi Kumar", email: "ravi@samp.com", role: "Housekeeping Staff", property: "Oceanview Hotel", status: "active" },
+  { name: "Anita Desai", email: "anita@samp.com", role: "Finance Manager", property: "Global", status: "active" },
+  { name: "Arjun Nair", email: "arjun@samp.com", role: "Maintenance Staff", property: "Oceanview Hotel", status: "inactive" },
+  { name: "Priya Nair", email: "priya.n@samp.com", role: "HR Manager", property: "Global", status: "active" },
+];
+
+const AUDIT_LOGS = [
+  { user: "Rajesh M.", action: "Updated rate plan — Deluxe King", time: "2 min ago" },
+  { user: "Priya S.", action: "Checked in guest Room 1204", time: "15 min ago" },
+  { user: "Anita D.", action: "Approved PO #PO-024", time: "1 hr ago" },
+  { user: "Ravi K.", action: "Completed HK task Room 203", time: "2 hrs ago" },
+  { user: "System", action: "Auto-backup completed", time: "3 hrs ago" },
+  { user: "Sneha K.", action: "Modified corporate rate", time: "4 hrs ago" },
+  { user: "Rajesh M.", action: "Added new property — Grand Palace Hotel", time: "6 hrs ago" },
+];
+
+const COMPLIANCE_ITEMS = [
+  { label: "Fire Safety Certificate", status: "Valid", badge: "teal" as const, expiry: "31 Dec 2026" },
+  { label: "Liquor License", status: "30d left", badge: "amber" as const, expiry: "15 Jul 2026" },
+  { label: "RERA Registration", status: "Valid", badge: "teal" as const, expiry: "31 Mar 2027" },
+  { label: "Pollution Clearance", status: "Expired", badge: "red" as const, expiry: "10 Jan 2026" },
+  { label: "Fire NOC", status: "Valid", badge: "teal" as const, expiry: "30 Sep 2026" },
+  { label: "GST Registration", status: "Valid", badge: "teal" as const, expiry: "—" },
+];
+
+function SkeletonLine() {
+  return <div className="h-4 rounded animate-pulse mb-2" style={{ background: "var(--color-border)" }} />;
+}
+
+export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { users, isLoading: loadingUsers, mutate: mutateUsers } = useAdminUsers();
+  const { logs, isLoading: loadingLogs, mutate: mutateLogs } = useAuditLogs(50);
+  const { records, isLoading: loadingRecords, mutate: mutateRecords } = useComplianceRecords();
+  const { properties = [] } = useProperties();
+  const { tickets: allTickets, isLoading: loadingTickets, mutate: mutateTickets } = useAdminTickets();
+  const ticketStats = allTickets ? (allTickets as any[]).reduce((acc: Record<string, number>, t: any) => {
+    acc.total = (acc.total || 0) + 1;
+    acc[t.status] = (acc[t.status] || 0) + 1;
+    if (t.priority === "high" || t.priority === "critical") acc.high_critical = (acc.high_critical || 0) + 1;
+    return acc;
+  }, {}) : null;
+
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUser, setNewUser] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    role_name: "property_manager",
+    property_id: "",
+  });
+  const [newUserLoading, setNewUserLoading] = useState(false);
+
+  const displayUsers = (users as any[]) || [];
+  const displayLogs = (logs as any[]) || [];
+  const displayCompliance = (records as any[]) || [];
+  const isLoadingDisplay = (loadingUsers || loadingLogs || loadingRecords) && !users && !logs;
+
+  useEffect(() => {
+    if (actionFeedback) {
+      const t = setTimeout(() => setActionFeedback(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [actionFeedback]);
+
+  async function handleCreateUser(e: React.FormEvent) {
+    e.preventDefault();
+    setNewUserLoading(true);
+    setActionFeedback(null);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: newUser.first_name,
+          last_name: newUser.last_name || null,
+          email: newUser.email,
+          password: newUser.password,
+          role_name: newUser.role_name,
+          property_id: newUser.property_id || null,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setActionFeedback({ type: "success", message: `User created successfully: ${newUser.first_name}` });
+        setShowAddUserModal(false);
+        setNewUser({
+          first_name: "",
+          last_name: "",
+          email: "",
+          password: "",
+          role_name: "property_manager",
+          property_id: "",
+        });
+        mutateUsers();
+      } else {
+        setActionFeedback({ type: "error", message: data.error || "Failed to create user" });
+      }
+    } catch {
+      setActionFeedback({ type: "error", message: "Network error creating user" });
+    } finally {
+      setNewUserLoading(false);
+    }
+  }
+
+  function handleRefresh() {
+    setIsLoading(true);
+    mutateUsers(); mutateLogs(); mutateRecords(); mutateTickets();
+    setActionFeedback({ type: "success", message: "Dashboard refreshed" });
+    setTimeout(() => setIsLoading(false), 800);
+  }
+
+  const activeUsers = displayUsers.filter((u: any) => u.is_active === true || u.status === "active").length;
+  const inactiveUsers = displayUsers.filter((u: any) => u.is_active === false || u.status !== "active").length;
+  const validCompliance = displayCompliance.filter((c: any) => c.status === "active" || c.badge === "teal").length;
+
+  const TABS = [
+    { key: "overview", label: "Overview", icon: Activity },
+    { key: "users", label: "User Management", icon: Users },
+    { key: "compliance", label: "Compliance", icon: Shield },
+    { key: "audit", label: "Audit Log", icon: FileText },
+    { key: "system", label: "System", icon: Settings },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Admin & Configuration</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>Global configuration, security, audit logs</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => window.location.href = '/dashboard/admin/masters'}>
+            <Settings className="w-3.5 h-3.5" /> Master Data Hub
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => setActionFeedback({ type: "success", message: "Settings saved" })}>
+            <Sliders className="w-3.5 h-3.5" /> Save Settings
+          </Button>
+          <button onClick={handleRefresh} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
+            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+          </button>
+        </div>
+      </div>
+
+      {actionFeedback && (
+        <div
+          className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
+          style={{
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
+          }}
+        >
+          {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+          {actionFeedback.message}
+        </div>
+      )}
+
+      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.key;
+          return (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap"
+              style={{
+                background: isActive ? "var(--color-navy)" : "var(--color-light)",
+                color: isActive ? "var(--color-white)" : "var(--color-text-muted)",
+              }}
+            >
+              <Icon className="w-4 h-4" /> {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {activeTab === "overview" && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader title="System Health" />
+              {isLoading ? (
+                <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonLine key={i} />)}</div>
+              ) : (
+                <div className="space-y-2 text-sm">
+                  {[
+                    { label: "API Uptime", value: "99.97%", color: "var(--color-primary)" },
+                    { label: "Avg Response", value: "142ms", color: "var(--color-primary)" },
+                    { label: "Active Sessions", value: "247", color: "var(--color-navy)" },
+                    { label: "DB Connections", value: "18/50", color: "var(--color-navy)" },
+                    { label: "Cache Hit Rate", value: "94.2%", color: "var(--color-primary)" },
+                    { label: "Error Rate (24h)", value: "0.03%", color: "var(--color-primary)" },
+                  ].map((s) => (
+                    <div key={s.label} className="flex justify-between">
+                      <span style={{ color: "var(--color-text-muted)" }}>{s.label}</span>
+                      <span className="font-medium" style={{ color: s.color }}>{s.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+            <Card>
+              <CardHeader title="Compliance Vault" subtitle={`${validCompliance}/${displayCompliance.length} valid`} />
+              {isLoadingDisplay && !displayCompliance.length ? (
+                <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonLine key={i} />)}</div>
+              ) : displayCompliance.length === 0 ? (
+                <div className="text-center py-6 text-xs text-slate-400">No compliance records registered</div>
+              ) : (
+                <div className="space-y-2 text-sm">
+                  {displayCompliance.slice(0, 5).map((c: any, i: number) => {
+                    const label = c.certificate_type || c.label;
+                    const status = c.status || c.status;
+                    const badgeVariant = c.status === "active" || c.badge === "teal" ? "teal" as const : (c.status === "expired" || c.badge === "red" ? "red" as const : "amber" as const);
+                    return (
+                    <div key={c.id || i} className="flex items-center justify-between">
+                      <span style={{ color: "var(--color-text)" }}>{label}</span>
+                      <Badge variant={badgeVariant}>{status}</Badge>
+                    </div>
+                  )})}
+                </div>
+              )}
+            </Card>
+            <Card className="lg:col-span-2">
+              <CardHeader title="Audit Log" subtitle="Recent activity" />
+              {isLoadingDisplay ? (
+                <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonLine key={i} />)}</div>
+              ) : displayLogs.length === 0 ? (
+                <div className="text-center py-6 text-xs text-slate-400">No recent audit logs</div>
+              ) : (
+                <div className="space-y-2 text-xs max-h-48 overflow-y-auto">
+                  {displayLogs.slice(0, 5).map((a: any, i: number) => {
+                    const userName = a.user?.first_name ? `${a.user.first_name} ${a.user.last_name || ""}` : a.user || "System";
+                    const actionText = `${a.action} ${a.entity_type}`;
+                    const timeStr = a.created_at ? new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : a.time;
+                    return (
+                    <div key={a.id || i} className="flex justify-between py-1">
+                      <span style={{ color: "var(--color-text)" }}>
+                        <span className="font-medium">{userName}</span> — {actionText}
+                      </span>
+                      <span className="shrink-0 ml-2" style={{ color: "var(--color-text-muted)" }}>{timeStr}</span>
+                    </div>
+                  )})}
+                </div>
+              )}
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <Link href="/dashboard/admin/tickets?status=open"
+              className="rounded-xl p-4 transition-all hover:shadow-md"
+              style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Open Tickets</span>
+                <Ticket className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
+              </div>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-navy)" }}>
+                {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.open || 0}
+              </p>
+              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
+                {ticketStats?.in_progress || 0} in progress
+              </p>
+            </Link>
+            <Link href="/dashboard/admin/tickets?status=awaiting_tenant"
+              className="rounded-xl p-4 transition-all hover:shadow-md"
+              style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Awaiting Tenant</span>
+                <Clock className="w-4 h-4" style={{ color: "var(--color-warning)" }} />
+              </div>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-warning)" }}>
+                {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.awaiting_tenant || 0}
+              </p>
+              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>Waiting for response</p>
+            </Link>
+            <Link href="/dashboard/admin/tickets?priority=critical"
+              className="rounded-xl p-4 transition-all hover:shadow-md"
+              style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>High / Critical</span>
+                <AlertTriangle className="w-4 h-4" style={{ color: "var(--color-danger)" }} />
+              </div>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-danger)" }}>
+                {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.high_critical || 0}
+              </p>
+              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>Needs immediate attention</p>
+            </Link>
+            <Link href="/dashboard/admin/tickets"
+              className="rounded-xl p-4 transition-all hover:shadow-md"
+              style={{ background: "var(--color-white)", border: "1px solid var(--color-border)" }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-text-faint)" }}>Resolved</span>
+                <CheckCircle className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
+              </div>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-primary)" }}>
+                {loadingTickets ? <Loader2 className="w-5 h-5 animate-spin" /> : ticketStats?.resolved || 0}
+              </p>
+              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
+                {ticketStats?.closed || 0} closed
+              </p>
+            </Link>
+          </div>
+
+          <Card>
+            <CardHeader title="Role Management" subtitle="12 system roles defined" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              {[
+                { role: "Super Admin", count: 1, color: "var(--color-danger)" },
+                { role: "Executive", count: 2, color: "var(--color-navy)" },
+                { role: "Property Manager", count: 2, color: "var(--color-navy)" },
+                { role: "Front Desk", count: 3, color: "var(--color-primary)" },
+                { role: "HK Staff", count: 8, color: "var(--color-primary)" },
+                { role: "Maintenance", count: 4, color: "var(--color-warning)" },
+                { role: "Finance", count: 2, color: "var(--color-navy)" },
+                { role: "HR", count: 1, color: "var(--color-primary)" },
+              ].map((r) => (
+                <div key={r.role} className="p-3 rounded-lg flex items-center justify-between" style={{ background: "var(--color-light)" }}>
+                  <span style={{ color: "var(--color-text)" }}>{r.role}</span>
+                  <span className="font-bold" style={{ color: r.color }}>{r.count}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </>
+      )}
+
+      {activeTab === "users" && (
+        <>
+          <Card>
+            <CardHeader
+              title="User Management"
+              subtitle={`${displayUsers.length} users · ${activeUsers} active · ${inactiveUsers} inactive`}
+              action={
+                <Button variant="secondary" size="sm" onClick={() => setShowAddUserModal(true)}>
+                  <UserPlus className="w-3.5 h-3.5" /> Add User
+                </Button>
+              }
+            />
+            {loadingUsers ? (
+              <div className="space-y-1">{[...Array(5)].map((_, i) => <div key={i} className="h-10 rounded animate-pulse" style={{ background: "var(--color-light)" }} />)}</div>
+            ) : (
+              <Table
+                data={displayUsers}
+                keyExtractor={(u: any) => u.id || Math.random()}
+                columns={[
+                  { key: "name", header: "Name", render: (u: any) => <span className="font-medium text-sm">{u.first_name} {u.last_name || ""}</span> },
+                  { key: "email", header: "Email", render: (u: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{u.email}</span> },
+                  { key: "role", header: "Role", render: (u: any) => <Badge variant="gray">{u.user_roles?.[0]?.role?.name || u.role || "—"}</Badge> },
+                  { key: "property", header: "Scope", render: (u: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{u.user_roles?.[0]?.property_id ? "Specific" : "Global"}</span> },
+                  { key: "status", header: "Status", render: (u: any) => (
+                    <Badge variant={u.is_active !== false ? "teal" : "red"}>{u.is_active !== false ? "active" : "inactive"}</Badge>
+                  )},
+                ]}
+              />
+            )}
+          </Card>
+
+          {showAddUserModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+              <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
+                  <h3 className="font-bold text-lg" style={{ color: "var(--color-navy)" }}>Add New System User</h3>
+                  <button onClick={() => setShowAddUserModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                </div>
+                <form onSubmit={handleCreateUser} className="p-6 space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>First Name *</label>
+                      <input
+                        type="text" required value={newUser.first_name}
+                        onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
+                        placeholder="Jane"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Last Name</label>
+                      <input
+                        type="text" value={newUser.last_name}
+                        onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
+                        placeholder="Smith"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Email Address *</label>
+                    <input
+                      type="email" required value={newUser.email}
+                      onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
+                      placeholder="jane.smith@ehms.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Password *</label>
+                    <input
+                      type="password" required value={newUser.password}
+                      onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                      className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
+                      placeholder="•••••••• (Min 8 chars)"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>System Role *</label>
+                      <select
+                        value={newUser.role_name}
+                        onChange={(e) => setNewUser({ ...newUser, role_name: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}
+                      >
+                        <option value="super_admin">Super Admin</option>
+                        <option value="executive">Executive</option>
+                        <option value="property_manager">Property Manager</option>
+                        <option value="front_desk">Front Desk</option>
+                        <option value="housekeeping_supervisor">HK Supervisor</option>
+                        <option value="housekeeping_staff">HK Staff</option>
+                        <option value="maintenance_supervisor">Maintenance Supervisor</option>
+                        <option value="maintenance_staff">Maintenance Staff</option>
+                        <option value="hr_manager">HR Manager</option>
+                        <option value="finance_manager">Finance Manager</option>
+                        <option value="workplace_facility_manager">Workplace Facility Manager</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold mb-1" style={{ color: "var(--color-text)" }}>Workspace Scope</label>
+                      <select
+                        value={newUser.property_id}
+                        onChange={(e) => setNewUser({ ...newUser, property_id: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white" style={{ borderColor: "var(--color-border)" }}
+                      >
+                        <option value="">Global (All Workspaces)</option>
+                        {properties.map((p: any) => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setShowAddUserModal(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" variant="primary" size="sm" disabled={newUserLoading}>
+                      {newUserLoading ? (
+                        <><Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Creating</>
+                      ) : (
+                        "Create User"
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === "compliance" && (
+        <Card>
+          <CardHeader title="Compliance Vault" subtitle="Certificate & license management" />
+          {loadingRecords ? (
+            <div className="space-y-2">{[...Array(4)].map((_, i) => <SkeletonLine key={i} />)}</div>
+          ) : (
+          <div className="grid gap-3">
+            {displayCompliance.length === 0 ? (
+              <div className="text-center py-8"><Shield className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} /><p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No compliance records</p></div>
+            ) : displayCompliance.map((c: any, i: number) => {
+              const label = c.certificate_type || c.label;
+              const expiry = c.expiry_date ? new Date(c.expiry_date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : c.expiry || "N/A";
+              const isActive = c.status === "active" || c.badge === "teal";
+              const isExpired = c.status === "expired" || c.badge === "red";
+              const badgeVariant = isActive ? "teal" as const : isExpired ? "red" as const : "amber" as const;
+              const statusText = c.status || c.status;
+              return (
+              <div key={c.id || i} className="flex items-center justify-between p-4 rounded-lg" style={{ background: "var(--color-light)" }}>
+                <div className="flex items-center gap-3">
+                  <Shield className="w-5 h-5" style={{ color: isActive ? "var(--color-primary)" : isExpired ? "var(--color-danger)" : "var(--color-warning)" }} />
+                  <div>
+                    <div className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{label}</div>
+                    <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>Expires: {expiry}</div>
+                  </div>
+                </div>
+                <Badge variant={badgeVariant}>{statusText}</Badge>
+              </div>
+            )})}
+          </div>
+          )}
+          <div className="mt-4 pt-3" style={{ borderTop: "1px solid var(--color-border)" }}>
+            <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+              <AlertCircle className="w-3 h-3 inline mr-1" />
+              {displayCompliance.filter((c: any) => c.status !== "active" && c.badge !== "teal").length} items require attention
+            </p>
+          </div>
+        </Card>
+      )}
+
+      {activeTab === "audit" && (
+        <Card>
+          <CardHeader title="Audit Log" subtitle="Full activity history" />
+          <div className="space-y-1 text-sm">
+            {loadingLogs ? (
+              [...Array(5)].map((_, i) => <SkeletonLine key={i} />)
+            ) : displayLogs.length === 0 ? (
+              <div className="text-center py-8"><FileText className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-text-muted)" }} /><p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No audit logs</p></div>
+            ) : (
+              displayLogs.map((a: any, i: number) => {
+                const userName = a.user?.first_name ? `${a.user.first_name} ${a.user.last_name || ""}` : a.user || "System";
+                const initial = userName.charAt(0);
+                const timeStr = a.created_at ? new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : a.time;
+                return (
+                <div key={a.id || i} className="flex items-center justify-between py-2.5" style={{ borderBottom: i < displayLogs.length - 1 ? "1px solid var(--color-border)" : "none" }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: "var(--color-sidebar)" }}>
+                      {initial}
+                    </div>
+                    <div>
+                      <span className="font-medium" style={{ color: "var(--color-text)" }}>{userName}</span>
+                      <span className="ml-1" style={{ color: "var(--color-text-muted)" }}>{a.action} {a.entity_type}</span>
+                    </div>
+                  </div>
+                  <span className="text-xs shrink-0 ml-2" style={{ color: "var(--color-text-muted)" }}>{timeStr}</span>
+                </div>
+              )})
+            )}
+          </div>
+        </Card>
+      )}
+
+      {activeTab === "system" && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader title="Security Settings" subtitle="Authentication & access control" />
+              <div className="space-y-4">
+                {[
+                  { label: "Multi-Factor Authentication", desc: "Require OTP for all admin logins", enabled: true },
+                  { label: "Session Timeout", desc: "Auto-logout after 30 minutes of inactivity", enabled: true },
+                  { label: "Password Expiry", desc: "Force password change every 90 days", enabled: true },
+                  { label: "IP Whitelisting", desc: "Restrict dashboard access to office IPs", enabled: false },
+                  { label: "Login Notifications", desc: "Email alert on new device login", enabled: true },
+                  { label: "Rate Limiting", desc: "Max 5 failed attempts before temporary lockout", enabled: true },
+                ].map((s) => (
+                  <div key={s.label} className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{s.label}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>{s.desc}</div>
+                    </div>
+                    <div
+                      onClick={() => setActionFeedback({ type: "success", message: `${s.label} toggled ${s.enabled ? "OFF" : "ON"}` })}
+                      className="w-10 h-5 rounded-full cursor-pointer transition-colors relative"
+                      style={{ background: s.enabled ? "var(--color-primary)" : "var(--color-border-strong)" }}
+                    >
+                      <div className="w-4 h-4 rounded-full bg-white absolute top-0.5 shadow-sm transition-all" style={{ left: s.enabled ? "5px" : "21px" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button variant="secondary" size="sm" className="w-full mt-4" onClick={() => setActionFeedback({ type: "success", message: "Security settings saved" })}>
+                <Shield className="w-3.5 h-3.5" /> Save Security Settings
+              </Button>
+            </Card>
+            <Card>
+              <CardHeader title="System Configuration" subtitle="Global system parameters" />
+              <div className="space-y-3">
+                {[
+                  { key: "APP_NAME", value: "Enterprise HMS", editable: true },
+                  { key: "TIMEZONE", value: "Asia/Kolkata (UTC+5:30)", editable: true },
+                  { key: "CURRENCY", value: "INR (₹)", editable: true },
+                  { key: "DATE_FORMAT", value: "DD-MMM-YYYY", editable: true },
+                  { key: "MAX_LOGIN_ATTEMPTS", value: "5", editable: false },
+                  { key: "SESSION_DURATION", value: "1800 seconds", editable: false },
+                  { key: "API_RATE_LIMIT", value: "100 req/min", editable: true },
+                  { key: "MAINTENANCE_MODE", value: "Disabled", editable: true },
+                ].map((c) => (
+                  <div key={c.key} className="flex items-center justify-between py-1.5">
+                    <div>
+                      <code className="text-xs font-mono" style={{ color: "var(--color-navy)" }}>{c.key}</code>
+                      <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{c.value}</div>
+                    </div>
+                    <Badge variant={c.editable ? "teal" : "gray"}>{c.editable ? "editable" : "system"}</Badge>
+                  </div>
+                ))}
+              </div>
+              <Button variant="outline" size="sm" className="w-full mt-3" onClick={() => setActionFeedback({ type: "success", message: "Configuration updated" })}>
+                <Sliders className="w-3.5 h-3.5" /> Edit Configuration
+              </Button>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader title="Backup & Restore" subtitle="Database and file backups" />
+              <div className="space-y-3">
+                {[
+                  { type: "Full Database", size: "2.4 GB", date: "17 Jun 2026, 02:00 AM", status: "success" },
+                  { type: "Media Files", size: "8.1 GB", date: "17 Jun 2026, 02:30 AM", status: "success" },
+                  { type: "Configuration", size: "12 MB", date: "17 Jun 2026, 02:35 AM", status: "success" },
+                  { type: "Logs Archive", size: "450 MB", date: "16 Jun 2026, 02:00 AM", status: "success" },
+                ].map((b, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(var(--color-primary-dark-rgb),0.15)" }}>
+                        <Database className="w-4 h-4" style={{ color: "var(--color-primary)" }} />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{b.type}</div>
+                        <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{b.size} · {b.date}</div>
+                      </div>
+                    </div>
+                    <Badge variant="teal">{b.status}</Badge>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                <Button variant="secondary" size="sm" className="flex-1" onClick={() => setActionFeedback({ type: "success", message: "Manual backup initiated" })}>
+                  <Download className="w-3.5 h-3.5" /> Create Backup
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => setActionFeedback({ type: "success", message: "Restore wizard opened" })}>
+                  <Upload className="w-3.5 h-3.5" /> Restore
+                </Button>
+              </div>
+              <div className="mt-3 pt-3 text-xs flex items-center gap-1" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
+                <RefreshCw className="w-3 h-3" />
+                Auto-backup runs daily at 2:00 AM. Last: <span className="font-medium" style={{ color: "var(--color-text)" }}>Successful</span>
+              </div>
+            </Card>
+            <Card>
+              <CardHeader title="API Keys & Integrations" subtitle="Third-party service connections" />
+              <div className="space-y-3">
+                {[
+                  { name: "Payment Gateway — Razorpay", key: "rzp_live_••••••••••", status: "active", lastUsed: "2 min ago" },
+                  { name: "SMS Gateway — Twilio", key: "AC••••••••••••••", status: "active", lastUsed: "15 min ago" },
+                  { name: "Email — SendGrid", key: "SG••••••••••••••••", status: "active", lastUsed: "5 min ago" },
+                  { name: "Channel Manager — SiteMinder", key: "sm_••••••••••••••", status: "active", lastUsed: "1 hr ago" },
+                  { name: "Analytics — Google Analytics", key: "UA-•••••••••", status: "inactive", lastUsed: "N/A" },
+                ].map((a, i) => (
+                  <div key={i} className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: "var(--color-light)" }}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: a.status === "active" ? "rgba(var(--color-primary-dark-rgb),0.15)" : "rgba(var(--color-text-faint-rgb),0.15)" }}>
+                        <Code className="w-3.5 h-3.5" style={{ color: a.status === "active" ? "var(--color-primary)" : "var(--color-text-faint)" }} />
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{a.name}</div>
+                        <code className="text-[10px] font-mono" style={{ color: "var(--color-text-faint)" }}>{a.key}</code>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant={a.status === "active" ? "teal" : "gray"}>{a.status}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                <Button variant="secondary" size="sm" className="flex-1" onClick={() => setActionFeedback({ type: "success", message: "New API key generated" })}>
+                  <Key className="w-3.5 h-3.5" /> Generate Key
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => setActionFeedback({ type: "success", message: "Integration wizard opened" })}>
+                  <Globe className="w-3.5 h-3.5" /> Add Integration
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader title="Notification Templates" subtitle="System email & SMS templates" />
+            <div className="space-y-3">
+              {[
+                { name: "Welcome Email", channel: "Email", lastEdited: "10 Jun 2026", status: "active", icon: Mail },
+                { name: "Booking Confirmation", channel: "Email", lastEdited: "08 Jun 2026", status: "active", icon: Mail },
+                { name: "Check-in Reminder", channel: "SMS", lastEdited: "05 Jun 2026", status: "active", icon: Smartphone },
+                { name: "Invoice Notification", channel: "Email", lastEdited: "01 Jun 2026", status: "active", icon: Mail },
+                { name: "Feedback Request", channel: "Email", lastEdited: "28 May 2026", status: "draft", icon: Mail },
+                { name: "Maintenance Alert", channel: "SMS", lastEdited: "25 May 2026", status: "active", icon: Smartphone },
+                { name: "Promotional Offer", channel: "Both", lastEdited: "20 May 2026", status: "draft", icon: Bell },
+              { name: "System Alert", channel: "SMS", lastEdited: "18 May 2026", status: "active", icon: Smartphone },
+              ].map((t, i) => {
+                const Icon = t.icon;
+                return (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: t.status === "active" ? "rgba(var(--color-primary-dark-rgb),0.15)" : "rgba(var(--color-warning-rgb),0.15)" }}>
+                        <Icon className="w-4 h-4" style={{ color: t.status === "active" ? "var(--color-primary)" : "var(--color-warning)" }} />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium" style={{ color: "var(--color-text)" }}>{t.name}</div>
+                        <div className="text-xs flex items-center gap-2 mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+                          <span>{t.channel}</span>
+                          <span>·</span>
+                          <span>Last edited: {t.lastEdited}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={t.status === "active" ? "teal" : "amber"}>{t.status}</Badge>
+                      <Button variant="outline" size="sm" onClick={() => setActionFeedback({ type: "success", message: `${t.name} template opened for editing` })}>
+                        <FileText className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <Button variant="secondary" size="sm" className="w-full mt-3" onClick={() => setActionFeedback({ type: "success", message: "New template editor opened" })}>
+              <Bell className="w-3.5 h-3.5" /> Create New Template
+            </Button>
+          </Card>
+
+          <Card>
+            <CardHeader title="Server Status Monitor" subtitle="Real-time system health" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { service: "Web Server", status: "operational", uptime: "99.99%", icon: Server },
+                { service: "Database", status: "operational", uptime: "99.97%", icon: Database },
+                { service: "Redis Cache", status: "operational", uptime: "100%", icon: Database },
+                { service: "Email Service", status: "degraded", uptime: "98.2%", icon: Mail },
+                { service: "SMS Gateway", status: "operational", uptime: "99.9%", icon: Smartphone },
+                { service: "Payment Gateway", status: "operational", uptime: "99.99%", icon: CreditCard },
+                { service: "CDN", status: "operational", uptime: "100%", icon: Globe },
+              { service: "Backup Service", status: "operational", uptime: "99.95%", icon: Database },
+              { service: "Monitoring Stack", status: "operational", uptime: "100%", icon: Activity },
+              { service: "Load Balancer", status: "operational", uptime: "99.99%", icon: Server },
+              { service: "CI/CD Pipeline", status: "operational", uptime: "99.8%", icon: RefreshCw },
+              { service: "DNS Servers", status: "operational", uptime: "100%", icon: Globe },
+            ].map((s) => {
+                const Icon = s.icon;
+                return (
+                  <div key={s.service} className="p-3 rounded-lg text-center" style={{ background: "var(--color-light)" }}>
+                    <Icon className="w-4 h-4 mx-auto mb-1" style={{ color: s.status === "operational" ? "var(--color-primary)" : "var(--color-warning)" }} />
+                    <div className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{s.service}</div>
+                    <div className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>{s.uptime}</div>
+                    <div className="w-1.5 h-1.5 rounded-full mx-auto mt-1" style={{ background: s.status === "operational" ? "var(--color-primary)" : "var(--color-warning)" }} />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-4 pt-3 flex items-center justify-between text-xs" style={{ borderTop: "1px solid var(--color-border)", color: "var(--color-text-muted)" }}>
+              <span><RefreshCw className="w-3 h-3 inline mr-1" /> Overall uptime this month</span>
+              <span className="font-semibold" style={{ color: "var(--color-primary)" }}>99.94%</span>
+            </div>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
+

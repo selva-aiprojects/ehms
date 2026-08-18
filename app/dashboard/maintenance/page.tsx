@@ -1,0 +1,624 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Wrench, AlertTriangle, AlertCircle, Loader2, RefreshCw, Plus, CheckCircle, Clock, User, Building2, Filter, Search as SearchIcon, Package, Users, Star, TrendingUp, BarChart3, Calendar, Phone, Truck } from "lucide-react";
+import Card, { CardHeader } from "@/components/ui/card";
+import Badge from "@/components/ui/badge";
+import Button from "@/components/ui/button";
+import Table from "@/components/ui/table";
+import { useMaintenance, usePreventiveSchedules, useAMCContracts, usePartsInventory, useVendors, useFeedbackTriage } from "@/lib/hooks";
+import { useCreateMaintenanceTicket } from "@/lib/hooks/mutations";
+
+// Keeping TEAM_MEMBERS and WEEKLY_WORKLOAD as mock data for demonstration purposes as no HR scheduling module API is defined yet.
+
+const TEAM_MEMBERS = [
+  { name: "Ravi M.", role: "Senior Technician", department: "HVAC", status: "available", tickets: 3, phone: "+91-98765-43210", email: "ravi.m@hms.com", avatar: "RM" },
+  { name: "Suresh K.", role: "Plumber", department: "Plumbing", status: "busy", tickets: 5, phone: "+91-98765-43211", email: "suresh.k@hms.com", avatar: "SK" },
+  { name: "Amit S.", role: "Electrician", department: "Electrical", status: "available", tickets: 2, phone: "+91-98765-43212", email: "amit.s@hms.com", avatar: "AS" },
+  { name: "Vijay P.", role: "Technician", department: "Pool", status: "off", tickets: 0, phone: "+91-98765-43213", email: "vijay.p@hms.com", avatar: "VP" },
+  { name: "Priya M.", role: "Supervisor", department: "All", status: "available", tickets: 1, phone: "+91-98765-43214", email: "priya.m@hms.com", avatar: "PM" },
+  { name: "Rahul V.", role: "Apprentice", department: "Electrical", status: "busy", tickets: 4, phone: "+91-98765-43215", email: "rahul.v@hms.com", avatar: "RV" },
+  { name: "Deepak C.", role: "Technician", department: "HVAC", status: "available", tickets: 2, phone: "+91-98765-43216", email: "deepak.c@hms.com", avatar: "DC" },
+  { name: "Manish T.", role: "Plumber", department: "Plumbing", status: "off", tickets: 0, phone: "+91-98765-43217", email: "manish.t@hms.com", avatar: "MT" },
+];
+
+
+
+const WEEKLY_WORKLOAD = [
+  { day: "Mon", tickets: 12, completed: 8 },
+  { day: "Tue", tickets: 8, completed: 7 },
+  { day: "Wed", tickets: 15, completed: 11 },
+  { day: "Thu", tickets: 10, completed: 6 },
+  { day: "Fri", tickets: 7, completed: 5 },
+  { day: "Sat", tickets: 4, completed: 3 },
+  { day: "Sun", tickets: 2, completed: 2 },
+];
+
+const PRIORITY_CONFIG: Record<string, { badge: "red" | "amber" | "gray" | "teal"; color: string }> = {
+  critical: { badge: "red", color: "var(--color-danger)" },
+  high: { badge: "amber", color: "var(--color-warning)" },
+  medium: { badge: "gray", color: "var(--color-text-muted)" },
+  low: { badge: "teal", color: "var(--color-primary)" },
+};
+
+const STATUS_BADGE: Record<string, "red" | "amber" | "teal" | "gray" | "navy"> = {
+  open: "red", assigned: "navy", in_progress: "amber", resolved: "teal", closed: "gray",
+};
+
+const TEAM_STATUS_COLOR: Record<string, string> = {
+  available: "var(--color-primary)", busy: "var(--color-warning)", off: "var(--color-border-strong)",
+};
+
+const TEAM_STATUS_BG: Record<string, string> = {
+  available: "rgba(var(--color-primary-dark-rgb),0.1)", busy: "rgba(var(--color-warning-rgb),0.1)", off: "rgba(var(--color-border-strong-rgb),0.2)",
+};
+
+function StockBar({ current, min, max }: { current: number; min: number; max: number }) {
+  const pct = Math.min((current / max) * 100, 100);
+  const isLow = current <= min;
+  const color = isLow ? "var(--color-danger)" : current <= min * 1.5 ? "var(--color-warning)" : "var(--color-primary)";
+  return (
+    <div className="w-full h-1.5 rounded-full" style={{ background: "var(--color-border)" }}>
+      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
+    </div>
+  );
+}
+
+function StarRating({ rating }: { rating: number }) {
+  const full = Math.floor(rating);
+  const hasHalf = rating % 1 >= 0.5;
+  return (
+    <span className="inline-flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className="w-3 h-3"
+          style={{
+            fill: i < full ? "var(--color-warning)" : hasHalf && i === full ? "var(--color-warning)" : "transparent",
+            color: i < full || (hasHalf && i === full) ? "var(--color-warning)" : "var(--color-border-strong)",
+          }}
+        />
+      ))}
+    </span>
+  );
+}
+
+function SkeletonStat() {
+  return <div className="rounded-xl p-4 animate-pulse" style={{ background: "var(--color-border)" }}><div className="w-12 h-8 rounded mb-2" style={{ background: "var(--color-border-strong)" }} /><div className="w-16 h-3 rounded" style={{ background: "var(--color-border-strong)" }} /></div>;
+}
+
+export default function MaintenancePage() {
+  const [priorityFilter, setPriorityFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
+  const [showNewTicketForm, setShowNewTicketForm] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [newTicket, setNewTicket] = useState({ title: "", description: "", priority: "medium", category: "" });
+
+  const { tickets, isLoading: ticketsLoading, isError: ticketsError, mutate: mutateTickets } = useMaintenance({ priority: priorityFilter, status: statusFilter });
+  const { schedules = [], isLoading: schedulesLoading } = usePreventiveSchedules();
+  const { amcs = [], isLoading: amcsLoading } = useAMCContracts();
+  const { inventory = [], isLoading: inventoryLoading } = usePartsInventory();
+  const { vendors = [], isLoading: vendorsLoading } = useVendors();
+  const { feedback = [], isLoading: feedbackLoading, mutate: mutateFeedback } = useFeedbackTriage();
+
+  const createTicket = useCreateMaintenanceTicket();
+
+  const isLoading = ticketsLoading || schedulesLoading || amcsLoading || inventoryLoading || vendorsLoading || feedbackLoading;
+  const isError = ticketsError;
+
+  const displayTickets = (tickets && (tickets as any[]).length > 0) ? (tickets as any[]) : [];
+  const displayInventory = inventory.map((p: any) => ({
+    name: p.part_name,
+    sku: p.part_code,
+    stock: p.quantity_in_stock,
+    min: p.reorder_level,
+    max: p.reorder_level * 3, // mock max
+    unit: "pcs",
+    category: "General"
+  }));
+  const displayVendors = vendors;
+  const displayAmcs = amcs.map((a: any) => ({
+    vendor: a.vendor_name,
+    asset: "Covered Assets",
+    expiry: formatDate(a.end_date),
+    days: a.days_remaining,
+    status: a.status
+  }));
+  const displaySchedules = schedules.map((s: any) => {
+    const isOverdue = new Date(s.next_due) < new Date();
+    const isDueToday = new Date(s.next_due).toDateString() === new Date().toDateString();
+    return {
+      task: s.task_template,
+      asset: s.asset_type,
+      freq: `${s.frequency_days} days`,
+      last: s.last_run ? formatDate(s.last_run) : "—",
+      next: formatDate(s.next_due),
+      status: isOverdue ? "Overdue" : isDueToday ? "Due Today" : "Scheduled"
+    };
+  });
+
+  useEffect(() => {
+    if (actionFeedback) {
+      const t = setTimeout(() => setActionFeedback(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [actionFeedback]);
+
+  const openCount = displayTickets.filter((t) => t.status === "open").length;
+  const inProgressCount = displayTickets.filter((t) => t.status === "in_progress").length;
+  const resolvedToday = displayTickets.filter((t) => t.status === "resolved").length;
+  const criticalCount = displayTickets.filter((t) => t.priority === "critical" && t.status !== "resolved" && t.status !== "closed").length;
+
+  const lowStockCount = displayInventory.filter((p: any) => p.stock <= p.min).length;
+  const totalPartsValue = displayInventory.reduce((sum: any, p: any) => sum + p.stock, 0);
+  const availableStaff = TEAM_MEMBERS.filter((m) => m.status === "available").length;
+  const totalStaff = TEAM_MEMBERS.length;
+  const avgVendorRating = displayVendors.length > 0 ? (displayVendors.reduce((sum: any, v: any) => sum + v.rating, 0) / displayVendors.length).toFixed(1) : "0.0";
+  const totalCompletedThisWeek = WEEKLY_WORKLOAD.reduce((sum, d) => sum + d.completed, 0);
+  const totalTicketsThisWeek = WEEKLY_WORKLOAD.reduce((sum, d) => sum + d.tickets, 0);
+  const peakDay = [...WEEKLY_WORKLOAD].sort((a, b) => b.tickets - a.tickets)[0];
+
+  const handleConvertFeedback = async (f: any) => {
+    try {
+      await createTicket.trigger({
+        property_id: "00000000-0000-0000-0000-000000000000",
+        title: `Guest Complaint: ${f.department}`,
+        description: `Source: Guest Feedback (Rating: ${f.rating}⭐)\nGuest: ${f.first_name || ""} ${f.last_name || ""}\nComments: ${f.comments}`,
+        priority: f.rating === 1 ? "critical" : "high",
+        category: f.department === "Housekeeping" ? "Cleaning" : "Other",
+        unit_id: f.unit_id
+      });
+      setActionFeedback({ type: "success", message: "Converted feedback into maintenance ticket" });
+      mutateTickets();
+      mutateFeedback();
+    } catch {
+      setActionFeedback({ type: "error", message: "Failed to convert feedback" });
+    }
+  };
+
+  async function handleCreateTicket() {
+    if (!newTicket.title.trim()) {
+      setActionFeedback({ type: "error", message: "Please enter a ticket title" });
+      return;
+    }
+    setActionFeedback(null);
+    try {
+      await createTicket.trigger({
+        property_id: "00000000-0000-0000-0000-000000000000",
+        title: newTicket.title,
+        description: newTicket.description,
+        priority: newTicket.priority,
+        category: newTicket.category,
+      });
+      setActionFeedback({ type: "success", message: `Ticket created: ${newTicket.title}` });
+      setShowNewTicketForm(false);
+      setNewTicket({ title: "", description: "", priority: "medium", category: "" });
+      mutateTickets();
+    } catch {
+      setActionFeedback({ type: "error", message: "Failed to create ticket" });
+    }
+  }
+
+  function formatDate(dateStr: string) {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    } catch { return dateStr; }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: "var(--color-navy)" }}>Maintenance & Asset Management</h1>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-muted)" }}>All properties · Real-time ticket dashboard</p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {isLoading && (
+            <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg" style={{ background: "var(--color-light)", color: "var(--color-text-muted)" }}>
+              <Loader2 className="w-3 h-3 animate-spin" /> Syncing
+            </div>
+          )}
+          {criticalCount > 0 && (
+            <div className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: "var(--color-danger)", color: "var(--color-on-dark)" }}>
+              <AlertTriangle className="w-3.5 h-3.5" /> {criticalCount} Critical
+            </div>
+          )}
+          <Button variant="secondary" size="sm" onClick={() => setShowNewTicketForm(!showNewTicketForm)}>
+            {showNewTicketForm ? <AlertCircle className="w-3.5 h-3.5" /> : <Wrench className="w-3.5 h-3.5" />}
+            {showNewTicketForm ? "Cancel" : "New Ticket"}
+          </Button>
+          <button onClick={() => mutateTickets()} className="p-1.5 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }} aria-label="Refresh">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {feedback.length > 0 && (
+        <Card>
+          <CardHeader title="Action Required: Guest Feedback Triage" subtitle={`${feedback.length} recent negative reviews`} />
+          <div className="space-y-3">
+            {feedback.map((f: any) => (
+              <div key={f.id} className="flex items-start justify-between p-3 rounded-lg" style={{ background: "rgba(var(--color-danger-rgb),0.05)", border: "1px solid rgba(var(--color-danger-rgb),0.1)" }}>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <StarRating rating={f.rating} />
+                    <span className="text-xs font-bold" style={{ color: "var(--color-text)" }}>{f.first_name} {f.last_name}</span>
+                    <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>· {f.unit_label ? `Room ${f.unit_label}` : "General"}</span>
+                  </div>
+                  <p className="text-sm" style={{ color: "var(--color-text)" }}>"{f.comments || "No comments provided."}"</p>
+                  <p className="text-[10px] mt-1" style={{ color: "var(--color-text-muted)" }}>Reported: {formatDate(f.created_at)} · Department: {f.department}</p>
+                </div>
+                <Button variant="primary" size="sm" onClick={() => handleConvertFeedback(f)}>
+                  <Plus className="w-3 h-3" /> Raise Ticket
+                </Button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {actionFeedback && (
+        <div
+          className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2"
+          style={{
+            background: actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.1)" : "rgba(var(--color-danger-rgb),0.08)",
+            color: actionFeedback.type === "success" ? "var(--color-primary)" : "var(--color-danger)",
+            border: `1px solid ${actionFeedback.type === "success" ? "rgba(var(--color-primary-dark-rgb),0.2)" : "rgba(var(--color-danger-rgb),0.2)"}`,
+          }}
+        >
+          {actionFeedback.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+          {actionFeedback.message}
+        </div>
+      )}
+
+      {isError && (
+        <div className="rounded-lg px-4 py-2.5 text-sm flex items-center gap-2" style={{ background: "rgba(var(--color-danger-rgb),0.08)", color: "var(--color-danger)", border: "1px solid rgba(var(--color-danger-rgb),0.2)" }}>
+          <AlertCircle className="w-4 h-4" />
+          Could not load live data. Displaying limited mock data.
+          <button onClick={() => mutateTickets()} className="ml-auto underline text-xs">Retry</button>
+        </div>
+      )}
+
+      {showNewTicketForm && (
+        <Card>
+          <CardHeader title="Create New Ticket" />
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text)" }}>Title *</label>
+              <input type="text" value={newTicket.title} onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}
+                placeholder="Brief description of the issue" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text)" }}>Description</label>
+              <textarea value={newTicket.description} onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }} rows={2}
+                placeholder="Detailed description..." />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text)" }}>Priority</label>
+                <select value={newTicket.priority} onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}>
+                  <option value="low">Low</option><option value="medium">Medium</option>
+                  <option value="high">High</option><option value="critical">Critical</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text)" }}>Category</label>
+                <select value={newTicket.category} onChange={(e) => setNewTicket({ ...newTicket, category: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border text-sm outline-none" style={{ borderColor: "var(--color-border)" }}>
+                  <option value="">Select</option><option value="HVAC">HVAC</option>
+                  <option value="Plumbing">Plumbing</option><option value="Electrical">Electrical</option>
+                  <option value="Elevator">Elevator</option><option value="Pool">Pool</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => setShowNewTicketForm(false)}>Cancel</Button>
+              <Button variant="primary" size="sm" onClick={handleCreateTicket} disabled={createTicket.isMutating}>
+                {createTicket.isMutating ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Creating</> : <><Plus className="w-3.5 h-3.5" /> Create Ticket</>}
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <div className="flex items-center gap-2 flex-wrap">
+        {["all", "open", "in_progress", "resolved"].map((s) => (
+          <button key={s} onClick={() => setStatusFilter(s === "all" ? undefined : s)}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all"
+            style={{
+              background: (s === "all" && !statusFilter) || statusFilter === s ? "var(--color-navy)" : "var(--color-light)",
+              color: (s === "all" && !statusFilter) || statusFilter === s ? "var(--color-white)" : "var(--color-text-muted)",
+            }}
+          >{s === "all" ? "All" : s.replace("_", " ")}</button>
+        ))}
+        <div style={{ width: 1, height: 20, background: "var(--color-border)", margin: "0 4px" }} />
+        {["all_prio", "critical", "high", "medium", "low"].map((p) => (
+          <button key={p} onClick={() => setPriorityFilter(p === "all_prio" ? undefined : p)}
+            className="px-2 py-1 text-[10px] font-medium rounded-lg transition-all"
+            style={{
+              background: (p === "all_prio" && !priorityFilter) || priorityFilter === p ? "rgba(var(--color-primary-dark-rgb),0.15)" : "var(--color-light)",
+              color: (p === "all_prio" && !priorityFilter) || priorityFilter === p ? "var(--color-primary)" : "var(--color-text-muted)",
+            }}
+          >{p === "all_prio" ? "All Priority" : p}</button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        {isLoading ? Array.from({ length: 4 }).map((_, i) => <SkeletonStat key={i} />) : (
+          <>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-danger)" }}>
+              <div className="text-2xl font-bold">{openCount}</div>
+              <div className="text-xs mt-1 opacity-80">Open</div>
+            </div>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-warning)" }}>
+              <div className="text-2xl font-bold">{inProgressCount}</div>
+              <div className="text-xs mt-1 opacity-80">In Progress</div>
+            </div>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
+              <div className="text-2xl font-bold">{resolvedToday}</div>
+              <div className="text-xs mt-1 opacity-80">Resolved Today</div>
+            </div>
+            <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
+              <div className="text-2xl font-bold">{displayTickets.length > 0 ? "4.2h" : "—"}</div>
+              <div className="text-xs mt-1 opacity-80">Avg Resolution</div>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="lg:col-span-2">
+          <CardHeader title="Active Tickets" subtitle={`${displayTickets.length} total · sorted by priority`} />
+          {isLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-10 rounded animate-pulse" style={{ background: "var(--color-light)" }} />
+              ))}
+            </div>
+          ) : displayTickets.length === 0 ? (
+            <div className="text-center py-8">
+              <CheckCircle className="w-6 h-6 mx-auto mb-2" style={{ color: "var(--color-primary)" }} />
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>No tickets match your filters</p>
+            </div>
+          ) : (
+            <Table
+              data={displayTickets}
+              keyExtractor={(t) => t.id}
+              columns={[
+                { key: "id", header: "ID", render: (t) => <span className="font-mono text-xs" style={{ color: "var(--color-primary)" }}>{t.id}</span> },
+                { key: "title", header: "Issue", render: (t) => <span className="text-sm">{t.title}</span> },
+                { key: "unit_label", header: "Unit", render: (t) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{t.unit_label || "—"}</span> },
+                { key: "category", header: "Category", render: (t) => t.category ? <Badge variant="gray">{t.category}</Badge> : <span style={{ color: "var(--color-text-muted)" }}>—</span> },
+                { key: "priority", header: "Priority", render: (t) => <Badge variant={PRIORITY_CONFIG[t.priority]?.badge || "gray"}>{t.priority}</Badge> },
+                { key: "status", header: "Status", render: (t) => <Badge variant={STATUS_BADGE[t.status] || "gray"}>{t.status.replace("_", " ")}</Badge> },
+                { key: "assigned_name", header: "Assigned", render: (t) => <span className="text-xs">{t.assigned_name || "—"}</span> },
+              ]}
+            />
+          )}
+        </Card>
+        <Card>
+          <CardHeader title="AMC Monitor" subtitle={`${displayAmcs.filter((a: any) => a.status === "active").length} active · ${displayAmcs.filter((a: any) => a.status === "expired").length} expired`} />
+          <div className="space-y-3 max-h-[400px] overflow-y-auto">
+            {displayAmcs.map((amc: any, i: number) => (
+              <div key={i} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{amc.vendor}</span>
+                  <Badge variant={amc.status === "active" ? "teal" : "red"}>{amc.status}</Badge>
+                </div>
+                <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                  {amc.asset} · Exp: {amc.expiry}
+                  <span className="ml-1 font-medium" style={{ color: amc.days < 0 ? "var(--color-danger)" : "var(--color-warning)" }}>
+                    {amc.days > 0 ? `(${amc.days}d left)` : `(${Math.abs(amc.days)}d overdue)`}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader title="Preventive Maintenance Schedule" subtitle="Auto-generated" />
+        <Table
+          data={displaySchedules as any[]}
+          keyExtractor={(_, i) => String(i)}
+          columns={[
+            { key: "task", header: "Task" }, { key: "asset", header: "Asset" },
+            { key: "freq", header: "Frequency" }, { key: "last", header: "Last Done" },
+            { key: "next", header: "Next Due" },
+            { key: "status", header: "Status", render: (t) => (
+              <Badge variant={t.status === "Overdue" ? "red" : t.status === "Due Today" ? "amber" : "teal"}>{t.status}</Badge>
+            )},
+          ]}
+        />
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader title="Parts Inventory" subtitle={`${displayInventory.length} items · ${lowStockCount} low stock`} />
+          <div className="space-y-3 max-h-[420px] overflow-y-auto">
+            {displayInventory.map((part: any, i: number) => (
+              <div key={i} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                <div className="flex items-start justify-between mb-1.5">
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <Package className="w-3.5 h-3.5" style={{ color: part.stock <= part.min ? "var(--color-danger)" : "var(--color-primary)" }} />
+                      <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{part.name}</span>
+                    </div>
+                    <div className="text-[10px] mt-0.5" style={{ color: "var(--color-text-faint)" }}>SKU: {part.sku} · {part.category}</div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-bold" style={{ color: part.stock <= part.min ? "var(--color-danger)" : part.stock <= part.min * 1.5 ? "var(--color-warning)" : "var(--color-primary)" }}>
+                      {part.stock}
+                    </span>
+                    <span className="text-[10px] ml-0.5" style={{ color: "var(--color-text-faint)" }}>{part.unit}</span>
+                  </div>
+                </div>
+                <StockBar current={part.stock} min={part.min} max={part.max} />
+                <div className="flex justify-between text-[10px] mt-1" style={{ color: "var(--color-text-faint)" }}>
+                  <span>Reorder at: {part.min}</span>
+                  <span>Max: {part.max}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card>
+          <CardHeader title="Maintenance Team" subtitle={`${availableStaff}/${totalStaff} available · ${TEAM_MEMBERS.filter(m => m.status === "busy").length} busy`} />
+          <div className="space-y-3 max-h-[420px] overflow-y-auto">
+            {TEAM_MEMBERS.map((member, i) => (
+              <div key={i} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: member.status === "available" ? "var(--color-primary)" : member.status === "busy" ? "var(--color-warning)" : "var(--color-border-strong)" }}>
+                    {member.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{member.name}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ background: TEAM_STATUS_BG[member.status], color: TEAM_STATUS_COLOR[member.status] }}>
+                        {member.status}
+                      </span>
+                    </div>
+                    <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>{member.role} · {member.department}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-[10px]" style={{ color: "var(--color-text-faint)" }}>
+                  <span className="flex items-center gap-1"><Wrench className="w-3 h-3" /> {member.tickets} tickets</span>
+                  <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {member.phone}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card>
+          <CardHeader title="Vendor Performance" subtitle={`Avg rating: ${avgVendorRating} ⭐ · ${displayVendors.length} vendors`} />
+          <div className="space-y-3 max-h-[420px] overflow-y-auto">
+            {displayVendors.map((vendor: any, i: number) => (
+              <div key={i} className="p-3 rounded-lg" style={{ background: "var(--color-light)" }}>
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <Truck className="w-3.5 h-3.5" style={{ color: "var(--color-text-muted)" }} />
+                      <span className="font-medium text-sm" style={{ color: "var(--color-text)" }}>{vendor.name}</span>
+                    </div>
+                    <span className="text-[10px]" style={{ color: "var(--color-text-faint)" }}>{vendor.category} · {vendor.avg_cost}/visit</span>
+                  </div>
+                  <StarRating rating={vendor.rating} />
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="px-2 py-1.5 rounded" style={{ background: "var(--color-white)" }}>
+                    <div className="text-xs font-bold" style={{ color: "var(--color-navy)" }}>{vendor.response_time}</div>
+                    <div className="text-[9px]" style={{ color: "var(--color-text-faint)" }}>Response</div>
+                  </div>
+                  <div className="px-2 py-1.5 rounded" style={{ background: "var(--color-white)" }}>
+                    <div className="text-xs font-bold" style={{ color: "var(--color-navy)" }}>{vendor.completed}</div>
+                    <div className="text-[9px]" style={{ color: "var(--color-text-faint)" }}>Jobs</div>
+                  </div>
+                  <div className="px-2 py-1.5 rounded" style={{ background: "var(--color-white)" }}>
+                    <div className="text-xs font-bold" style={{ color: vendor.rating >= 4.5 ? "var(--color-primary)" : vendor.rating >= 4 ? "var(--color-warning)" : "var(--color-danger)" }}>
+                      {vendor.rating}
+                    </div>
+                    <div className="text-[9px]" style={{ color: "var(--color-text-faint)" }}>Rating</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-navy)" }}>
+          <div className="flex items-center gap-2 mb-1">
+            <Package className="w-4 h-4 opacity-80" />
+            <span className="text-xs opacity-80">Total Parts</span>
+          </div>
+          <div className="text-2xl font-bold">{totalPartsValue}</div>
+          <div className="text-xs mt-1 opacity-70">{lowStockCount} items below reorder point</div>
+        </div>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-primary)" }}>
+          <div className="flex items-center gap-2 mb-1">
+            <Users className="w-4 h-4 opacity-80" />
+            <span className="text-xs opacity-80">Team Available</span>
+          </div>
+          <div className="text-2xl font-bold">{availableStaff}/{totalStaff}</div>
+          <div className="text-xs mt-1 opacity-70">{TEAM_MEMBERS.filter(m => m.status === "busy").length} currently busy</div>
+        </div>
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--color-warning)" }}>
+          <div className="flex items-center gap-2 mb-1">
+            <Star className="w-4 h-4 opacity-80" />
+            <span className="text-xs opacity-80">Avg Vendor Rating</span>
+          </div>
+          <div className="text-2xl font-bold">{avgVendorRating}</div>
+          <div className="text-xs mt-1 opacity-70">Across {displayVendors.length} vendors</div>
+        </div>
+        <div className="rounded-xl p-4 text-white" style={{ background: "#7C3AED" }}>
+          <div className="flex items-center gap-2 mb-1">
+            <BarChart3 className="w-4 h-4 opacity-80" />
+            <span className="text-xs opacity-80">Weekly Total</span>
+          </div>
+          <div className="text-2xl font-bold">{totalTicketsThisWeek}</div>
+          <div className="text-xs mt-1 opacity-70">Peak: {peakDay.day} ({peakDay.tickets})</div>
+        </div>
+      </div>
+
+      <Card>
+        <CardHeader
+          title="Weekly Workload Chart"
+          subtitle={`${totalTicketsThisWeek} tickets · ${totalCompletedThisWeek} completed (${Math.round((totalCompletedThisWeek / totalTicketsThisWeek) * 100)}% completion)`}
+        />
+        <div className="px-4 pb-4">
+          <div className="flex items-end justify-between gap-3" style={{ height: 180 }}>
+            {WEEKLY_WORKLOAD.map((day, i) => {
+              const maxTickets = Math.max(...WEEKLY_WORKLOAD.map((d) => d.tickets));
+              const ticketHeight = (day.tickets / maxTickets) * 100;
+              const completedHeight = (day.completed / maxTickets) * 100;
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                  <div className="flex items-center gap-0.5 text-[9px] font-medium" style={{ color: "var(--color-text-muted)" }}>
+                    <span>{day.tickets}</span>
+                    <span style={{ color: "var(--color-border-strong)" }}>/</span>
+                    <span>{day.completed}</span>
+                  </div>
+                  <div className="relative w-full max-w-[36px] flex gap-0.5 items-end" style={{ height: `${Math.max(ticketHeight, 4)}%` }}>
+                    <div
+                      className="w-1/2 rounded-t-sm transition-all"
+                      style={{ height: "100%", background: "var(--color-navy)", opacity: 0.8 }}
+                    />
+                    <div
+                      className="w-1/2 rounded-t-sm transition-all"
+                      style={{ height: `${(completedHeight / ticketHeight) * 100}%`, background: "var(--color-primary)" }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-medium" style={{ color: "var(--color-text-faint)" }}>{day.day}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t" style={{ borderColor: "var(--color-light)" }}>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-sm" style={{ background: "var(--color-navy)", opacity: 0.8 }} />
+              <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Tickets Raised</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-sm" style={{ background: "var(--color-primary)" }} />
+              <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>Completed</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5" style={{ color: "var(--color-text-faint)" }} />
+              <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>This week</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+

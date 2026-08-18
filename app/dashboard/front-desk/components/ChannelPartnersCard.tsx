@@ -1,0 +1,302 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Globe, Loader2, CheckCircle2, Clock, XCircle, RefreshCw, Radio, X, PlusCircle } from "lucide-react";
+import Card from "@/components/ui/card";
+import Button from "@/components/ui/button";
+import { useProperties, useRoomMatrix } from "@/lib/hooks";
+import { toast } from "react-hot-toast";
+
+interface ChannelPartnersCardProps {
+  propertyId?: string;
+}
+
+export default function ChannelPartnersCard({ propertyId: propPropertyId }: ChannelPartnersCardProps) {
+  const [channels, setChannels] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [showSimulator, setShowSimulator] = useState(false);
+
+  const { properties } = useProperties("hotel");
+  const activePropertyId = propPropertyId || properties?.[0]?.id;
+  const { rooms, mutate: mutateRooms } = useRoomMatrix(activePropertyId);
+  const vacantRooms = (rooms || []).filter((r: any) => r.status === "vacant");
+
+  // Simulator state
+  const [simForm, setSimForm] = useState({
+    channel_name: "Booking.com",
+    unit_id: "",
+    guest_name: "Alexander Smith",
+    check_in: new Date().toISOString().split("T")[0],
+    check_out: new Date(Date.now() + 86400000 * 2).toISOString().split("T")[0],
+    total_amount: "14500"
+  });
+  const [simulating, setSimulating] = useState(false);
+
+  const fetchChannels = async () => {
+    try {
+      const url = activePropertyId
+        ? `/api/dashboard/front-desk/channels?property_id=${activePropertyId}`
+        : "/api/dashboard/front-desk/channels";
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.data) setChannels(data.data);
+    } catch (e) {
+      console.error("Failed to fetch channels", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchChannels();
+  }, [activePropertyId]);
+
+  // Handle Outbound Push Broadcast
+  const handleBroadcastSync = async () => {
+    if (!activePropertyId) {
+      toast.error("Please select an active property first");
+      return;
+    }
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/dashboard/front-desk/channels/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "push_availability",
+          property_id: activePropertyId
+        })
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Broadcast failed");
+      toast.success(json.message || "OTA channels synchronized!");
+      fetchChannels();
+    } catch (err: any) {
+      toast.error(err?.message || "Error syncing channels");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  // Handle Inbound Webhook Booking Simulation
+  const handleSimulateWebhook = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activePropertyId || !simForm.unit_id) {
+      toast.error("Please select a valid vacant room and property");
+      return;
+    }
+    setSimulating(true);
+    try {
+      const res = await fetch("/api/dashboard/front-desk/channels/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "webhook_booking",
+          property_id: activePropertyId,
+          ...simForm
+        })
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Simulation rejected");
+      
+      toast.success(`Webhook booking processed! Smart Key PIN: ${json.pin_code}`);
+      setShowSimulator(false);
+      fetchChannels();
+      if (mutateRooms) mutateRooms();
+    } catch (err: any) {
+      toast.error(err?.message || "Simulation error");
+    } finally {
+      setSimulating(false);
+    }
+  };
+
+  return (
+    <Card className="flex flex-col h-full overflow-hidden border border-[var(--color-border)]" padding={false}>
+      <div className="p-4 border-b border-[var(--color-border)] bg-[var(--color-surface-muted)]">
+        <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-semibold text-[var(--color-navy)] flex items-center gap-1.5">
+            <Globe className="w-4 h-4 text-[var(--color-primary)]" /> Channel Manager & OTAs
+          </h3>
+          <p className="text-[11px] text-[var(--color-text-muted)]">Availability and rate delivery</p>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowSimulator(true)}
+            className="text-xs h-7 px-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-success-soft)]"
+          >
+            <Radio className="w-3 h-3 mr-1" /> Test
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleBroadcastSync}
+            disabled={syncing}
+            className="text-xs h-7 px-2.5 bg-[var(--color-navy)] hover:bg-[var(--color-dark-navy)] text-white"
+          >
+            <RefreshCw className={`w-3 h-3 mr-1 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? "Syncing..." : "Sync"}
+          </Button>
+        </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center p-8"><Loader2 className="w-5 h-5 animate-spin text-[var(--color-text-muted)]" /></div>
+      ) : channels.length === 0 ? (
+        <div className="text-center py-8">
+          <Globe className="w-6 h-6 mx-auto mb-2 text-[var(--color-text-muted)]" />
+          <p className="text-sm text-[var(--color-text-muted)]">No active OTA channels found.</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-[var(--color-border)] overflow-y-auto max-h-[360px] bg-white">
+          {channels.map(channel => (
+            <div key={channel.id} className="flex items-center justify-between p-3 text-sm hover:bg-[var(--color-light)] transition-colors">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-[color:var(--color-navy)]/5 flex items-center justify-center font-bold text-xs text-[var(--color-navy)]">
+                  {channel.channel_name.substring(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-semibold text-xs text-[var(--color-text)]">{channel.channel_name}</p>
+                  <p className="text-[11px] text-[var(--color-text-muted)] flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> 
+                    {channel.last_sync_time ? new Date(channel.last_sync_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : "Never synced"}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                {channel.last_sync_status === 200 || channel.last_sync_status === 201 ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-primary)] bg-[var(--color-success-soft)] px-2 py-0.5 rounded-full">
+                    <CheckCircle2 className="w-3 h-3" /> Live Sync (5s)
+                  </span>
+                ) : channel.last_sync_status ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--color-danger)] bg-[var(--color-danger-soft)] px-2 py-0.5 rounded-full">
+                    <XCircle className="w-3 h-3" /> Sync Error
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--color-text-muted)] bg-gray-100 px-2 py-0.5 rounded-full">
+                    Pending
+                  </span>
+                )}
+                <div className="flex items-center justify-end gap-2 mt-1">
+                  <span className="text-[10px] font-bold text-[var(--color-navy)] bg-[color:var(--color-navy)]/10 px-1.5 py-0.5 rounded">
+                    {channel.new_bookings_24h || 0} arrivals today
+                  </span>
+                  {channel.commission_rate > 0 && (
+                    <span className="text-[10px] text-gray-500">{channel.commission_rate}% fee</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Webhook Simulator Modal */}
+      {showSimulator && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
+            <div className="px-5 py-3.5 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-light)]">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--color-navy)] flex items-center gap-1.5">
+                  <Radio className="w-4 h-4 text-[var(--color-primary)]" /> Simulate Inbound OTA Webhook
+                </h3>
+                <p className="text-[11px] text-[var(--color-text-muted)]">Simulate a direct external OTA booking arrival</p>
+              </div>
+              <button onClick={() => setShowSimulator(false)} className="p-1 hover:bg-gray-200 rounded-full"><X className="w-4 h-4 text-gray-500" /></button>
+            </div>
+
+            <form onSubmit={handleSimulateWebhook} className="p-5 space-y-3.5 text-xs">
+              <div>
+                <label className="block font-medium text-[var(--color-text)] mb-1">Select OTA Channel Source</label>
+                <select
+                  value={simForm.channel_name}
+                  onChange={e => setSimForm({ ...simForm, channel_name: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
+                >
+                  <option value="Booking.com">Booking.com</option>
+                  <option value="MakeMyTrip / GoIbibo">MakeMyTrip / GoIbibo</option>
+                  <option value="Airbnb">Airbnb</option>
+                  <option value="Expedia">Expedia</option>
+                  <option value="Agoda">Agoda</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-medium text-[var(--color-text)] mb-1">Target Vacant Unit / Room</label>
+                <select
+                  required
+                  value={simForm.unit_id}
+                  onChange={e => setSimForm({ ...simForm, unit_id: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
+                >
+                  <option value="" disabled>Select Vacant Room ({vacantRooms.length} available)...</option>
+                  {vacantRooms.map((r: any) => (
+                    <option key={r.id} value={r.id}>
+                      Unit {r.unit_label} — {r.layout_type || r.unit_type} (₹{r.base_rate}/night)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-medium text-[var(--color-text)] mb-1">Guest Full Name</label>
+                <input
+                  required
+                  type="text"
+                  value={simForm.guest_name}
+                  onChange={e => setSimForm({ ...simForm, guest_name: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-[var(--color-text)] mb-1">Check-In Date</label>
+                  <input
+                    required
+                    type="date"
+                    value={simForm.check_in}
+                    onChange={e => setSimForm({ ...simForm, check_in: e.target.value })}
+                    className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-[var(--color-text)] mb-1">Check-Out Date</label>
+                  <input
+                    required
+                    type="date"
+                    value={simForm.check_out}
+                    onChange={e => setSimForm({ ...simForm, check_out: e.target.value })}
+                    className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-medium text-[var(--color-text)] mb-1">Total OTA Charge (₹)</label>
+                <input
+                  required
+                  type="number"
+                  value={simForm.total_amount}
+                  onChange={e => setSimForm({ ...simForm, total_amount: e.target.value })}
+                  className="w-full p-2 border rounded-lg focus:ring-1 focus:ring-[var(--color-primary)]"
+                />
+              </div>
+
+              <div className="pt-3 border-t flex justify-end gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setShowSimulator(false)}>Cancel</Button>
+                <Button type="submit" size="sm" disabled={simulating} className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white">
+                  {simulating ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <PlusCircle className="w-3.5 h-3.5 mr-1.5" />}
+                  Trigger Inbound Webhook
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
