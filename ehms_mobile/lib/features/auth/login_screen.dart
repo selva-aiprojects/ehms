@@ -421,8 +421,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     return Column(
       children: [
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.15))),
+            const Flexible(child: SizedBox(width: 40, child: Divider(color: Colors.white12, thickness: 1))),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
@@ -435,7 +436,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 ),
               ),
             ),
-            Expanded(child: Container(height: 1, color: Colors.white.withValues(alpha: 0.15))),
+            const Flexible(child: SizedBox(width: 40, child: Divider(color: Colors.white12, thickness: 1))),
           ],
         ),
         const SizedBox(height: 16),

@@ -11,12 +11,17 @@ import 'package:ehms_mobile/shared/theme/hms_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize core services
-  await OfflineService().init();
+  // Initialize core services (platform-safe)
+  try {
+    await OfflineService().init();
+  } catch (_) {}
+
   SyncManager().init();
 
-  // Initialize push notifications
-  await PushNotificationService().init();
+  // Initialize push notifications (skip on web — no Firebase config)
+  try {
+    await PushNotificationService().init();
+  } catch (_) {}
 
   // Lock orientation to portrait
   await SystemChrome.setPreferredOrientations([

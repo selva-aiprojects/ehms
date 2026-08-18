@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -19,7 +20,7 @@ class PushNotificationService {
   static PushNotificationService? _instance;
   static BuildContext? _appContext;
 
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+  FirebaseMessaging? _fcm;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   final ApiClient _api = ApiClient();
   bool _initialized = false;
@@ -38,11 +39,17 @@ class PushNotificationService {
     if (_initialized) return;
     _initialized = true;
 
+    // Skip push notifications on web
+    if (kIsWeb) return;
+
+    try {
+    _fcm = FirebaseMessaging.instance;
+
     // Register background handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     // Request permission
-    final settings = await _fcm.requestPermission(
+    final settings = await _fcm!.requestPermission(
       alert: true,
       badge: true,
       sound: true,
@@ -55,13 +62,13 @@ class PushNotificationService {
       await _initLocalNotifications();
 
       // Get FCM token
-      final token = await _fcm.getToken();
+      final token = await _fcm!.getToken();
       if (token != null) {
         await _registerToken(token);
       }
 
       // Listen for token refresh
-      _fcm.onTokenRefresh.listen((newToken) {
+      _fcm!.onTokenRefresh.listen((newToken) {
         _registerToken(newToken);
       });
 
@@ -72,11 +79,12 @@ class PushNotificationService {
       FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
 
       // Check if app opened from notification (cold start)
-      final initialMessage = await _fcm.getInitialMessage();
+      final initialMessage = await _fcm!.getInitialMessage();
       if (initialMessage != null) {
         _handleNotificationTap(initialMessage);
       }
     }
+    } catch (_) {}
   }
 
   Future<void> _initLocalNotifications() async {
@@ -188,17 +196,17 @@ class PushNotificationService {
 
   /// Subscribe to a topic
   Future<void> subscribeToTopic(String topic) async {
-    await _fcm.subscribeToTopic(topic);
+    await _fcm?.subscribeToTopic(topic);
   }
 
   /// Unsubscribe from a topic
   Future<void> unsubscribeFromTopic(String topic) async {
-    await _fcm.unsubscribeFromTopic(topic);
+    await _fcm?.unsubscribeFromTopic(topic);
   }
 
   /// Get FCM token
   Future<String?> getToken() async {
-    return await _fcm.getToken();
+    return await _fcm?.getToken();
   }
 
   /// Clear all notifications

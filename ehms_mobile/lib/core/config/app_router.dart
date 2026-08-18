@@ -32,11 +32,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Still loading — stay on splash
       if (isLoading && !isOnAuthRoute) return '/splash';
 
-      // Not authenticated and not on auth route — go to login
-      if (!isAuthenticated && !isOnAuthRoute) return '/login';
-
       // Authenticated and on auth route — go to dashboard
       if (isAuthenticated && isOnAuthRoute) return '/dashboard';
+
+      // Not authenticated and on splash — go to login
+      if (!isAuthenticated && !isLoading && state.matchedLocation == '/splash') return '/login';
+
+      // Not authenticated and not on auth route — go to login
+      if (!isAuthenticated && !isOnAuthRoute) return '/login';
 
       return null;
     },
