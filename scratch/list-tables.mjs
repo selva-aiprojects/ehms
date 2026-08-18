@@ -1,0 +1,12 @@
+import pg from "pg";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+const env = readFileSync(resolve(".env.local"), "utf-8");
+const url = env.split("\n").find(l => l.startsWith("DATABASE_URL=")).slice("DATABASE_URL=".length).trim();
+const pool = new pg.Pool({ connectionString: url, max: 1 });
+const c = await pool.connect();
+await c.query("SET search_path TO viswa, public");
+const r = await c.query("SELECT table_name FROM information_schema.tables WHERE table_schema='viswa' ORDER BY table_name");
+console.log(r.rows.map(x => x.table_name).join("\n"));
+c.release();
+await pool.end();
