@@ -12,13 +12,19 @@ const PUBLIC_API_PREFIXES = [
 ];
 
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
-const CORS_HEADERS: Record<string, string> = {
-  "Access-Control-Allow-Origin": CORS_ORIGIN,
+const CORS_HEADERS_BASE: Record<string, string> = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, x-tenant-schema, x-tenant-code",
   "Access-Control-Allow-Credentials": "true",
   "Access-Control-Max-Age": "86400",
 };
+
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  return {
+    ...CORS_HEADERS_BASE,
+    "Access-Control-Allow-Origin": CORS_ORIGIN === "*" ? (origin || "*") : CORS_ORIGIN,
+  };
+}
 
 function isPublic(pathname: string): boolean {
   if (pathname === "/") return true;
@@ -34,7 +40,8 @@ function isPublic(pathname: string): boolean {
 export default async function proxy(request: NextRequest) {
   // Handle CORS preflight
   if (request.method === "OPTIONS") {
-    return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+    const origin = request.headers.get("origin");
+    return new NextResponse(null, { status: 204, headers: getCorsHeaders(origin) });
   }
   const pathname = request.nextUrl.pathname;
 
@@ -113,7 +120,8 @@ export default async function proxy(request: NextRequest) {
   });
 
   // Add CORS headers for all responses
-  for (const [key, value] of Object.entries(CORS_HEADERS)) {
+  const origin = request.headers.get("origin");
+  for (const [key, value] of Object.entries(getCorsHeaders(origin))) {
     response.headers.set(key, value);
   }
 

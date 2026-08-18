@@ -420,24 +420,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     return Column(
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Flexible(child: SizedBox(width: 40, child: Divider(color: Colors.white12, thickness: 1))),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                'Quick Demo Access',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.4),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                ),
-              ),
+        Center(
+          child: Text(
+            '── Quick Demo Access ──',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.4),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
             ),
-            const Flexible(child: SizedBox(width: 40, child: Divider(color: Colors.white12, thickness: 1))),
-          ],
+          ),
         ),
         const SizedBox(height: 16),
         Wrap(
