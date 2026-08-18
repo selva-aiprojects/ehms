@@ -52,7 +52,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       };
 
       final response = await _api.post(
-        '/api/auth/login',
+        '/api/auth/mobile-login',
         body: body,
       );
 
