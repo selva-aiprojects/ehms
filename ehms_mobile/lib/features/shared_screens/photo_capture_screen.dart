@@ -176,6 +176,8 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
                     ),
                     child: Text(
                       photo.caption!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 9,

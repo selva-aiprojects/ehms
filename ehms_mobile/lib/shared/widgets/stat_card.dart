@@ -146,6 +146,8 @@ class _StatCardState extends State<StatCard>
                     SizedBox(height: widget.isCompact ? 10 : 14),
                     Text(
                       widget.value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: widget.isCompact ? 22 : 28,
@@ -156,6 +158,8 @@ class _StatCardState extends State<StatCard>
                     const SizedBox(height: 4),
                     Text(
                       widget.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.8),
                         fontSize: widget.isCompact ? 11 : 12,

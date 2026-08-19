@@ -112,7 +112,7 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
           children: [
             Icon(Icons.error_outline, size: 48, color: HmsColors.danger.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
-            Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: HmsColors.textMuted)),
+            Text(_error!, textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: HmsColors.textMuted)),
             const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: _loadRooms,
@@ -230,7 +230,7 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
           const SizedBox(height: 4),
           ProgressBar(progress: pct, color: color, height: 4),
           const SizedBox(height: 2),
-          Text(label, style: TextStyle(fontSize: 9, color: HmsColors.textFaint, fontWeight: FontWeight.w500)),
+          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 9, color: HmsColors.textFaint, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -259,6 +259,8 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
               child: Center(
                 child: Text(
                   _floors[index],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

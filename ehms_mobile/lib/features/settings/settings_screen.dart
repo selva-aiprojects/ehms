@@ -252,6 +252,8 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 Text(
                   user?.fullName ?? 'User',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -261,6 +263,8 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 2),
                 Text(
                   user?.email ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.7),

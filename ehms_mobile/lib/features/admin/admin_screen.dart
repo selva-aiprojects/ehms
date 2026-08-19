@@ -74,7 +74,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
         children: [
           Icon(Icons.error_outline, size: 48, color: HmsColors.danger.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
-          Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: HmsColors.textMuted)),
+          Text(_error!, textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: HmsColors.textMuted)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _loadData,
@@ -256,7 +256,10 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               ],
             ),
           ),
-          Text(time, style: TextStyle(fontSize: 10, color: HmsColors.textFaint)),
+          SizedBox(
+            width: 50,
+            child: Text(time, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, color: HmsColors.textFaint)),
+          ),
         ],
       ),
     );

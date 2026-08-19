@@ -112,7 +112,7 @@ class _HousekeepingScreenState extends ConsumerState<HousekeepingScreen>
         children: [
           Icon(Icons.error_outline, size: 48, color: HmsColors.danger.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
-          Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: HmsColors.textMuted)),
+          Text(_error!, textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: HmsColors.textMuted)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _loadData,
@@ -198,7 +198,7 @@ class _HousekeepingScreenState extends ConsumerState<HousekeepingScreen>
         children: [
           Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: color)),
           const SizedBox(height: 2),
-          Text(label, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6), fontWeight: FontWeight.w500)),
+          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6), fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -314,7 +314,7 @@ class _HousekeepingScreenState extends ConsumerState<HousekeepingScreen>
                 Row(
                   children: [
                     Expanded(child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
-                    if (taskId.isNotEmpty) Text(taskId, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: HmsColors.textFaint, fontFamily: 'monospace')),
+                    if (taskId.isNotEmpty) Flexible(child: Text(taskId, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: HmsColors.textFaint, fontFamily: 'monospace'))),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -353,7 +353,7 @@ class _HousekeepingScreenState extends ConsumerState<HousekeepingScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(color: HmsColors.surfaceMutedFor(context), borderRadius: BorderRadius.circular(HmsRadius.md)),
-                    child: Text(notes, style: TextStyle(fontSize: 13, color: HmsColors.textSecondary(context))),
+                    child: Text(notes, maxLines: 4, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: HmsColors.textSecondary(context))),
                   ),
                 ],
                 const SizedBox(height: 20),
@@ -404,7 +404,7 @@ class _HousekeepingScreenState extends ConsumerState<HousekeepingScreen>
         const SizedBox(width: 8),
         Text(label, style: TextStyle(fontSize: 12, color: HmsColors.textFaint)),
         const SizedBox(width: 6),
-        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: HmsColors.textPrimary(context))),
+        Flexible(child: Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: HmsColors.textPrimary(context)))),
       ],
     );
   }

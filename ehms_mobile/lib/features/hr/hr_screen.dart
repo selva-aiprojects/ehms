@@ -106,7 +106,7 @@ class _HrScreenState extends ConsumerState<HrScreen> {
         children: [
           Icon(Icons.error_outline, size: 48, color: HmsColors.danger.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
-          Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: HmsColors.textMuted)),
+          Text(_error!, textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: HmsColors.textMuted)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _loadData,
@@ -280,12 +280,12 @@ class _HrScreenState extends ConsumerState<HrScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                        Text(role, style: TextStyle(fontSize: 11, color: HmsColors.textFaint)),
+                        Text(role, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, color: HmsColors.textFaint)),
                       ],
                     ),
                   ),
                   if (clockIn.isNotEmpty)
-                    Text(clockIn, style: TextStyle(fontSize: 11, color: HmsColors.textMuted)),
+                    Flexible(child: Text(clockIn, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, color: HmsColors.textMuted))),
                   const SizedBox(width: 8),
                   StatusBadge(
                     label: isPresent ? 'Present' : 'Leave',

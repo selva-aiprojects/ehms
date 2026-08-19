@@ -114,7 +114,7 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
         children: [
           Icon(Icons.error_outline, size: 48, color: HmsColors.danger.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
-          Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: HmsColors.textMuted)),
+          Text(_error!, textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: HmsColors.textMuted)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _loadData,
@@ -241,7 +241,7 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
                 children: [
                   Row(
                     children: [
-                      Text(id, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: HmsColors.primary, fontFamily: 'monospace')),
+                      Flexible(child: Text(id, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: HmsColors.primary, fontFamily: 'monospace'))),
                       const SizedBox(width: 8),
                       StatusBadge.priority(priority),
                       const SizedBox(width: 6),
@@ -251,13 +251,13 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(color: HmsColors.info.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(HmsRadius.full)),
-                          child: Text(category, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: HmsColors.info)),
+                          child: Text(category, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: HmsColors.info)),
                         ),
                       ],
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color)),
+                  Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color)),
                   if (assigned != null && assigned.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Row(
@@ -268,7 +268,7 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
                           child: Text(assigned[0], style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: HmsColors.navy)),
                         ),
                         const SizedBox(width: 6),
-                        Text(assigned, style: TextStyle(fontSize: 11, color: HmsColors.textMuted, fontWeight: FontWeight.w500)),
+                        Flexible(child: Text(assigned, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, color: HmsColors.textMuted, fontWeight: FontWeight.w500))),
                       ],
                     ),
                   ],

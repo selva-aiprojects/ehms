@@ -120,6 +120,8 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
                     Text('Welcome back,', style: TextStyle(fontSize: 12, color: HmsColors.textFaint, fontWeight: FontWeight.w500)),
                     Text(
                       user?.firstName ?? 'User',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Theme.of(context).textTheme.bodyLarge?.color),
                     ),
                   ],
@@ -176,6 +178,8 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
             const SizedBox(width: 6),
             Text(
               propertySelection.activePropertyName ?? 'All Properties',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -449,7 +453,10 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
               ],
             ),
           ),
-          Text(time, style: TextStyle(fontSize: 10, color: HmsColors.textFaint, fontWeight: FontWeight.w500)),
+          SizedBox(
+            width: 50,
+            child: Text(time, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, color: HmsColors.textFaint, fontWeight: FontWeight.w500)),
+          ),
         ],
       ),
     );

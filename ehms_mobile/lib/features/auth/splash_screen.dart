@@ -149,6 +149,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       opacity: _fadeAnim.value * 0.7,
                       child: Text(
                         'Luxury Hospitality Management',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

@@ -252,7 +252,7 @@ class _FloorPlanScreenState extends State<FloorPlanScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(roomNum, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: isSelected ? Colors.white : color)),
+                            Text(roomNum, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: isSelected ? Colors.white : color)),
                             Container(width: 4, height: 4, decoration: BoxDecoration(color: isSelected ? Colors.white.withValues(alpha: 0.8) : color, shape: BoxShape.circle)),
                           ],
                         ),
@@ -335,7 +335,7 @@ class _FloorPlanScreenState extends State<FloorPlanScreen> {
                           StatusBadge.roomStatus(status),
                         ],
                       ),
-                      Text('$roomType${guest != null ? ' — $guest' : ''}${rate.isNotEmpty ? '  $rate' : ''}', style: TextStyle(fontSize: 12, color: HmsColors.textMuted)),
+                      Text('$roomType${guest != null ? ' — $guest' : ''}${rate.isNotEmpty ? '  $rate' : ''}', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: HmsColors.textMuted)),
                     ],
                   ),
                 ),

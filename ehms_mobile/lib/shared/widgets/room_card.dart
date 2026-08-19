@@ -118,6 +118,8 @@ class _RoomCardState extends State<RoomCard>
               // Room type
               Text(
                 widget.roomType,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 12,
                   color: HmsColors.textMuted,

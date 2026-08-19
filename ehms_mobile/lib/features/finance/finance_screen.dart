@@ -75,7 +75,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
         children: [
           Icon(Icons.error_outline, size: 48, color: HmsColors.danger.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
-          Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: HmsColors.textMuted)),
+          Text(_error!, textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: HmsColors.textMuted)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _loadData,
@@ -319,9 +319,10 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
               decoration: BoxDecoration(color: HmsColors.success.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(HmsRadius.md)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Net Profit: ', style: TextStyle(fontSize: 13, color: HmsColors.textMuted)),
-                  Text(netStr, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: HmsColors.success)),
+                  Flexible(child: Text('Net Profit: ', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: HmsColors.textMuted))),
+                  Flexible(child: Text(netStr, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: HmsColors.success))),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -367,7 +368,7 @@ class _FinanceScreenState extends ConsumerState<FinanceScreen> {
                 children: [
                   Icon(item.$2, color: item.$3, size: 24),
                   const SizedBox(height: 6),
-                  Text(item.$1, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: HmsColors.textDark), textAlign: TextAlign.center),
+                  Text(item.$1, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: HmsColors.textDark), textAlign: TextAlign.center),
                 ],
               ),
             ),

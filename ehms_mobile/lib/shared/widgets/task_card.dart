@@ -137,6 +137,8 @@ class _TaskCardState extends State<TaskCard>
                 // Title
                 Text(
                   widget.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -311,6 +313,8 @@ class TimelineEvent extends StatelessWidget {
             width: 52,
             child: Text(
               time,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -356,6 +360,8 @@ class TimelineEvent extends StatelessWidget {
                 children: [
                   Text(
                     title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
@@ -370,11 +376,15 @@ class TimelineEvent extends StatelessWidget {
                       children: [
                         Icon(Icons.location_on_outlined, size: 11, color: HmsColors.textFaint),
                         const SizedBox(width: 3),
-                        Text(
-                          location!,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: HmsColors.textFaint,
+                        Flexible(
+                          child: Text(
+                            location!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: HmsColors.textFaint,
+                            ),
                           ),
                         ),
                       ],
