@@ -25,6 +25,7 @@ interface TicketMessage {
 
 interface TicketDetail {
   id: string;
+  ticket_number: string | null;
   tenant_code: string;
   subject: string;
   description: string;
@@ -125,6 +126,11 @@ export default function TenantTicketDetailPage() {
               <h1 className="text-xl font-bold truncate" style={{ color: "var(--color-navy)" }}>{ticket.subject}</h1>
             </div>
             <div className="flex items-center gap-3 text-xs" style={{ color: "var(--color-text-muted)" }}>
+              {ticket.ticket_number && (
+                <span className="font-mono font-semibold px-1.5 py-0.5 rounded" style={{ color: "var(--color-primary)", background: "rgba(var(--color-primary-rgb),0.08)" }}>
+                  {ticket.ticket_number}
+                </span>
+              )}
               <span className="font-mono font-semibold" style={{ color: "var(--color-primary)" }}>{ticket.tenant_code}</span>
               <span>Created {new Date(ticket.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</span>
               <span>Updated {new Date(ticket.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>

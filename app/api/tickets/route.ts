@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
 
     const db = getPublicDb();
-    let query = `SELECT id, tenant_code, subject, description, status, priority, category, contact_name, contact_email, created_at, updated_at, resolved_at, closed_at FROM public.support_tickets WHERE tenant_code = $1`;
+    let query = `SELECT id, ticket_number, tenant_code, subject, description, status, priority, category, contact_name, contact_email, created_at, updated_at, resolved_at, closed_at FROM public.support_tickets WHERE tenant_code = $1`;
     const params: unknown[] = [payload.tenant_code];
 
     if (status) {
@@ -50,10 +50,14 @@ export async function POST(req: NextRequest) {
     const db = getPublicDb();
     const contactName = `${payload.first_name || ""} ${payload.last_name || ""}`.trim() || "Tenant User";
 
+    const seqResult = await db`SELECT nextval('public.support_ticket_seq') AS num`;
+    const seqNum = (seqResult as Record<string, unknown>[])[0].num as number;
+    const ticketNumber = `TKT-${String(seqNum).padStart(5, '0')}`;
+
     const result = await db`
-      INSERT INTO public.support_tickets (tenant_code, subject, description, priority, category, created_by, contact_name, contact_email)
-      VALUES (${payload.tenant_code}, ${subject}, ${description || ""}, ${priority || "medium"}, ${category || "general"}, ${payload.user_id || payload.email}, ${contactName}, ${payload.email || ""})
-      RETURNING id, tenant_code, subject, description, status, priority, category, contact_name, contact_email, created_at
+      INSERT INTO public.support_tickets (ticket_number, tenant_code, subject, description, priority, category, created_by, contact_name, contact_email)
+      VALUES (${ticketNumber}, ${payload.tenant_code}, ${subject}, ${description || ""}, ${priority || "medium"}, ${category || "general"}, ${payload.user_id || payload.email}, ${contactName}, ${payload.email || ""})
+      RETURNING id, ticket_number, tenant_code, subject, description, status, priority, category, contact_name, contact_email, created_at
     `;
 
     const ticket = (result as Record<string, unknown>[])[0];

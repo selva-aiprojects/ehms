@@ -65,7 +65,7 @@ export default function TicketsPage() {
   const stats: any = maintStats?.data || {};
 
   const filtered = displayTickets.filter((t) => {
-    const mSearch = !search || t.title?.toLowerCase().includes(search.toLowerCase()) || t.id?.toLowerCase().includes(search.toLowerCase());
+    const mSearch = !search || t.title?.toLowerCase().includes(search.toLowerCase()) || t.ticket_number?.toLowerCase().includes(search.toLowerCase()) || t.id?.toLowerCase().includes(search.toLowerCase());
     const mCat = !categoryFilter || t.category === categoryFilter;
     return mSearch && mCat;
   });
@@ -252,7 +252,7 @@ export default function TicketsPage() {
             data={filtered}
             keyExtractor={(t: any) => t.id}
             columns={[
-              { key: "id", header: "Ticket#", render: (t: any) => <span className="font-mono text-xs" style={{ color: "var(--color-sidebar)" }}>#{t.id?.slice(0, 8)}</span> },
+              { key: "ticket_number", header: "Ticket#", render: (t: any) => <span className="font-mono text-xs font-semibold" style={{ color: "var(--color-primary)" }}>{t.ticket_number || `#${t.id?.slice(0, 8)}`}</span> },
               { key: "title", header: "Issue", render: (t: any) => <span className="text-sm font-medium">{t.title}</span> },
               { key: "unit_label", header: "Unit", render: (t: any) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{t.unit_label || "—"}</span> },
               { key: "category", header: "Category", render: (t: any) => t.category ? <Badge variant="gray">{t.category}</Badge> : <span style={{ color: "var(--color-text-muted)" }}>—</span> },
@@ -316,7 +316,7 @@ export default function TicketsPage() {
       </Card>
 
       {/* Expandable detail rows */}
-      {expandedTicket && <TicketDetail ticketId={expandedTicket} onClose={() => setExpandedTicket(null)} />}
+      {expandedTicket && <TicketDetail ticketId={expandedTicket} ticketNumber={filtered.find((t: any) => t.id === expandedTicket)?.ticket_number} onClose={() => setExpandedTicket(null)} />}
 
       {/* Create Ticket Modal */}
       {showCreateModal && (
@@ -393,7 +393,7 @@ export default function TicketsPage() {
   );
 }
 
-function TicketDetail({ ticketId, onClose }: { ticketId: string; onClose: () => void }) {
+function TicketDetail({ ticketId, ticketNumber, onClose }: { ticketId: string; ticketNumber?: string; onClose: () => void }) {
   const { ticketParts, isLoading: partsLoading } = useMaintenanceTicketParts(ticketId);
   const { timeEntries, isLoading: timeLoading } = useMaintenanceTimeEntries(ticketId);
   const { approvals, isLoading: approvalsLoading } = useMaintenanceApprovals(ticketId);
@@ -401,7 +401,7 @@ function TicketDetail({ ticketId, onClose }: { ticketId: string; onClose: () => 
   return (
     <Card>
       <CardHeader
-        title={`Ticket Details: #${ticketId.slice(0, 8)}`}
+        title={`Ticket Details: ${ticketNumber || `#${ticketId.slice(0, 8)}`}`}
         action={<button onClick={onClose} className="p-1 rounded hover:bg-gray-100"><X className="w-4 h-4" style={{ color: "var(--color-text-muted)" }} /></button>}
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

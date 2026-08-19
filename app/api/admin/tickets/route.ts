@@ -61,9 +61,13 @@ export async function POST(req: NextRequest) {
 
     const db = getPublicDb();
 
+    const seqResult = await db`SELECT nextval('public.support_ticket_seq') AS num`;
+    const seqNum = (seqResult as Record<string, unknown>[])[0].num as number;
+    const ticketNumber = `TKT-${String(seqNum).padStart(5, '0')}`;
+
     const result = await db`
-      INSERT INTO public.support_tickets (tenant_code, subject, description, priority, category, created_by, contact_name, contact_email)
-      VALUES (${tenant_code}, ${subject}, ${description || ''}, ${priority || 'medium'}, ${category || 'general'}, ${payload.user_id}, ${contact_name || null}, ${contact_email || null})
+      INSERT INTO public.support_tickets (ticket_number, tenant_code, subject, description, priority, category, created_by, contact_name, contact_email)
+      VALUES (${ticketNumber}, ${tenant_code}, ${subject}, ${description || ''}, ${priority || 'medium'}, ${category || 'general'}, ${payload.user_id}, ${contact_name || null}, ${contact_email || null})
       RETURNING *
     `;
 

@@ -49,7 +49,10 @@ export async function POST(req: NextRequest) {
     const accessErr = validateMutationPropertyAccess(req, body.property_id);
     if (accessErr) return accessErr;
 
-    const ticketNum = body.ticket_number || `MT-${Date.now().toString(36).toUpperCase()}`;
+    const seqResult = await sql`SELECT nextval('maintenance_ticket_seq') AS num`;
+    const seqNum = (seqResult as Record<string, unknown>[])[0].num as number;
+    const ticketNum = `MT-${String(seqNum).padStart(5, '0')}`;
+
     const rows = await sql`
       INSERT INTO maintenance_tickets (property_id, unit_id, title, description, priority, category, reported_by, status, ticket_type, ticket_number)
       VALUES (

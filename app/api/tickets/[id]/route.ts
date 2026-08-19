@@ -17,7 +17,7 @@ export async function GET(
     const db = getPublicDb();
 
     const tickets = await db`
-      SELECT id, tenant_code, subject, description, status, priority, category, contact_name, contact_email, created_at, updated_at, resolved_at, closed_at
+      SELECT id, ticket_number, tenant_code, subject, description, status, priority, category, contact_name, contact_email, created_at, updated_at, resolved_at, closed_at
       FROM public.support_tickets
       WHERE id = ${id} AND tenant_code = ${payload.tenant_code}
       LIMIT 1

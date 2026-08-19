@@ -27,6 +27,7 @@ const PRIORITY_COLORS: Record<string, { bg: string; text: string }> = {
 
 interface TicketRecord {
   id: string;
+  ticket_number: string | null;
   tenant_code: string;
   subject: string;
   description: string;
@@ -142,6 +143,9 @@ export default function MyTicketsPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono text-xs font-semibold px-1.5 py-0.5 rounded" style={{ color: "var(--color-primary)", background: "rgba(var(--color-primary-rgb),0.08)" }}>
+                        {t.ticket_number || t.id.slice(0, 8)}
+                      </span>
                       <h3 className="font-semibold text-sm truncate" style={{ color: "var(--color-navy)" }}>{t.subject}</h3>
                       <ArrowUpRight className="w-3 h-3 shrink-0" style={{ color: "var(--color-text-faint)" }} />
                     </div>

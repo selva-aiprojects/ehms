@@ -20,8 +20,10 @@ function baseEmailHtml(
   title: string,
   bodyHtml: string,
   ticketId: string,
-  tenantCode: string
+  tenantCode: string,
+  ticketNumber?: string
 ): string {
+  const displayId = ticketNumber || `#${ticketId.slice(0,8)}`;
   return `
 <!DOCTYPE html>
 <html>
@@ -31,7 +33,7 @@ function baseEmailHtml(
     <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
       <tr><td style="padding:32px 32px 16px;background:linear-gradient(135deg,#255230,#7BB347);text-align:center;">
         <h1 style="margin:0;font-size:20px;color:#FFFFFF;letter-spacing:-0.3px;">${title}</h1>
-        <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">Ticket #${ticketId.slice(0,8)} · ${tenantCode}</p>
+        <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">Ticket ${displayId} · ${tenantCode}</p>
       </td></tr>
       <tr><td style="padding:24px 32px 16px;color:#255230;font-size:14px;line-height:1.6;">
         ${bodyHtml}
@@ -50,7 +52,7 @@ function baseEmailHtml(
 
 export async function sendTicketCreatedEmail(
   to: string,
-  ticket: { id: string; subject: string; description?: string; priority: string; category: string; tenant_code: string },
+  ticket: { id: string; ticket_number?: string; subject: string; description?: string; priority: string; category: string; tenant_code: string },
   createdByName: string
 ) {
   const html = baseEmailHtml(
@@ -63,7 +65,8 @@ export async function sendTicketCreatedEmail(
        <tr><td style="color:#64748B;">Category</td><td style="color:#255230;">${ticket.category}</td></tr>
      </table>`,
     ticket.id,
-    ticket.tenant_code
+    ticket.tenant_code,
+    ticket.ticket_number
   );
 
   const r = getResend();
@@ -82,7 +85,7 @@ export async function sendTicketCreatedEmail(
 
 export async function sendTicketReplyEmail(
   to: string,
-  ticket: { id: string; subject: string; tenant_code: string },
+  ticket: { id: string; ticket_number?: string; subject: string; tenant_code: string },
   messageText: string,
   senderName: string
 ) {
@@ -93,7 +96,8 @@ export async function sendTicketReplyEmail(
        ${messageText.replace(/\n/g, "<br>")}
      </div>`,
     ticket.id,
-    ticket.tenant_code
+    ticket.tenant_code,
+    ticket.ticket_number
   );
 
   const r = getResend();
@@ -278,7 +282,7 @@ export async function sendWelcomeEmail(
 
 export async function sendTicketStatusEmail(
   to: string,
-  ticket: { id: string; subject: string; tenant_code: string; status: string },
+  ticket: { id: string; ticket_number?: string; subject: string; tenant_code: string; status: string },
   oldStatus: string,
   changedByName: string
 ) {
@@ -290,7 +294,8 @@ export async function sendTicketStatusEmail(
        <tr><td style="color:#64748B;">Current</td><td style="color:#255230;font-weight:600;">${ticket.status.replace("_", " ")}</td></tr>
      </table>`,
     ticket.id,
-    ticket.tenant_code
+    ticket.tenant_code,
+    ticket.ticket_number
   );
 
   const r = getResend();

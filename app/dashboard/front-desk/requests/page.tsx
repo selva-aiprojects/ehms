@@ -112,7 +112,8 @@ export default function RequestsPage() {
             <table className="w-full text-sm text-left">
               <thead className="bg-[var(--color-light)] text-[var(--color-text-muted)] uppercase text-xs">
                 <tr>
-                  <th className="px-4 py-3 rounded-tl-lg">Request</th>
+                  <th className="px-4 py-3 rounded-tl-lg">Ref #</th>
+                  <th className="px-4 py-3">Request</th>
                   <th className="px-4 py-3">Unit</th>
                   <th className="px-4 py-3">Department</th>
                   <th className="px-4 py-3">Status</th>
@@ -122,6 +123,11 @@ export default function RequestsPage() {
               <tbody className="divide-y divide-[var(--color-border)]">
                 {filtered.map((r: any) => (
                   <tr key={r.id} className="hover:bg-[color:var(--color-light)]/50 transition-colors">
+                    <td className="px-4 py-4">
+                      <span className="font-mono text-xs font-semibold px-1.5 py-0.5 rounded" style={{ color: "var(--color-primary)", background: "rgba(var(--color-primary-rgb),0.08)" }}>
+                        {r.ticket_number || r.id?.slice(0, 8)}
+                      </span>
+                    </td>
                     <td className="px-4 py-4">
                       <div className="font-semibold text-[var(--color-navy)] capitalize">{r.request_type.replace('_', ' ')}</div>
                       <div className="text-xs text-[var(--color-text-muted)] mt-0.5 max-w-xs truncate" title={r.description}>{r.description}</div>

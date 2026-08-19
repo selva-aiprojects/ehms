@@ -173,7 +173,7 @@ export async function GET(req: Request) {
       `,
       // Drill-down: Guest requests detail (top 15 pending)
       sql`
-        SELECT gr.request_type, gr.description, gr.status, gr.created_at,
+        SELECT gr.ticket_number, gr.request_type, gr.description, gr.status, gr.created_at,
           COALESCE(u.unit_label, 'Front Desk') AS unit
         FROM guest_requests gr
         LEFT JOIN bookings b ON b.id = gr.booking_id

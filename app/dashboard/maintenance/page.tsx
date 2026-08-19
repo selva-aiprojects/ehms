@@ -390,7 +390,7 @@ export default function MaintenancePage() {
               data={displayTickets}
               keyExtractor={(t) => t.id}
               columns={[
-                { key: "id", header: "ID", render: (t) => <span className="font-mono text-xs" style={{ color: "var(--color-primary)" }}>{t.id}</span> },
+                { key: "ticket_number", header: "Ticket#", render: (t) => <span className="font-mono text-xs font-semibold" style={{ color: "var(--color-primary)" }}>{t.ticket_number || t.id}</span> },
                 { key: "title", header: "Issue", render: (t) => <span className="text-sm">{t.title}</span> },
                 { key: "unit_label", header: "Unit", render: (t) => <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>{t.unit_label || "—"}</span> },
                 { key: "category", header: "Category", render: (t) => t.category ? <Badge variant="gray">{t.category}</Badge> : <span style={{ color: "var(--color-text-muted)" }}>—</span> },

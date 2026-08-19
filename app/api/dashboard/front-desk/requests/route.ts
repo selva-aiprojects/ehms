@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     if (scope.error) return scope.error;
     const rows = await sql`
       SELECT 
-        gr.id, gr.request_type, gr.description, gr.status, gr.assigned_to_dept, gr.created_at,
+        gr.id, gr.ticket_number, gr.request_type, gr.description, gr.status, gr.assigned_to_dept, gr.created_at,
         b.id as booking_id, u.unit_label
       FROM guest_requests gr
       JOIN bookings b ON b.id = gr.booking_id
@@ -48,10 +48,15 @@ export async function POST(req: NextRequest) {
 
     const sql = getDb();
     
+    // Generate numeric ticket number
+    const seqResult = await sql`SELECT nextval('guest_request_seq') AS num`;
+    const seqNum = (seqResult as Record<string, unknown>[])[0].num as number;
+    const ticketNumber = `GR-${String(seqNum).padStart(5, '0')}`;
+
     // Create the guest request
     const result = await sql`
-      INSERT INTO guest_requests (property_id, booking_id, request_type, description, assigned_to_dept, status)
-      VALUES (${propertyId}, ${bookingId}, ${requestType}, ${description}, ${assignedToDept || null}, 'pending')
+      INSERT INTO guest_requests (property_id, booking_id, request_type, description, assigned_to_dept, status, ticket_number)
+      VALUES (${propertyId}, ${bookingId}, ${requestType}, ${description}, ${assignedToDept || null}, 'pending', ${ticketNumber})
       RETURNING *
     `;
     const newRequest = (result as any[])[0];
@@ -70,11 +75,14 @@ export async function POST(req: NextRequest) {
       const rows = await sql`SELECT unit_id FROM bookings WHERE id = ${bookingId}`;
       const unit_id = (rows as any[])[0]?.unit_id;
       if (unit_id) {
+        const mtSeqResult = await sql`SELECT nextval('maintenance_ticket_seq') AS num`;
+        const mtSeqNum = (mtSeqResult as Record<string, unknown>[])[0].num as number;
+        const mtTicketNum = `MT-${String(mtSeqNum).padStart(5, '0')}`;
         await sql`
           INSERT INTO maintenance_tickets (property_id, unit_id, ticket_number, ticket_type, title, priority, description, status)
           VALUES (
             ${propertyId}, ${unit_id},
-            'MT-' || TO_CHAR(NOW(), 'YYYYMMDDHH24MI'),
+            ${mtTicketNum},
             'corrective', ${'Guest Request: ' + description},
             'high', ${description}, 'open'
           )

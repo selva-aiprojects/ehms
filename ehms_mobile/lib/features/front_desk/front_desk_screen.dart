@@ -22,7 +22,7 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
   String? _selectedRoom;
   int _selectedFloor = 0;
 
-  final _floors = ['All Floors', 'Floor 1', 'Floor 2', 'Floor 3', 'Floor 4'];
+  List<String> _floors = ['All Floors'];
 
   @override
   void initState() {
@@ -35,8 +35,16 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
     try {
       final response = await _api.getRooms();
       if (response.isSuccess && response.data != null) {
+        final rooms = response.data!;
+        final floorSet = <String>{};
+        for (final r in rooms) {
+          final f = (r['floor'] ?? '') as String;
+          if (f.isNotEmpty) floorSet.add(f);
+        }
+        final sortedFloors = floorSet.toList()..sort();
         setState(() {
-          _rooms = response.data!;
+          _rooms = rooms;
+          _floors = ['All Floors', ...sortedFloors];
           _isLoading = false;
         });
       } else {
@@ -51,7 +59,7 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
     var rooms = _rooms;
     if (_selectedFloor > 0) {
       final floorName = _floors[_selectedFloor];
-      rooms = rooms.where((r) => (r['floor'] ?? r['floor_number'] ?? '') == floorName).toList();
+      rooms = rooms.where((r) => (r['floor'] ?? '') == floorName).toList();
     }
     if (_selectedFilter != 'all') {
       rooms = rooms.where((r) => r['status'] == _selectedFilter).toList();
@@ -329,12 +337,12 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
         itemCount: rooms.length,
         itemBuilder: (context, index) {
           final room = rooms[index];
-          final roomNumber = (room['room_number'] ?? room['number'] ?? '') as String;
-          final roomType = (room['room_type'] ?? room['type'] ?? '') as String;
+          final roomNumber = (room['room_number'] ?? '') as String;
+          final roomType = (room['room_type'] ?? '') as String;
           final status = (room['status'] ?? 'vacant') as String;
           final rate = room['rate'] != null ? '₹${room['rate']}' : '';
-          final guest = room['guest_name'] as String? ?? room['guest'] as String?;
-          final floor = (room['floor'] ?? room['floor_number'] ?? '') as String;
+          final guest = room['guest_name'] as String?;
+          final floor = (room['floor'] ?? '') as String;
 
           return RoomCard(
             roomNumber: roomNumber,
@@ -392,7 +400,7 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
                   initialValue: selectedRoom,
                   decoration: const InputDecoration(labelText: 'Select Room'),
                   items: _rooms.where((r) => r['status'] == 'vacant').map((r) {
-                    final num = (r['room_number'] ?? r['number'] ?? '') as String;
+                    final num = (r['room_number'] ?? '') as String;
                     return DropdownMenuItem(value: num, child: Text('Room $num'));
                   }).toList(),
                   onChanged: (v) => setModalState(() => selectedRoom = v),
@@ -432,11 +440,11 @@ class _RoomDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = (room['status'] ?? 'vacant') as String;
     final statusColor = HmsColors.roomStatusColor(status);
-    final roomNumber = (room['room_number'] ?? room['number'] ?? '') as String;
-    final roomType = (room['room_type'] ?? room['type'] ?? '') as String;
+    final roomNumber = (room['room_number'] ?? '') as String;
+    final roomType = (room['room_type'] ?? '') as String;
     final rate = room['rate'] != null ? '₹${room['rate']}' : '-';
-    final floor = (room['floor'] ?? room['floor_number'] ?? '') as String;
-    final guest = room['guest_name'] as String? ?? room['guest'] as String?;
+    final floor = (room['floor'] ?? '') as String;
+    final guest = room['guest_name'] as String?;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.55,

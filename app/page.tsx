@@ -6,7 +6,7 @@ import {
   Building2, Hotel, Home, Briefcase, ChevronRight,
   Shield, Users, LayoutDashboard, BarChart3, Key,
   Globe, Server, Database, ArrowUpRight, Menu, X,
-  GraduationCap, Sparkles, ChevronDown, CheckCircle
+  GraduationCap, Sparkles, ChevronDown, CheckCircle, Download, Smartphone
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 
@@ -166,13 +166,14 @@ export default function LandingPage() {
                 >
                   Get Started <ChevronRight className="w-4 h-4" />
                 </Link>
-                <Link
-                  href="#product"
+                <a
+                  href="/apk/ehms-mobile.apk"
+                  download
                   className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105"
                   style={{ border: "1px solid rgba(var(--color-primary-rgb),0.3)", color: "rgba(var(--color-on-dark-rgb),0.8)" }}
                 >
-                  Explore Platform <ChevronRight className="w-4 h-4" />
-                </Link>
+                  <Download className="w-4 h-4" /> Download App
+                </a>
               </div>
             </div>
 
@@ -469,13 +470,14 @@ export default function LandingPage() {
             >
               Get Started <ChevronRight className="w-4 h-4" />
             </Link>
-            <Link
-              href="#product"
-              className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-200"
-              style={{ border: "1px solid rgba(var(--color-primary-rgb),0.3)", color: "rgba(var(--color-on-dark-rgb),0.8)" }}
+            <a
+              href="/apk/ehms-mobile.apk"
+              download
+              className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
+              style={{ border: "1px solid rgba(var(--color-gold-rgb),0.4)", color: "var(--color-gold)" }}
             >
-              Learn More
-            </Link>
+              <Smartphone className="w-4 h-4" /> Download Mobile App
+            </a>
           </div>
         </div>
       </section>

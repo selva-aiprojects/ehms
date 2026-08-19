@@ -24,6 +24,9 @@ class FrontDeskService {
 
   // ─── Rooms ───
 
+  /// Fetch rooms from the front-desk matrix endpoint.
+  /// Returns normalized room maps with keys: room_number, room_type, status,
+  /// rate, guest_name, floor, building_code, check_in, check_out.
   Future<ApiResponse<List<Map<String, dynamic>>>> getRooms({
     String? propertyId,
     String? status,
@@ -31,14 +34,64 @@ class FrontDeskService {
     int offset = 0,
     int limit = 100,
   }) async {
-    final query = <String, dynamic>{
-      'offset': offset,
-      'limit': limit,
-    };
+    final query = <String, dynamic>{};
     if (propertyId != null) query['property_id'] = propertyId;
-    if (status != null && status != 'all') query['status'] = status;
-    if (floor != null) query['floor'] = floor;
-    return _api.getList('/api/rooms-inventory', queryParameters: query, parser: (e) => e as Map<String, dynamic>);
+
+    final response = await _api.get(
+      '/api/dashboard/front-desk/matrix',
+      queryParameters: query,
+    );
+
+    if (!response.isSuccess || response.data == null) {
+      return ApiResponse.error(response.error ?? 'Failed to load rooms');
+    }
+
+    final rawData = response.data;
+    final List<dynamic> rows;
+    if (rawData is Map<String, dynamic> && rawData.containsKey('data')) {
+      rows = rawData['data'] as List<dynamic>;
+    } else if (rawData is List) {
+      rows = rawData;
+    } else {
+      return ApiResponse.error('Unexpected response format');
+    }
+
+    final rooms = rows.map<Map<String, dynamic>>((row) {
+      final r = row as Map<String, dynamic>;
+      return {
+        'id': r['id'],
+        'room_number': (r['unit_label'] ?? '') as String,
+        'room_type': (r['unit_type'] ?? '') as String,
+        'layout_type': (r['layout_type'] ?? '') as String,
+        'status': (r['status'] ?? 'vacant') as String,
+        'rate': r['rate'] ?? r['base_rate'],
+        'base_rate': r['base_rate'],
+        'guest_name': r['guest_name'] as String?,
+        'floor': 'Floor ${(r['floor_number'] ?? 0)}',
+        'floor_number': r['floor_number'],
+        'building_code': (r['building_code'] ?? '') as String,
+        'building_name': (r['building_name'] ?? '') as String,
+        'property_name': (r['property_name'] ?? '') as String,
+        'booking_id': r['booking_id'],
+        'booking_status': r['booking_status'],
+        'check_in': r['check_in'],
+        'check_out': r['check_out'],
+        'vip': r['vip'] == true,
+        'pending_requests': r['pending_requests_count'] ?? 0,
+        'children': r['children'],
+      };
+    }).toList();
+
+    // Client-side filter by status
+    List<Map<String, dynamic>> filtered = rooms;
+    if (status != null && status != 'all') {
+      filtered = filtered.where((r) => r['status'] == status).toList();
+    }
+    if (floor != null && floor.isNotEmpty) {
+      filtered = filtered.where((r) => r['floor'] == floor).toList();
+    }
+
+    return ApiResponse.success(filtered);
   }
 
   Future<ApiResponse<Map<String, dynamic>>> updateRoomStatus({

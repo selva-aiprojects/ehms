@@ -38,7 +38,7 @@ class _FloorPlanScreenState extends State<FloorPlanScreen> {
         final rooms = resp.data!;
         final floorSet = <String>{};
         for (final r in rooms) {
-          final f = (r['floor'] ?? r['floor_number'] ?? '') as String;
+          final f = (r['floor'] ?? '') as String;
           if (f.isNotEmpty) floorSet.add(f);
         }
         setState(() {
@@ -57,7 +57,7 @@ class _FloorPlanScreenState extends State<FloorPlanScreen> {
   List<Map<String, dynamic>> get _filteredRooms {
     if (_selectedFloor == 0) return _rooms;
     final floorName = _floors[_selectedFloor];
-    return _rooms.where((r) => (r['floor'] ?? r['floor_number'] ?? '') == floorName).toList();
+    return _rooms.where((r) => (r['floor'] ?? '') == floorName).toList();
   }
 
   /// Assign grid positions to rooms based on their index
@@ -231,7 +231,7 @@ class _FloorPlanScreenState extends State<FloorPlanScreen> {
                   final y = (room['y'] as double) * constraints.maxHeight;
                   final status = (room['status'] ?? 'vacant') as String;
                   final color = HmsColors.roomStatusColor(status);
-                  final roomNum = (room['room_number'] ?? room['number'] ?? '') as String;
+                  final roomNum = (room['room_number'] ?? '') as String;
                   final isSelected = _selectedRoom == roomNum;
 
                   return Positioned(
@@ -293,15 +293,15 @@ class _FloorPlanScreenState extends State<FloorPlanScreen> {
 
   Widget _buildRoomDetailPanel() {
     final room = _rooms.firstWhere(
-      (r) => (r['room_number'] ?? r['number'] ?? '') == _selectedRoom,
+      (r) => (r['room_number'] ?? '') == _selectedRoom,
       orElse: () => {},
     );
     if (room.isEmpty) return const SizedBox.shrink();
 
     final status = (room['status'] ?? 'vacant') as String;
     final color = HmsColors.roomStatusColor(status);
-    final roomType = (room['room_type'] ?? room['type'] ?? '') as String;
-    final guest = room['guest_name'] as String? ?? room['guest'] as String?;
+    final roomType = (room['room_type'] ?? '') as String;
+    final guest = room['guest_name'] as String?;
     final rate = room['rate'] != null ? '₹${room['rate']}' : '';
 
     return Container(
