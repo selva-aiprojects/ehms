@@ -75,8 +75,14 @@ BEGIN
     EXECUTE format('CREATE SEQUENCE IF NOT EXISTS %I.maintenance_ticket_seq START 1', sch);
 
     -- Find highest existing numeric suffix to avoid collisions
+    -- Only consider ticket numbers where the suffix is purely numeric
     EXECUTE format(
-      'SELECT COALESCE(MAX(NULLIF(REGEXP_REPLACE(ticket_number, ''^MT-'', '''', ''g''), '''')::INT), 0) FROM %I.maintenance_tickets',
+      $q$SELECT COALESCE(MAX(v), 0) FROM (
+        SELECT CASE WHEN ticket_number ~ '^[A-Za-z]+-[0-9]+$'
+          THEN (regexp_replace(ticket_number, '^[A-Za-z]+-', ''))::INT
+          ELSE NULL END AS v
+        FROM %I.maintenance_tickets
+      ) sub$q$,
       sch
     ) INTO max_num;
 
