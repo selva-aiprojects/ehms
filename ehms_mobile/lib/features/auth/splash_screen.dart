@@ -55,12 +55,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              HmsColors.navyDark,
+              Color(0xFF173B25),
               HmsColors.navy,
-              Color(0xFF2D6340),
+              Color(0xFF2C6840),
             ],
           ),
         ),
@@ -68,96 +68,111 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           animation: _controller,
           builder: (context, child) {
             return Stack(
-              alignment: Alignment.center,
               children: [
-                // Ambient glow
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.15,
-                  child: Container(
-                    width: 350,
-                    height: 350,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          HmsColors.gold.withValues(alpha: 0.15 * _glowAnim.value),
-                          Colors.transparent,
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: CustomPaint(painter: _SplashPatternPainter()),
+                  ),
+                ),
+                SafeArea(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Opacity(
+                            opacity: _fadeAnim.value,
+                            child: Container(
+                              width: 190,
+                              height: 190,
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(0xFFF6F8EF),
+                                border: Border.all(
+                                  color: HmsColors.gold.withValues(alpha: 0.8),
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: HmsColors.gold.withValues(
+                                      alpha: 0.22 * _glowAnim.value,
+                                    ),
+                                    blurRadius: 30,
+                                    spreadRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: const BrandMark(size: 166),
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+                          Opacity(
+                            opacity: _fadeAnim.value,
+                            child: const Text(
+                              'HostSphere',
+                              style: TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: -1,
+                                height: 1.05,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Opacity(
+                            opacity: _fadeAnim.value * 0.85,
+                            child: Text(
+                              'LUXURY HOSPITALITY MANAGEMENT',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: HmsColors.goldLight,
+                                letterSpacing: 1.8,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 38),
+                          Opacity(
+                            opacity: _glowAnim.value,
+                            child: SizedBox(
+                              width: 96,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  minHeight: 3,
+                                  backgroundColor: Colors.white.withValues(
+                                    alpha: 0.18,
+                                  ),
+                                  valueColor: const AlwaysStoppedAnimation(
+                                    HmsColors.goldLight,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
-
-                // Main content
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Logo
-                    Opacity(
-                      opacity: _fadeAnim.value,
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: HmsColors.gold.withValues(alpha: 0.2 * _glowAnim.value),
-                              blurRadius: 40,
-                              spreadRadius: 10,
-                            ),
-                          ],
-                        ),
-                        child: const BrandMark(size: 136),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Brand name
-                    Opacity(
-                      opacity: _fadeAnim.value,
-                      child: const Text(
-                        'HostSphere',
-                        style: TextStyle(
-                          fontSize: 34,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: -0.5,
-                          height: 1.1,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Tagline
-                    Opacity(
-                      opacity: _fadeAnim.value * 0.7,
-                      child: Text(
-                        'Luxury Hospitality Management',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: HmsColors.gold.withValues(alpha: 0.8),
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Loading indicator
                 Positioned(
-                  bottom: MediaQuery.of(context).padding.bottom + 60,
+                  bottom: MediaQuery.of(context).padding.bottom + 24,
+                  left: 0,
+                  right: 0,
                   child: Opacity(
-                    opacity: _glowAnim.value,
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: HmsColors.gold.withValues(alpha: 0.6),
+                    opacity: _glowAnim.value * 0.7,
+                    child: const Text(
+                      'OPERATIONS, ELEVATED',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white70,
+                        letterSpacing: 2.2,
                       ),
                     ),
                   ),
@@ -169,4 +184,21 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       ),
     );
   }
+}
+
+class _SplashPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.035)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    final center = Offset(size.width / 2, size.height * 0.38);
+    for (var index = 0; index < 5; index++) {
+      canvas.drawCircle(center, 150.0 + index * 42, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
