@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class BrandMark extends StatelessWidget {
   final double size;
@@ -15,8 +14,8 @@ class BrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mark = SvgPicture.asset(
-      'assets/images/ehms-brand-mark.svg',
+    final mark = Image.asset(
+      'assets/images/favicon.png',
       width: size,
       height: size,
       fit: BoxFit.contain,

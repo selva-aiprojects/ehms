@@ -7,6 +7,7 @@ import 'package:ehms_mobile/core/api/api_services.dart';
 import 'package:ehms_mobile/core/config/property_provider.dart';
 import 'package:ehms_mobile/shared/theme/hms_colors.dart';
 import 'package:ehms_mobile/shared/theme/hms_constants.dart';
+import 'package:ehms_mobile/shared/theme/hms_theme.dart';
 import 'package:ehms_mobile/shared/widgets/widgets.dart';
 
 /// Role-based dashboard home screen with animated KPIs and quick actions
@@ -362,12 +363,145 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
                 trend: kpi['trend'] as String?,
                 trendUp: kpi['trendUp'] as bool?,
                 accentColor: kpi['color'] as Color,
+                detail:
+                    kpi['detail'] as String? ??
+                    _metricDetail(kpi['label'] as String),
+                onTap: () => _showMetricDetails(kpi),
               );
             },
           ),
         ],
       ),
     );
+  }
+
+  String _metricDetail(String label) {
+    switch (label.toLowerCase()) {
+      case 'occupancy':
+        return 'Rooms currently occupied';
+      case 'revenue':
+      case 'revenue mtd':
+        return 'Month-to-date gross revenue';
+      case 'guests':
+        return 'Guests currently in-house';
+      case 'rating':
+        return 'Average guest rating this month';
+      case 'arrivals':
+        return 'Expected check-ins today';
+      case 'departures':
+        return 'Expected check-outs today';
+      case 'vacant':
+        return 'Rooms ready for allocation';
+      case 'open tasks':
+      case 'open':
+        return 'Needs attention or assignment';
+      case 'in progress':
+        return 'Work currently being handled';
+      case 'completed':
+      case 'resolved':
+        return 'Closed successfully today';
+      case 'critical':
+        return 'Priority issues requiring escalation';
+      case 'outstanding':
+        return 'Receivables awaiting payment';
+      case 'payouts':
+        return 'Payments released this period';
+      case 'invoices':
+        return 'Invoices issued this period';
+      case 'avg time':
+        return 'Average time to resolve';
+      default:
+        return 'Tap to view operational details';
+    }
+  }
+
+  void _showMetricDetails(Map<String, dynamic> kpi) {
+    final label = kpi['label'] as String;
+    final value = kpi['value'] as String;
+    final route = _metricRoute(label);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
+        decoration: BoxDecoration(
+          color: Theme.of(sheetContext).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: HmsColors.borderLight,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(height: 22),
+            Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: HmsTheme.stat.copyWith(color: kpi['color'] as Color),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _metricDetail(label),
+              style: TextStyle(color: HmsColors.textMuted),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(sheetContext);
+                  context.go(route);
+                },
+                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                label: const Text('Open related workspace'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _metricRoute(String label) {
+    final normalized = label.toLowerCase();
+    if (normalized.contains('occup') ||
+        normalized.contains('arrival') ||
+        normalized.contains('departure') ||
+        normalized == 'vacant') {
+      return '/dashboard/front-desk';
+    }
+    if (normalized.contains('task') ||
+        normalized == 'critical' ||
+        normalized == 'completed') {
+      return '/dashboard/housekeeping';
+    }
+    if (normalized == 'open' ||
+        normalized.contains('resolved') ||
+        normalized.contains('avg time')) {
+      return '/dashboard/maintenance';
+    }
+    if (normalized.contains('revenue') ||
+        normalized.contains('outstanding') ||
+        normalized.contains('payout') ||
+        normalized.contains('invoice')) {
+      return '/dashboard/finance';
+    }
+    return '/dashboard';
   }
 
   Widget _buildQuickActions(BuildContext context, String role) {

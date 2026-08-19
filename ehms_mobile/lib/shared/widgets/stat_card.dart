@@ -14,6 +14,7 @@ class StatCard extends StatefulWidget {
   final Color? backgroundColor;
   final VoidCallback? onTap;
   final bool isCompact;
+  final String? detail;
 
   const StatCard({
     super.key,
@@ -26,6 +27,7 @@ class StatCard extends StatefulWidget {
     this.backgroundColor,
     this.onTap,
     this.isCompact = false,
+    this.detail,
   });
 
   @override
@@ -45,12 +47,14 @@ class _StatCardState extends State<StatCard>
       duration: HmsDurations.normal,
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
   }
 
@@ -117,7 +121,9 @@ class _StatCardState extends State<StatCard>
                             ),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(HmsRadius.full),
+                              borderRadius: BorderRadius.circular(
+                                HmsRadius.full,
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -166,6 +172,19 @@ class _StatCardState extends State<StatCard>
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+                    if (widget.detail != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        widget.detail!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.72),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
