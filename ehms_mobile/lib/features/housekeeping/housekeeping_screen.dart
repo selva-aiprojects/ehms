@@ -383,23 +383,31 @@ class _HousekeepingScreenState extends ConsumerState<HousekeepingScreen>
         }
 
         final task = tasks[index];
-        final assignee =
-            (task['assigned_to'] as String? ??
-            task['assignee'] as String? ??
-            '?');
-        final initials = assignee.isNotEmpty
+        final room = _taskRoom(task);
+        final assignee = _taskAssignee(task);
+        final status = (task['status'] ?? 'open') as String;
+        final isUuid = RegExp(
+          r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-',
+        ).hasMatch(assignee);
+        final hasNamedAssignee =
+            assignee.isNotEmpty && assignee != '?' && !isUuid;
+        final initials = hasNamedAssignee
             ? assignee.substring(0, 1).toUpperCase()
             : '?';
+        final assigneeLabel = hasNamedAssignee
+            ? assignee
+            : _assignmentLabel(status);
 
         return TaskCard(
           id: (task['id'] ?? '').toString(),
-          title: (task['title'] ?? task['name'] ?? 'Untitled task') as String,
+          title: _taskTitle(task, room),
           priority: (task['priority'] ?? 'medium') as String,
-          status: (task['status'] ?? 'open') as String,
-          room: (task['room_number'] ?? task['room'] ?? '') as String,
+          status: status,
+          room: room,
           scheduledTime:
               (task['scheduled_time'] ?? task['time'] ?? '') as String,
           notes: task['notes'] as String?,
+          assigneeName: assigneeLabel,
           assigneeInitials: initials,
           onAction: () => _showTaskDetail(task),
         );
@@ -407,13 +415,70 @@ class _HousekeepingScreenState extends ConsumerState<HousekeepingScreen>
     );
   }
 
+  String _assignmentLabel(String status) {
+    switch (status) {
+      case 'assigned':
+        return 'Assigned';
+      case 'in_progress':
+        return 'Work in progress';
+      case 'completed':
+        return 'Completed';
+      default:
+        return 'Ready for pickup';
+    }
+  }
+
+  String _taskTitle(Map<String, dynamic> task, String room) {
+    final title = task['title'] ?? task['name'] ?? task['description'];
+    if (title is String && title.trim().isNotEmpty) return title.trim();
+
+    final taskType = task['task_type']?.toString().trim() ?? '';
+    if (taskType.isNotEmpty) {
+      final label = taskType
+          .split(RegExp(r'[_-]+'))
+          .map(
+            (word) => word.isEmpty
+                ? word
+                : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}',
+          )
+          .join(' ');
+      return room.isEmpty ? label : '$label - $room';
+    }
+    return room.isEmpty ? 'Housekeeping task' : 'Room service - $room';
+  }
+
+  String _taskRoom(Map<String, dynamic> task) {
+    final directRoom = task['room_number'] ?? task['room'];
+    if (directRoom is String && directRoom.trim().isNotEmpty) {
+      return directRoom.trim();
+    }
+    final unit = task['unit'];
+    if (unit is Map<String, dynamic>) {
+      final unitLabel = unit['unit_label'];
+      if (unitLabel is String && unitLabel.trim().isNotEmpty) {
+        return unitLabel.trim();
+      }
+    }
+    return '';
+  }
+
+  String _taskAssignee(Map<String, dynamic> task) {
+    final assignee = task['assignee'];
+    if (assignee is Map<String, dynamic>) {
+      final firstName = assignee['first_name']?.toString().trim() ?? '';
+      final lastName = assignee['last_name']?.toString().trim() ?? '';
+      final name = '$firstName $lastName'.trim();
+      if (name.isNotEmpty) return name;
+    }
+    return task['assigned_to']?.toString() ?? '';
+  }
+
   void _showTaskDetail(Map<String, dynamic> task) {
     final status = (task['status'] ?? 'open') as String;
-    final title = (task['title'] ?? task['name'] ?? '') as String;
-    final room = (task['room_number'] ?? task['room'] ?? '') as String;
+    final room = _taskRoom(task);
+    final title = _taskTitle(task, room);
     final notes = task['notes'] as String? ?? '';
-    final assignee =
-        task['assigned_to'] as String? ?? task['assignee'] as String? ?? '';
+    final assignee = _taskAssignee(task);
     final priority = (task['priority'] ?? 'medium') as String;
     final taskId = (task['id'] ?? '').toString();
 

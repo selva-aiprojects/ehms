@@ -62,9 +62,10 @@ class _TaskCardState extends State<TaskCard>
       begin: const Offset(0, 0.1),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
   }
 
@@ -108,7 +109,10 @@ class _TaskCardState extends State<TaskCard>
                     if (widget.room != null) ...[
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: HmsColors.navy.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(HmsRadius.full),
@@ -116,7 +120,11 @@ class _TaskCardState extends State<TaskCard>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.king_bed_outlined, size: 12, color: HmsColors.navy),
+                            Icon(
+                              Icons.king_bed_outlined,
+                              size: 12,
+                              color: HmsColors.navy,
+                            ),
                             const SizedBox(width: 3),
                             Text(
                               widget.room!,
@@ -151,22 +159,24 @@ class _TaskCardState extends State<TaskCard>
                   const SizedBox(height: 4),
                   Text(
                     widget.subtitle!,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: HmsColors.textMuted,
-                    ),
+                    style: TextStyle(fontSize: 12, color: HmsColors.textMuted),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
 
                 // Meta row: time + assignee
-                if (widget.scheduledTime != null || widget.assigneeName != null) ...[
+                if (widget.scheduledTime != null ||
+                    widget.assigneeName != null) ...[
                   const SizedBox(height: 10),
                   Row(
                     children: [
                       if (widget.scheduledTime != null) ...[
-                        Icon(Icons.access_time, size: 13, color: HmsColors.textFaint),
+                        Icon(
+                          Icons.access_time,
+                          size: 13,
+                          color: HmsColors.textFaint,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           widget.scheduledTime!,
@@ -177,20 +187,42 @@ class _TaskCardState extends State<TaskCard>
                           ),
                         ),
                       ],
-                      const Spacer(),
-                      if (widget.assigneeInitials != null)
-                        CircleAvatar(
-                          radius: 12,
-                          backgroundColor: accent.withValues(alpha: 0.15),
-                          child: Text(
-                            widget.assigneeInitials!,
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                              color: accent,
-                            ),
+                      if (widget.assigneeName != null) ...[
+                        const Spacer(),
+                        Flexible(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              CircleAvatar(
+                                radius: 12,
+                                backgroundColor: accent.withValues(alpha: 0.15),
+                                child: Text(
+                                  widget.assigneeInitials ?? '?',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    color: accent,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  widget.assigneeName!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: HmsColors.textMuted,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                      ],
                     ],
                   ),
                 ],
@@ -343,10 +375,7 @@ class TimelineEvent extends StatelessWidget {
               ),
               if (!isLast)
                 Expanded(
-                  child: Container(
-                    width: 1.5,
-                    color: HmsColors.borderLight,
-                  ),
+                  child: Container(width: 1.5, color: HmsColors.borderLight),
                 ),
             ],
           ),
@@ -374,7 +403,11 @@ class TimelineEvent extends StatelessWidget {
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Icon(Icons.location_on_outlined, size: 11, color: HmsColors.textFaint),
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 11,
+                          color: HmsColors.textFaint,
+                        ),
                         const SizedBox(width: 3),
                         Flexible(
                           child: Text(
