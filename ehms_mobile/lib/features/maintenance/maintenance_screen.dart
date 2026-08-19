@@ -294,12 +294,18 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           final ticket = _tickets[index];
-          final id = (ticket['ticket_number'] ?? ticket['id'] ?? '') as String;
+          final ticketNumber = ticket['ticket_number'] as String? ?? '';
           final title =
               (ticket['title'] ?? ticket['description'] ?? '') as String;
           final priority = (ticket['priority'] ?? 'medium') as String;
           final status = (ticket['status'] ?? 'open') as String;
           final assigned = ticket['assigned_to'] as String?;
+          final isUuid =
+              assigned != null &&
+              RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-').hasMatch(assigned);
+          final assignmentLabel = assigned == null || assigned.isEmpty || isUuid
+              ? _assignmentLabel(status)
+              : assigned;
           final category = (ticket['category'] ?? '') as String;
 
           return Container(
@@ -319,9 +325,9 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
                   runSpacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    if (id.isNotEmpty)
+                    if (ticketNumber.isNotEmpty)
                       Text(
-                        id,
+                        ticketNumber,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -367,7 +373,7 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
-                if (assigned != null && assigned.isNotEmpty) ...[
+                if (assignmentLabel.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -375,7 +381,7 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
                         radius: 10,
                         backgroundColor: HmsColors.navy.withValues(alpha: 0.15),
                         child: Text(
-                          assigned[0],
+                          assignmentLabel[0],
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -386,7 +392,7 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          assigned,
+                          assignmentLabel,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -405,6 +411,20 @@ class _MaintenanceScreenState extends ConsumerState<MaintenanceScreen> {
         }, childCount: _tickets.length),
       ),
     );
+  }
+
+  String _assignmentLabel(String status) {
+    switch (status) {
+      case 'assigned':
+        return 'Assigned';
+      case 'in_progress':
+        return 'Work in progress';
+      case 'resolved':
+      case 'closed':
+        return 'Completed';
+      default:
+        return 'Ready for pickup';
+    }
   }
 
   void _showReportIssueSheet(BuildContext context) {
