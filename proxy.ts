@@ -45,7 +45,12 @@ export default async function proxy(request: NextRequest) {
   }
   const pathname = request.nextUrl.pathname;
 
-  const token = request.cookies.get("ehms_token")?.value;
+  const cookieToken = request.cookies.get("ehms_token")?.value;
+  const authorization = request.headers.get("authorization");
+  const bearerToken = authorization?.startsWith("Bearer ")
+    ? authorization.slice(7).trim()
+    : undefined;
+  const token = cookieToken || bearerToken;
   const payload: JwtPayload | null = token ? verifyToken(token) : null;
 
   const isPlatformAdmin = payload?.is_platform_admin === true;

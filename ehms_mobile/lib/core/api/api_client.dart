@@ -183,6 +183,7 @@ class _AuthInterceptor extends Interceptor {
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     final token = await _storage.getToken();
     if (token != null && !token.isExpired) {
+      options.headers['Authorization'] = 'Bearer ${token.token}';
       options.headers['Cookie'] = 'ehms_token=${token.token}';
     }
     handler.next(options);
