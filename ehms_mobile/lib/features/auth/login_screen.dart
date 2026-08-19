@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ehms_mobile/core/auth/auth_service.dart';
 import 'package:ehms_mobile/shared/theme/hms_colors.dart';
 import 'package:ehms_mobile/shared/theme/hms_constants.dart';
+import 'package:ehms_mobile/shared/widgets/brand_mark.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -147,24 +148,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget _buildBrand() {
     return Column(
       children: [
-        Container(
-          width: 72,
-          height: 72,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: HmsColors.gold.withValues(alpha: 0.3),
-              width: 1.5,
-            ),
-          ),
-          child: Icon(
-            Icons.apartment_rounded,
-            size: 36,
-            color: HmsColors.gold,
-          ),
-        ),
+        const BrandMark(size: 84),
         const SizedBox(height: 16),
         Text(
           'HostSphere',

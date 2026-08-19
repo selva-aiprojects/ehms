@@ -31,7 +31,10 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
   }
 
   Future<void> _loadRooms() async {
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       final response = await _api.getRooms();
       if (response.isSuccess && response.data != null) {
@@ -48,10 +51,16 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
           _isLoading = false;
         });
       } else {
-        setState(() { _error = response.error ?? 'Failed to load rooms'; _isLoading = false; });
+        setState(() {
+          _error = response.error ?? 'Failed to load rooms';
+          _isLoading = false;
+        });
       }
     } catch (e) {
-      setState(() { _error = e.toString(); _isLoading = false; });
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
     }
   }
 
@@ -87,8 +96,8 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
           child: _isLoading
               ? ShimmerLoading.fullPage()
               : _error != null
-                  ? _buildErrorState()
-                  : _buildContent(),
+              ? _buildErrorState()
+              : _buildContent(),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -110,9 +119,19 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 48, color: HmsColors.danger.withValues(alpha: 0.5)),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: HmsColors.danger.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 16),
-            Text(_error!, textAlign: TextAlign.center, maxLines: 3, overflow: TextOverflow.ellipsis, style: TextStyle(color: HmsColors.textMuted)),
+            Text(
+              _error!,
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: HmsColors.textMuted),
+            ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: _loadRooms,
@@ -192,17 +211,47 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
           children: [
             Row(
               children: [
-                _statMini('Vacant', counts['vacant'] ?? 0, HmsColors.roomVacant, total),
-                _statMini('Occupied', counts['occupied'] ?? 0, HmsColors.roomOccupied, total),
-                _statMini('Dirty', counts['dirty'] ?? 0, HmsColors.roomDirty, total),
+                _statMini(
+                  'Vacant',
+                  counts['vacant'] ?? 0,
+                  HmsColors.roomVacant,
+                  total,
+                ),
+                _statMini(
+                  'Occupied',
+                  counts['occupied'] ?? 0,
+                  HmsColors.roomOccupied,
+                  total,
+                ),
+                _statMini(
+                  'Dirty',
+                  counts['dirty'] ?? 0,
+                  HmsColors.roomDirty,
+                  total,
+                ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                _statMini('Cleaning', counts['cleaning'] ?? 0, HmsColors.roomCleaning, total),
-                _statMini('Maint.', counts['maintenance'] ?? 0, HmsColors.roomMaintenance, total),
-                _statMini('Reserved', counts['reserved'] ?? 0, HmsColors.roomReserved, total),
+                _statMini(
+                  'Cleaning',
+                  counts['cleaning'] ?? 0,
+                  HmsColors.roomCleaning,
+                  total,
+                ),
+                _statMini(
+                  'Maint.',
+                  counts['maintenance'] ?? 0,
+                  HmsColors.roomMaintenance,
+                  total,
+                ),
+                _statMini(
+                  'Reserved',
+                  counts['reserved'] ?? 0,
+                  HmsColors.roomReserved,
+                  total,
+                ),
               ],
             ),
           ],
@@ -219,18 +268,35 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
               const SizedBox(width: 4),
               Text(
                 count.toString(),
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 4),
           ProgressBar(progress: pct, color: color, height: 4),
           const SizedBox(height: 2),
-          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 9, color: HmsColors.textFaint, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 9,
+              color: HmsColors.textFaint,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -252,9 +318,13 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: isActive ? HmsColors.navy : Theme.of(context).cardTheme.color,
+                color: isActive
+                    ? HmsColors.navy
+                    : Theme.of(context).cardTheme.color,
                 borderRadius: BorderRadius.circular(HmsRadius.full),
-                border: Border.all(color: isActive ? HmsColors.navy : HmsColors.border(context)),
+                border: Border.all(
+                  color: isActive ? HmsColors.navy : HmsColors.border(context),
+                ),
               ),
               child: Center(
                 child: Text(
@@ -319,9 +389,16 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.king_bed_rounded, size: 48, color: HmsColors.textFaint.withValues(alpha: 0.3)),
+            Icon(
+              Icons.king_bed_rounded,
+              size: 48,
+              color: HmsColors.textFaint.withValues(alpha: 0.3),
+            ),
             const SizedBox(height: 12),
-            Text('No rooms match this filter', style: TextStyle(color: HmsColors.textMuted)),
+            Text(
+              'No rooms match this filter',
+              style: TextStyle(color: HmsColors.textMuted),
+            ),
           ],
         ),
       );
@@ -330,11 +407,11 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: MediaQuery.sizeOf(context).width < 600 ? 2 : 3,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 0.85,
+          childAspectRatio: MediaQuery.sizeOf(context).width < 600 ? 1.1 : 0.85,
         ),
         itemCount: rooms.length,
         itemBuilder: (context, index) {
@@ -384,7 +461,12 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Container(
-          padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+          padding: EdgeInsets.fromLTRB(
+            24,
+            24,
+            24,
+            MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
           decoration: BoxDecoration(
             color: Theme.of(ctx).scaffoldBackgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -394,35 +476,70 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: HmsColors.borderLight, borderRadius: BorderRadius.circular(2)))),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: HmsColors.borderLight,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
-                Text('Quick Check-in', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                Text(
+                  'Quick Check-in',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   initialValue: selectedRoom,
                   decoration: const InputDecoration(labelText: 'Select Room'),
                   items: _rooms.where((r) => r['status'] == 'vacant').map((r) {
                     final num = (r['room_number'] ?? '') as String;
-                    return DropdownMenuItem(value: num, child: Text('Room $num'));
+                    return DropdownMenuItem(
+                      value: num,
+                      child: Text('Room $num'),
+                    );
                   }).toList(),
                   onChanged: (v) => setModalState(() => selectedRoom = v),
                 ),
                 const SizedBox(height: 12),
-                TextField(controller: guestNameCtrl, decoration: const InputDecoration(labelText: 'Guest Name')),
+                TextField(
+                  controller: guestNameCtrl,
+                  decoration: const InputDecoration(labelText: 'Guest Name'),
+                ),
                 const SizedBox(height: 12),
-                TextField(controller: phoneCtrl, decoration: const InputDecoration(labelText: 'Phone Number'), keyboardType: TextInputType.phone),
+                TextField(
+                  controller: phoneCtrl,
+                  decoration: const InputDecoration(labelText: 'Phone Number'),
+                  keyboardType: TextInputType.phone,
+                ),
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: selectedRoom == null ? null : () {
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Checked in to Room $selectedRoom'), backgroundColor: HmsColors.success),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(backgroundColor: HmsColors.gold, foregroundColor: Colors.white),
-                    child: const Text('Complete Check-in', style: TextStyle(fontWeight: FontWeight.w700)),
+                    onPressed: selectedRoom == null
+                        ? null
+                        : () {
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Checked in to Room $selectedRoom',
+                                ),
+                                backgroundColor: HmsColors.success,
+                              ),
+                            );
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: HmsColors.gold,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text(
+                      'Complete Check-in',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ),
               ],
@@ -457,30 +574,63 @@ class _RoomDetailSheet extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, -5))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 20,
+                offset: const Offset(0, -5),
+              ),
+            ],
           ),
           child: ListView(
             controller: scrollController,
             padding: const EdgeInsets.all(24),
             children: [
               Center(
-                child: Container(width: 40, height: 4, decoration: BoxDecoration(color: HmsColors.border(context), borderRadius: BorderRadius.circular(2))),
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: HmsColors.border(context),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               Row(
                 children: [
                   Container(
-                    width: 52, height: 52,
-                    decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(14)),
-                    child: Icon(Icons.king_bed_rounded, color: statusColor, size: 28),
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      Icons.king_bed_rounded,
+                      color: statusColor,
+                      size: 28,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Room $roomNumber', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
-                        Text(roomType, style: TextStyle(fontSize: 13, color: HmsColors.textMuted)),
+                        Text(
+                          'Room $roomNumber',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Text(
+                          roomType,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: HmsColors.textMuted,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -500,15 +650,38 @@ class _RoomDetailSheet extends StatelessWidget {
                 _infoTile('Guest', guest, HmsColors.info),
               ],
               const SizedBox(height: 24),
-              Text('Actions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+              Text(
+                'Actions',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 12),
-              _actionButton(context, Icons.login_rounded, 'Check In', HmsColors.success),
+              _actionButton(
+                context,
+                Icons.login_rounded,
+                'Check In',
+                HmsColors.success,
+              ),
               const SizedBox(height: 8),
-              _actionButton(context, Icons.cleaning_services, 'Mark Clean', HmsColors.violet),
+              _actionButton(
+                context,
+                Icons.cleaning_services,
+                'Mark Clean',
+                HmsColors.violet,
+              ),
               const SizedBox(height: 8),
-              _actionButton(context, Icons.build_rounded, 'Report Issue', HmsColors.warning),
+              _actionButton(
+                context,
+                Icons.build_rounded,
+                'Report Issue',
+                HmsColors.warning,
+              ),
               const SizedBox(height: 8),
-              _actionButton(context, Icons.logout_rounded, 'Check Out', HmsColors.danger),
+              _actionButton(
+                context,
+                Icons.logout_rounded,
+                'Check Out',
+                HmsColors.danger,
+              ),
             ],
           ),
         );
@@ -519,30 +692,57 @@ class _RoomDetailSheet extends StatelessWidget {
   Widget _infoTile(String label, String value, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(HmsRadius.md)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(HmsRadius.md),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 11, color: HmsColors.textFaint, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: HmsColors.textFaint,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: color)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _actionButton(BuildContext context, IconData icon, String label, Color color) {
+  Widget _actionButton(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color color,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: () => Navigator.pop(context),
         icon: Icon(icon, size: 18, color: color),
-        label: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w600)),
+        label: Text(
+          label,
+          style: TextStyle(color: color, fontWeight: FontWeight.w600),
+        ),
         style: OutlinedButton.styleFrom(
           foregroundColor: color,
           side: BorderSide(color: color.withValues(alpha: 0.3)),
           padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(HmsRadius.md)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(HmsRadius.md),
+          ),
         ),
       ),
     );

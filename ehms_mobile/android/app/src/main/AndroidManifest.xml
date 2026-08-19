@@ -2,7 +2,7 @@
     <application
         android:label="HostSphere"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@drawable/ehms_brand_mark">
         <activity
             android:name=".MainActivity"
             android:exported="true"

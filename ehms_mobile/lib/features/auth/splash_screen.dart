@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ehms_mobile/core/auth/auth_service.dart';
 import 'package:ehms_mobile/shared/theme/hms_colors.dart';
+import 'package:ehms_mobile/shared/widgets/brand_mark.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -94,36 +95,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     // Logo
                     Opacity(
                       opacity: _fadeAnim.value,
-                      child: Image.asset(
-                        'assets/images/hostsphere-logo.png',
-                        width: 160,
-                        height: 160,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, _, _) => Container(
-                          width: 100,
-                          height: 100,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(28),
-                            border: Border.all(
-                              color: HmsColors.gold.withValues(alpha: 0.3),
-                              width: 1.5,
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: HmsColors.gold.withValues(alpha: 0.2 * _glowAnim.value),
+                              blurRadius: 40,
+                              spreadRadius: 10,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: HmsColors.gold.withValues(alpha: 0.2 * _glowAnim.value),
-                                blurRadius: 40,
-                                spreadRadius: 10,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.apartment_rounded,
-                            size: 50,
-                            color: HmsColors.gold,
-                          ),
+                          ],
                         ),
+                        child: const BrandMark(size: 136),
                       ),
                     ),
                     const SizedBox(height: 16),

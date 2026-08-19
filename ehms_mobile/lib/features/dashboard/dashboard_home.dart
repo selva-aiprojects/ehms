@@ -35,12 +35,16 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
 
       // Sync assigned properties into the provider
       if (user?.assignedPropertyIds.isNotEmpty == true) {
-        ref.read(propertySelectionProvider.notifier).setAssignedProperties(user!.assignedPropertyIds);
+        ref
+            .read(propertySelectionProvider.notifier)
+            .setAssignedProperties(user!.assignedPropertyIds);
       }
 
       // Fetch role-specific data with property filter
       if (role == 'front_desk') {
-        final resp = await FrontDeskService().getFrontDeskDashboard(propertyId: propId);
+        final resp = await FrontDeskService().getFrontDeskDashboard(
+          propertyId: propId,
+        );
         if (resp.isSuccess) setState(() => _kpiData = resp.data);
       } else if (role.startsWith('housekeeping')) {
         final resp = await HousekeepingService().getStats(propertyId: propId);
@@ -107,7 +111,11 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
                   child: Center(
                     child: Text(
                       user?.initials ?? 'U',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -117,12 +125,23 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Welcome back,', style: TextStyle(fontSize: 12, color: HmsColors.textFaint, fontWeight: FontWeight.w500)),
+                    Text(
+                      'Welcome back,',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: HmsColors.textFaint,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                     Text(
                       user?.firstName ?? 'User',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Theme.of(context).textTheme.bodyLarge?.color),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                      ),
                     ),
                   ],
                 ),
@@ -138,10 +157,22 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Icon(Icons.notifications_outlined, color: HmsColors.textMuted, size: 22),
+                    Icon(
+                      Icons.notifications_outlined,
+                      color: HmsColors.textMuted,
+                      size: 22,
+                    ),
                     Positioned(
-                      top: 8, right: 8,
-                      child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: HmsColors.danger, shape: BoxShape.circle)),
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: HmsColors.danger,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -156,14 +187,20 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
     );
   }
 
-  Widget _buildPropertySelector(BuildContext context, WidgetRef ref, UserData? user) {
+  Widget _buildPropertySelector(
+    BuildContext context,
+    WidgetRef ref,
+    UserData? user,
+  ) {
     final propertySelection = ref.watch(propertySelectionProvider);
     final properties = user?.assignedPropertyIds ?? [];
 
     if (properties.isEmpty) return const SizedBox.shrink();
 
     return GestureDetector(
-      onTap: properties.length > 1 ? () => _showPropertyPicker(context, ref, properties) : null,
+      onTap: properties.length > 1
+          ? () => _showPropertyPicker(context, ref, properties)
+          : null,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
@@ -174,7 +211,11 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.business_outlined, size: 16, color: HmsColors.textSecondary(context)),
+            Icon(
+              Icons.business_outlined,
+              size: 16,
+              color: HmsColors.textSecondary(context),
+            ),
             const SizedBox(width: 6),
             Text(
               propertySelection.activePropertyName ?? 'All Properties',
@@ -188,7 +229,11 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
             ),
             if (properties.length > 1) ...[
               const SizedBox(width: 4),
-              Icon(Icons.expand_more, size: 16, color: HmsColors.textTertiary(context)),
+              Icon(
+                Icons.expand_more,
+                size: 16,
+                color: HmsColors.textTertiary(context),
+              ),
             ],
           ],
         ),
@@ -196,7 +241,11 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
     );
   }
 
-  void _showPropertyPicker(BuildContext context, WidgetRef ref, List<String> properties) {
+  void _showPropertyPicker(
+    BuildContext context,
+    WidgetRef ref,
+    List<String> properties,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -211,35 +260,67 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: Container(width: 40, height: 4, decoration: BoxDecoration(color: HmsColors.borderLight, borderRadius: BorderRadius.circular(2))),
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: HmsColors.borderLight,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
             ),
             const SizedBox(height: 20),
-            Text('Select Property', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            Text(
+              'Select Property',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 16),
             ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: HmsColors.gold.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-                child: Icon(Icons.all_inclusive, color: HmsColors.gold, size: 20),
+                decoration: BoxDecoration(
+                  color: HmsColors.gold.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.all_inclusive,
+                  color: HmsColors.gold,
+                  size: 20,
+                ),
               ),
-              title: const Text('All Properties', style: TextStyle(fontWeight: FontWeight.w600)),
+              title: const Text(
+                'All Properties',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               onTap: () {
-                ref.read(propertySelectionProvider.notifier).selectProperty(null, name: 'All Properties');
+                ref
+                    .read(propertySelectionProvider.notifier)
+                    .selectProperty(null, name: 'All Properties');
                 Navigator.pop(context);
               },
             ),
-            ...properties.map((id) => ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: HmsColors.navy.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-                child: Icon(Icons.business, color: HmsColors.navy, size: 20),
+            ...properties.map(
+              (id) => ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: HmsColors.navy.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(Icons.business, color: HmsColors.navy, size: 20),
+                ),
+                title: Text(
+                  id,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                onTap: () {
+                  ref
+                      .read(propertySelectionProvider.notifier)
+                      .selectProperty(id, name: id);
+                  Navigator.pop(context);
+                },
               ),
-              title: Text(id, style: const TextStyle(fontWeight: FontWeight.w600)),
-              onTap: () {
-                ref.read(propertySelectionProvider.notifier).selectProperty(id, name: id);
-                Navigator.pop(context);
-              },
-            )),
+            ),
             const SizedBox(height: 20),
           ],
         ),
@@ -255,7 +336,12 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Today\'s Overview', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          Text(
+            'Today\'s Overview',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 14),
           GridView.builder(
             shrinkWrap: true,
@@ -264,7 +350,7 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 1.4,
+              childAspectRatio: 1.05,
             ),
             itemCount: kpis.length,
             itemBuilder: (context, index) {
@@ -292,16 +378,23 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Quick Actions', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+          Text(
+            'Quick Actions',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 14),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: MediaQuery.sizeOf(context).width < 390 ? 3 : 4,
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
-              childAspectRatio: 0.85,
+              childAspectRatio: MediaQuery.sizeOf(context).width < 390
+                  ? 1.05
+                  : 0.85,
             ),
             itemCount: actions.length,
             itemBuilder: (context, index) {
@@ -331,10 +424,22 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent Activity', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              Text(
+                'Recent Activity',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
               TextButton(
                 onPressed: () => context.go('/dashboard/admin'),
-                child: Text('View All', style: TextStyle(color: HmsColors.gold, fontWeight: FontWeight.w600, fontSize: 12)),
+                child: Text(
+                  'View All',
+                  style: TextStyle(
+                    color: HmsColors.gold,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ],
           ),
@@ -342,22 +447,32 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
           if (_recentActivity.isNotEmpty)
             ..._recentActivity.map((event) {
               final action = (event['action'] ?? event['type'] ?? '') as String;
-              final details = (event['details'] ?? event['description'] ?? event['entity'] ?? '') as String;
-              final timestamp = (event['created_at'] ?? event['timestamp'] ?? '') as String;
+              final details =
+                  (event['details'] ??
+                          event['description'] ??
+                          event['entity'] ??
+                          '')
+                      as String;
+              final timestamp =
+                  (event['created_at'] ?? event['timestamp'] ?? '') as String;
               final timeAgo = _formatTimeAgo(timestamp);
 
               IconData icon;
               Color color;
-              if (action.toLowerCase().contains('check') || action.toLowerCase().contains('login')) {
+              if (action.toLowerCase().contains('check') ||
+                  action.toLowerCase().contains('login')) {
                 icon = Icons.login_rounded;
                 color = HmsColors.success;
-              } else if (action.toLowerCase().contains('clean') || action.toLowerCase().contains('housekeep')) {
+              } else if (action.toLowerCase().contains('clean') ||
+                  action.toLowerCase().contains('housekeep')) {
                 icon = Icons.cleaning_services;
                 color = HmsColors.violet;
-              } else if (action.toLowerCase().contains('maintenance') || action.toLowerCase().contains('repair')) {
+              } else if (action.toLowerCase().contains('maintenance') ||
+                  action.toLowerCase().contains('repair')) {
                 icon = Icons.build_rounded;
                 color = HmsColors.warning;
-              } else if (action.toLowerCase().contains('invoice') || action.toLowerCase().contains('payment')) {
+              } else if (action.toLowerCase().contains('invoice') ||
+                  action.toLowerCase().contains('payment')) {
                 icon = Icons.receipt_long;
                 color = HmsColors.info;
               } else {
@@ -438,8 +553,12 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
       child: Row(
         children: [
           Container(
-            width: 38, height: 38,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),
@@ -447,15 +566,36 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(subtitle, style: TextStyle(fontSize: 11, color: HmsColors.textFaint), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 11, color: HmsColors.textFaint),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
           SizedBox(
             width: 50,
-            child: Text(time, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, color: HmsColors.textFaint, fontWeight: FontWeight.w500)),
+            child: Text(
+              time,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10,
+                color: HmsColors.textFaint,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),
@@ -464,45 +604,162 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
 
   // ─── Role-based Data (with optional live data) ───
 
-  List<Map<String, dynamic>> _getKpisForRole(String role, Map<String, dynamic>? liveData) {
+  List<Map<String, dynamic>> _getKpisForRole(
+    String role,
+    Map<String, dynamic>? liveData,
+  ) {
     switch (role) {
       case 'front_desk':
         return [
-          {'icon': Icons.king_bed_rounded, 'label': 'Occupied', 'value': '${liveData?['occupied'] ?? 24}', 'color': HmsColors.info, 'trend': '+3', 'trendUp': true},
-          {'icon': Icons.event_available, 'label': 'Arrivals', 'value': '${liveData?['arrivals'] ?? 8}', 'color': HmsColors.success, 'trend': '+2', 'trendUp': true},
-          {'icon': Icons.logout_rounded, 'label': 'Departures', 'value': '${liveData?['departures'] ?? 5}', 'color': HmsColors.warning},
-          {'icon': Icons.meeting_room, 'label': 'Vacant', 'value': '${liveData?['vacant'] ?? 12}', 'color': HmsColors.navy},
+          {
+            'icon': Icons.king_bed_rounded,
+            'label': 'Occupied',
+            'value': '${liveData?['occupied'] ?? 24}',
+            'color': HmsColors.info,
+            'trend': '+3',
+            'trendUp': true,
+          },
+          {
+            'icon': Icons.event_available,
+            'label': 'Arrivals',
+            'value': '${liveData?['arrivals'] ?? 8}',
+            'color': HmsColors.success,
+            'trend': '+2',
+            'trendUp': true,
+          },
+          {
+            'icon': Icons.logout_rounded,
+            'label': 'Departures',
+            'value': '${liveData?['departures'] ?? 5}',
+            'color': HmsColors.warning,
+          },
+          {
+            'icon': Icons.meeting_room,
+            'label': 'Vacant',
+            'value': '${liveData?['vacant'] ?? 12}',
+            'color': HmsColors.navy,
+          },
         ];
       case 'housekeeping_supervisor':
       case 'housekeeping_staff':
         return [
-          {'icon': Icons.pending_actions, 'label': 'Open Tasks', 'value': '${liveData?['open'] ?? 15}', 'color': HmsColors.warning},
-          {'icon': Icons.autorenew, 'label': 'In Progress', 'value': '${liveData?['in_progress'] ?? 6}', 'color': HmsColors.info},
-          {'icon': Icons.check_circle, 'label': 'Completed', 'value': '${liveData?['completed'] ?? 23}', 'color': HmsColors.success, 'trend': '+8', 'trendUp': true},
-          {'icon': Icons.priority_high, 'label': 'Critical', 'value': '${liveData?['critical'] ?? 2}', 'color': HmsColors.danger},
+          {
+            'icon': Icons.pending_actions,
+            'label': 'Open Tasks',
+            'value': '${liveData?['open'] ?? 15}',
+            'color': HmsColors.warning,
+          },
+          {
+            'icon': Icons.autorenew,
+            'label': 'In Progress',
+            'value': '${liveData?['in_progress'] ?? 6}',
+            'color': HmsColors.info,
+          },
+          {
+            'icon': Icons.check_circle,
+            'label': 'Completed',
+            'value': '${liveData?['completed'] ?? 23}',
+            'color': HmsColors.success,
+            'trend': '+8',
+            'trendUp': true,
+          },
+          {
+            'icon': Icons.priority_high,
+            'label': 'Critical',
+            'value': '${liveData?['critical'] ?? 2}',
+            'color': HmsColors.danger,
+          },
         ];
       case 'maintenance_staff':
       case 'maintenance_supervisor':
         return [
-          {'icon': Icons.report_problem, 'label': 'Open', 'value': '${liveData?['open'] ?? 9}', 'color': HmsColors.danger},
-          {'icon': Icons.engineering, 'label': 'In Progress', 'value': '${liveData?['in_progress'] ?? 4}', 'color': HmsColors.warning, 'trend': '-2', 'trendUp': false},
-          {'icon': Icons.task_alt, 'label': 'Resolved', 'value': '${liveData?['resolved'] ?? 12}', 'color': HmsColors.success},
-          {'icon': Icons.timer, 'label': 'Avg Time', 'value': '${liveData?['avg_time'] ?? '2.4h'}', 'color': HmsColors.navy},
+          {
+            'icon': Icons.report_problem,
+            'label': 'Open',
+            'value': '${liveData?['open'] ?? 9}',
+            'color': HmsColors.danger,
+          },
+          {
+            'icon': Icons.engineering,
+            'label': 'In Progress',
+            'value': '${liveData?['in_progress'] ?? 4}',
+            'color': HmsColors.warning,
+            'trend': '-2',
+            'trendUp': false,
+          },
+          {
+            'icon': Icons.task_alt,
+            'label': 'Resolved',
+            'value': '${liveData?['resolved'] ?? 12}',
+            'color': HmsColors.success,
+          },
+          {
+            'icon': Icons.timer,
+            'label': 'Avg Time',
+            'value': '${liveData?['avg_time'] ?? '2.4h'}',
+            'color': HmsColors.navy,
+          },
         ];
       case 'finance_manager':
       case 'finance_executive':
         return [
-          {'icon': Icons.trending_up, 'label': 'Revenue MTD', 'value': '${liveData?['revenue_mtd'] ?? '₹18L'}', 'color': HmsColors.navy, 'trend': '+12%', 'trendUp': true},
-          {'icon': Icons.trending_down, 'label': 'Outstanding', 'value': '${liveData?['outstanding'] ?? '₹4.2L'}', 'color': HmsColors.danger},
-          {'icon': Icons.account_balance, 'label': 'Payouts', 'value': '${liveData?['payouts'] ?? '₹8.5L'}', 'color': HmsColors.gold},
-          {'icon': Icons.receipt_long, 'label': 'Invoices', 'value': '${liveData?['invoices'] ?? 47}', 'color': HmsColors.info},
+          {
+            'icon': Icons.trending_up,
+            'label': 'Revenue MTD',
+            'value': '${liveData?['revenue_mtd'] ?? '₹18L'}',
+            'color': HmsColors.navy,
+            'trend': '+12%',
+            'trendUp': true,
+          },
+          {
+            'icon': Icons.trending_down,
+            'label': 'Outstanding',
+            'value': '${liveData?['outstanding'] ?? '₹4.2L'}',
+            'color': HmsColors.danger,
+          },
+          {
+            'icon': Icons.account_balance,
+            'label': 'Payouts',
+            'value': '${liveData?['payouts'] ?? '₹8.5L'}',
+            'color': HmsColors.gold,
+          },
+          {
+            'icon': Icons.receipt_long,
+            'label': 'Invoices',
+            'value': '${liveData?['invoices'] ?? 47}',
+            'color': HmsColors.info,
+          },
         ];
       default: // super_admin, property_manager, executive
         return [
-          {'icon': Icons.king_bed_rounded, 'label': 'Occupancy', 'value': '78%', 'color': HmsColors.info, 'trend': '+5%', 'trendUp': true},
-          {'icon': Icons.trending_up, 'label': 'Revenue', 'value': '₹18L', 'color': HmsColors.navy, 'trend': '+12%', 'trendUp': true},
-          {'icon': Icons.people, 'label': 'Guests', 'value': '34', 'color': HmsColors.success},
-          {'icon': Icons.star, 'label': 'Rating', 'value': '4.8', 'color': HmsColors.gold},
+          {
+            'icon': Icons.king_bed_rounded,
+            'label': 'Occupancy',
+            'value': '78%',
+            'color': HmsColors.info,
+            'trend': '+5%',
+            'trendUp': true,
+          },
+          {
+            'icon': Icons.trending_up,
+            'label': 'Revenue',
+            'value': '₹18L',
+            'color': HmsColors.navy,
+            'trend': '+12%',
+            'trendUp': true,
+          },
+          {
+            'icon': Icons.people,
+            'label': 'Guests',
+            'value': '34',
+            'color': HmsColors.success,
+          },
+          {
+            'icon': Icons.star,
+            'label': 'Rating',
+            'value': '4.8',
+            'color': HmsColors.gold,
+          },
         ];
     }
   }
@@ -511,35 +768,125 @@ class _DashboardHomeState extends ConsumerState<DashboardHome> {
     switch (role) {
       case 'front_desk':
         return [
-          {'icon': Icons.login_rounded, 'label': 'Check In', 'color': HmsColors.success, 'route': '/dashboard/front-desk'},
-          {'icon': Icons.logout_rounded, 'label': 'Check Out', 'color': HmsColors.danger, 'route': '/dashboard/front-desk'},
-          {'icon': Icons.king_bed_rounded, 'label': 'Rooms', 'color': HmsColors.info, 'route': '/dashboard/front-desk'},
-          {'icon': Icons.receipt_long, 'label': 'Billing', 'color': HmsColors.gold, 'route': '/dashboard/front-desk'},
+          {
+            'icon': Icons.login_rounded,
+            'label': 'Check In',
+            'color': HmsColors.success,
+            'route': '/dashboard/front-desk',
+          },
+          {
+            'icon': Icons.logout_rounded,
+            'label': 'Check Out',
+            'color': HmsColors.danger,
+            'route': '/dashboard/front-desk',
+          },
+          {
+            'icon': Icons.king_bed_rounded,
+            'label': 'Rooms',
+            'color': HmsColors.info,
+            'route': '/dashboard/front-desk',
+          },
+          {
+            'icon': Icons.receipt_long,
+            'label': 'Billing',
+            'color': HmsColors.gold,
+            'route': '/dashboard/front-desk',
+          },
         ];
       case 'housekeeping_supervisor':
       case 'housekeeping_staff':
         return [
-          {'icon': Icons.add_task, 'label': 'New Task', 'color': HmsColors.success, 'route': '/dashboard/housekeeping'},
-          {'icon': Icons.cleaning_services, 'label': 'My Tasks', 'color': HmsColors.violet, 'route': '/dashboard/housekeeping'},
-          {'icon': Icons.camera_alt, 'label': 'Inspect', 'color': HmsColors.info, 'route': '/photo-capture?category=inspection'},
-          {'icon': Icons.checkroom, 'label': 'Linen', 'color': HmsColors.gold, 'route': '/dashboard/housekeeping'},
+          {
+            'icon': Icons.add_task,
+            'label': 'New Task',
+            'color': HmsColors.success,
+            'route': '/dashboard/housekeeping',
+          },
+          {
+            'icon': Icons.cleaning_services,
+            'label': 'My Tasks',
+            'color': HmsColors.violet,
+            'route': '/dashboard/housekeeping',
+          },
+          {
+            'icon': Icons.camera_alt,
+            'label': 'Inspect',
+            'color': HmsColors.info,
+            'route': '/photo-capture?category=inspection',
+          },
+          {
+            'icon': Icons.checkroom,
+            'label': 'Linen',
+            'color': HmsColors.gold,
+            'route': '/dashboard/housekeeping',
+          },
         ];
       case 'maintenance_staff':
       case 'maintenance_supervisor':
         return [
-          {'icon': Icons.report, 'label': 'Report', 'color': HmsColors.danger, 'route': '/dashboard/maintenance'},
-          {'icon': Icons.build_rounded, 'label': 'My Jobs', 'color': HmsColors.warning, 'route': '/dashboard/maintenance'},
-          {'icon': Icons.inventory_2, 'label': 'Parts', 'color': HmsColors.info, 'route': '/dashboard/maintenance'},
-          {'icon': Icons.store, 'label': 'Vendors', 'color': HmsColors.navy, 'route': '/dashboard/maintenance'},
+          {
+            'icon': Icons.report,
+            'label': 'Report',
+            'color': HmsColors.danger,
+            'route': '/dashboard/maintenance',
+          },
+          {
+            'icon': Icons.build_rounded,
+            'label': 'My Jobs',
+            'color': HmsColors.warning,
+            'route': '/dashboard/maintenance',
+          },
+          {
+            'icon': Icons.inventory_2,
+            'label': 'Parts',
+            'color': HmsColors.info,
+            'route': '/dashboard/maintenance',
+          },
+          {
+            'icon': Icons.store,
+            'label': 'Vendors',
+            'color': HmsColors.navy,
+            'route': '/dashboard/maintenance',
+          },
         ];
       default:
         return [
-          {'icon': Icons.dashboard_rounded, 'label': 'Overview', 'color': HmsColors.gold, 'route': '/dashboard'},
-          {'icon': Icons.king_bed_rounded, 'label': 'Front Desk', 'color': HmsColors.info, 'route': '/dashboard/front-desk'},
-          {'icon': Icons.cleaning_services, 'label': 'Housekeep', 'color': HmsColors.violet, 'route': '/dashboard/housekeeping'},
-          {'icon': Icons.build_rounded, 'label': 'Maint.', 'color': HmsColors.warning, 'route': '/dashboard/maintenance'},
-          {'icon': Icons.account_balance, 'label': 'Finance', 'color': HmsColors.navy, 'route': '/dashboard/finance'},
-          {'icon': Icons.people, 'label': 'HR', 'color': HmsColors.success, 'route': '/dashboard/hr'},
+          {
+            'icon': Icons.dashboard_rounded,
+            'label': 'Overview',
+            'color': HmsColors.gold,
+            'route': '/dashboard',
+          },
+          {
+            'icon': Icons.king_bed_rounded,
+            'label': 'Front Desk',
+            'color': HmsColors.info,
+            'route': '/dashboard/front-desk',
+          },
+          {
+            'icon': Icons.cleaning_services,
+            'label': 'Housekeep',
+            'color': HmsColors.violet,
+            'route': '/dashboard/housekeeping',
+          },
+          {
+            'icon': Icons.build_rounded,
+            'label': 'Maint.',
+            'color': HmsColors.warning,
+            'route': '/dashboard/maintenance',
+          },
+          {
+            'icon': Icons.account_balance,
+            'label': 'Finance',
+            'color': HmsColors.navy,
+            'route': '/dashboard/finance',
+          },
+          {
+            'icon': Icons.people,
+            'label': 'HR',
+            'color': HmsColors.success,
+            'route': '/dashboard/hr',
+          },
         ];
     }
   }
