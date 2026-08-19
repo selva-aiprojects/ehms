@@ -26,10 +26,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     );
 
     _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0, 0.4, curve: Curves.easeOut)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0, 0.4, curve: Curves.easeOut),
+      ),
     );
     _glowAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.3, 0.8, curve: Curves.easeInOut)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.3, 0.8, curve: Curves.easeInOut),
+      ),
     );
 
     _controller.forward();
@@ -57,11 +63,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF173B25),
-              HmsColors.navy,
-              Color(0xFF2C6840),
-            ],
+            colors: [Color(0xFF173B25), HmsColors.navy, Color(0xFF2C6840)],
           ),
         ),
         child: AnimatedBuilder(

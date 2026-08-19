@@ -15,6 +15,7 @@ class FrontDeskScreen extends ConsumerStatefulWidget {
 
 class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
   final FrontDeskService _api = FrontDeskService();
+  final ScrollController _roomScrollController = ScrollController();
   List<Map<String, dynamic>> _rooms = [];
   bool _isLoading = true;
   String? _error;
@@ -28,6 +29,12 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
   void initState() {
     super.initState();
     _loadRooms();
+  }
+
+  @override
+  void dispose() {
+    _roomScrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadRooms() async {
@@ -406,37 +413,46 @@ class _FrontDeskScreenState extends ConsumerState<FrontDeskScreen> {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-      child: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: MediaQuery.sizeOf(context).width < 600 ? 2 : 3,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: MediaQuery.sizeOf(context).width < 600 ? 1.1 : 0.85,
-        ),
-        itemCount: rooms.length,
-        itemBuilder: (context, index) {
-          final room = rooms[index];
-          final roomNumber = (room['room_number'] ?? '') as String;
-          final roomType = (room['room_type'] ?? '') as String;
-          final status = (room['status'] ?? 'vacant') as String;
-          final rate = room['rate'] != null ? '₹${room['rate']}' : '';
-          final guest = room['guest_name'] as String?;
-          final floor = (room['floor'] ?? '') as String;
+      child: Scrollbar(
+        controller: _roomScrollController,
+        thumbVisibility: true,
+        trackVisibility: true,
+        child: GridView.builder(
+          controller: _roomScrollController,
+          padding: const EdgeInsets.only(right: 10, bottom: 120),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: MediaQuery.sizeOf(context).width < 600 ? 2 : 3,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: MediaQuery.sizeOf(context).width < 600
+                ? 1.1
+                : 0.85,
+          ),
+          itemCount: rooms.length,
+          itemBuilder: (context, index) {
+            final room = rooms[index];
+            final roomNumber = (room['room_number'] ?? '') as String;
+            final roomType = (room['room_type'] ?? '') as String;
+            final status = (room['status'] ?? 'vacant') as String;
+            final rate = room['rate'] != null ? '₹${room['rate']}' : '';
+            final guest = room['guest_name'] as String?;
+            final floor = (room['floor'] ?? '') as String;
 
-          return RoomCard(
-            roomNumber: roomNumber,
-            roomType: roomType,
-            status: status,
-            rate: rate,
-            guestName: guest,
-            floor: floor,
-            isSelected: _selectedRoom == roomNumber,
-            onTap: () {
-              setState(() => _selectedRoom = roomNumber);
-              _showRoomDetail(room);
-            },
-          );
-        },
+            return RoomCard(
+              roomNumber: roomNumber,
+              roomType: roomType,
+              status: status,
+              rate: rate,
+              guestName: guest,
+              floor: floor,
+              isSelected: _selectedRoom == roomNumber,
+              onTap: () {
+                setState(() => _selectedRoom = roomNumber);
+                _showRoomDetail(room);
+              },
+            );
+          },
+        ),
       ),
     );
   }
