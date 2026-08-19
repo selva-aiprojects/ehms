@@ -14,11 +14,13 @@ class BrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mark = Image.asset(
-      'assets/images/favicon.png',
-      width: size,
-      height: size,
-      fit: BoxFit.contain,
+    final mark = ClipOval(
+      child: Image.asset(
+        'assets/images/favicon.png',
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+      ),
     );
 
     if (!showWordmark) return mark;
